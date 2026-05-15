@@ -4,32 +4,32 @@ title: Lambda
 
 # Lambda
 
-## Definition
-AWS Lambda is a serverless compute service that runs code in response to events and automatically manages the underlying compute resources.
+## Definición
+AWS Lambda es un servicio de computación serverless que ejecuta código en respuesta a eventos y gestiona automáticamente los recursos de computación subyacentes.
 
-## Why it matters
-It enables event-driven, scalable, and cost-effective execution of code without managing servers.
+## Por qué importa
+Permite la ejecución de código basada en eventos, escalable y rentable, sin gestionar servidores.
 
-## When to use / when not to use
-Use for event-driven workloads, APIs, or automation tasks. Not ideal for long-running or stateful applications.
+## Cuándo usar / cuándo no usar
+Úsalo para cargas de trabajo basadas en eventos, APIs o tareas de automatización. No es ideal para aplicaciones de larga ejecución o con estado.
 
 ## Trade-offs
-- + No server management
-- + Scales automatically
-- - Cold starts and timeout limits
-- - Limited execution time and resources
+- + Sin gestión de servidores
+- + Escala automáticamente
+- - Arranques en frío y límites de tiempo de espera
+- - Tiempo de ejecución y recursos limitados
 
-## Prerequisites
+## Prerequisitos
 - [API Gateway](../system-design/api-gateway.md)
 
-## Related topics
+## Temas relacionados
 - [Step Functions](step-functions.md)
 - [DynamoDB](../databases/dynamodb.md)
 
-## Trap questions
-1. What is AWS Lambda?
-   - A serverless compute service that runs code in response to events.
-2. What is a common pitfall with Lambda?
-   - Cold starts and managing timeouts/memory.
-3. When should you avoid Lambda?
-   - For long-running or stateful workloads.
+## Preguntas trampa
+1. ¿Qué es AWS Lambda?
+   - Un servicio de computación serverless que ejecuta código en respuesta a eventos.
+2. ¿Cuál es un error común con Lambda?
+   - Arranques en frío y gestión de tiempos de espera/memoria.
+3. ¿Cuándo deberías evitar Lambda?
+   - Para cargas de trabajo de larga ejecución o con estado.

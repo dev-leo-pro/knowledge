@@ -1,6 +1,6 @@
 ---
 id: kubernetes-operators
-title: "Kubernetes Operators (custom controllers)"
+title: "Operadores de Kubernetes (controladores personalizados)"
 type: technology
 status: learning
 importance: 78
@@ -12,78 +12,78 @@ created_at: 2026-02-18
 updated_at: 2026-02-18
 ---
 
-# Kubernetes Operators (custom controllers)
+# Operadores de Kubernetes (controladores personalizados)
 
 ## TL;DR (BLUF)
-- Operators are Kubernetes controllers that extend the API with Custom Resource Definitions (CRDs) and automate operational knowledge (deploy, backup, scale, heal) for complex applications. Most production operators are written in Go using controller-runtime / Operator SDK because Go maps well to Kubernetes APIs and concurrency patterns.
+- Los Operadores son controladores de Kubernetes que extienden la API con Custom Resource Definitions (CRDs) y automatizan conocimiento operacional (desplegar, respaldar, escalar, sanar) para aplicaciones complejas. La mayoría de los operadores en producción están escritos en Go usando controller-runtime / Operator SDK porque Go se adapta bien a las APIs de Kubernetes y a los patrones de concurrencia.
 
-## Definition
-**What it is:** An Operator is a Kubernetes controller paired with CRDs that encodes domain-specific operational logic (reconciliation) to manage an application lifecycle automatically.
-**Key terms:** Controller, reconciliation loop, CRD (CustomResourceDefinition), Operator SDK, controller-runtime, finalizers, informers.
+## Definición
+**Qué es:** Un Operador es un controlador de Kubernetes emparejado con CRDs que codifica lógica operacional específica del dominio (reconciliación) para gestionar el ciclo de vida de una aplicación automáticamente.
+**Términos clave:** Controller, bucle de reconciliación, CRD (CustomResourceDefinition), Operator SDK, controller-runtime, finalizers, informers.
 
-## Why it matters
-- Operators allow platform engineers to capture runbooks as code: automate day-2 operations (backup/restore, scaling, configuration rollouts) and provide higher-level abstractions for app teams.
-- They reduce manual toil, improve reliability, and make complex stateful workloads cloud-native and manageable via kubectl and GitOps.
+## Por qué importa
+- Los Operadores permiten a los ingenieros de plataforma capturar runbooks como código: automatizar operaciones del día 2 (respaldo/restauración, escalado, despliegues de configuración) y proporcionar abstracciones de mayor nivel para los equipos de aplicaciones.
+- Reducen el trabajo manual, mejoran la fiabilidad y hacen que las cargas de trabajo con estado complejas sean cloud-native y gestionables mediante kubectl y GitOps.
 
-## Scope & Non-goals
-**In scope:** CRD design, reconcile patterns, finalizers, leader election, testing operators, and how Go fits into operator development.
-**Out of scope / NOT solved by this:** replacing an orchestration platform; operators automate app lifecycle but don't remove the need for monitoring, capacity planning, or proper platform governance.
+## Alcance y no-objetivos
+**Dentro del alcance:** Diseño de CRD, patrones de reconciliación, finalizers, elección de líder, pruebas de operadores y cómo Go encaja en el desarrollo de operadores.
+**Fuera del alcance / NO resuelto por esto:** reemplazar una plataforma de orquestación; los operadores automatizan el ciclo de vida de la aplicación pero no eliminan la necesidad de monitoreo, planificación de capacidad o gobernanza adecuada de la plataforma.
 
-## Mental model / Intuition
-- Think of an Operator as a Unix daemon watching resources and enforcing the desired state: it observes CR objects, calculates the delta, and performs imperative steps (create/update child resources) until the world matches the desired spec.
+## Modelo mental / Intuición
+- Piensa en un Operador como un demonio Unix que observa recursos y fuerza el estado deseado: observa objetos CR, calcula el delta y ejecuta pasos imperativos (crear/actualizar recursos hijos) hasta que el mundo coincida con la especificación deseada.
 
-## Decision rules (When to build an Operator)
-### Build an Operator when
-- Operational complexity is high (stateful lifecycle, backups, graceful rolling upgrades, complex config changes).
-- You need consistent automations across clusters and teams, and want to expose a higher-level API to application owners.
-### Avoid building an Operator when
-- The operational actions are simple (stateless apps where Deployments + Helm suffice), or you lack capacity to maintain it long-term.
+## Reglas de decisión (Cuándo construir un Operador)
+### Construye un Operador cuando
+- La complejidad operacional es alta (ciclo de vida con estado, respaldos, actualizaciones graduales elegantes, cambios de configuración complejos).
+- Necesitas automatizaciones consistentes entre clústeres y equipos, y quieres exponer una API de mayor nivel a los propietarios de aplicaciones.
+### Evita construir un Operador cuando
+- Las acciones operacionales son simples (aplicaciones sin estado donde Deployments + Helm son suficientes), o no tienes capacidad para mantenerlo a largo plazo.
 
-## How I would use it (practical)
-- **Context:** Automate Postgres lifecycle (provision, backup, failover).
-- **Steps:**
-  1. Define a CRD `PostgresCluster` with spec (replicas, storageClass, backupPolicy).
-  2. Implement controller reconcile loop: observe `PostgresCluster`, ensure StatefulSet, Services, and backups exist and are configured.
-  3. Add finalizers to handle cleanup and async actions.
-  4. Write e2e tests and run operator via Operator SDK in a staging cluster.
-  5. Package operator as an image and deliver via Helm/OLM.
+## Cómo lo usaría (práctico)
+- **Contexto:** Automatizar el ciclo de vida de Postgres (provisionar, respaldar, failover).
+- **Pasos:**
+  1. Definir un CRD `PostgresCluster` con spec (réplicas, storageClass, backupPolicy).
+  2. Implementar el bucle de reconciliación del controlador: observar `PostgresCluster`, asegurar que StatefulSet, Services y respaldos existan y estén configurados.
+  3. Agregar finalizers para manejar limpieza y acciones asíncronas.
+  4. Escribir pruebas e2e y ejecutar el operador via Operator SDK en un clúster de staging.
+  5. Empaquetar el operador como una imagen y entregar via Helm/OLM.
 
-## How Go is involved (why Go for Operators)
-- Kubernetes control plane and client libraries (`client-go`, `controller-runtime`) are native Go libraries; they are mature, efficient, and provide strongly-typed APIs and idiomatic concurrency primitives (goroutines, channels) making reconciliation code straightforward.
-- Go binaries are single static executables easy to containerize (small base images like distroless), and performance characteristics (low latency, low GC impact) suit long-running controllers.
+## Cómo está involucrado Go (por qué Go para Operadores)
+- El plano de control de Kubernetes y las bibliotecas cliente (`client-go`, `controller-runtime`) son bibliotecas nativas de Go; son maduras, eficientes y proporcionan APIs fuertemente tipadas y primitivas de concurrencia idiomáticas (goroutines, channels) que hacen que el código de reconciliación sea directo.
+- Los binarios de Go son ejecutables estáticos únicos fáciles de contenerizar (imágenes base pequeñas como distroless), y las características de rendimiento (baja latencia, bajo impacto de GC) se adaptan a controladores de larga ejecución.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** Operators provide powerful automation, integrate tightly with K8s events, and expose clear APIs for app teams.
-- **Cons:** Building and operating operators requires maintenance, testing, and lifecycle management; bugs in controllers can cause widespread cluster impact.
-### Alternatives
-- **Helm charts + CI/CD workflows:** simpler for deployment; less capable for ongoing automation.
-- **External automation (Terraform, scripts):** can orchestrate resources but won't get event-driven reconciliation semantics inside the cluster.
+- **Ventajas:** Los Operadores proporcionan automatización potente, se integran estrechamente con los eventos de K8s y exponen APIs claras para los equipos de aplicaciones.
+- **Desventajas:** Construir y operar operadores requiere mantenimiento, pruebas y gestión del ciclo de vida; errores en los controladores pueden causar impacto generalizado en el clúster.
+### Alternativas
+- **Helm charts + flujos de CI/CD:** más simples para despliegue; menos capaces para automatización continua.
+- **Automatización externa (Terraform, scripts):** pueden orquestar recursos pero no obtendrán semánticas de reconciliación dirigida por eventos dentro del clúster.
 
-## Failure modes & Pitfalls
-- Unsafe reconciliation (e.g., destructive updates) can cause data loss — include safety checks and dry-run support.
-- Operator race conditions if controllers don't use leader election in multi-replica setups.
-- Unbounded retries on transient errors can cause tight crash loops; implement backoff and error classification.
+## Modos de fallo y trampas
+- La reconciliación insegura (por ejemplo, actualizaciones destructivas) puede causar pérdida de datos — incluye verificaciones de seguridad y soporte de dry-run.
+- Condiciones de carrera del operador si los controladores no usan elección de líder en configuraciones multi-réplica.
+- Reintentos ilimitados en errores transitorios pueden causar bucles de caída apretados; implementa backoff y clasificación de errores.
 
-## Observability (How to detect issues)
-**Metrics:** reconcile loop duration, error counts, reconcile queue length, number of resources managed.
-**Logs:** structured logs per reconciliation with correlation to resource UID and spec hash.
-**Traces:** span reconcile execution and downstream API calls.
-**Alerts:** high reconcile errors, operator restarts, long reconcile durations.
+## Observabilidad (Cómo detectar problemas)
+**Métricas:** duración del bucle de reconciliación, conteo de errores, longitud de la cola de reconciliación, número de recursos gestionados.
+**Logs:** logs estructurados por reconciliación con correlación al UID del recurso y hash de la spec.
+**Trazas:** rastrear la ejecución de reconciliación y las llamadas API descendentes.
+**Alertas:** errores de reconciliación altos, reinicios del operador, duraciones de reconciliación largas.
 
-## Implementation notes (if applicable)
-**Checklist**
-- [ ] Design CRD with clear spec/status separation.
-- [ ] Implement reconcile idempotently.
-- [ ] Use controller-runtime for client and manager.
-- [ ] Add leader election for HA.
-- [ ] Add tests: unit for reconcile, integration with envtest, e2e on KinD.
+## Notas de implementación (si aplica)
+**Lista de verificación**
+- [ ] Diseñar CRD con separación clara de spec/status.
+- [ ] Implementar reconciliación de forma idempotente.
+- [ ] Usar controller-runtime para cliente y manager.
+- [ ] Agregar elección de líder para HA.
+- [ ] Agregar pruebas: unitarias para reconciliación, integración con envtest, e2e en KinD.
 
-**Operator lifecycle**
-- Develop locally with `operator-sdk` or `kubebuilder`.
-- Run with `make run` in dev; build image and deploy to staging for integration tests.
+**Ciclo de vida del operador**
+- Desarrollar localmente con `operator-sdk` o `kubebuilder`.
+- Ejecutar con `make run` en dev; construir imagen y desplegar en staging para pruebas de integración.
 
-## Mini example (Go reconcile skeleton)
+## Mini ejemplo (esqueleto de reconciliación en Go)
 ```go
 func (r *MyController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
     var cr myv1alpha1.MyResource
@@ -109,41 +109,41 @@ func (r *MyController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 }
 ```
 
-## Exercises / Practice
-1) Design a CRD for a cache cluster (replicas, persistence, eviction policy). Describe reconcile steps for scaling and config change.
-2) Implement idempotent reconcile pseudo-logic for ensuring a backup Job runs weekly.
-3) Explain how you'd add leader election and why it's needed when running multiple operator replicas.
+## Ejercicios / Práctica
+1) Diseña un CRD para un clúster de caché (réplicas, persistencia, política de desalojo). Describe los pasos de reconciliación para escalado y cambio de configuración.
+2) Implementa pseudo-lógica de reconciliación idempotente para asegurar que un Job de respaldo se ejecute semanalmente.
+3) Explica cómo agregarías elección de líder y por qué es necesaria cuando se ejecutan múltiples réplicas del operador.
 
-## Common anti-patterns
-- **Anti-pattern:** Operators that perform heavy, long-running synchronous work in reconcile without offloading to Jobs; causes slow reconciles and API saturation.
-  - **Better approach:** create Jobs or child controllers for long-running tasks and keep reconcile fast and idempotent.
+## Anti-patrones comunes
+- **Anti-patrón:** Operadores que realizan trabajo síncrono pesado y de larga ejecución en reconciliación sin delegar a Jobs; causa reconciliaciones lentas y saturación de la API.
+  - **Mejor enfoque:** crear Jobs o controladores hijos para tareas de larga ejecución y mantener la reconciliación rápida e idempotente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Operators are controllers plus CRDs that encode operational knowledge. They observe a custom resource, compute desired state, and perform imperative actions to reach that state — enabling automation of complex app lifecycle tasks.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los Operadores son controladores más CRDs que codifican conocimiento operacional. Observan un recurso personalizado, calculan el estado deseado y ejecutan acciones imperativas para alcanzar ese estado — habilitando la automatización de tareas complejas del ciclo de vida de aplicaciones.
 
-### Trap questions (with answers)
-1) **Q:** Why use Go for Operators instead of Python or Node?  
-   - **A:** Go has mature Kubernetes libraries (`client-go`, `controller-runtime`), compiles to a single static binary (easy containerization), and its concurrency model fits controller patterns; you can write operators in other languages, but Go is the practical default.
-2) **Q:** How do you avoid infinite reconcile loops?  
-   - **A:** Reconcile idempotently, compare observed vs desired (use a spec hash), and avoid modifying fields that will re-trigger unchanged reconciles; use status subresource and annotations carefully.
-3) **Q:** When should you prefer Helm+hooks vs an Operator?  
-   - **A:** Use Helm for templated deploys and simple lifecycle; build an Operator when you need active reconciliation and automation of complex day-2 operations.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Por qué usar Go para Operadores en lugar de Python o Node?  
+   - **R:** Go tiene bibliotecas maduras de Kubernetes (`client-go`, `controller-runtime`), compila a un solo binario estático (fácil contenerización) y su modelo de concurrencia se adapta a patrones de controladores; puedes escribir operadores en otros lenguajes, pero Go es el estándar práctico.
+2) **P:** ¿Cómo evitas bucles de reconciliación infinitos?  
+   - **R:** Reconcilia de forma idempotente, compara observado vs deseado (usa un hash de la spec) y evita modificar campos que re-dispararán reconciliaciones sin cambios; usa el subrecurso de status y anotaciones cuidadosamente.
+3) **P:** ¿Cuándo deberías preferir Helm+hooks vs un Operador?  
+   - **R:** Usa Helm para despliegues con plantillas y ciclos de vida simples; construye un Operador cuando necesites reconciliación activa y automatización de operaciones complejas del día 2.
 
-### Quick self-check (5 items)
-- [ ] I can describe reconcile loop in 30 seconds.
-- [ ] I can list when to build an Operator vs use Helm.
-- [ ] I can sketch a CRD spec and typical status fields.
-- [ ] I can explain leader election, finalizers, and idempotency basics.
-- [ ] I can point to controller-runtime and Operator SDK as Go-based toolchains.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo describir el bucle de reconciliación en 30 segundos.
+- [ ] Puedo listar cuándo construir un Operador vs usar Helm.
+- [ ] Puedo esbozar una spec de CRD y campos de status típicos.
+- [ ] Puedo explicar elección de líder, finalizers y conceptos básicos de idempotencia.
+- [ ] Puedo señalar controller-runtime y Operator SDK como herramientas basadas en Go.
 
-## Links (NO duplication)
-### Prerequisites
-- [Kubernetes (platform basics)](kubernetes.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Kubernetes (conceptos básicos de plataforma)](kubernetes.md)
 
-### Related topics
+### Temas relacionados
 - [StatefulSet](../operations/rolling-deployments.md)
-- [Backups & operators patterns (TODO)](TODO)
+- [Patrones de respaldos y operadores (TODO)](TODO)
 
-## Notes / Inbox (optional)
-- Consider adding a small KinD example operator and a CI workflow for building/testing operators.
+## Notas / Bandeja de entrada (opcional)
+- Considerar agregar un pequeño operador de ejemplo con KinD y un flujo de CI para construir/probar operadores.

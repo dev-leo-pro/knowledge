@@ -1,4 +1,4 @@
-# Alias: https → canonical
+# Alias: https → canónico
 
-This term is an alias. See the canonical topic:
+Este término es un alias. Ver el tema canónico:
 - [HTTP](../operations/http.md)

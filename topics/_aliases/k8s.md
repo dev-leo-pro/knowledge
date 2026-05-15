@@ -1,4 +1,4 @@
-# Alias: k8s → canonical
+# Alias: k8s → canónico
 
-This term is an alias. See the canonical topic:
-- [Kubernetes (platform basics)](../operations/kubernetes.md)
+Este término es un alias. Ver el tema canónico:
+- [Kubernetes (fundamentos de plataforma)](../operations/kubernetes.md)

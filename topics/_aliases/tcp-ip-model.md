@@ -1,4 +1,4 @@
-# Alias: tcp-ip-model → canonical
+# Alias: tcp-ip-model → canónico
 
-This term is an alias. See the canonical topic:
-- [Network layers (OSI & TCP/IP)](../operations/network-layers.md)
+Este término es un alias. Ver el tema canónico:
+- [Capas de red (OSI & TCP/IP)](../operations/network-layers.md)

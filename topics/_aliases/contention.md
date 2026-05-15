@@ -1,7 +1,7 @@
-# Contention
+# Contención
 
-See: [Concurrency Control (Avoiding Double-Booking / Races)](../system-design/archetype-concurrency-control.md)
+Ver: [Control de concurrencia (Evitar doble reserva / Carreras)](../system-design/archetype-concurrency-control.md)
 
-Also related:  
-- [Read/Write Contention](../databases/read-write-contention.md) — Database-specific contention patterns
-- [Hot Partition / Celebrity Problem](../system-design/archetype-hot-partition.md) — Contention at partition level
+También relacionado:  
+- [Read/Write Contention](../databases/read-write-contention.md) — Patrones de contención específicos de base de datos
+- [Hot Partition / Celebrity Problem](../system-design/archetype-hot-partition.md) — Contención a nivel de partición

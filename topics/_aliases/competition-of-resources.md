@@ -1,3 +1,3 @@
-# Competition of resources
+# Competencia de recursos
 
-This is an alias for [Read/Write Contention](../databases/read-write-contention.md) — when concurrent operations compete for the same resources (locks, CPU, I/O, network). Use the canonical topic for details and mitigations.
+Este es un alias de [Read/Write Contention](../databases/read-write-contention.md) — cuando operaciones concurrentes compiten por los mismos recursos (locks, CPU, E/S, red). Consulta el tema canónico para detalles y mitigaciones.

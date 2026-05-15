@@ -1,6 +1,6 @@
 ---
 id: anti-corruption-layer
-title: "Anti-Corruption Layer (ACL)"
+title: "Capa Anti-Corrupción (ACL)"
 type: pattern
 status: learning
 importance: 70
@@ -12,54 +12,54 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Anti-Corruption Layer (ACL)
+# Capa Anti-Corrupción (ACL)
 
 ## TL;DR (BLUF)
-- A translation layer that protects your domain model from external/legacy systems with incompatible models.
-- Use it when integrating with third parties, legacy systems, or poorly designed APIs.
-- Trade-off: added complexity and translation overhead.
+- Una capa de traducción que protege tu modelo de dominio de sistemas externos/heredados con modelos incompatibles.
+- Úsala cuando integres con terceros, sistemas heredados o APIs mal diseñadas.
+- Trade-off: complejidad añadida y sobrecarga de traducción.
 
-## Definition
-**What it is:** A layer (adapter, facade, translator) that sits between your clean domain model and an external system, translating between models and preventing external concepts from "leaking" into your core domain.
+## Definición
+**Qué es:** Una capa (adaptador, fachada, traductor) que se sitúa entre tu modelo de dominio limpio y un sistema externo, traduciendo entre modelos y evitando que conceptos externos "se filtren" a tu dominio central.
 
-**Key terms:** adapter, facade, translation, domain protection, boundary, integration layer, impedance mismatch.
+**Términos clave:** adaptador, fachada, traducción, protección del dominio, frontera, capa de integración, desajuste de impedancia.
 
-## Why it matters
-- Preserves domain integrity: external models don't pollute your core.
-- Enables gradual migration from legacy systems.
-- Reduces coupling to third-party APIs (if API changes, only ACL changes).
-- Enforces ubiquitous language within your bounded context (DDD).
+## Por qué importa
+- Preserva la integridad del dominio: los modelos externos no contaminan tu núcleo.
+- Permite la migración gradual desde sistemas heredados.
+- Reduce el acoplamiento con APIs de terceros (si la API cambia, solo cambia el ACL).
+- Refuerza el lenguaje ubicuo dentro de tu contexto acotado (DDD).
 
-## Scope & Non-goals
-**In scope:** model translation, validation, normalization, error handling, protocol adaptation.
+## Alcance y no-objetivos
+**Dentro del alcance:** traducción de modelos, validación, normalización, manejo de errores, adaptación de protocolo.
 
-**Out of scope / NOT solved by this:**
-- Business logic (belongs in domain layer)
-- Data persistence (use repositories)
-- API Gateway concerns (routing, rate limiting) → [API Gateway](../system-design/api-gateway.md)
+**Fuera del alcance / NO resuelto por esto:**
+- Lógica de negocio (pertenece a la capa de dominio)
+- Persistencia de datos (usar repositorios)
+- Funciones del API Gateway (enrutamiento, limitación de tasa) → [API Gateway](../system-design/api-gateway.md)
 
-## Mental model / Intuition
-- Like a translator at a business meeting: converts foreign language/concepts to yours so your team understands.
-- In systems: legacy "Customer" (ID, Name, Addr1, Addr2) → domain `Customer` (ID, Name, Address value object).
+## Modelo mental / Intuición
+- Como un traductor en una reunión de negocios: convierte el idioma/conceptos extranjeros a los tuyos para que tu equipo entienda.
+- En sistemas: "Customer" heredado (ID, Name, Addr1, Addr2) → `Customer` del dominio (ID, Name, objeto de valor Address).
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Integrating with legacy systems with poor/inconsistent models.
-- Third-party APIs use different terminology or structure.
-- External model is unstable or frequently changes.
-- You want to isolate domain from integration details.
-- Migrating from monolith to microservices ([Strangler Fig](strangler-fig.md)).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Integres con sistemas heredados con modelos pobres/inconsistentes.
+- APIs de terceros usan terminología o estructura diferente.
+- El modelo externo es inestable o cambia frecuentemente.
+- Quieras aislar el dominio de los detalles de integración.
+- Migres de monolito a microservicios ([Strangler Fig](strangler-fig.md)).
 
-### Avoid it when
-- External system aligns well with your domain (rare).
-- Integration is trivial (simple data pass-through).
-- Overhead of translation outweighs benefits.
-- You own both systems and can align models directly.
+### Evítalo cuando
+- El sistema externo se alinea bien con tu dominio (raro).
+- La integración es trivial (simple paso de datos).
+- La sobrecarga de traducción supera los beneficios.
+- Eres dueño de ambos sistemas y puedes alinear modelos directamente.
 
-## How I would use it (practical)
-- **Context:** E-commerce system integrating with legacy ERP that uses flat, denormalized data.
-- **Steps:**
-  1) **Define domain model (clean):**
+## Cómo lo usaría (práctico)
+- **Contexto:** Sistema de comercio electrónico integrándose con un ERP heredado que usa datos planos y desnormalizados.
+- **Pasos:**
+  1) **Definir modelo de dominio (limpio):**
      ```go
      type Order struct {
          ID       string
@@ -69,7 +69,7 @@ updated_at: 2026-01-26
          Status   OrderStatus     // Enum
      }
      ```
-  2) **External ERP model (messy):**
+  2) **Modelo del ERP externo (desordenado):**
      ```xml
      <ORDER>
        <ORDER_ID>12345</ORDER_ID>
@@ -81,7 +81,7 @@ updated_at: 2026-01-26
        <STATUS_CODE>2</STATUS_CODE> <!-- Magic number -->
      </ORDER>
      ```
-  3) **ACL (adapter):**
+  3) **ACL (adaptador):**
      ```go
      type ERPAdapter struct {}
      
@@ -111,106 +111,106 @@ updated_at: 2026-01-26
          }
      }
      ```
-  4) **Domain layer only sees clean `Order` model**, never touches ERP XML.
-  5) If ERP changes, only ACL changes (domain untouched).
+  4) **La capa de dominio solo ve el modelo limpio `Order`**, nunca toca el XML del ERP.
+  5) Si el ERP cambia, solo cambia el ACL (el dominio no se toca).
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Translation overhead (CPU, latency) | Cache translated objects; use efficient serialization |
-| Impedance mismatch (concepts don't map 1:1) | Accept data loss; document unmappable fields |
-| ACL becomes complex | Keep it thin (translation only); extract domain logic to services |
-| Duplication (domain model + external model) | Acceptable cost for domain isolation; use code generation if possible |
-| Versioning both models | Version ACL; use adapter per external API version |
+| Sobrecarga de traducción (CPU, latencia) | Cachear objetos traducidos; usar serialización eficiente |
+| Desajuste de impedancia (conceptos no mapean 1:1) | Aceptar pérdida de datos; documentar campos no mapeables |
+| El ACL se vuelve complejo | Mantenerlo delgado (solo traducción); extraer lógica de dominio a servicios |
+| Duplicación (modelo de dominio + modelo externo) | Costo aceptable por aislamiento del dominio; usar generación de código si es posible |
+| Versionado de ambos modelos | Versionar el ACL; usar un adaptador por versión de API externa |
 
-## Failure modes / Edge cases
-1. **ACL becomes a dumping ground:** Business logic leaks into ACL.
-   - *Mitigation:* Enforce policy: ACL is translation only; logic stays in domain.
-2. **External model changes break ACL:** New fields, removed fields.
-   - *Mitigation:* Defensive parsing (ignore unknown fields); monitor integration tests.
-3. **Translation loses semantic meaning:** External "status=3" unclear.
-   - *Mitigation:* Document mappings; default to safe values (e.g., Unknown).
-4. **Bidirectional translation inconsistency:** Domain → External → Domain ≠ original.
-   - *Mitigation:* Test round-trip conversions; accept lossy translations if acceptable.
-5. **ACL bypassed:** Developers call external system directly.
-   - *Mitigation:* Encapsulate external client in ACL; make it private.
+## Modos de fallo / Casos límite
+1. **El ACL se convierte en un cajón de sastre:** La lógica de negocio se filtra al ACL.
+   - *Mitigación:* Imponer política: el ACL es solo traducción; la lógica queda en el dominio.
+2. **Cambios en el modelo externo rompen el ACL:** Campos nuevos, campos eliminados.
+   - *Mitigación:* Parseo defensivo (ignorar campos desconocidos); monitorear tests de integración.
+3. **La traducción pierde significado semántico:** "status=3" externo poco claro.
+   - *Mitigación:* Documentar mapeos; usar valores seguros por defecto (ej., Unknown).
+4. **Inconsistencia en traducción bidireccional:** Dominio → Externo → Dominio ≠ original.
+   - *Mitigación:* Probar conversiones ida y vuelta; aceptar traducciones con pérdida si es aceptable.
+5. **ACL saltado:** Los desarrolladores llaman al sistema externo directamente.
+   - *Mitigación:* Encapsular el cliente externo en el ACL; hacerlo privado.
 
-## Alternatives
-- **Shared kernel:** Align models across systems (requires ownership).
-- **Conformist:** Adopt external model as-is (pollutes domain).
-- **Open Host Service:** Publish well-defined API for others to consume.
-- **Published Language:** Standardize on common model (JSON Schema, Protocol Buffers).
+## Alternativas
+- **Shared kernel:** Alinear modelos entre sistemas (requiere propiedad).
+- **Conformista:** Adoptar el modelo externo tal cual (contamina el dominio).
+- **Open Host Service:** Publicar una API bien definida para que otros consuman.
+- **Lenguaje publicado:** Estandarizar en un modelo común (JSON Schema, Protocol Buffers).
 
-## Combinations
-Anti-Corruption Layer is **almost always used with:**
-- **[Strangler Fig](strangler-fig.md):** Migrate from legacy by wrapping with ACL.
-- **[Hexagonal Architecture](hexagonal-architecture.md):** ACL is an adapter (port/adapter pattern).
-- **[Domain-Driven Design](domain-driven-design.md):** Protects bounded context.
-- **[Circuit Breaker](../operations/circuit-breaker.md):** Protect against flaky external systems.
-- **[Timeout](../operations/timeouts.md):** Prevent slow external calls from blocking.
+## Combinaciones
+La Capa Anti-Corrupción **casi siempre se usa con:**
+- **[Strangler Fig](strangler-fig.md):** Migrar desde sistemas heredados envolviendo con ACL.
+- **[Arquitectura Hexagonal](hexagonal-architecture.md):** El ACL es un adaptador (patrón puerto/adaptador).
+- **[Diseño Orientado al Dominio](domain-driven-design.md):** Protege el contexto acotado.
+- **[Circuit Breaker](../operations/circuit-breaker.md):** Proteger contra sistemas externos inestables.
+- **[Timeout](../operations/timeouts.md):** Evitar que llamadas externas lentas bloqueen.
 
-**Typical combination:**
-- **Legacy integration scenario:** ACL + Strangler Fig + Circuit Breaker + Timeout + Observability
+**Combinación típica:**
+- **Escenario de integración heredada:** ACL + Strangler Fig + Circuit Breaker + Timeout + Observabilidad
 
-## Prerequisites
-- Understanding of [Domain-Driven Design](domain-driven-design.md) and [Bounded Contexts](bounded-contexts.md).
-- Familiarity with [Hexagonal Architecture](hexagonal-architecture.md) (ports/adapters).
-- Knowledge of integration patterns and API design.
+## Prerequisitos
+- Comprensión de [Diseño Orientado al Dominio](domain-driven-design.md) y [Contextos Acotados](bounded-contexts.md).
+- Familiaridad con [Arquitectura Hexagonal](hexagonal-architecture.md) (puertos/adaptadores).
+- Conocimiento de patrones de integración y diseño de APIs.
 
-## Related topics
-- [Strangler Fig](strangler-fig.md): Migrate legacy incrementally.
-- [Hexagonal Architecture](hexagonal-architecture.md): ACL is an adapter.
-- [Bounded Contexts](bounded-contexts.md): ACL protects context boundaries.
-- [Domain-Driven Design](domain-driven-design.md): Foundation for ACL.
-- [Circuit Breaker](../operations/circuit-breaker.md): Resilience for external calls.
+## Temas relacionados
+- [Strangler Fig](strangler-fig.md): Migrar sistemas heredados incrementalmente.
+- [Arquitectura Hexagonal](hexagonal-architecture.md): El ACL es un adaptador.
+- [Contextos Acotados](bounded-contexts.md): El ACL protege las fronteras de contexto.
+- [Diseño Orientado al Dominio](domain-driven-design.md): Base del ACL.
+- [Circuit Breaker](../operations/circuit-breaker.md): Resiliencia para llamadas externas.
 
-## Real-world examples
-1. **E-commerce + legacy ERP:** ACL translates ERP's flat CSV to domain `Order` objects.
-2. **SaaS integrating Salesforce:** ACL adapts Salesforce's `Account` to internal `Customer`.
-3. **Payment gateway integration:** ACL normalizes Stripe/PayPal responses to domain `Payment`.
+## Ejemplos del mundo real
+1. **Comercio electrónico + ERP heredado:** El ACL traduce el CSV plano del ERP a objetos `Order` del dominio.
+2. **SaaS integrando Salesforce:** El ACL adapta el `Account` de Salesforce al `Customer` interno.
+3. **Integración de pasarela de pagos:** El ACL normaliza las respuestas de Stripe/PayPal al `Payment` del dominio.
 
-## Checklist (self-test)
-- [ ] I can identify when external models threaten domain integrity.
-- [ ] I know how to design translation logic (defensive parsing, defaults).
-- [ ] I can explain the difference between ACL and simple adapter.
-- [ ] I understand how ACL fits in hexagonal architecture (adapter layer).
-- [ ] I can monitor ACL health (translation errors, external API changes).
+## Lista de verificación (auto-evaluación)
+- [ ] Puedo identificar cuándo los modelos externos amenazan la integridad del dominio.
+- [ ] Sé cómo diseñar lógica de traducción (parseo defensivo, valores por defecto).
+- [ ] Puedo explicar la diferencia entre ACL y un adaptador simple.
+- [ ] Entiendo cómo encaja el ACL en la arquitectura hexagonal (capa de adaptadores).
+- [ ] Puedo monitorear la salud del ACL (errores de traducción, cambios en la API externa).
 
-## Reminders / Key takeaways
-- ACL **protects your domain** from external pollution.
-- Keep ACL **thin**: translation only, no business logic.
-- Use with [Strangler Fig](strangler-fig.md) to migrate legacy.
-- Always combine with [Circuit Breaker](../operations/circuit-breaker.md) and [Timeout](../operations/timeouts.md) for external calls.
+## Recordatorios / Conclusiones clave
+- El ACL **protege tu dominio** de la contaminación externa.
+- Mantén el ACL **delgado**: solo traducción, sin lógica de negocio.
+- Úsalo con [Strangler Fig](strangler-fig.md) para migrar sistemas heredados.
+- Siempre combinar con [Circuit Breaker](../operations/circuit-breaker.md) y [Timeout](../operations/timeouts.md) para llamadas externas.
 
-## Trap questions (with answers)
-### Q1: Can I put validation logic in the ACL?
-**A:** **Yes, but only for external data**. ACL should validate that external data is well-formed (non-null fields, valid enums) before translation. However, **domain validation** (business rules like "order total > 0") belongs in the domain layer, not ACL. ACL validates **data shape**, domain validates **business invariants**.
+## Preguntas trampa (con respuestas)
+### P1: ¿Puedo poner lógica de validación en el ACL?
+**R:** **Sí, pero solo para datos externos**. El ACL debería validar que los datos externos están bien formados (campos no nulos, enums válidos) antes de la traducción. Sin embargo, la **validación del dominio** (reglas de negocio como "el total del pedido > 0") pertenece a la capa de dominio, no al ACL. El ACL valida la **forma de los datos**, el dominio valida los **invariantes de negocio**.
 
-### Q2: What's the difference between ACL and a simple adapter?
-**A:** **ACL is a specific type of adapter** with a **protective intent**: it prevents external models from corrupting your domain. A generic adapter might just translate for convenience. ACL is motivated by **domain integrity** (DDD concept), while a simple adapter might just adapt protocols (HTTP → gRPC). If you care about bounded contexts and ubiquitous language, you need ACL.
+### P2: ¿Cuál es la diferencia entre ACL y un adaptador simple?
+**R:** **El ACL es un tipo específico de adaptador** con un **propósito protector**: evita que modelos externos corrompan tu dominio. Un adaptador genérico podría simplemente traducir por conveniencia. El ACL está motivado por la **integridad del dominio** (concepto de DDD), mientras que un adaptador simple podría simplemente adaptar protocolos (HTTP → gRPC). Si te importan los contextos acotados y el lenguaje ubicuo, necesitas ACL.
 
-### Q3: Should I create an ACL for every external integration?
-**A:** **Not always**. Use ACL when:
-1. External model is messy/unstable.
-2. External concepts don't align with your domain.
-3. You want to isolate domain from integration details.
+### P3: ¿Debería crear un ACL para cada integración externa?
+**R:** **No siempre**. Usa ACL cuando:
+1. El modelo externo es desordenado/inestable.
+2. Los conceptos externos no se alinean con tu dominio.
+3. Quieres aislar el dominio de los detalles de integración.
 
-Skip ACL when:
-1. External API is well-designed and aligns with your domain.
-2. Integration is trivial (fetching config, health checks).
-3. Overhead isn't justified (small project, tight deadline).
+Omite el ACL cuando:
+1. La API externa está bien diseñada y se alinea con tu dominio.
+2. La integración es trivial (obtener configuración, health checks).
+3. La sobrecarga no se justifica (proyecto pequeño, plazo ajustado).
 
-### Q4: Can ACL handle bidirectional translation (read + write)?
-**A:** **Yes**. ACL translates in both directions:
-- **Inbound:** External → Domain (when reading from external system).
-- **Outbound:** Domain → External (when writing to external system).
+### P4: ¿El ACL puede manejar traducción bidireccional (lectura + escritura)?
+**R:** **Sí**. El ACL traduce en ambas direcciones:
+- **Entrada:** Externo → Dominio (al leer del sistema externo).
+- **Salida:** Dominio → Externo (al escribir al sistema externo).
 
-Example: `fetchOrder()` translates ERP → Domain; `syncOrder()` translates Domain → ERP. Be careful of **lossy translations**: round-trip may not preserve all data.
+Ejemplo: `fetchOrder()` traduce ERP → Dominio; `syncOrder()` traduce Dominio → ERP. Ten cuidado con las **traducciones con pérdida**: el viaje ida y vuelta podría no preservar todos los datos.
 
-### Q5: How do I test an ACL?
-**A:** 
-1. **Unit tests:** Test translation logic (external DTO → domain model).
-2. **Contract tests:** Ensure external API hasn't changed (detect breaking changes).
-3. **Integration tests:** Test full flow (call external system via ACL).
-4. **Round-trip tests:** Domain → External → Domain (validate consistency).
-Use test fixtures for external responses to avoid flaky tests. See [Testing pyramid](../quality/testing-pyramid.md).
+### P5: ¿Cómo pruebo un ACL?
+**R:**
+1. **Tests unitarios:** Probar la lógica de traducción (DTO externo → modelo de dominio).
+2. **Tests de contrato:** Asegurar que la API externa no ha cambiado (detectar cambios que rompen).
+3. **Tests de integración:** Probar el flujo completo (llamar al sistema externo vía ACL).
+4. **Tests de ida y vuelta:** Dominio → Externo → Dominio (validar consistencia).
+Usar fixtures de prueba para respuestas externas para evitar tests frágiles. Ver [Pirámide de testing](../quality/testing-pyramid.md).

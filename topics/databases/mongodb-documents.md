@@ -1,6 +1,6 @@
 ---
 id: mongodb-documents
-title: "MongoDB Documents"
+title: "Documentos de MongoDB"
 type: concept
 status: learning
 importance: 55
@@ -12,99 +12,99 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# MongoDB Documents
+# Documentos de MongoDB
 
 ## TL;DR (BLUF)
-- Document model stores flexible JSON-like data with embedded structures.
-- Use it when your data is naturally hierarchical and you need flexible schema.
-- Trade-off: joins are limited; data modeling focuses on embedding vs referencing.
+- El modelo de documentos almacena datos flexibles tipo JSON con estructuras embebidas.
+- Úsalo cuando tus datos son naturalmente jerárquicos y necesitas esquema flexible.
+- Trade-off: los joins son limitados; el modelado de datos se centra en embeber vs referenciar.
 
-## Definition
-**What it is:** A document-oriented data model where each record is a JSON-like document with nested fields.
-**Key terms:** embedding, referencing, document schema, aggregation pipeline.
+## Definición
+**Qué es:** Un modelo de datos orientado a documentos donde cada registro es un documento tipo JSON con campos anidados.
+**Términos clave:** embedding, referencing, esquema de documento, pipeline de agregación.
 
-## Why it matters
-- It enables rapid iteration with flexible schemas.
-- Poor modeling choices can cause duplication or query inefficiency.
+## Por qué importa
+- Permite iteración rápida con esquemas flexibles.
+- Malas decisiones de modelado pueden causar duplicación o ineficiencia en consultas.
 
-## Scope & Non-goals
-**In scope:** MongoDB-specific document modeling patterns.
-**Out of scope / NOT solved by this:** general document database concepts.
+## Alcance y no-objetivos
+**Dentro del alcance:** patrones de modelado de documentos específicos de MongoDB.
+**Fuera del alcance / NO resuelto por esto:** conceptos generales de bases de datos de documentos.
 
-## Mental model / Intuition
-- Think of each document as a self-contained object, like a JSON blob with structure.
+## Modelo mental / Intuición
+- Piensa en cada documento como un objeto autocontenido, como un blob JSON con estructura.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data is naturally hierarchical and read together.
-- You need schema flexibility for rapid changes.
-### Avoid it when
-- You need complex joins or strict relational constraints.
-- You need strong multi-entity transactions across many collections.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los datos son naturalmente jerárquicos y se leen juntos.
+- Necesitas flexibilidad de esquema para cambios rápidos.
+### Evítalo cuando
+- Necesitas joins complejos o restricciones relacionales estrictas.
+- Necesitas transacciones fuertes multi-entidad a través de muchas colecciones.
 
-## How I would use it (practical)
-- **Context:** Product catalog with variable attributes per category.
-- **Steps:** choose embed vs reference → design indexes → validate schema at app level.
-- **What success looks like:** low query latency with minimal duplication.
+## Cómo lo usaría (práctico)
+- **Contexto:** Catálogo de productos con atributos variables por categoría.
+- **Pasos:** elegir embeber vs referenciar → diseñar índices → validar esquema a nivel de aplicación.
+- **Cómo se ve el éxito:** baja latencia de consultas con mínima duplicación.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** flexible schema, natural modeling for nested data.
-- **Cons / Risks:** data duplication, limited joins, potential inconsistency.
-### Alternatives
-- **PostgreSQL + JSONB:** flexible fields with relational constraints.
-- **DynamoDB:** access-pattern driven modeling.
-- **How to choose:** use documents when hierarchical reads dominate and schema evolves.
+- **Ventajas:** esquema flexible, modelado natural para datos anidados.
+- **Desventajas / Riesgos:** duplicación de datos, joins limitados, posible inconsistencia.
+### Alternativas
+- **PostgreSQL + JSONB:** campos flexibles con restricciones relacionales.
+- **DynamoDB:** modelado orientado por patrones de acceso.
+- **Cómo elegir:** usa documentos cuando las lecturas jerárquicas dominan y el esquema evoluciona.
 
-## Failure modes & Pitfalls
-- Over-embedding causing huge documents and slow updates.
-- Excessive referencing leading to multiple round trips.
+## Modos de fallo y trampas
+- Sobre-embedding causando documentos enormes y actualizaciones lentas.
+- Referenciación excesiva llevando a múltiples viajes de ida y vuelta.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency, document size growth, index usage.
-- **Logs:** slow query logs and aggregation pipeline metrics.
-- **Alerts:** increasing query latency or document size spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas, crecimiento del tamaño de documentos, uso de índices.
+- **Logs:** logs de consultas lentas y métricas del pipeline de agregación.
+- **Alertas:** latencia de consultas en aumento o picos en el tamaño de documentos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Decide embed vs reference per access pattern
-  - [ ] Add indexes for common queries
-  - [ ] Enforce schema with validation
+  - [ ] Decidir embeber vs referenciar por patrón de acceso
+  - [ ] Agregar índices para consultas comunes
+  - [ ] Aplicar esquema con validación
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Embedding everything without bounds.
-  - **Why it’s bad:** huge documents and update overhead.
-  - **Better approach:** embed only what is read together.
+## Anti-patrones comunes
+- **Anti-patrón:** Embeber todo sin límites.
+  - **Por qué es malo:** documentos enormes y sobrecarga de actualización.
+  - **Mejor enfoque:** embeber solo lo que se lee junto.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- MongoDB’s document model stores flexible, nested JSON-like data. It’s great when your data is hierarchical and evolves, but you must balance embedding vs referencing and accept fewer relational guarantees.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El modelo de documentos de MongoDB almacena datos flexibles, anidados, tipo JSON. Es genial cuando tus datos son jerárquicos y evolucionan, pero debes equilibrar embeber vs referenciar y aceptar menos garantías relacionales.
 
-### Trap questions (with answers)
-1) **Q:** Are documents always better than relational tables?
-   - **A:** no; they trade relational constraints for flexibility.
-2) **Q:** Does embedding always improve performance?
-   - **A:** not always; large documents can slow writes and updates.
-3) **Q:** Can you avoid schema design in MongoDB?
-   - **A:** no; you still need to design for access patterns and consistency.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los documentos siempre son mejores que las tablas relacionales?
+   - **R:** no; intercambian restricciones relacionales por flexibilidad.
+2) **P:** ¿Embeber siempre mejora el rendimiento?
+   - **R:** no siempre; documentos grandes pueden ralentizar escrituras y actualizaciones.
+3) **P:** ¿Se puede evitar el diseño de esquema en MongoDB?
+   - **R:** no; aún necesitas diseñar para patrones de acceso y consistencia.
 
-### Quick self-check (5 items)
-- [ ] I can define the document model precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give an embed vs reference example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el modelo de documentos con precisión.
+- [ ] Puedo decir cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo de embeber vs referenciar.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Document databases (overview)](document-databases.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Bases de datos de documentos (visión general)](document-databases.md)
 
-### Related topics
+### Temas relacionados
 - [JSONB](jsonb.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — relational constraints vs schema flexibility.
-- [DynamoDB](dynamodb.md) — access-pattern modeling vs document queries.
+### Comparar con
+- [PostgreSQL](postgresql.md) — restricciones relacionales vs flexibilidad de esquema.
+- [DynamoDB](dynamodb.md) — modelado por patrón de acceso vs consultas de documentos.

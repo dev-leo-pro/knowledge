@@ -1,6 +1,6 @@
 ---
 id: change-data-capture
-title: "Change Data Capture (CDC)"
+title: "Captura de Datos de Cambio (CDC)"
 type: concept
 status: learning
 importance: 50
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Change Data Capture (CDC)
+# Captura de Datos de Cambio (CDC)
 
 ## TL;DR (BLUF)
-- CDC captures data changes and emits them to downstream systems.
-- Use it for projections, sync, and event-driven workflows.
-- Trade-off: at-least-once delivery and ordering limits.
+- CDC captura cambios de datos y los emite a sistemas downstream.
+- Úsalo para proyecciones, sincronización y flujos de trabajo orientados a eventos.
+- Trade-off: entrega al-menos-una-vez y límites de ordenamiento.
 
-## Definition
-**What it is:** A mechanism to stream inserts/updates/deletes from a database to consumers.
-**Key terms:** log-based CDC, change stream, ordering.
+## Definición
+**Qué es:** Un mecanismo para transmitir inserciones/actualizaciones/eliminaciones de una base de datos a consumidores.
+**Términos clave:** CDC basado en log, flujo de cambios, ordenamiento.
 
-## Why it matters
-- It enables near-real-time integration without polling.
-- It requires idempotent consumers and replay handling.
+## Por qué importa
+- Permite integración casi en tiempo real sin polling.
+- Requiere consumidores idempotentes y manejo de repeticiones.
 
-## Scope & Non-goals
-**In scope:** CDC concepts and downstream consumption.
-**Out of scope / NOT solved by this:** exactly-once guarantees across systems.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos de CDC y consumo downstream.
+**Fuera del alcance / NO resuelto por esto:** garantías de exactamente-una-vez entre sistemas.
 
-## Mental model / Intuition
-- Think of CDC as a change log feeding subscribers.
+## Modelo mental / Intuición
+- Piensa en CDC como un log de cambios alimentando suscriptores.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need to propagate data changes to other systems.
-### Avoid it when
-- A batch sync is sufficient and simpler.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas propagar cambios de datos a otros sistemas.
+### Evítalo cuando
+- Una sincronización por lotes es suficiente y más simple.
 
-## How I would use it (practical)
-- **Context:** Syncing DB changes to a search index.
-- **Steps:** enable CDC → consume stream → ensure idempotency → monitor lag.
-- **What success looks like:** consistent downstream state with low lag.
+## Cómo lo usaría (práctico)
+- **Contexto:** Sincronizar cambios de la BD a un índice de búsqueda.
+- **Pasos:** habilitar CDC → consumir el flujo → asegurar idempotencia → monitorear el retraso.
+- **Cómo se ve el éxito:** estado downstream consistente con bajo retraso.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** near-real-time sync.
-- **Cons / Risks:** duplicates, ordering constraints, lag management.
-### Alternatives
-- **Polling:** simpler but slower.
-- **How to choose:** use CDC when timeliness matters and you can handle duplicates.
+- **Ventajas:** sincronización casi en tiempo real.
+- **Desventajas / Riesgos:** duplicados, restricciones de ordenamiento, gestión de retraso.
+### Alternativas
+- **Polling:** más simple pero más lento.
+- **Cómo elegir:** usa CDC cuando la oportunidad importa y puedes manejar duplicados.
 
-## Failure modes & Pitfalls
-- Consumers not idempotent.
-- Backlog and lag spikes.
+## Modos de fallo y trampas
+- Consumidores no idempotentes.
+- Acumulación y picos de retraso.
 
-## Observability (How to detect issues)
-- **Metrics:** lag, error rate, retry rate.
-- **Logs:** consumer errors.
-- **Alerts:** rising lag or retry spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** retraso, tasa de errores, tasa de reintentos.
+- **Logs:** errores de consumidores.
+- **Alertas:** retraso creciente o picos de reintentos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Make consumers idempotent
-  - [ ] Monitor lag
+  - [ ] Hacer consumidores idempotentes
+  - [ ] Monitorear el retraso
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Assuming exactly-once delivery.
-  - **Why it’s bad:** duplicates are normal.
-  - **Better approach:** design idempotent consumers.
+## Anti-patrones comunes
+- **Anti-patrón:** Asumir entrega exactamente-una-vez.
+  - **Por qué es malo:** los duplicados son normales.
+  - **Mejor enfoque:** diseñar consumidores idempotentes.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- CDC streams database changes to other systems. It’s powerful for real-time sync, but you must handle duplicates and lag.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- CDC transmite cambios de la base de datos a otros sistemas. Es poderoso para sincronización en tiempo real, pero debes manejar duplicados y retraso.
 
-### Trap questions (with answers)
-1) **Q:** Is CDC always exactly-once?
-   - **A:** no; most CDC systems are at-least-once.
-2) **Q:** Is CDC always better than polling?
-   - **A:** no; polling can be simpler for low-frequency use.
-3) **Q:** Can you ignore ordering?
-   - **A:** no; ordering matters for correctness.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿CDC es siempre exactamente-una-vez?
+   - **R:** no; la mayoría de los sistemas CDC son al-menos-una-vez.
+2) **P:** ¿CDC es siempre mejor que polling?
+   - **R:** no; el polling puede ser más simple para uso de baja frecuencia.
+3) **P:** ¿Se puede ignorar el ordenamiento?
+   - **R:** no; el ordenamiento importa para la corrección.
 
-### Quick self-check (5 items)
-- [ ] I can define CDC.
-- [ ] I can explain when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a failure mode.
-- [ ] I can describe a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir CDC.
+- [ ] Puedo explicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un modo de fallo.
+- [ ] Puedo describir una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Event-driven basics](../architecture/event-driven-basics.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB Streams](dynamodb-streams.md)
 
-### Compare with
+### Comparar con
 - [Batch ETL](../operations/batch-etl.md)

@@ -4,32 +4,32 @@ title: AppSync
 
 # AppSync
 
-## Definition
-AppSync is an AWS managed service for building GraphQL APIs with real-time data, authorization, and integration with other AWS services.
+## Definición
+AppSync es un servicio gestionado de AWS para construir APIs GraphQL con datos en tiempo real, autorización e integración con otros servicios de AWS.
 
-## Why it matters
-It simplifies the creation of scalable, secure GraphQL APIs and supports real-time subscriptions, offline access, and data aggregation.
+## Por qué importa
+Simplifica la creación de APIs GraphQL escalables y seguras, y soporta suscripciones en tiempo real, acceso offline y agregación de datos.
 
-## When to use / when not to use
-Use for building modern APIs that require flexible queries, real-time updates, or integration with AWS data sources. Not needed for simple REST APIs or when GraphQL is not required.
+## Cuándo usar / cuándo no usar
+Usar para construir APIs modernas que requieran consultas flexibles, actualizaciones en tiempo real o integración con fuentes de datos de AWS. No es necesario para APIs REST simples o cuando GraphQL no es requerido.
 
 ## Trade-offs
-- + Managed, scalable GraphQL API
-- + Real-time and offline support
-- - Complexity in resolver logic
-- - Cost and learning curve
+- + API GraphQL gestionada y escalable
+- + Soporte en tiempo real y offline
+- - Complejidad en la lógica de resolvers
+- - Coste y curva de aprendizaje
 
-## Prerequisites
-- [GraphQL](graphql.md) (TODO if missing)
+## Prerequisitos
+- [GraphQL](graphql.md) (TODO si falta)
 
-## Related topics
+## Temas relacionados
 - [DynamoDB](../databases/dynamodb.md)
 - [API Gateway](../system-design/api-gateway.md)
 
-## Trap questions
-1. What is AppSync?
-   - AWS managed GraphQL API service.
-2. What is a common pitfall with AppSync?
-   - Complex resolver logic and cost management.
-3. When should you avoid AppSync?
-   - For simple APIs or when GraphQL is not needed.
+## Preguntas trampa
+1. ¿Qué es AppSync?
+   - Servicio gestionado de AWS para APIs GraphQL.
+2. ¿Cuál es un error común con AppSync?
+   - Lógica de resolvers compleja y gestión de costes.
+3. ¿Cuándo deberías evitar AppSync?
+   - Para APIs simples o cuando GraphQL no es necesario.

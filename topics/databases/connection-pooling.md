@@ -1,6 +1,6 @@
 ---
 id: connection-pooling
-title: "Connection Pooling"
+title: "Pool de Conexiones"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Connection Pooling
+# Pool de Conexiones
 
 ## TL;DR (BLUF)
-- A pool reuses DB connections to reduce connection overhead.
-- Use it to stabilize latency and limit DB load.
-- Trade-off: too many connections can overwhelm the DB.
+- Un pool reutiliza conexiones de BD para reducir la sobrecarga de conexión.
+- Úsalo para estabilizar la latencia y limitar la carga en la BD.
+- Trade-off: demasiadas conexiones pueden sobrecargar la BD.
 
-## Definition
-**What it is:** A managed set of reusable database connections.
-**Key terms:** pool size, max connections, idle timeout.
+## Definición
+**Qué es:** Un conjunto gestionado de conexiones de base de datos reutilizables.
+**Términos clave:** tamaño del pool, máximo de conexiones, timeout de inactividad.
 
-## Why it matters
-- Creating connections is expensive and can throttle the DB.
-- Poor pool sizing causes latency spikes or overload.
+## Por qué importa
+- Crear conexiones es costoso y puede limitar la BD.
+- Un tamaño de pool inadecuado causa picos de latencia o sobrecarga.
 
-## Scope & Non-goals
-**In scope:** pool sizing, queueing, and operational impact.
-**Out of scope / NOT solved by this:** client timeout/retry configuration.
+## Alcance y no-objetivos
+**Dentro del alcance:** dimensionamiento del pool, encolamiento e impacto operacional.
+**Fuera del alcance / NO resuelto por esto:** configuración de timeout/reintentos del cliente.
 
-## Mental model / Intuition
-- Think of a shared set of reusable sockets to the DB.
+## Modelo mental / Intuición
+- Piensa en un conjunto compartido de sockets reutilizables hacia la BD.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have frequent DB access from many requests.
-### Avoid it when
-- You already saturate the DB with too many connections.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tienes acceso frecuente a la BD desde muchas solicitudes.
+### Evítalo cuando
+- Ya saturas la BD con demasiadas conexiones.
 
-## How I would use it (practical)
-- **Context:** API service with high request rate.
-- **Steps:** set pool size based on DB capacity → set timeouts → monitor queueing.
-- **What success looks like:** stable latency and no connection storms.
+## Cómo lo usaría (práctico)
+- **Contexto:** Servicio API con alta tasa de solicitudes.
+- **Pasos:** establecer tamaño del pool según capacidad de la BD → configurar timeouts → monitorear encolamiento.
+- **Cómo se ve el éxito:** latencia estable y sin tormentas de conexiones.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** lower latency and controlled DB load.
-- **Cons / Risks:** misconfigured pools can cause queueing or overload.
-### Alternatives
-- **Serverless DB proxies:** managed pooling.
-- **How to choose:** use pooling by default and tune to DB limits.
+- **Ventajas:** menor latencia y carga controlada en la BD.
+- **Desventajas / Riesgos:** pools mal configurados pueden causar encolamiento o sobrecarga.
+### Alternativas
+- **Proxies de BD serverless:** pooling gestionado.
+- **Cómo elegir:** usar pooling por defecto y ajustar según los límites de la BD.
 
-## Failure modes & Pitfalls
-- Pool too large causing DB overload.
-- Pool too small causing request queueing.
+## Modos de fallo y trampas
+- Pool demasiado grande causando sobrecarga de la BD.
+- Pool demasiado pequeño causando encolamiento de solicitudes.
 
-## Observability (How to detect issues)
-- **Metrics:** active connections, pool wait time, query latency.
-- **Logs:** connection timeout errors.
-- **Alerts:** rising pool wait time or DB connection saturation.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** conexiones activas, tiempo de espera del pool, latencia de consultas.
+- **Logs:** errores de timeout de conexión.
+- **Alertas:** tiempo de espera del pool creciente o saturación de conexiones de la BD.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Set max connections per service
-  - [ ] Configure idle timeout
-  - [ ] Monitor pool wait time
+  - [ ] Establecer máximo de conexiones por servicio
+  - [ ] Configurar timeout de inactividad
+  - [ ] Monitorear tiempo de espera del pool
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Each request opens a new DB connection.
-  - **Why it’s bad:** connection storms and latency spikes.
-  - **Better approach:** use a pool.
+## Anti-patrones comunes
+- **Anti-patrón:** Cada solicitud abre una nueva conexión a la BD.
+  - **Por qué es malo:** tormentas de conexiones y picos de latencia.
+  - **Mejor enfoque:** usar un pool.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Connection pooling reuses a fixed number of DB connections to reduce overhead and protect the database. It improves latency but must be sized carefully.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El pool de conexiones reutiliza un número fijo de conexiones de BD para reducir la sobrecarga y proteger la base de datos. Mejora la latencia pero debe dimensionarse cuidadosamente.
 
-### Trap questions (with answers)
-1) **Q:** Is a bigger pool always better?
-   - **A:** no; too many connections can overwhelm the DB.
-2) **Q:** Can pooling hide slow queries?
-   - **A:** no; it can actually increase queueing.
-3) **Q:** Do you need pooling for serverless?
-   - **A:** often yes, or use a managed proxy.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Un pool más grande siempre es mejor?
+   - **R:** no; demasiadas conexiones pueden sobrecargar la BD.
+2) **P:** ¿El pooling puede ocultar consultas lentas?
+   - **R:** no; de hecho puede aumentar el encolamiento.
+3) **P:** ¿Necesitas pooling para serverless?
+   - **R:** frecuentemente sí, o usar un proxy gestionado.
 
-### Quick self-check (5 items)
-- [ ] I can define connection pooling.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can explain a failure mode.
-- [ ] I can describe a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir pool de conexiones.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo explicar un modo de fallo.
+- [ ] Puedo describir una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Database client basics](database-client-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Slow query diagnosis](slow-query-diagnosis.md)
 
-### Compare with
+### Comparar con
 - [Database proxies](../operations/database-proxies.md)

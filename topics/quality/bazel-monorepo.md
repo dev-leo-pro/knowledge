@@ -4,32 +4,32 @@ title: Bazel Monorepo
 
 # Bazel Monorepo
 
-## Definition
-A Bazel monorepo is a single repository that uses Bazel as its build system to manage, build, and test multiple projects or services together.
+## Definición
+Un Bazel monorepo es un repositorio único que usa Bazel como su sistema de compilación para gestionar, compilar y probar múltiples proyectos o servicios juntos.
 
-## Why it matters
-It enables reproducible builds, strong dependency boundaries, and scalable CI/CD for large codebases.
+## Por qué importa
+Permite compilaciones reproducibles, límites fuertes de dependencias y CI/CD escalable para grandes bases de código.
 
-## When to use / when not to use
-Use for large organizations with many interdependent projects. Not ideal for small teams or simple projects.
+## Cuándo usar / cuándo no usar
+Úsalo para organizaciones grandes con muchos proyectos interdependientes. No es ideal para equipos pequeños o proyectos simples.
 
 ## Trade-offs
-- + Fast, incremental builds
-- + Consistent developer experience
-- - Steep learning curve
-- - Requires careful rule maintenance
+- + Compilaciones rápidas e incrementales
+- + Experiencia de desarrollo consistente
+- - Curva de aprendizaje pronunciada
+- - Requiere mantenimiento cuidadoso de reglas
 
-## Prerequisites
-- [CI/CD basics](../quality/ci-cd-basics.md)
+## Prerequisitos
+- [Fundamentos de CI/CD](../quality/ci-cd-basics.md)
 
-## Related topics
+## Temas relacionados
 - [GitHub Actions](github-actions.md)
 - [Docker](../operations/docker.md)
 
-## Trap questions
-1. What is a key benefit of using Bazel in a monorepo?
-   - Fast, reproducible builds across projects.
-2. What is a common challenge with Bazel?
-   - Complex rule definitions and maintenance.
-3. When should you avoid a Bazel monorepo?
-   - For small, simple projects where the overhead is not justified.
+## Preguntas trampa
+1. ¿Cuál es un beneficio clave de usar Bazel en un monorepo?
+   - Compilaciones rápidas y reproducibles entre proyectos.
+2. ¿Cuál es un desafío común con Bazel?
+   - Definiciones de reglas complejas y su mantenimiento.
+3. ¿Cuándo deberías evitar un Bazel monorepo?
+   - Para proyectos pequeños y simples donde la sobrecarga no se justifica.

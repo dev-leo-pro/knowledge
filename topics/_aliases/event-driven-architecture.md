@@ -1,4 +1,4 @@
-# Alias: event-driven-architecture → canonical
+# Alias: event-driven-architecture → canónico
 
-This term is an alias. See the canonical topic:
-- [Event-driven architecture](../architecture/event-driven-basics.md)
+Este término es un alias. Ver el tema canónico:
+- [Arquitectura event-driven](../architecture/event-driven-basics.md)

@@ -4,32 +4,32 @@ title: Step Functions
 
 # Step Functions
 
-## Definition
-Step Functions is an AWS service for orchestrating serverless workflows, allowing you to coordinate multiple AWS services into business-critical applications using state machines.
+## Definición
+Step Functions es un servicio de AWS para orquestar flujos de trabajo serverless, permitiéndote coordinar múltiples servicios de AWS en aplicaciones críticas para el negocio usando máquinas de estado.
 
-## Why it matters
-It enables reliable, visual, and auditable orchestration of complex workflows with error handling, retries, and compensation logic.
+## Por qué importa
+Permite la orquestación confiable, visual y auditable de flujos de trabajo complejos con manejo de errores, reintentos y lógica de compensación.
 
-## When to use / when not to use
-Use for multi-step workflows, long-running processes, or when you need orchestration across AWS services. Not needed for simple, single-step tasks.
+## Cuándo usar / cuándo no usar
+Úsalo para flujos de trabajo de múltiples pasos, procesos de larga ejecución o cuando necesitas orquestación entre servicios de AWS. No es necesario para tareas simples de un solo paso.
 
 ## Trade-offs
-- + Visual workflow design and monitoring
-- + Built-in error handling and retries
-- - Can become complex for large workflows
-- - Cost and state machine limits
+- + Diseño visual de flujos de trabajo y monitoreo
+- + Manejo de errores y reintentos incorporados
+- - Puede volverse complejo para flujos de trabajo grandes
+- - Costo y límites de máquinas de estado
 
-## Prerequisites
+## Prerequisitos
 - [AWS Lambda](lambda.md)
 
-## Related topics
+## Temas relacionados
 - [API Gateway](../system-design/api-gateway.md)
 - [DynamoDB](../databases/dynamodb.md)
 
-## Trap questions
-1. What is a Step Function?
-   - AWS service for orchestrating serverless workflows.
-2. What is a common pitfall with Step Functions?
-   - Mixing orchestration with core business logic.
-3. When should you avoid Step Functions?
-   - For simple, single-step tasks or when orchestration is not needed.
+## Preguntas trampa
+1. ¿Qué es una Step Function?
+   - Servicio de AWS para orquestar flujos de trabajo serverless.
+2. ¿Cuál es un error común con Step Functions?
+   - Mezclar orquestación con lógica de negocio central.
+3. ¿Cuándo deberías evitar Step Functions?
+   - Para tareas simples de un solo paso o cuando la orquestación no es necesaria.

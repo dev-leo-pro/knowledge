@@ -1,6 +1,6 @@
 ---
 id: normalization
-title: "Normalization"
+title: "Normalización"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Normalization
+# Normalización
 
 ## TL;DR (BLUF)
-- Normalization organizes data to reduce redundancy and anomalies.
-- Use it when correctness and consistency are top priorities.
-- Trade-off: more joins and potentially slower reads.
+- La normalización organiza los datos para reducir redundancia y anomalías.
+- Úsala cuando la corrección y la consistencia son las máximas prioridades.
+- Trade-off: más joins y lecturas potencialmente más lentas.
 
-## Definition
-**What it is:** A data modeling approach that structures tables to minimize redundancy and update anomalies.
-**Key terms:** 1NF/2NF/3NF, anomalies, redundancy.
+## Definición
+**Qué es:** Un enfoque de modelado de datos que estructura tablas para minimizar redundancia y anomalías de actualización.
+**Términos clave:** 1NF/2NF/3NF, anomalías, redundancia.
 
-## Why it matters
-- It prevents inconsistent data and update anomalies.
-- Over-normalization can hurt read performance.
+## Por qué importa
+- Previene datos inconsistentes y anomalías de actualización.
+- La sobre-normalización puede perjudicar el rendimiento de lectura.
 
-## Scope & Non-goals
-**In scope:** normalization goals, common forms, and trade-offs.
-**Out of scope / NOT solved by this:** end-to-end data modeling workflows.
+## Alcance y no-objetivos
+**Dentro del alcance:** objetivos de normalización, formas comunes y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** flujos de trabajo completos de modelado de datos.
 
-## Mental model / Intuition
-- Think of normalization as “single source of truth” for each fact.
+## Modelo mental / Intuición
+- Piensa en la normalización como "fuente única de verdad" para cada hecho.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data integrity and consistency are critical.
-- Writes are frequent and must be correct.
-### Avoid it when
-- Read performance dominates and joins are too costly.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La integridad y consistencia de datos son críticas.
+- Las escrituras son frecuentes y deben ser correctas.
+### Evítalo cuando
+- El rendimiento de lectura domina y los joins son demasiado costosos.
 
-## How I would use it (practical)
-- **Context:** Core transactional system.
-- **Steps:** identify entities → split repeating groups → define keys → add constraints.
-- **What success looks like:** consistent data with minimal anomalies.
+## Cómo lo usaría (práctico)
+- **Contexto:** Sistema transaccional central.
+- **Pasos:** identificar entidades → separar grupos repetitivos → definir claves → agregar restricciones.
+- **Cómo se ve el éxito:** datos consistentes con anomalías mínimas.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong consistency and clarity.
-- **Cons / Risks:** join complexity and read overhead.
-### Alternatives
-- **Denormalization:** for read-heavy workloads.
-- **How to choose:** normalize first, denormalize when performance demands it.
+- **Ventajas:** consistencia y claridad fuertes.
+- **Desventajas / Riesgos:** complejidad de joins y sobrecarga de lectura.
+### Alternativas
+- **Desnormalización:** para cargas de trabajo con muchas lecturas.
+- **Cómo elegir:** normalizar primero, desnormalizar cuando el rendimiento lo exija.
 
-## Failure modes & Pitfalls
-- Over-normalization leading to excessive joins.
+## Modos de fallo y trampas
+- Sobre-normalización llevando a joins excesivos.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency on join-heavy paths.
-- **Logs:** slow query logs.
-- **Alerts:** rising latency for read-heavy endpoints.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas en rutas con muchos joins.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** latencia en aumento para endpoints con muchas lecturas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify entities and relationships
-  - [ ] Apply constraints and keys
+  - [ ] Identificar entidades y relaciones
+  - [ ] Aplicar restricciones y claves
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Denormalizing too early.
-  - **Why it’s bad:** inconsistent data and update anomalies.
-  - **Better approach:** normalize first, measure, then denormalize selectively.
+## Anti-patrones comunes
+- **Anti-patrón:** Desnormalizar demasiado temprano.
+  - **Por qué es malo:** datos inconsistentes y anomalías de actualización.
+  - **Mejor enfoque:** normalizar primero, medir, luego desnormalizar selectivamente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Normalization reduces redundancy and keeps data consistent by organizing it into related tables. It improves correctness but can add join overhead.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La normalización reduce la redundancia y mantiene los datos consistentes organizándolos en tablas relacionadas. Mejora la corrección pero puede agregar sobrecarga de joins.
 
-### Trap questions (with answers)
-1) **Q:** Is normalization always best for performance?
-   - **A:** no; it can slow reads due to joins.
-2) **Q:** Does normalization eliminate all anomalies?
-   - **A:** it reduces them, but design still matters.
-3) **Q:** Should you denormalize first?
-   - **A:** no; normalize first and denormalize when needed.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La normalización siempre es lo mejor para el rendimiento?
+   - **R:** no; puede ralentizar las lecturas debido a los joins.
+2) **P:** ¿La normalización elimina todas las anomalías?
+   - **R:** las reduce, pero el diseño aún importa.
+3) **P:** ¿Se debería desnormalizar primero?
+   - **R:** no; normaliza primero y desnormaliza cuando sea necesario.
 
-### Quick self-check (5 items)
-- [ ] I can define normalization.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain how it affects joins.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir la normalización.
+- [ ] Puedo decir cuándo usarla.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar cómo afecta a los joins.
 
-## Links (NO duplication)
-### Prerequisites
-- [SQL foundations](sql-foundations.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de SQL](sql-foundations.md)
 
-### Related topics
-- [Denormalization](denormalization.md)
-- [Data modeling basics](data-modeling-basics.md)
+### Temas relacionados
+- [Desnormalización](denormalization.md)
+- [Fundamentos de modelado de datos](data-modeling-basics.md)
 
-### Compare with
-- [Denormalization](denormalization.md) — read speed vs redundancy.
+### Comparar con
+- [Desnormalización](denormalization.md) — velocidad de lectura vs redundancia.

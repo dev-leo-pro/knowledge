@@ -15,94 +15,94 @@ updated_at: 2026-01-19
 # MySQL
 
 ## TL;DR (BLUF)
-- Popular open-source relational database with strong ecosystem and SQL support.
-- Use it for standard relational workloads and wide tooling support.
-- Trade-off: feature set and optimizer differ from PostgreSQL.
+- Base de datos relacional open-source popular con ecosistema sólido y soporte SQL.
+- Úsala para cargas de trabajo relacionales estándar y amplio soporte de herramientas.
+- Trade-off: el conjunto de funcionalidades y el optimizador difieren de PostgreSQL.
 
-## Definition
-**What it is:** A relational database management system (RDBMS) that supports SQL with a large ecosystem.
-**Key terms:** ACID, storage engine, query optimizer.
+## Definición
+**Qué es:** Un sistema de gestión de bases de datos relacionales (RDBMS) que soporta SQL con un gran ecosistema.
+**Términos clave:** ACID, motor de almacenamiento, optimizador de consultas.
 
-## Why it matters
-- It’s common in production systems and hiring pipelines.
-- Understanding differences vs [PostgreSQL](postgresql.md) helps decision-making.
+## Por qué importa
+- Es común en sistemas de producción y procesos de contratación.
+- Entender las diferencias con [PostgreSQL](postgresql.md) ayuda en la toma de decisiones.
 
-## Scope & Non-goals
-**In scope:** relational modeling, SQL queries, transactional workloads.
-**Out of scope / NOT solved by this:** document-first access or massive scale without architecture.
+## Alcance y no-objetivos
+**Dentro del alcance:** modelado relacional, consultas SQL, cargas de trabajo transaccionales.
+**Fuera del alcance / NO resuelto por esto:** acceso orientado a documentos o escala masiva sin arquitectura.
 
-## Mental model / Intuition
-- Think of MySQL as a pragmatic relational workhorse with broad compatibility.
+## Modelo mental / Intuición
+- Piensa en MySQL como un caballo de batalla relacional pragmático con amplia compatibilidad.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need a widely adopted relational database with mature tooling.
-- You don’t need advanced Postgres features/extensions.
-### Avoid it when
-- You require specific Postgres features or extensions.
-- You need document-style modeling without joins.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas una base de datos relacional ampliamente adoptada con herramientas maduras.
+- No necesitas funcionalidades avanzadas o extensiones de Postgres.
+### Evítalo cuando
+- Requieres funcionalidades o extensiones específicas de Postgres.
+- Necesitas modelado estilo documento sin joins.
 
-## How I would use it (practical)
-- **Context:** Standard web app with relational data.
-- **Steps:** model schema → add indexes → use InnoDB → monitor slow queries.
-- **What success looks like:** stable query latency and manageable ops.
+## Cómo lo usaría (práctico)
+- **Contexto:** Aplicación web estándar con datos relacionales.
+- **Pasos:** modelar esquema → agregar índices → usar InnoDB → monitorear consultas lentas.
+- **Cómo se ve el éxito:** latencia de consultas estable y operaciones manejables.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** mature ecosystem, operational familiarity, wide hosting options.
-- **Cons / Risks:** feature parity differences with Postgres; optimizer behavior can differ.
-### Alternatives
-- **PostgreSQL:** richer extensions and SQL features.
-- **How to choose:** prefer Postgres for advanced features; choose MySQL for ubiquity or compatibility.
+- **Ventajas:** ecosistema maduro, familiaridad operativa, amplias opciones de hosting.
+- **Desventajas / Riesgos:** diferencias de paridad de funcionalidades con Postgres; el comportamiento del optimizador puede diferir.
+### Alternativas
+- **PostgreSQL:** extensiones y funcionalidades SQL más ricas.
+- **Cómo elegir:** preferir Postgres para funcionalidades avanzadas; elegir MySQL por ubicuidad o compatibilidad.
 
-## Failure modes & Pitfalls
-- Performance regressions from poor index choices.
-- Differences between storage engines causing surprises.
+## Modos de fallo y trampas
+- Regresiones de rendimiento por malas elecciones de índices.
+- Diferencias entre motores de almacenamiento causando sorpresas.
 
-## Observability (How to detect issues)
-- **Metrics:** p95 query latency, slow query count, buffer pool hit ratio.
-- **Logs:** slow query logs.
-- **Alerts:** sustained slow query spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia p95 de consultas, conteo de consultas lentas, ratio de aciertos del buffer pool.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** picos sostenidos de consultas lentas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose InnoDB
-  - [ ] Design indexes based on real queries
-  - [ ] Enable slow query logs
+  - [ ] Elegir InnoDB
+  - [ ] Diseñar índices basados en consultas reales
+  - [ ] Habilitar logs de consultas lentas
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** assuming feature parity with Postgres.
-  - **Why it’s bad:** leads to incorrect expectations and migrations.
-  - **Better approach:** validate feature requirements upfront.
+## Anti-patrones comunes
+- **Anti-patrón:** asumir paridad de funcionalidades con Postgres.
+  - **Por qué es malo:** lleva a expectativas incorrectas y migraciones.
+  - **Mejor enfoque:** validar requisitos de funcionalidades por adelantado.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- MySQL is a widely used relational database with strong SQL support and tooling. It’s a good default for many apps, but its features and optimizer differ from PostgreSQL, so choose based on specific needs.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- MySQL es una base de datos relacional ampliamente usada con fuerte soporte SQL y herramientas. Es un buen valor por defecto para muchas aplicaciones, pero sus funcionalidades y optimizador difieren de PostgreSQL, así que elige según necesidades específicas.
 
-### Trap questions (with answers)
-1) **Q:** Is MySQL just “the same as Postgres”?
-   - **A:** no; features, extensions, and optimizer behavior differ.
-2) **Q:** Does MySQL only use one storage engine?
-   - **A:** no; InnoDB is common, but others exist with different characteristics.
-3) **Q:** Are indexes optional for performance?
-   - **A:** no; indexes are often essential for query performance.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿MySQL es "lo mismo que Postgres"?
+   - **R:** no; las funcionalidades, extensiones y comportamiento del optimizador difieren.
+2) **P:** ¿MySQL solo usa un motor de almacenamiento?
+   - **R:** no; InnoDB es común, pero existen otros con diferentes características.
+3) **P:** ¿Los índices son opcionales para el rendimiento?
+   - **R:** no; los índices son frecuentemente esenciales para el rendimiento de consultas.
 
-### Quick self-check (5 items)
-- [ ] I can define MySQL precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can compare it with PostgreSQL.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir MySQL con precisión.
+- [ ] Puedo decir cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo compararlo con PostgreSQL.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Índice](index.md)
 
-### Related topics
+### Temas relacionados
 - [PostgreSQL](postgresql.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — richer extensions and SQL features.
+### Comparar con
+- [PostgreSQL](postgresql.md) — extensiones y funcionalidades SQL más ricas.

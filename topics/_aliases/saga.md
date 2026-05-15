@@ -1,4 +1,4 @@
-# Alias: saga → canonical
+# Alias: saga → canónico
 
-This term is an alias. See the canonical topic:
-- [Saga pattern](../architecture/saga-pattern.md)
+Este término es un alias. Ver el tema canónico:
+- [Patrón Saga](../architecture/saga-pattern.md)

@@ -1,6 +1,6 @@
 ---
 id: locks
-title: "Locks"
+title: "Bloqueos"
 type: concept
 status: learning
 importance: 60
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Locks
+# Bloqueos
 
 ## TL;DR (BLUF)
-- Locks protect data consistency by controlling concurrent access.
-- Use them implicitly via transactions and isolation levels.
-- Trade-off: locks can reduce concurrency and cause waits.
+- Los bloqueos protegen la consistencia de datos controlando el acceso concurrente.
+- Úsalos implícitamente mediante transacciones y niveles de aislamiento.
+- Trade-off: los bloqueos pueden reducir la concurrencia y causar esperas.
 
-## Definition
-**What it is:** A mechanism to prevent conflicting operations on the same data.
-**Key terms:** row lock, table lock, lock wait, isolation level.
+## Definición
+**Qué es:** Un mecanismo para prevenir operaciones conflictivas sobre los mismos datos.
+**Términos clave:** bloqueo de fila, bloqueo de tabla, espera de bloqueo, nivel de aislamiento.
 
-## Why it matters
-- Locks keep data consistent under concurrent writes.
-- Excessive locking causes contention and latency spikes.
+## Por qué importa
+- Los bloqueos mantienen los datos consistentes bajo escrituras concurrentes.
+- El bloqueo excesivo causa contención y picos de latencia.
 
-## Scope & Non-goals
-**In scope:** lock basics and operational impact.
-**Out of scope / NOT solved by this:** distributed locking across services.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de bloqueos e impacto operativo.
+**Fuera del alcance / NO resuelto por esto:** bloqueo distribuido entre servicios.
 
-## Mental model / Intuition
-- Think of locks as “reserved access” to a resource.
+## Modelo mental / Intuición
+- Piensa en los bloqueos como "acceso reservado" a un recurso.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need strict consistency in concurrent updates.
-### Avoid it when
-- Read-heavy workloads can use snapshot isolation or optimistic approaches.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas consistencia estricta en actualizaciones concurrentes.
+### Evítalo cuando
+- Las cargas de trabajo con muchas lecturas pueden usar aislamiento por snapshot o enfoques optimistas.
 
-## How I would use it (practical)
-- **Context:** Updating a shared balance row.
-- **Steps:** wrap update in transaction → keep it short → monitor waits.
-- **What success looks like:** minimal lock waits with consistent updates.
+## Cómo lo usaría (práctico)
+- **Contexto:** Actualización de una fila de saldo compartido.
+- **Pasos:** envolver la actualización en una transacción → mantenerla corta → monitorear esperas.
+- **Cómo se ve el éxito:** esperas de bloqueo mínimas con actualizaciones consistentes.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong correctness guarantees.
-- **Cons / Risks:** contention and deadlocks.
-### Alternatives
-- **Optimistic concurrency control:** version checks and retries.
-- **How to choose:** locks for strict correctness; optimistic control for high concurrency.
+- **Ventajas:** garantías fuertes de corrección.
+- **Desventajas / Riesgos:** contención y deadlocks.
+### Alternativas
+- **Control de concurrencia optimista:** verificaciones de versión y reintentos.
+- **Cómo elegir:** bloqueos para corrección estricta; control optimista para alta concurrencia.
 
-## Failure modes & Pitfalls
-- Lock waits due to long transactions.
-- Deadlocks between competing transactions.
+## Modos de fallo y trampas
+- Esperas de bloqueo debido a transacciones largas.
+- Deadlocks entre transacciones que compiten.
 
-## Observability (How to detect issues)
-- **Metrics:** lock wait time, blocked queries.
-- **Logs:** lock timeout errors.
-- **Alerts:** rising lock waits or timeouts.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tiempo de espera de bloqueo, consultas bloqueadas.
+- **Logs:** errores de timeout de bloqueo.
+- **Alertas:** aumento de esperas de bloqueo o timeouts.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Keep transactions short
-  - [ ] Avoid unnecessary locking reads
+  - [ ] Mantener las transacciones cortas
+  - [ ] Evitar lecturas con bloqueo innecesarias
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Locking more rows than needed.
-  - **Why it’s bad:** reduces concurrency.
-  - **Better approach:** narrow predicates and short transactions.
+## Anti-patrones comunes
+- **Anti-patrón:** Bloquear más filas de las necesarias.
+  - **Por qué es malo:** reduce la concurrencia.
+  - **Mejor enfoque:** predicados estrechos y transacciones cortas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Locks coordinate concurrent access so updates don’t conflict. They protect correctness but can slow things down when transactions are long or frequent.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los bloqueos coordinan el acceso concurrente para que las actualizaciones no entren en conflicto. Protegen la corrección pero pueden ralentizar las cosas cuando las transacciones son largas o frecuentes.
 
-### Trap questions (with answers)
-1) **Q:** Are locks always bad for performance?
-   - **A:** no; they’re necessary for correctness but should be minimized.
-2) **Q:** Do locks only apply to writes?
-   - **A:** no; some reads also take locks depending on isolation.
-3) **Q:** Can you avoid locks entirely?
-   - **A:** not if you need strict consistency.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los bloqueos siempre son malos para el rendimiento?
+   - **R:** no; son necesarios para la corrección pero deben minimizarse.
+2) **P:** ¿Los bloqueos solo aplican a escrituras?
+   - **R:** no; algunas lecturas también toman bloqueos dependiendo del aislamiento.
+3) **P:** ¿Se pueden evitar los bloqueos por completo?
+   - **R:** no si necesitas consistencia estricta.
 
-### Quick self-check (5 items)
-- [ ] I can define locks precisely.
-- [ ] I can describe a trade-off.
-- [ ] I can name a failure mode.
-- [ ] I can explain how to reduce lock contention.
-- [ ] I can relate locks to transactions.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir los bloqueos con precisión.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo nombrar un modo de fallo.
+- [ ] Puedo explicar cómo reducir la contención de bloqueos.
+- [ ] Puedo relacionar los bloqueos con las transacciones.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](transactions.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Transacciones](transactions.md)
 
-### Related topics
+### Temas relacionados
 - [Deadlocks](deadlocks.md)
 
-### Compare with
-- [Optimistic concurrency control](optimistic-concurrency-control.md)
+### Comparar con
+- [Control de concurrencia optimista](optimistic-concurrency-control.md)

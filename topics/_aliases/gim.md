@@ -1,4 +1,4 @@
-# Alias: gin → canonical
+# Alias: gin → canónico
 
-This term is an alias. See the canonical topic:
-- [GIN index](../database/gin-index.md)
+Este término es un alias. Ver el tema canónico:
+- [Índice GIN](../database/gin-index.md)

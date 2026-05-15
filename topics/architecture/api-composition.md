@@ -1,6 +1,6 @@
 ---
 id: api-composition
-title: "API Composition"
+title: "Composición de APIs"
 type: pattern
 status: learning
 importance: 65
@@ -12,54 +12,54 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# API Composition
+# Composición de APIs
 
 ## TL;DR (BLUF)
-- Aggregates data from multiple microservices into a single response.
-- Use it to avoid "chatty clients" and reduce round-trips.
-- Trade-off: added latency and complexity; risk of coupling services.
+- Agrega datos de múltiples microservicios en una sola respuesta.
+- Úsalo para evitar "clientes parlanchines" y reducir viajes de ida y vuelta.
+- Trade-off: latencia y complejidad añadidas; riesgo de acoplar servicios.
 
-## Definition
-**What it is:** A pattern where a service (typically a [BFF](backend-for-frontend.md) or API layer) calls multiple downstream services in parallel or sequentially and combines their responses into a single payload for the client.
+## Definición
+**Qué es:** Un patrón donde un servicio (típicamente un [BFF](backend-for-frontend.md) o capa de API) llama a múltiples servicios downstream en paralelo o secuencialmente y combina sus respuestas en un solo payload para el cliente.
 
-**Key terms:** aggregation, composition, data assembly, parallel calls, partial responses, chatty client.
+**Términos clave:** agregación, composición, ensamblaje de datos, llamadas paralelas, respuestas parciales, cliente parlanchín.
 
-## Why it matters
-- Reduces client complexity: one request instead of N.
-- Decreases latency for clients (especially mobile on slow networks).
-- Improves user experience for "composed" screens (order details, dashboards, home feeds).
-- Centralizes error handling and retries.
+## Por qué importa
+- Reduce la complejidad del cliente: una solicitud en lugar de N.
+- Disminuye la latencia para los clientes (especialmente móviles en redes lentas).
+- Mejora la experiencia de usuario para pantallas "compuestas" (detalles de pedido, dashboards, feeds).
+- Centraliza el manejo de errores y reintentos.
 
-## Scope & Non-goals
-**In scope:** aggregating data from multiple services, parallel calls, error handling for partial responses.
+## Alcance y no-objetivos
+**Dentro del alcance:** agregar datos de múltiples servicios, llamadas paralelas, manejo de errores para respuestas parciales.
 
-**Out of scope / NOT solved by this:**
-- Distributed transactions (use [Saga](saga-pattern.md))
-- Strong consistency across services (eventual consistency only)
-- Business logic (aggregation is data assembly, not domain logic)
+**Fuera del alcance / NO resuelto por esto:**
+- Transacciones distribuidas (usar [Saga](saga-pattern.md))
+- Consistencia fuerte entre servicios (solo consistencia eventual)
+- Lógica de negocio (la agregación es ensamblaje de datos, no lógica de dominio)
 
-## Mental model / Intuition
-- Like assembling a meal from different food stalls at a food court: you coordinate orders from multiple vendors and deliver one tray.
-- In APIs: `/order/123` needs data from order-service, user-service, payment-service, and inventory-service.
+## Modelo mental / Intuición
+- Como armar una comida de diferentes puestos en un patio de comidas: coordinas pedidos de múltiples vendedores y entregas una bandeja.
+- En APIs: `/order/123` necesita datos de order-service, user-service, payment-service e inventory-service.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- A client screen needs data from 3+ services (order details, user profile, recommendations).
-- Mobile or web clients are "chatty" (many round-trips).
-- You control all downstream services (same organization).
-- Aggregation logic is simple (no complex joins or transformations).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Una pantalla del cliente necesita datos de 3+ servicios (detalles de pedido, perfil de usuario, recomendaciones).
+- Los clientes móviles o web son "parlanchines" (muchos viajes de ida y vuelta).
+- Controlas todos los servicios downstream (misma organización).
+- La lógica de agregación es simple (sin joins complejos ni transformaciones).
 
-### Avoid it when
-- Downstream services are owned by external teams and may change independently.
-- Aggregation requires complex business logic (use a dedicated service instead).
-- One slow service blocks the entire response (consider [Graceful Degradation](../operations/graceful-degradation.md)).
-- Clients can efficiently fetch data themselves (GraphQL, local caching).
+### Evítalo cuando
+- Los servicios downstream son propiedad de equipos externos y pueden cambiar independientemente.
+- La agregación requiere lógica de negocio compleja (usar un servicio dedicado en su lugar).
+- Un servicio lento bloquea toda la respuesta (considerar [Degradación Elegante](../operations/graceful-degradation.md)).
+- Los clientes pueden obtener datos eficientemente por sí mismos (GraphQL, caché local).
 
-## How I would use it (practical)
-- **Context:** E-commerce "Order Details" page needs: order info, user profile, payment status, shipping tracking.
-- **Steps:**
-  1) Implement in [BFF](backend-for-frontend.md) (web-bff or mobile-bff).
-  2) Call services **in parallel** using async I/O (Go: goroutines; Node: Promises; Java: CompletableFuture).
+## Cómo lo usaría (práctico)
+- **Contexto:** Página de "Detalles del Pedido" de comercio electrónico necesita: info del pedido, perfil de usuario, estado de pago, rastreo de envío.
+- **Pasos:**
+  1) Implementar en [BFF](backend-for-frontend.md) (web-bff o mobile-bff).
+  2) Llamar a los servicios **en paralelo** usando I/O asíncrono (Go: goroutines; Node: Promises; Java: CompletableFuture).
      ```go
      var wg sync.WaitGroup
      var order Order
@@ -71,101 +71,101 @@ updated_at: 2026-01-26
      go func() { payment = fetchPayment(ctx, paymentID); wg.Done() }()
      wg.Wait()
      ```
-  3) Set strict [Timeouts](../operations/timeouts.md) (e.g., 500ms per service).
-  4) Implement [Graceful Degradation](../operations/graceful-degradation.md): if payment-service fails, return order + user (omit payment).
-  5) Add [Circuit Breaker](../operations/circuit-breaker.md) per downstream service.
-  6) Monitor: aggregation latency p95/p99, partial response rate, downstream error rates.
+  3) Establecer [Timeouts](../operations/timeouts.md) estrictos (ej., 500ms por servicio).
+  4) Implementar [Degradación Elegante](../operations/graceful-degradation.md): si payment-service falla, devolver pedido + usuario (omitir pago).
+  5) Añadir [Circuit Breaker](../operations/circuit-breaker.md) por servicio downstream.
+  6) Monitorear: latencia de agregación p95/p99, tasa de respuestas parciales, tasas de error downstream.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Latency = slowest service (if sequential) | Use **parallel calls**; set aggressive timeouts |
-| One service failure breaks entire response | Use [Graceful Degradation](../operations/graceful-degradation.md) (partial responses) |
-| Coupling to multiple service contracts | Version APIs carefully; use [API versioning](../system-design/versioning-apis-and-events.md) |
-| Aggregator becomes bottleneck | Scale horizontally; cache expensive aggregations |
-| N+1 query problem (loops calling services) | Use batching or data loaders (GraphQL-style) |
+| Latencia = servicio más lento (si es secuencial) | Usar **llamadas paralelas**; establecer timeouts agresivos |
+| Fallo de un servicio rompe toda la respuesta | Usar [Degradación Elegante](../operations/graceful-degradation.md) (respuestas parciales) |
+| Acoplamiento a múltiples contratos de servicio | Versionar APIs cuidadosamente; usar [versionado de API](../system-design/versioning-apis-and-events.md) |
+| El agregador se convierte en cuello de botella | Escalar horizontalmente; cachear agregaciones costosas |
+| Problema de consulta N+1 (bucles llamando a servicios) | Usar batching o data loaders (estilo GraphQL) |
 
-## Failure modes / Edge cases
-1. **Cascading timeout:** Aggregator timeout too short; all downstream calls fail.
-   - *Mitigation:* Set aggregator timeout > max(downstream timeouts) + buffer.
-2. **Partial response inconsistency:** User sees order but not payment status.
-   - *Mitigation:* Mark partial responses in payload; show "loading..." or fallback.
-3. **Thundering herd on cache miss:** All aggregations trigger simultaneous downstream calls.
-   - *Mitigation:* Use request coalescing or short-term in-memory cache.
-4. **Service A depends on data from Service B:** Sequential calls increase latency.
-   - *Mitigation:* Redesign to reduce dependencies; use event-driven architecture.
-5. **Aggregator becomes domain service:** Teams add business logic instead of pure aggregation.
-   - *Mitigation:* Enforce policy: aggregation is **data assembly only**.
+## Modos de fallo / Casos límite
+1. **Timeout en cascada:** El timeout del agregador es muy corto; todas las llamadas downstream fallan.
+   - *Mitigación:* Establecer timeout del agregador > max(timeouts downstream) + margen.
+2. **Inconsistencia en respuesta parcial:** El usuario ve el pedido pero no el estado de pago.
+   - *Mitigación:* Marcar respuestas parciales en el payload; mostrar "cargando..." o fallback.
+3. **Estampida al fallar la caché:** Todas las agregaciones disparan llamadas downstream simultáneas.
+   - *Mitigación:* Usar coalescencia de solicitudes o caché en memoria a corto plazo.
+4. **Servicio A depende de datos del Servicio B:** Las llamadas secuenciales aumentan la latencia.
+   - *Mitigación:* Rediseñar para reducir dependencias; usar arquitectura dirigida por eventos.
+5. **El agregador se convierte en servicio de dominio:** Los equipos añaden lógica de negocio en lugar de pura agregación.
+   - *Mitigación:* Imponer política: la agregación es **solo ensamblaje de datos**.
 
-## Alternatives
-- **GraphQL:** Clients specify exactly what fields they need; server resolves dependencies.
-- **Client-side composition:** Client calls services directly (simple but chattier).
-- **[CQRS](cqrs.md) + Read Model:** Pre-aggregate data in a read-optimized store.
-- **Event-driven materialized views:** Downstream services publish events; aggregator maintains local view.
+## Alternativas
+- **GraphQL:** Los clientes especifican exactamente qué campos necesitan; el servidor resuelve dependencias.
+- **Composición del lado del cliente:** El cliente llama a los servicios directamente (simple pero más parlanchín).
+- **[CQRS](cqrs.md) + Modelo de lectura:** Pre-agregar datos en un almacén optimizado para lectura.
+- **Vistas materializadas dirigidas por eventos:** Los servicios downstream publican eventos; el agregador mantiene una vista local.
 
-## Combinations
-API Composition is **almost always used with:**
-- **[BFF (Backend for Frontend)](backend-for-frontend.md):** BFFs are the natural place for composition.
-- **[Timeout](../operations/timeouts.md):** Prevent slow services from blocking aggregation.
-- **[Circuit Breaker](../operations/circuit-breaker.md):** Fail fast when downstream is unhealthy.
-- **[Graceful Degradation](../operations/graceful-degradation.md):** Return partial data if non-critical services fail.
-- **[Observability](../operations/observability-basics.md):** Track downstream latency, error rates, partial response rates.
+## Combinaciones
+La Composición de APIs **casi siempre se usa con:**
+- **[BFF (Backend for Frontend)](backend-for-frontend.md):** Los BFFs son el lugar natural para la composición.
+- **[Timeout](../operations/timeouts.md):** Evitar que servicios lentos bloqueen la agregación.
+- **[Circuit Breaker](../operations/circuit-breaker.md):** Fallar rápido cuando el downstream no está saludable.
+- **[Degradación Elegante](../operations/graceful-degradation.md):** Devolver datos parciales si servicios no críticos fallan.
+- **[Observabilidad](../operations/observability-basics.md):** Rastrear latencia downstream, tasas de error, tasas de respuestas parciales.
 
-**Typical combination:**
-- **Composed UI scenario:** BFF + API Composition + Timeout + Circuit Breaker + Graceful Degradation + Observability
+**Combinación típica:**
+- **Escenario de UI compuesta:** BFF + Composición de APIs + Timeout + Circuit Breaker + Degradación Elegante + Observabilidad
 
-## Prerequisites
-- Understanding of [Microservices design](microservices-design-basics.md).
-- Familiarity with async I/O and parallel execution.
-- Knowledge of [Timeouts](../operations/timeouts.md) and [Circuit Breaker](../operations/circuit-breaker.md).
+## Prerequisitos
+- Comprensión de [Diseño de Microservicios](microservices-design-basics.md).
+- Familiaridad con I/O asíncrono y ejecución paralela.
+- Conocimiento de [Timeouts](../operations/timeouts.md) y [Circuit Breaker](../operations/circuit-breaker.md).
 
-## Related topics
-- [BFF (Backend for Frontend)](backend-for-frontend.md): Where composition typically happens.
-- [Graceful Degradation](../operations/graceful-degradation.md): Handle partial failures.
-- [CQRS](cqrs.md): Pre-aggregate data in read models.
-- [GraphQL](../system-design/api-design-basics.md): Alternative to explicit composition.
-- [Timeout](../operations/timeouts.md): Critical for aggregation.
+## Temas relacionados
+- [BFF (Backend for Frontend)](backend-for-frontend.md): Donde típicamente ocurre la composición.
+- [Degradación Elegante](../operations/graceful-degradation.md): Manejar fallos parciales.
+- [CQRS](cqrs.md): Pre-agregar datos en modelos de lectura.
+- [GraphQL](../system-design/api-design-basics.md): Alternativa a la composición explícita.
+- [Timeout](../operations/timeouts.md): Crítico para la agregación.
 
-## Real-world examples
-1. **Netflix:** BFFs aggregate user profile + viewing history + recommendations.
-2. **Amazon Product Page:** Aggregates product details + reviews + inventory + recommendations.
-3. **Uber Trip Details:** Aggregates trip info + driver profile + payment + route.
+## Ejemplos del mundo real
+1. **Netflix:** Los BFFs agregan perfil de usuario + historial de visualización + recomendaciones.
+2. **Página de producto de Amazon:** Agrega detalles del producto + reseñas + inventario + recomendaciones.
+3. **Detalles de viaje de Uber:** Agrega info del viaje + perfil del conductor + pago + ruta.
 
-## Checklist (self-test)
-- [ ] I can identify when to use API composition vs client-side fetching.
-- [ ] I know how to implement parallel calls to reduce latency.
-- [ ] I can design partial response handling (graceful degradation).
-- [ ] I understand the N+1 query problem and how to avoid it.
-- [ ] I can monitor aggregation health (latency, error rates, partial responses).
+## Lista de verificación (auto-evaluación)
+- [ ] Puedo identificar cuándo usar composición de APIs vs obtención del lado del cliente.
+- [ ] Sé cómo implementar llamadas paralelas para reducir la latencia.
+- [ ] Puedo diseñar manejo de respuestas parciales (degradación elegante).
+- [ ] Entiendo el problema de consulta N+1 y cómo evitarlo.
+- [ ] Puedo monitorear la salud de la agregación (latencia, tasas de error, respuestas parciales).
 
-## Reminders / Key takeaways
-- Always use **parallel calls** to minimize latency.
-- Set strict [Timeouts](../operations/timeouts.md) per downstream service.
-- Use [Graceful Degradation](../operations/graceful-degradation.md): partial responses are better than total failure.
-- API Composition is **data assembly**, not business logic.
+## Recordatorios / Conclusiones clave
+- Siempre usar **llamadas paralelas** para minimizar la latencia.
+- Establecer [Timeouts](../operations/timeouts.md) estrictos por servicio downstream.
+- Usar [Degradación Elegante](../operations/graceful-degradation.md): las respuestas parciales son mejores que un fallo total.
+- La Composición de APIs es **ensamblaje de datos**, no lógica de negocio.
 
-## Trap questions (with answers)
-### Q1: Should I use API composition or GraphQL?
-**A:** **Depends on control and complexity**. Use **API composition** when you control all services and aggregation is simple (fixed queries). Use **GraphQL** when clients need flexible queries or when aggregation logic is complex. GraphQL adds overhead (query parsing, resolver logic) but gives clients more power. For internal BFFs, composition is simpler.
+## Preguntas trampa (con respuestas)
+### P1: ¿Debería usar composición de APIs o GraphQL?
+**R:** **Depende del control y la complejidad**. Usa **composición de APIs** cuando controlas todos los servicios y la agregación es simple (consultas fijas). Usa **GraphQL** cuando los clientes necesitan consultas flexibles o cuando la lógica de agregación es compleja. GraphQL añade sobrecarga (parseo de consultas, lógica de resolvers) pero da más poder a los clientes. Para BFFs internos, la composición es más simple.
 
-### Q2: What if one service is slow—should I wait for it?
-**A:** **No, use timeouts and graceful degradation**. Set a strict [Timeout](../operations/timeouts.md) (e.g., 500ms). If a non-critical service times out, return partial data with a flag (`"payment": null, "paymentUnavailable": true`). Critical services (e.g., order details) failing should return 503. See [Graceful Degradation](../operations/graceful-degradation.md).
+### P2: ¿Qué pasa si un servicio es lento? ¿Debería esperarlo?
+**R:** **No, usa timeouts y degradación elegante**. Establece un [Timeout](../operations/timeouts.md) estricto (ej., 500ms). Si un servicio no crítico excede el timeout, devuelve datos parciales con un flag (`"payment": null, "paymentUnavailable": true`). Si los servicios críticos (ej., detalles del pedido) fallan, devolver 503. Ver [Degradación Elegante](../operations/graceful-degradation.md).
 
-### Q3: How do I avoid making N+1 queries in aggregation?
-**A:** **Use batching or data loaders**. Instead of:
+### P3: ¿Cómo evito hacer consultas N+1 en la agregación?
+**R:** **Usa batching o data loaders**. En lugar de:
 ```
 for user in users:
     fetch orders(user.id)  // N calls
 ```
-Do:
+Haz:
 ```
 userIds = [u.id for u in users]
 orders = fetchOrdersBatch(userIds)  // 1 call
 ```
-Or use GraphQL-style data loaders that batch and deduplicate requests within a single request context.
+O usa data loaders estilo GraphQL que agrupan y deduplicar solicitudes dentro de un solo contexto de solicitud.
 
-### Q4: Can API composition work for write operations (POST, PUT)?
-**A:** **Generally no**. Composition is for reads. For writes across multiple services, use [Saga pattern](saga-pattern.md) (orchestrated or choreographed transactions with compensations). Aggregation assumes **read-only** and **eventual consistency**.
+### P4: ¿La composición de APIs funciona para operaciones de escritura (POST, PUT)?
+**R:** **Generalmente no**. La composición es para lecturas. Para escrituras entre múltiples servicios, usa el [patrón Saga](saga-pattern.md) (transacciones orquestadas o coreografiadas con compensaciones). La agregación asume **solo lectura** y **consistencia eventual**.
 
-### Q5: Should I cache aggregated responses?
-**A:** **Yes, if data changes infrequently**. Cache at the aggregation layer (Redis, in-memory) with appropriate TTLs. Be careful with user-specific data (privacy) and ensure cache invalidation works. For frequently changing data (stock prices, live scores), use short TTLs or skip caching. See [Caching strategy](../system-design/caching-strategy.md).
+### P5: ¿Debería cachear las respuestas agregadas?
+**R:** **Sí, si los datos cambian con poca frecuencia**. Cachear en la capa de agregación (Redis, en memoria) con TTLs apropiados. Ten cuidado con datos específicos del usuario (privacidad) y asegúrate de que la invalidación de caché funcione. Para datos que cambian frecuentemente (precios de acciones, marcadores en vivo), usa TTLs cortos u omite el caché. Ver [Estrategia de caché](../system-design/caching-strategy.md).

@@ -1,6 +1,6 @@
 ---
 id: adaptive-concurrency
-title: "Adaptive Concurrency"
+title: "Concurrencia Adaptativa"
 type: pattern
 status: learning
 importance: 65
@@ -12,122 +12,122 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Adaptive Concurrency
+# Concurrencia Adaptativa
 
 ## TL;DR (BLUF)
-- Adaptive concurrency adjusts in-flight limits based on observed latency, instead of fixed caps.
-- Use it when static bulkhead/thread-pool limits are hard to tune.
-- Trade-off: it can oscillate if signals are noisy or delayed.
+- La concurrencia adaptativa ajusta los límites de peticiones en vuelo basándose en la latencia observada, en lugar de usar límites fijos.
+- Úsala cuando los límites estáticos de bulkhead/pool de hilos son difíciles de ajustar.
+- Trade-off: puede oscilar si las señales son ruidosas o retrasadas.
 
-## Definition
-**What it is:** A feedback-control approach that dynamically raises or lowers concurrency based on signals like RTT/latency to keep load within a safe operating range.  
-**Key terms:** feedback loop, RTT, concurrency limit, saturation, stability.
+## Definición
+**Qué es:** Un enfoque de control por retroalimentación que aumenta o reduce dinámicamente la concurrencia basándose en señales como RTT/latencia para mantener la carga dentro de un rango operativo seguro.  
+**Términos clave:** bucle de retroalimentación, RTT, límite de concurrencia, saturación, estabilidad.
 
-## Why it matters
-- Static limits can underutilize capacity or overload a degraded dependency.
-- Adaptive control prevents self-inflicted overload during partial failures.
+## Por qué importa
+- Los límites estáticos pueden infrautilizar la capacidad o sobrecargar una dependencia degradada.
+- El control adaptativo previene la sobrecarga autoinfligida durante fallos parciales.
 
-## Scope & Non-goals
-**In scope:** client-side concurrency control for HTTP/RPC/DB dependencies.  
-**Out of scope / NOT solved by this:** retry policies (see [Retry budgets](retry-budgets.md)) or dependency health detection (see [Circuit breaker](circuit-breaker.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** control de concurrencia del lado del cliente para dependencias HTTP/RPC/DB.  
+**Fuera del alcance / NO resuelto por esto:** políticas de reintentos (ver [Presupuestos de reintentos](retry-budgets.md)) o detección de salud de dependencias (ver [Circuit breaker](circuit-breaker.md)).
 
-## Mental model / Intuition
-- “Feel the pressure”: when latency rises, back off; when latency drops, cautiously increase.
+## Modelo mental / Intuición
+- "Sentir la presión": cuando la latencia sube, retroceder; cuando la latencia baja, aumentar con cautela.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You cannot reliably set a safe static concurrency limit.
-- Latency is a good proxy for saturation.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- No puedes establecer de forma fiable un límite de concurrencia estático seguro.
+- La latencia es un buen indicador de saturación.
 
-### Avoid it when
-- Latency signals are noisy or dominated by unrelated factors.
-- You need strict fixed limits for compliance or quotas.
+### Evítalo cuando
+- Las señales de latencia son ruidosas o dominadas por factores no relacionados.
+- Necesitas límites fijos estrictos por cumplimiento normativo o cuotas.
 
-## How I would use it (practical)
-- **Context:** A service calls a dependency with varying capacity across time.
-- **Steps:**
-  1) Track rolling RTT/latency (e.g., p95).
-  2) Increase concurrency when latency is below target; decrease when above.
-  3) Enforce min/max bounds to avoid runaway.
-- **What success looks like:** stable latency with high utilization and fewer overload spikes.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un servicio llama a una dependencia con capacidad variable a lo largo del tiempo.
+- **Pasos:**
+  1) Rastrear RTT/latencia con ventana móvil (ej., p95).
+  2) Aumentar la concurrencia cuando la latencia está por debajo del objetivo; disminuir cuando está por encima.
+  3) Aplicar límites mínimos/máximos para evitar desbordamientos.
+- **Cómo se ve el éxito:** latencia estable con alta utilización y menos picos de sobrecarga.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better utilization, auto-protection under degradation.
-- **Cons / Risks:** oscillations, tuning complexity, sensitivity to noisy signals.
-### Alternatives
-- **Static bulkheads:** fixed pools by dependency or tenant.
-- **Rate limiting:** cap input regardless of latency.
-- **How to choose:** if capacity shifts often, prefer adaptive; otherwise use static caps.
+- **Ventajas:** mejor utilización, autoprotección ante degradación.
+- **Desventajas / Riesgos:** oscilaciones, complejidad de ajuste, sensibilidad a señales ruidosas.
+### Alternativas
+- **Bulkheads estáticos:** pools fijos por dependencia o inquilino.
+- **Limitación de tasa:** limitar la entrada independientemente de la latencia.
+- **Cómo elegir:** si la capacidad cambia frecuentemente, preferir adaptativo; de lo contrario, usar límites estáticos.
 
-## Failure modes & Pitfalls
-- Feedback loop too aggressive → oscillations.
-- RTT spikes from unrelated causes → unnecessary throttling.
-- Missing hard caps → runaway concurrency.
+## Modos de fallo y trampas
+- Bucle de retroalimentación demasiado agresivo -> oscilaciones.
+- Picos de RTT por causas no relacionadas -> limitación innecesaria.
+- Falta de límites máximos -> concurrencia desbocada.
 
-## Observability (How to detect issues)
-- **Metrics:** concurrency limit over time, RTT p95, saturation, error rate.
-- **Logs:** limit adjustments with reason.
-- **Traces:** correlation of latency spikes with limit changes.
-- **Alerts:** sustained oscillations or limit pegged at min/max.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** límite de concurrencia a lo largo del tiempo, RTT p95, saturación, tasa de errores.
+- **Logs:** ajustes de límites con motivo.
+- **Trazas:** correlación de picos de latencia con cambios de límites.
+- **Alertas:** oscilaciones sostenidas o límite fijo en mín/máx.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define target latency window (e.g., p95)
-  - [ ] Choose adjustment step sizes
-  - [ ] Enforce min/max concurrency bounds
-  - [ ] Use smoothing to reduce noise
-- **Security / Compliance notes**
+  - [ ] Definir ventana de latencia objetivo (ej., p95)
+  - [ ] Elegir tamaños de paso de ajuste
+  - [ ] Aplicar límites mín/máx de concurrencia
+  - [ ] Usar suavizado para reducir ruido
+- **Notas de seguridad / cumplimiento**
   - N/A
-- **Performance notes**
-  - Use low-overhead latency measurements
-- **Operational notes**
-  - Document tuning parameters and rollback
+- **Notas de rendimiento**
+  - Usar mediciones de latencia de bajo overhead
+- **Notas operativas**
+  - Documentar parámetros de ajuste y procedimiento de rollback
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 if rtt_p95 > target: limit = max(min_limit, limit - step)
 else: limit = min(max_limit, limit + step)
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “No bounds, let it learn forever.”
-  - **Why it’s bad:** can overshoot and overload dependencies.
-  - **Better approach:** enforce min/max caps and dampening.
+## Anti-patrones comunes
+- **Anti-patrón:** "Sin límites, dejar que aprenda para siempre."
+  - **Por qué es malo:** puede sobrepasar y sobrecargar dependencias.
+  - **Mejor enfoque:** aplicar límites mín/máx y amortiguación.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Adaptive concurrency changes the number of in-flight requests based on latency signals, so the system self-protects without static tuning.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La concurrencia adaptativa cambia el número de peticiones en vuelo basándose en señales de latencia, para que el sistema se autoproteja sin ajuste estático.
 
-### Trap questions (with answers)
-1) **Q:** Is adaptive concurrency a replacement for bulkheads?
-   - **A:** No. It can complement bulkheads but still needs hard isolation for noisy neighbors.
-2) **Q:** Does it remove the need for timeouts?
-   - **A:** No. Timeouts are still required per attempt.
-3) **Q:** Can it use error rate instead of latency?
-   - **A:** It can, but latency is often a faster saturation signal.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es la concurrencia adaptativa un reemplazo de los bulkheads?
+   - **R:** No. Puede complementar los bulkheads pero aún necesita aislamiento rígido para vecinos ruidosos.
+2) **P:** ¿Elimina la necesidad de timeouts?
+   - **R:** No. Los timeouts siguen siendo necesarios por cada intento.
+3) **P:** ¿Puede usar tasa de errores en lugar de latencia?
+   - **R:** Puede, pero la latencia suele ser una señal de saturación más rápida.
 
-### Quick self-check (5 items)
-- [ ] I can define adaptive concurrency precisely.
-- [ ] I can explain why latency is the control signal.
-- [ ] I can name at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir la concurrencia adaptativa con precisión.
+- [ ] Puedo explicar por qué la latencia es la señal de control.
+- [ ] Puedo nombrar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Performance basics](../system-design/performance-basics.md)
-- [Observability basics](observability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
+- [Fundamentos de observabilidad](observability-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Bulkheads](bulkheads.md)
-- [Backpressure](../system-design/backpressure.md)
-- [Retry budgets](retry-budgets.md)
+- [Contrapresión](../system-design/backpressure.md)
+- [Presupuestos de reintentos](retry-budgets.md)
 - [Circuit breaker](circuit-breaker.md)
 
-### Compare with
-- [Bulkheads](bulkheads.md) — bulkheads isolate capacity; adaptive concurrency tunes capacity.
-- [Backpressure](../system-design/backpressure.md) — backpressure limits load; adaptive concurrency adjusts limits.
+### Comparar con
+- [Bulkheads](bulkheads.md) — los bulkheads aíslan capacidad; la concurrencia adaptativa ajusta capacidad.
+- [Contrapresión](../system-design/backpressure.md) — la contrapresión limita carga; la concurrencia adaptativa ajusta límites.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

@@ -1,6 +1,6 @@
 ---
 id: btree-index
-title: "B-Tree Index"
+title: "Índice B-Tree"
 type: concept
 status: learning
 importance: 60
@@ -12,98 +12,98 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# B-Tree Index
+# Índice B-Tree
 
 ## TL;DR (BLUF)
-- Default index type for equality and range queries on scalar columns.
-- Use it for ORDER BY, BETWEEN, and exact matches.
-- Trade-off: not ideal for containment queries in arrays/JSON.
+- Tipo de índice predeterminado para consultas de igualdad y rango en columnas escalares.
+- Úsalo para ORDER BY, BETWEEN y coincidencias exactas.
+- Trade-off: no es ideal para consultas de contención en arrays/JSON.
 
-## Definition
-**What it is:** A balanced tree index optimized for ordered data and range scans.
-**Key terms:** equality, range scan, ordering, selectivity.
+## Definición
+**Qué es:** Un índice de árbol balanceado optimizado para datos ordenados y escaneos de rango.
+**Términos clave:** igualdad, escaneo de rango, ordenamiento, selectividad.
 
-## Why it matters
-- It’s the most common index type and powers fast range/equality queries.
-- Misusing it for containment patterns leads to poor performance.
+## Por qué importa
+- Es el tipo de índice más común y potencia consultas rápidas de rango/igualdad.
+- Usarlo incorrectamente para patrones de contención lleva a un rendimiento pobre.
 
-## Scope & Non-goals
-**In scope:** scalar equality/range predicates, ORDER BY, prefix matches.
-**Out of scope / NOT solved by this:** containment queries inside JSON/arrays.
+## Alcance y no-objetivos
+**Dentro del alcance:** predicados de igualdad/rango escalares, ORDER BY, coincidencias por prefijo.
+**Fuera del alcance / NO resuelto por esto:** consultas de contención dentro de JSON/arrays.
 
-## Mental model / Intuition
-- Think of a sorted phone book: binary search and range scans are fast.
+## Modelo mental / Intuición
+- Piensa en una guía telefónica ordenada: la búsqueda binaria y los escaneos de rango son rápidos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You filter by equality or ranges on scalar columns.
-- You need fast ORDER BY or LIMIT + ORDER BY.
-### Avoid it when
-- You query inside arrays or JSON documents.
-- You need geospatial or full-text style queries.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Filtras por igualdad o rangos en columnas escalares.
+- Necesitas ORDER BY o LIMIT + ORDER BY rápido.
+### Evítalo cuando
+- Consultas dentro de arrays o documentos JSON.
+- Necesitas consultas geoespaciales o de tipo búsqueda de texto completo.
 
-## How I would use it (practical)
-- **Context:** Filtering by `created_at` or `user_id` with ordering.
-- **Steps:** add B-Tree index → validate with EXPLAIN → monitor usage.
-- **What success looks like:** low latency and index usage in query plans.
+## Cómo lo usaría (práctico)
+- **Contexto:** Filtrar por `created_at` o `user_id` con ordenamiento.
+- **Pasos:** agregar índice B-Tree → validar con EXPLAIN → monitorear uso.
+- **Cómo se ve el éxito:** baja latencia y uso del índice en los planes de consulta.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** great for ordered data and range queries.
-- **Cons / Risks:** not helpful for containment queries.
-### Alternatives
-- **GIN index:** for JSONB/array containment.
-- **GiST:** for specialized types like geospatial.
-- **How to choose:** use B-Tree for scalar equality/ranges; switch for specialized operators.
+- **Ventajas:** excelente para datos ordenados y consultas de rango.
+- **Desventajas / Riesgos:** no es útil para consultas de contención.
+### Alternativas
+- **Índice GIN:** para contención en JSONB/arrays.
+- **GiST:** para tipos especializados como geoespacial.
+- **Cómo elegir:** usa B-Tree para igualdad/rangos escalares; cambia para operadores especializados.
 
-## Failure modes & Pitfalls
-- Index not used due to low selectivity or function wrapping.
-- Composite index order mismatch with queries.
+## Modos de fallo y trampas
+- Índice no utilizado debido a baja selectividad o funciones envolventes.
+- Orden del índice compuesto no coincide con las consultas.
 
-## Observability (How to detect issues)
-- **Metrics:** index usage, query latency on range filters.
-- **Logs:** slow query logs.
-- **Alerts:** sustained latency on ordered queries.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** uso del índice, latencia de consultas en filtros de rango.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** latencia sostenida en consultas ordenadas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Ensure predicates match index order
-  - [ ] Validate with EXPLAIN
+  - [ ] Asegurar que los predicados coincidan con el orden del índice
+  - [ ] Validar con EXPLAIN
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using B-Tree for JSON containment.
-  - **Why it’s bad:** it won’t use the index efficiently.
-  - **Better approach:** use [GIN index](gin-index.md).
+## Anti-patrones comunes
+- **Anti-patrón:** Usar B-Tree para contención en JSON.
+  - **Por qué es malo:** no usará el índice eficientemente.
+  - **Mejor enfoque:** usar [GIN index](gin-index.md).
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A B-Tree index is the default index for ordered data. It’s ideal for equality and range queries, but it doesn’t help with containment queries inside JSON or arrays.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Un índice B-Tree es el índice predeterminado para datos ordenados. Es ideal para consultas de igualdad y rango, pero no ayuda con consultas de contención dentro de JSON o arrays.
 
-### Trap questions (with answers)
-1) **Q:** Is B-Tree always the best index type?
-	- **A:** no; it depends on operators and access patterns.
-2) **Q:** Does B-Tree speed up JSONB containment?
-	- **A:** no; use GIN for containment queries.
-3) **Q:** Can index order matter?
-	- **A:** yes; composite indexes are order-sensitive.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es B-Tree siempre el mejor tipo de índice?
+	- **R:** no; depende de los operadores y patrones de acceso.
+2) **P:** ¿B-Tree acelera la contención en JSONB?
+	- **R:** no; usa GIN para consultas de contención.
+3) **P:** ¿El orden del índice importa?
+	- **R:** sí; los índices compuestos son sensibles al orden.
 
-### Quick self-check (5 items)
-- [ ] I can define B-Tree indexes precisely.
-- [ ] I can state when to use them and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a range-query example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir los índices B-Tree con precisión.
+- [ ] Puedo indicar cuándo usarlos y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo de consulta de rango.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Index](index.md)
 
-### Related topics
+### Temas relacionados
 - [GIN index](gin-index.md)
 
-### Compare with
-- [GIN index](gin-index.md) — containment queries vs ordered scans.
-- [GiST](gist-index.md) — specialized types vs ordered scalars.
+### Comparar con
+- [GIN index](gin-index.md) — consultas de contención vs escaneos ordenados.
+- [GiST](gist-index.md) — tipos especializados vs escalares ordenados.

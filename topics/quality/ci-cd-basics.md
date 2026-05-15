@@ -1,6 +1,6 @@
 ---
 id: ci-cd-basics
-title: "CI/CD Basics"
+title: "Fundamentos de CI/CD"
 type: concept
 status: learning
 importance: 85
@@ -12,143 +12,143 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# CI/CD Basics
+# Fundamentos de CI/CD
 
 ## TL;DR (BLUF)
-- CI/CD automates code integration, testing, and deployment to reduce manual errors and accelerate delivery.
-- CI (Continuous Integration): merge code frequently, run automated tests.
-- CD: Continuous Delivery (ready to deploy) or Continuous Deployment (auto-deploy to production).
-- Key trade-off: automation setup cost vs. delivery speed and reliability.
+- CI/CD automatiza la integración de código, pruebas y despliegue para reducir errores manuales y acelerar la entrega.
+- CI (Integración Continua): fusionar código frecuentemente, ejecutar pruebas automatizadas.
+- CD: Entrega Continua (listo para desplegar) o Despliegue Continuo (despliegue automático a producción).
+- Trade-off clave: costo de configuración de automatización vs. velocidad y confiabilidad de entrega.
 
-## Definition
-**What it is:** A set of practices and tools that automate the process of integrating code changes, testing them, and deploying to production.  
-**Key terms:**
-- **CI (Continuous Integration):** Merging code changes frequently (daily/hourly) with automated builds and tests.
-- **CD (Continuous Delivery):** Code is always in a deployable state; deployment requires manual approval.
-- **CD (Continuous Deployment):** Every change that passes tests is automatically deployed to production.
-- **Pipeline:** Automated sequence of steps (build, test, deploy).
-- **Artifact:** Built package ready for deployment (Docker image, binary, etc.).
+## Definición
+**Qué es:** Un conjunto de prácticas y herramientas que automatizan el proceso de integrar cambios de código, probarlos y desplegarlos a producción.  
+**Términos clave:**
+- **CI (Integración Continua):** Fusionar cambios de código frecuentemente (diario/por hora) con compilaciones y pruebas automatizadas.
+- **CD (Entrega Continua):** El código siempre está en un estado desplegable; el despliegue requiere aprobación manual.
+- **CD (Despliegue Continuo):** Cada cambio que pasa las pruebas se despliega automáticamente a producción.
+- **Pipeline:** Secuencia automatizada de pasos (compilar, probar, desplegar).
+- **Artefacto:** Paquete compilado listo para despliegue (imagen Docker, binario, etc.).
 
-## Why it matters
-- **Faster delivery:** Automated pipelines deploy in minutes vs. hours/days for manual processes.
-- **Fewer bugs:** Automated tests catch defects before production.
-- **Reduces risk:** Small, frequent releases are easier to debug and rollback than large releases.
-- **Better collaboration:** CI forces integration early, catching conflicts quickly.
-- **Interview relevance:** CI/CD is fundamental for modern software delivery discussions.
+## Por qué importa
+- **Entrega más rápida:** Los pipelines automatizados despliegan en minutos vs. horas/días para procesos manuales.
+- **Menos errores:** Las pruebas automatizadas detectan defectos antes de producción.
+- **Reduce el riesgo:** Lanzamientos pequeños y frecuentes son más fáciles de depurar y revertir que lanzamientos grandes.
+- **Mejor colaboración:** CI fuerza la integración temprana, detectando conflictos rápidamente.
+- **Relevancia en entrevistas:** CI/CD es fundamental para discusiones sobre entrega de software moderno.
 
-## Scope & Non-goals
-**In scope:**
-- CI: automated builds, tests, integration.
-- CD: deployment automation, staging/production pipelines.
-- Tools: GitHub Actions, Jenkins, GitLab CI, CircleCI (conceptually).
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- CI: compilaciones automatizadas, pruebas, integración.
+- CD: automatización de despliegue, pipelines de staging/producción.
+- Herramientas: GitHub Actions, Jenkins, GitLab CI, CircleCI (conceptualmente).
 
-**Out of scope / NOT solved by this:**
-- Infrastructure-as-Code (IaC) details (Terraform, CloudFormation—separate topic).
-- Specific cloud platforms (AWS, GCP, Azure—separate topics).
+**Fuera del alcance / NO resuelto por esto:**
+- Detalles de Infraestructura como Código (IaC) (Terraform, CloudFormation—tema separado).
+- Plataformas cloud específicas (AWS, GCP, Azure—temas separados).
 
-## Mental model / Intuition
-Think of CI/CD as an **assembly line for software**:
-- **CI:** Quality control at each station (automated tests catch defects early).
-- **CD (Delivery):** Product ready to ship (but waits for manual approval).
-- **CD (Deployment):** Product ships automatically when ready (no manual gate).
+## Modelo mental / Intuición
+Piensa en CI/CD como una **línea de ensamblaje para software**:
+- **CI:** Control de calidad en cada estación (las pruebas automatizadas detectan defectos temprano).
+- **CD (Entrega):** Producto listo para enviar (pero espera aprobación manual).
+- **CD (Despliegue):** El producto se envía automáticamente cuando está listo (sin compuerta manual).
 
-Without CI/CD, you're hand-crafting each release (slow, error-prone, risky).
+Sin CI/CD, estás elaborando cada lanzamiento a mano (lento, propenso a errores, riesgoso).
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Building production systems with frequent changes.
-- Working in teams (CI catches integration conflicts early).
-- Deploying frequently (daily or more).
-- Quality gates are necessary (automated tests before deploy).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Construyes sistemas de producción con cambios frecuentes.
+- Trabajas en equipos (CI detecta conflictos de integración temprano).
+- Despliegas frecuentemente (diario o más).
+- Se necesitan compuertas de calidad (pruebas automatizadas antes del despliegue).
 
-### Avoid it when
-- Writing throwaway code (prototypes, one-off scripts).
-- Deployment is extremely risky (safety-critical systems may require manual checks; though CI/CD with gates is still valuable).
+### Evítalo cuando
+- Escribes código desechable (prototipos, scripts de un solo uso).
+- El despliegue es extremadamente riesgoso (sistemas críticos de seguridad pueden requerir verificaciones manuales; aunque CI/CD con compuertas sigue siendo valioso).
 
-## How I would use it (practical)
-- **Context:** Setting up CI/CD for a Go API service deployed to AWS.
-- **Steps:**
-  1. **CI (on every PR):**
-     - Trigger: Pull request opened.
-     - Steps: Checkout code → Install dependencies → Lint → Run unit tests → Check coverage.
-     - Outcome: Block merge if linting fails or tests fail.
-  2. **CD (on merge to main):**
-     - Trigger: Code merged to main branch.
-     - Steps: Build Docker image → Run integration tests → Push image to registry → Tag with version.
-     - Outcome: Artifact ready for deployment.
-  3. **CD (deploy to staging):**
-     - Trigger: New image in registry.
-     - Steps: Deploy to staging environment → Run smoke tests → Monitor for 10 minutes.
-     - Outcome: Staging environment updated automatically.
-  4. **CD (deploy to production):**
-     - Option A (Continuous Delivery): Manual approval required.
-     - Option B (Continuous Deployment): Auto-deploy if staging succeeds + canary deploy (5% traffic for 10 min).
-- **What success looks like:** Code goes from commit to production in <30 minutes; zero manual deployment steps; error rate <0.1%.
+## Cómo lo usaría (práctico)
+- **Contexto:** Configurando CI/CD para un servicio API en Go desplegado en AWS.
+- **Pasos:**
+  1. **CI (en cada PR):**
+     - Disparador: Pull request abierto.
+     - Pasos: Checkout de código → Instalar dependencias → Lint → Ejecutar pruebas unitarias → Verificar cobertura.
+     - Resultado: Bloquear merge si el linting falla o las pruebas fallan.
+  2. **CD (al fusionar a main):**
+     - Disparador: Código fusionado a la rama main.
+     - Pasos: Compilar imagen Docker → Ejecutar pruebas de integración → Subir imagen al registro → Etiquetar con versión.
+     - Resultado: Artefacto listo para despliegue.
+  3. **CD (desplegar a staging):**
+     - Disparador: Nueva imagen en el registro.
+     - Pasos: Desplegar al entorno de staging → Ejecutar pruebas de humo → Monitorear por 10 minutos.
+     - Resultado: Entorno de staging actualizado automáticamente.
+  4. **CD (desplegar a producción):**
+     - Opción A (Entrega Continua): Se requiere aprobación manual.
+     - Opción B (Despliegue Continuo): Despliegue automático si staging tiene éxito + despliegue canario (5% del tráfico por 10 min).
+- **Cómo se ve el éxito:** El código va de commit a producción en <30 minutos; cero pasos de despliegue manual; tasa de error <0.1%.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Faster delivery (automate repetitive tasks).
-  - Fewer defects (automated tests catch bugs early).
-  - Reduced risk (small, frequent releases).
-  - Better visibility (pipeline shows build/test status).
-- **Cons / Risks:**
-  - Upfront setup cost (writing pipelines, configuring tools).
-  - Requires discipline (tests must be reliable, no flaky tests).
-  - Initial learning curve (teams need CI/CD knowledge).
+- **Ventajas:**
+  - Entrega más rápida (automatizar tareas repetitivas).
+  - Menos defectos (las pruebas automatizadas detectan errores temprano).
+  - Riesgo reducido (lanzamientos pequeños y frecuentes).
+  - Mejor visibilidad (el pipeline muestra el estado de compilación/pruebas).
+- **Desventajas / Riesgos:**
+  - Costo inicial de configuración (escribir pipelines, configurar herramientas).
+  - Requiere disciplina (las pruebas deben ser confiables, sin pruebas inestables).
+  - Curva de aprendizaje inicial (los equipos necesitan conocimiento de CI/CD).
 
-### Alternatives
-- **Manual builds/deployments:** Slow, error-prone, doesn't scale.
-- **Scheduled releases (weekly/monthly):** Fewer deployments but larger, riskier releases.
-- **No testing automation:** Faster initially but high defect rate in production.
+### Alternativas
+- **Compilaciones/despliegues manuales:** Lento, propenso a errores, no escala.
+- **Lanzamientos programados (semanal/mensual):** Menos despliegues pero lanzamientos más grandes y riesgosos.
+- **Sin automatización de pruebas:** Más rápido inicialmente pero alta tasa de defectos en producción.
 
-### How to choose
-- **Production systems:** Full CI/CD with automated tests and deployments.
-- **Internal tools:** Lightweight CI (tests) + manual deploys may suffice.
-- **Prototypes:** No CI/CD (overkill for throwaway code).
+### Cómo elegir
+- **Sistemas de producción:** CI/CD completo con pruebas automatizadas y despliegues.
+- **Herramientas internas:** CI ligero (pruebas) + despliegues manuales puede ser suficiente.
+- **Prototipos:** Sin CI/CD (excesivo para código desechable).
 
-## Failure modes & Pitfalls
-- **Slow pipelines:** CI takes >30 minutes; developers context-switch and lose productivity.
-- **Flaky tests:** Random test failures block deployments; teams bypass CI or ignore failures.
-- **No rollback strategy:** Deployment breaks production with no quick way to revert.
-- **Deploy everything to production:** No staging environment to catch issues before prod.
-- **Over-complicated pipelines:** Too many stages, manual approvals, or dependencies (kills velocity).
+## Modos de fallo y trampas
+- **Pipelines lentos:** CI toma >30 minutos; los desarrolladores cambian de contexto y pierden productividad.
+- **Pruebas inestables:** Fallos aleatorios en pruebas bloquean despliegues; los equipos evitan CI o ignoran fallos.
+- **Sin estrategia de rollback:** El despliegue rompe producción sin forma rápida de revertir.
+- **Desplegar todo a producción:** Sin entorno de staging para detectar problemas antes de producción.
+- **Pipelines demasiado complicados:** Demasiadas etapas, aprobaciones manuales o dependencias (mata la velocidad).
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Pipeline duration (flag >30 minutes for PRs, >60 minutes for deploys).
-  - Pipeline success rate (aim for >95%).
-  - Deployment frequency (higher is better with CI/CD).
-  - Mean time to recovery (MTTR; how fast can you rollback?).
-- **Logs:** Track pipeline failures by stage (build vs test vs deploy).
-- **Traces:** N/A for CI/CD itself.
-- **Alerts:** Pipeline duration spike, success rate drop, deployment failure.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Duración del pipeline (señalar >30 minutos para PRs, >60 minutos para despliegues).
+  - Tasa de éxito del pipeline (apuntar a >95%).
+  - Frecuencia de despliegue (mayor es mejor con CI/CD).
+  - Tiempo medio de recuperación (MTTR; ¿qué tan rápido puedes hacer rollback?).
+- **Logs:** Rastrear fallos del pipeline por etapa (compilación vs pruebas vs despliegue).
+- **Trazas:** N/A para CI/CD en sí mismo.
+- **Alertas:** Pico en duración del pipeline, caída en tasa de éxito, fallo en despliegue.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Set up CI for PRs (lint, unit tests, coverage check).
-  - [ ] Set up CD for main branch (build artifact, integration tests).
-  - [ ] Define deployment stages (staging → production).
-  - [ ] Implement rollback strategy (canary, blue/green, or manual revert).
-  - [ ] Monitor pipeline metrics (duration, success rate).
-  - [ ] Fix or quarantine flaky tests immediately.
-  - [ ] Use secrets management (don't hardcode credentials in pipelines).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Configurar CI para PRs (lint, pruebas unitarias, verificación de cobertura).
+  - [ ] Configurar CD para la rama main (compilar artefacto, pruebas de integración).
+  - [ ] Definir etapas de despliegue (staging → producción).
+  - [ ] Implementar estrategia de rollback (canario, blue/green, o reversión manual).
+  - [ ] Monitorear métricas del pipeline (duración, tasa de éxito).
+  - [ ] Corregir o poner en cuarentena pruebas inestables inmediatamente.
+  - [ ] Usar gestión de secretos (no codificar credenciales en los pipelines).
 
-- **Security / Compliance notes**
-  - Include security scans in CI (SAST, dependency checks).
-  - Use least-privilege credentials for deployment (IAM roles, service accounts).
-  - Audit deployments (who deployed what, when).
+- **Notas de seguridad / cumplimiento**
+  - Incluir escaneos de seguridad en CI (SAST, verificación de dependencias).
+  - Usar credenciales con mínimos privilegios para despliegue (roles IAM, cuentas de servicio).
+  - Auditar despliegues (quién desplegó qué, cuándo).
 
-- **Performance notes**
-  - Parallelize pipeline steps where possible (lint + test in parallel).
-  - Cache dependencies (Go modules, npm packages) to speed up builds.
-  - Run expensive tests (E2E, load tests) less frequently (main branch only, nightly).
+- **Notas de rendimiento**
+  - Paralelizar pasos del pipeline donde sea posible (lint + pruebas en paralelo).
+  - Cachear dependencias (módulos Go, paquetes npm) para acelerar compilaciones.
+  - Ejecutar pruebas costosas (E2E, pruebas de carga) con menos frecuencia (solo rama main, nightly).
 
-- **Operational notes**
-  - Monitor production after deployments (error rate, latency spikes).
-  - Automate rollback if metrics degrade (canary with auto-revert).
+- **Notas operacionales**
+  - Monitorear producción después de despliegues (tasa de error, picos de latencia).
+  - Automatizar rollback si las métricas se degradan (canario con auto-reversión).
 
-## Mini example (GitHub Actions)
+## Mini ejemplo (GitHub Actions)
 ```yaml
 # .github/workflows/ci.yml
 name: CI
@@ -216,77 +216,77 @@ jobs:
           curl -f https://staging.example.com/health || exit 1
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** No CI pipeline ("we'll test locally").
-  - **Why it's bad:** Human error; tests skipped; broken code reaches main.
-  - **Better approach:** Automate tests in CI; block merge on failures.
+## Anti-patrones comunes
+- **Anti-patrón:** Sin pipeline de CI ("probaremos localmente").
+  - **Por qué es malo:** Error humano; pruebas omitidas; código roto llega a main.
+  - **Mejor enfoque:** Automatizar pruebas en CI; bloquear merge en fallos.
 
-- **Anti-pattern:** Deploy directly to production (no staging).
-  - **Why it's bad:** Issues discovered in production; high blast radius.
-  - **Better approach:** Deploy to staging first; validate before production.
+- **Anti-patrón:** Desplegar directamente a producción (sin staging).
+  - **Por qué es malo:** Problemas descubiertos en producción; alto radio de impacto.
+  - **Mejor enfoque:** Desplegar primero a staging; validar antes de producción.
 
-- **Anti-pattern:** Manual deployment steps.
-  - **Why it's bad:** Slow, error-prone, not repeatable.
-  - **Better approach:** Automate deployment with scripts or tools (kubectl, AWS CLI).
+- **Anti-patrón:** Pasos de despliegue manuales.
+  - **Por qué es malo:** Lento, propenso a errores, no repetible.
+  - **Mejor enfoque:** Automatizar despliegue con scripts o herramientas (kubectl, AWS CLI).
 
-- **Anti-pattern:** Ignoring flaky tests ("just re-run CI").
-  - **Why it's bad:** Erodes trust in CI; developers bypass or ignore failures.
-  - **Better approach:** Fix or quarantine flaky tests immediately.
+- **Anti-patrón:** Ignorar pruebas inestables ("solo re-ejecuta CI").
+  - **Por qué es malo:** Erosiona la confianza en CI; los desarrolladores evitan o ignoran fallos.
+  - **Mejor enfoque:** Corregir o poner en cuarentena pruebas inestables inmediatamente.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-CI/CD automates the path from code commit to production. CI means merging code frequently and running automated tests to catch bugs early. CD has two flavors: Continuous Delivery means code is always deployable but requires manual approval to go to production, while Continuous Deployment means every change that passes tests is automatically deployed. The key benefits are speed (automate repetitive tasks), quality (automated tests catch defects), and reduced risk (small, frequent releases are easier to debug and rollback). A typical pipeline runs linting and unit tests on every PR, builds artifacts and runs integration tests on main, and deploys to staging and production with appropriate gates.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+CI/CD automatiza el camino desde el commit de código hasta producción. CI significa fusionar código frecuentemente y ejecutar pruebas automatizadas para detectar errores temprano. CD tiene dos sabores: Entrega Continua significa que el código siempre es desplegable pero requiere aprobación manual para ir a producción, mientras que Despliegue Continuo significa que cada cambio que pasa las pruebas se despliega automáticamente. Los beneficios clave son velocidad (automatizar tareas repetitivas), calidad (las pruebas automatizadas detectan defectos) y riesgo reducido (lanzamientos pequeños y frecuentes son más fáciles de depurar y revertir). Un pipeline típico ejecuta linting y pruebas unitarias en cada PR, compila artefactos y ejecuta pruebas de integración en main, y despliega a staging y producción con las compuertas apropiadas.
 
-### Trap questions (with answers)
-1) **Q:** What's the difference between Continuous Delivery and Continuous Deployment?
-   - **A:** 
-     - **Continuous Delivery:** Code is always in a deployable state, but deployment to production requires manual approval.
-     - **Continuous Deployment:** Every change that passes automated tests is deployed to production automatically (no manual gate).
-     - Continuous Deployment is more automated but requires higher confidence in tests.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cuál es la diferencia entre Entrega Continua y Despliegue Continuo?
+   - **R:** 
+     - **Entrega Continua:** El código siempre está en un estado desplegable, pero el despliegue a producción requiere aprobación manual.
+     - **Despliegue Continuo:** Cada cambio que pasa las pruebas automatizadas se despliega a producción automáticamente (sin compuerta manual).
+     - El Despliegue Continuo es más automatizado pero requiere mayor confianza en las pruebas.
 
-2) **Q:** Doesn't CI/CD mean deploying untested code to production?
-   - **A:** No. CI/CD relies on automated tests at every stage. Code that fails tests is blocked from merging or deploying. The goal is to automate *testing* and *deployment*, not to skip testing.
+2) **P:** ¿CI/CD no significa desplegar código sin probar a producción?
+   - **R:** No. CI/CD se basa en pruebas automatizadas en cada etapa. El código que falla las pruebas se bloquea para fusionar o desplegar. El objetivo es automatizar las *pruebas* y el *despliegue*, no omitir las pruebas.
 
-3) **Q:** How do you prevent bad deployments in Continuous Deployment?
-   - **A:** Use progressive rollout strategies:
-     - **Canary deploys:** Deploy to small percentage of traffic first; rollback if errors spike.
-     - **Feature flags:** Deploy code but keep features off; enable gradually.
-     - **Automated rollback:** Monitor metrics (error rate, latency); auto-revert if thresholds breached.
+3) **P:** ¿Cómo previenes despliegues malos en Despliegue Continuo?
+   - **R:** Usa estrategias de despliegue progresivo:
+     - **Despliegues canario:** Desplegar a un pequeño porcentaje del tráfico primero; hacer rollback si los errores aumentan.
+     - **Feature flags:** Desplegar código pero mantener funcionalidades apagadas; habilitar gradualmente.
+     - **Rollback automatizado:** Monitorear métricas (tasa de error, latencia); auto-revertir si se superan los umbrales.
 
-4) **Q:** What if CI pipeline is too slow (>1 hour)?
-   - **A:** Optimize:
-     - Parallelize steps (run lint + test in parallel).
-     - Cache dependencies (Go modules, npm packages).
-     - Tier tests (fast tests on PR; slow tests on main).
-     - Use faster hardware or runners.
-     - Target: <10 minutes for PRs, <30 minutes for full pipeline.
+4) **P:** ¿Qué pasa si el pipeline de CI es demasiado lento (>1 hora)?
+   - **R:** Optimizar:
+     - Paralelizar pasos (ejecutar lint + pruebas en paralelo).
+     - Cachear dependencias (módulos Go, paquetes npm).
+     - Escalonar pruebas (pruebas rápidas en PR; pruebas lentas en main).
+     - Usar hardware o runners más rápidos.
+     - Objetivo: <10 minutos para PRs, <30 minutos para pipeline completo.
 
-5) **Q:** Should every project have CI/CD?
-   - **A:** Not necessarily. Use CI/CD for production systems with frequent changes and multiple engineers. For prototypes, one-off scripts, or stable systems with rare releases, the setup cost may exceed the benefit. But for most modern software, CI/CD is essential.
+5) **P:** ¿Todos los proyectos deberían tener CI/CD?
+   - **R:** No necesariamente. Usa CI/CD para sistemas de producción con cambios frecuentes y múltiples ingenieros. Para prototipos, scripts de un solo uso, o sistemas estables con lanzamientos raros, el costo de configuración puede superar el beneficio. Pero para la mayoría del software moderno, CI/CD es esencial.
 
-### Quick self-check (5 items)
-- [ ] I can explain the difference between CI, Continuous Delivery, and Continuous Deployment.
-- [ ] I can describe a typical CI/CD pipeline (stages and gates).
-- [ ] I can name at least 3 benefits of CI/CD (speed, quality, risk reduction).
-- [ ] I can explain strategies to prevent bad deployments (canary, feature flags, rollback).
-- [ ] I can articulate when CI/CD is overkill (and when it's essential).
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar la diferencia entre CI, Entrega Continua y Despliegue Continuo.
+- [ ] Puedo describir un pipeline típico de CI/CD (etapas y compuertas).
+- [ ] Puedo nombrar al menos 3 beneficios de CI/CD (velocidad, calidad, reducción de riesgo).
+- [ ] Puedo explicar estrategias para prevenir despliegues malos (canario, feature flags, rollback).
+- [ ] Puedo articular cuándo CI/CD es excesivo (y cuándo es esencial).
 
-## Links (NO duplication)
-### Prerequisites
-- [Software Quality Assurance](software-quality-assurance.md)
-- [Testing fundamentals](testing-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
+- [Fundamentos de pruebas](testing-fundamentals.md)
 
-### Related topics
-- [Quality gates](quality-gates.md)
-- [Testing pyramid](testing-pyramid.md)
-- [Infrastructure as Code](../operations/infrastructure-as-code.md)
-- [Blue/green deployments](../operations/blue-green-deployments.md)
-- [Canary deployments](../operations/canary-deployments.md)
+### Temas relacionados
+- [Compuertas de calidad](quality-gates.md)
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Infraestructura como Código](../operations/infrastructure-as-code.md)
+- [Despliegues blue/green](../operations/blue-green-deployments.md)
+- [Despliegues canario](../operations/canary-deployments.md)
 
-### Compare with
-- [Quality gates](quality-gates.md) — Quality gates are the checkpoints within a CI/CD pipeline that enforce quality standards.
+### Comparar con
+- [Compuertas de calidad](quality-gates.md) — Las compuertas de calidad son los puntos de verificación dentro de un pipeline de CI/CD que imponen estándares de calidad.
 
-## Notes / Inbox
-- Add examples from real projects: Heimdall CI/CD setup, Opportunity Actions deployment pipeline.
-- Consider adding section on CI/CD tools comparison (GitHub Actions vs Jenkins vs GitLab CI).
-- Link to deployment strategies (blue/green, canary, feature flags) when those topics are created.
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: configuración de CI/CD de Heimdall, pipeline de despliegue de Opportunity Actions.
+- Considerar agregar sección sobre comparación de herramientas de CI/CD (GitHub Actions vs Jenkins vs GitLab CI).
+- Enlazar a estrategias de despliegue (blue/green, canario, feature flags) cuando esos temas sean creados.

@@ -15,95 +15,95 @@ updated_at: 2026-01-19
 # Cassandra
 
 ## TL;DR (BLUF)
-- Distributed wide-column database designed for high availability and write scalability.
-- Use it for time-series and write-heavy workloads with predictable access patterns.
-- Trade-off: data modeling is query-driven and consistency is tunable.
+- Base de datos distribuida de columna ancha diseñada para alta disponibilidad y escalabilidad de escritura.
+- Úsala para series temporales y cargas de trabajo intensivas en escritura con patrones de acceso predecibles.
+- Trade-off: el modelado de datos es orientado a consultas y la consistencia es configurable.
 
-## Definition
-**What it is:** A distributed NoSQL database using a wide-column model and tunable consistency.
-**Key terms:** partition key, replication factor, tunable consistency, wide-column.
+## Definición
+**Qué es:** Una base de datos NoSQL distribuida que usa un modelo de columna ancha y consistencia configurable.
+**Términos clave:** clave de partición, factor de replicación, consistencia configurable, columna ancha.
 
-## Why it matters
-- It handles large-scale, write-heavy workloads with high availability.
-- Poor data modeling leads to hot partitions and inefficiency.
+## Por qué importa
+- Maneja cargas de trabajo de escritura intensiva a gran escala con alta disponibilidad.
+- Un modelado de datos pobre lleva a particiones calientes e ineficiencia.
 
-## Scope & Non-goals
-**In scope:** write-heavy, globally distributed workloads with simple queries.
-**Out of scope / NOT solved by this:** complex joins or ad-hoc analytics.
+## Alcance y no-objetivos
+**Dentro del alcance:** cargas de trabajo de escritura intensiva, distribuidas globalmente, con consultas simples.
+**Fuera del alcance / NO resuelto por esto:** joins complejos o analítica ad-hoc.
 
-## Mental model / Intuition
-- Think of Cassandra as a distributed, partitioned log optimized for predictable queries.
+## Modelo mental / Intuición
+- Piensa en Cassandra como un log distribuido y particionado optimizado para consultas predecibles.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need high write throughput and multi-region availability.
-- Queries are predictable and key-based.
-### Avoid it when
-- You need flexible SQL queries or strong consistency by default.
-- You can’t design around access patterns.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas alto rendimiento de escritura y disponibilidad multi-región.
+- Las consultas son predecibles y basadas en claves.
+### Evítalo cuando
+- Necesitas consultas SQL flexibles o consistencia fuerte por defecto.
+- No puedes diseñar en torno a patrones de acceso.
 
-## How I would use it (practical)
-- **Context:** Time-series events with high write rates.
-- **Steps:** design partition keys → model tables per query → test hot partitions.
-- **What success looks like:** stable write throughput with balanced partitions.
+## Cómo lo usaría (práctico)
+- **Contexto:** Eventos de series temporales con altas tasas de escritura.
+- **Pasos:** diseñar claves de partición → modelar tablas por consulta → probar particiones calientes.
+- **Cómo se ve el éxito:** rendimiento de escritura estable con particiones balanceadas.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** high availability, linear write scaling.
-- **Cons / Risks:** complex modeling; eventual consistency by default.
-### Alternatives
-- **DynamoDB:** managed key-value store with similar access-pattern design.
-- **PostgreSQL:** relational queries with stronger consistency.
-- **How to choose:** choose Cassandra for large-scale write-heavy workloads with stable access patterns.
+- **Ventajas:** alta disponibilidad, escalado de escritura lineal.
+- **Desventajas / Riesgos:** modelado complejo; consistencia eventual por defecto.
+### Alternativas
+- **DynamoDB:** almacén clave-valor gestionado con diseño similar orientado a patrones de acceso.
+- **PostgreSQL:** consultas relacionales con consistencia más fuerte.
+- **Cómo elegir:** elige Cassandra para cargas de trabajo de escritura intensiva a gran escala con patrones de acceso estables.
 
-## Failure modes & Pitfalls
-- Hot partitions from skewed keys.
-- Read amplification from wide rows.
+## Modos de fallo y trampas
+- Particiones calientes por claves sesgadas.
+- Amplificación de lectura por filas anchas.
 
-## Observability (How to detect issues)
-- **Metrics:** write latency, partition size distribution, compaction metrics.
-- **Logs:** timeouts and read/write errors.
-- **Alerts:** rising timeouts or compaction backlog.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de escritura, distribución de tamaño de particiones, métricas de compactación.
+- **Logs:** timeouts y errores de lectura/escritura.
+- **Alertas:** timeouts crecientes o acumulación de compactación.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Design partition keys to spread load
-  - [ ] Model tables per query
-  - [ ] Monitor compaction and latency
+  - [ ] Diseñar claves de partición para distribuir la carga
+  - [ ] Modelar tablas por consulta
+  - [ ] Monitorear compactación y latencia
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Designing tables like a relational model.
-  - **Why it’s bad:** leads to inefficient queries and hot partitions.
-  - **Better approach:** model by access patterns.
+## Anti-patrones comunes
+- **Anti-patrón:** Diseñar tablas como un modelo relacional.
+  - **Por qué es malo:** lleva a consultas ineficientes y particiones calientes.
+  - **Mejor enfoque:** modelar por patrones de acceso.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Cassandra is a distributed wide-column database built for high write throughput and availability. It’s great for predictable access patterns but requires careful partition-key design and accepts eventual consistency.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Cassandra es una base de datos distribuida de columna ancha construida para alto rendimiento de escritura y disponibilidad. Es excelente para patrones de acceso predecibles pero requiere un diseño cuidadoso de claves de partición y acepta consistencia eventual.
 
-### Trap questions (with answers)
-1) **Q:** Does Cassandra support joins?
-   - **A:** no; it’s query-driven and avoids joins.
-2) **Q:** Is Cassandra strongly consistent by default?
-   - **A:** no; consistency is tunable and often eventual.
-3) **Q:** Can you change the primary key without redesign?
-   - **A:** no; it’s central to the data model.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cassandra soporta joins?
+   - **R:** no; es orientada a consultas y evita los joins.
+2) **P:** ¿Cassandra es fuertemente consistente por defecto?
+   - **R:** no; la consistencia es configurable y frecuentemente eventual.
+3) **P:** ¿Se puede cambiar la clave primaria sin rediseñar?
+   - **R:** no; es central al modelo de datos.
 
-### Quick self-check (5 items)
-- [ ] I can define Cassandra precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a time-series example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir Cassandra con precisión.
+- [ ] Puedo indicar cuándo usarla y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo de series temporales.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Partitioning & sharding](../system-design/partitioning-and-sharding.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB](dynamodb.md)
-### Compare with
-- [DynamoDB](dynamodb.md) — managed key-value vs self-managed wide-column.
-- [PostgreSQL](postgresql.md) — SQL + strong consistency vs tunable consistency.
+### Comparar con
+- [DynamoDB](dynamodb.md) — clave-valor gestionado vs columna ancha autogestionada.
+- [PostgreSQL](postgresql.md) — SQL + consistencia fuerte vs consistencia configurable.

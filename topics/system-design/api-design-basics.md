@@ -1,6 +1,6 @@
 ---
 id: api-design-basics
-title: "API Design Basics"
+title: "Fundamentos de Diseño de API"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# API Design Basics
+# Fundamentos de Diseño de API
 
 ## TL;DR (BLUF)
-- API design defines resources, methods, and contracts.
-- Use it to ensure clarity, consistency, and evolvability.
-- Trade-off: stricter contracts can slow iteration.
+- El diseño de API define recursos, métodos y contratos.
+- Úsalo para asegurar claridad, consistencia y capacidad de evolución.
+- Trade-off: contratos más estrictos pueden ralentizar la iteración.
 
-## Definition
-**What it is:** The process of defining API endpoints, payloads, and behavior.
-**Key terms:** resource, method, contract, versioning.
+## Definición
+**Qué es:** El proceso de definir endpoints de API, payloads y comportamiento.
+**Términos clave:** recurso, método, contrato, versionado.
 
-## Why it matters
-- It reduces integration bugs and ambiguity.
-- Poor design leads to breaking changes and confusion.
+## Por qué importa
+- Reduce bugs de integración y ambigüedad.
+- Un mal diseño lleva a cambios que rompen la compatibilidad y confusión.
 
-## Scope & Non-goals
-**In scope:** API structure and contracts.
-**Out of scope / NOT solved by this:** implementation details.
+## Alcance y no-objetivos
+**Dentro del alcance:** Estructura de API y contratos.
+**Fuera del alcance / NO resuelto por esto:** detalles de implementación.
 
-## Mental model / Intuition
-- An API is a contract; be explicit and consistent.
+## Modelo mental / Intuición
+- Una API es un contrato; sé explícito y consistente.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You expose APIs to clients or other teams.
-### Avoid it when
-- You only need internal prototypes with no consumers.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Expones APIs a clientes u otros equipos.
+### Evítalo cuando
+- Solo necesitas prototipos internos sin consumidores.
 
-## How I would use it (practical)
-- **Context:** Public REST API.
-- **Steps:** define resources → choose methods → document responses.
-- **What success looks like:** stable integrations and low breaking changes.
+## Cómo lo usaría (práctico)
+- **Contexto:** API REST pública.
+- **Pasos:** definir recursos → elegir métodos → documentar respuestas.
+- **Cómo se ve el éxito:** integraciones estables y pocos cambios que rompan compatibilidad.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clarity and consistency.
-- **Cons / Risks:** slower changes.
-### Alternatives
-- **Loose contracts:** faster but risky.
-- **How to choose:** use strict design for long-lived APIs.
+- **Ventajas:** claridad y consistencia.
+- **Desventajas / Riesgos:** cambios más lentos.
+### Alternativas
+- **Contratos flexibles:** más rápidos pero arriesgados.
+- **Cómo elegir:** usa diseño estricto para APIs de larga duración.
 
-## Failure modes & Pitfalls
-- Overloading endpoints with multiple behaviors.
+## Modos de fallo y trampas
+- Sobrecargar endpoints con múltiples comportamientos.
 
-## Observability (How to detect issues)
-- **Metrics:** error rate, client integration failures.
-- **Logs:** contract mismatch errors.
-- **Alerts:** spikes in 4xx/5xx.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de errores, fallos de integración del cliente.
+- **Logs:** errores de desajuste de contrato.
+- **Alertas:** picos en 4xx/5xx.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define request/response schemas
-  - [ ] Version breaking changes
+  - [ ] Definir esquemas de petición/respuesta
+  - [ ] Versionar cambios que rompen compatibilidad
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Changing response shape without versioning.
-  - **Why it’s bad:** breaks clients.
-  - **Better approach:** version or add fields compatibly.
+## Anti-patrones comunes
+- **Anti-patrón:** Cambiar la forma de la respuesta sin versionado.
+  - **Por qué es malo:** rompe clientes.
+  - **Mejor enfoque:** versionar o añadir campos de forma compatible.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- API design is about defining stable contracts: resources, methods, and payloads. Good design prevents breaking clients and makes systems easier to integrate.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El diseño de API trata de definir contratos estables: recursos, métodos y payloads. Un buen diseño previene romper clientes y hace los sistemas más fáciles de integrar.
 
-### Trap questions (with answers)
-1) **Q:** Is versioning always required?
-   - **A:** for breaking changes, yes.
-2) **Q:** Should APIs expose database tables directly?
-   - **A:** no; design around use cases.
-3) **Q:** Are optional fields always safe?
-   - **A:** no; they can create ambiguity.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El versionado siempre es necesario?
+   - **R:** para cambios que rompen compatibilidad, sí.
+2) **P:** ¿Deberían las APIs exponer tablas de la base de datos directamente?
+   - **R:** no; diseña alrededor de casos de uso.
+3) **P:** ¿Los campos opcionales siempre son seguros?
+   - **R:** no; pueden crear ambigüedad.
 
-### Quick self-check (5 items)
-- [ ] I can define API design basics.
-- [ ] I can state a trade-off.
-- [ ] I can name a pitfall.
-- [ ] I can describe a monitoring signal.
-- [ ] I can explain versioning.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir los fundamentos del diseño de API.
+- [ ] Puedo mencionar un trade-off.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo describir una señal de monitoreo.
+- [ ] Puedo explicar el versionado.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [API validation](api-validation.md)
+### Temas relacionados
+- [Validación de API](api-validation.md)
 
-### Compare with
-- [Constraints vs app-level enforcement](../databases/constraints-vs-app.md) — API vs DB rules.
+### Comparar con
+- [Restricciones vs aplicación a nivel de app](../databases/constraints-vs-app.md) — reglas de API vs BD.

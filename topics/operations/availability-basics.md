@@ -1,6 +1,6 @@
 ---
 id: availability-basics
-title: "Availability Basics"
+title: "Fundamentos de Disponibilidad"
 type: concept
 status: learning
 importance: 40
@@ -12,92 +12,92 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Availability Basics
+# Fundamentos de Disponibilidad
 
 ## TL;DR (BLUF)
-- Availability measures how often a system is operational.
-- Use it to set uptime targets and SLOs.
-- Trade-off: higher availability costs more.
+- La disponibilidad mide con qué frecuencia un sistema está operativo.
+- Úsala para establecer objetivos de uptime y SLOs.
+- Trade-off: mayor disponibilidad cuesta más.
 
-## Definition
-**What it is:** The proportion of time a system is functioning and accessible.
-**Key terms:** uptime, downtime, SLO.
+## Definición
+**Qué es:** La proporción de tiempo que un sistema está funcionando y accesible.
+**Términos clave:** uptime, downtime, SLO.
 
-## Why it matters
-- Availability affects user trust and revenue.
+## Por qué importa
+- La disponibilidad afecta la confianza del usuario y los ingresos.
 
-## Scope & Non-goals
-**In scope:** uptime targets and availability trade-offs.
-**Out of scope / NOT solved by this:** correctness/reliability semantics.
+## Alcance y no-objetivos
+**Dentro del alcance:** objetivos de uptime y trade-offs de disponibilidad.
+**Fuera del alcance / NO resuelto por esto:** semánticas de corrección/fiabilidad.
 
-## Mental model / Intuition
-- Availability is about time, not correctness.
+## Modelo mental / Intuición
+- La disponibilidad trata sobre tiempo, no sobre corrección.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You set uptime requirements.
-### Avoid it when
-- The service is non-critical and experimental.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Estableces requisitos de uptime.
+### Evítalo cuando
+- El servicio no es crítico y es experimental.
 
-## How I would use it (practical)
-- **Context:** Defining uptime goals for an API.
-- **Steps:** choose SLO → measure uptime → track error budgets.
-- **What success looks like:** stable uptime within SLO.
+## Cómo lo usaría (práctico)
+- **Contexto:** Definir objetivos de uptime para una API.
+- **Pasos:** elegir SLO -> medir uptime -> rastrear presupuestos de error.
+- **Cómo se ve el éxito:** uptime estable dentro del SLO.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clear target.
-- **Cons / Risks:** higher cost.
-### Alternatives
-- **Best-effort availability:** for non-critical systems.
-- **How to choose:** align targets with business impact.
+- **Ventajas:** objetivo claro.
+- **Desventajas / Riesgos:** mayor coste.
+### Alternativas
+- **Disponibilidad de mejor esfuerzo:** para sistemas no críticos.
+- **Cómo elegir:** alinear objetivos con el impacto al negocio.
 
-## Failure modes & Pitfalls
-- Measuring availability without accounting for user impact.
+## Modos de fallo y trampas
+- Medir disponibilidad sin considerar el impacto en el usuario.
 
-## Observability (How to detect issues)
-- **Metrics:** uptime percentage, error rate.
-- **Logs:** outage reports.
-- **Alerts:** SLO burn rate.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** porcentaje de uptime, tasa de errores.
+- **Logs:** informes de interrupciones.
+- **Alertas:** tasa de consumo de SLO.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define SLOs
-  - [ ] Measure uptime accurately
+  - [ ] Definir SLOs
+  - [ ] Medir uptime con precisión
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Chasing five 9s without need.
-  - **Why it’s bad:** huge cost.
-  - **Better approach:** set realistic targets.
+## Anti-patrones comunes
+- **Anti-patrón:** Perseguir cinco nueves sin necesidad.
+  - **Por qué es malo:** coste enorme.
+  - **Mejor enfoque:** establecer objetivos realistas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Availability is the percentage of time your system is up and serving requests. Higher availability costs more, so align goals with business needs.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La disponibilidad es el porcentaje de tiempo que tu sistema está activo y sirviendo peticiones. Mayor disponibilidad cuesta más, así que alinea los objetivos con las necesidades del negocio.
 
-### Trap questions (with answers)
-1) **Q:** Is availability the same as reliability?
-   - **A:** no; reliability includes correctness and consistency.
-2) **Q:** Does more redundancy always improve availability?
-   - **A:** not if it adds complexity and failure modes.
-3) **Q:** Is 100% availability realistic?
-   - **A:** no; aim for realistic SLOs.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es la disponibilidad lo mismo que la fiabilidad?
+   - **R:** no; la fiabilidad incluye corrección y consistencia.
+2) **P:** ¿Más redundancia siempre mejora la disponibilidad?
+   - **R:** no si añade complejidad y modos de fallo.
+3) **P:** ¿Es realista el 100% de disponibilidad?
+   - **R:** no; apunta a SLOs realistas.
 
-### Quick self-check (5 items)
-- [ ] I can define availability.
-- [ ] I can explain trade-offs.
-- [ ] I can name a pitfall.
-- [ ] I can describe a monitoring signal.
-- [ ] I can relate to reliability basics.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir disponibilidad.
+- [ ] Puedo explicar trade-offs.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo describir una señal de monitoreo.
+- [ ] Puedo relacionarla con fundamentos de fiabilidad.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [Reliability basics](reliability-basics.md)
+### Temas relacionados
+- [Fundamentos de fiabilidad](reliability-basics.md)
 
-### Compare with
-- [Reliability basics](reliability-basics.md) — uptime vs correctness.
+### Comparar con
+- [Fundamentos de fiabilidad](reliability-basics.md) — uptime vs corrección.

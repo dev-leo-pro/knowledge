@@ -1,4 +1,4 @@
-# Alias: ports-and-adapters → canonical
+# Alias: ports-and-adapters → canónico
 
-This term is an alias. See the canonical topic:
-- [Hexagonal architecture](../architecture/hexagonal-architecture.md)
+Este término es un alias. Ver el tema canónico:
+- [Arquitectura hexagonal](../architecture/hexagonal-architecture.md)

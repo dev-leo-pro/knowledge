@@ -1,6 +1,6 @@
 ---
 id: acid-properties
-title: "ACID Properties"
+title: "Propiedades ACID"
 type: concept
 status: learning
 importance: 65
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# ACID Properties
+# Propiedades ACID
 
 ## TL;DR (BLUF)
-- ACID defines transactional guarantees: Atomicity, Consistency, Isolation, Durability.
-- Use it to reason about correctness in relational databases.
-- Trade-off: stronger guarantees often reduce throughput.
+- ACID define las garantías transaccionales: Atomicidad, Consistencia, Aislamiento, Durabilidad.
+- Úsalo para razonar sobre la corrección en bases de datos relacionales.
+- Trade-off: garantías más fuertes a menudo reducen el rendimiento.
 
-## Definition
-**What it is:** A set of guarantees that ensure transactional correctness.
-**Key terms:** atomicity, consistency, isolation, durability.
+## Definición
+**Qué es:** Un conjunto de garantías que aseguran la corrección transaccional.
+**Términos clave:** atomicidad, consistencia, aislamiento, durabilidad.
 
-## Why it matters
-- It prevents partial writes and data corruption.
-- It guides trade-offs between correctness and performance.
+## Por qué importa
+- Previene escrituras parciales y corrupción de datos.
+- Guía los trade-offs entre corrección y rendimiento.
 
-## Scope & Non-goals
-**In scope:** ACID meaning and implications.
-**Out of scope / NOT solved by this:** distributed transactions across systems.
+## Alcance y no-objetivos
+**Dentro del alcance:** Significado e implicaciones de ACID.
+**Fuera del alcance / NO resuelto por esto:** transacciones distribuidas entre sistemas.
 
-## Mental model / Intuition
-- ACID is a safety contract for transactions.
+## Modelo mental / Intuición
+- ACID es un contrato de seguridad para las transacciones.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need strong correctness guarantees.
-### Avoid it when
-- Eventual consistency is acceptable and throughput is more important.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas garantías fuertes de corrección.
+### Evítalo cuando
+- La consistencia eventual es aceptable y el rendimiento es más importante.
 
-## How I would use it (practical)
-- **Context:** Banking or financial workflows.
-- **Steps:** use transactions → pick isolation level → verify durability.
-- **What success looks like:** no partial updates or lost data.
+## Cómo lo usaría (práctico)
+- **Contexto:** Flujos de trabajo bancarios o financieros.
+- **Pasos:** usar transacciones → elegir nivel de aislamiento → verificar durabilidad.
+- **Cómo se ve el éxito:** sin actualizaciones parciales ni datos perdidos.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong correctness.
-- **Cons / Risks:** reduced throughput and higher contention.
-### Alternatives
-- **Eventual consistency:** for high-scale systems.
-- **How to choose:** prioritize ACID for correctness-critical systems.
+- **Ventajas:** corrección fuerte.
+- **Desventajas / Riesgos:** rendimiento reducido y mayor contención.
+### Alternativas
+- **Consistencia eventual:** para sistemas de gran escala.
+- **Cómo elegir:** priorizar ACID para sistemas donde la corrección es crítica.
 
-## Failure modes & Pitfalls
-- Misunderstanding isolation leading to anomalies.
+## Modos de fallo y trampas
+- Malentender el aislamiento llevando a anomalías.
 
-## Observability (How to detect issues)
-- **Metrics:** transaction failures, lock waits.
-- **Logs:** transaction aborts.
-- **Alerts:** spikes in aborts or deadlocks.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** fallos de transacciones, esperas de bloqueos.
+- **Logs:** abortos de transacciones.
+- **Alertas:** picos en abortos o deadlocks.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose appropriate isolation level
-  - [ ] Keep transactions short
+  - [ ] Elegir el nivel de aislamiento apropiado
+  - [ ] Mantener las transacciones cortas
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Assuming ACID across microservices.
-  - **Why it’s bad:** cross-system consistency isn’t automatic.
-  - **Better approach:** use sagas or outbox patterns.
+## Anti-patrones comunes
+- **Anti-patrón:** Asumir ACID entre microservicios.
+  - **Por qué es malo:** la consistencia entre sistemas no es automática.
+  - **Mejor enfoque:** usar sagas o patrones outbox.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- ACID describes how transactions behave: they’re atomic, consistent, isolated, and durable. It’s the baseline for correctness in relational databases.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- ACID describe cómo se comportan las transacciones: son atómicas, consistentes, aisladas y durables. Es la línea base de corrección en bases de datos relacionales.
 
-### Trap questions (with answers)
-1) **Q:** Is ACID guaranteed across services?
-   - **A:** no; it’s typically within a single database.
-2) **Q:** Does ACID mean high availability?
-   - **A:** no; it’s about correctness, not availability.
-3) **Q:** Can you relax isolation for performance?
-   - **A:** yes; isolation levels trade correctness for throughput.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Se garantiza ACID entre servicios?
+   - **R:** no; típicamente es dentro de una sola base de datos.
+2) **P:** ¿ACID significa alta disponibilidad?
+   - **R:** no; se trata de corrección, no de disponibilidad.
+3) **P:** ¿Se puede relajar el aislamiento por rendimiento?
+   - **R:** sí; los niveles de aislamiento intercambian corrección por rendimiento.
 
-### Quick self-check (5 items)
-- [ ] I can define ACID precisely.
-- [ ] I can explain each letter.
-- [ ] I can state a trade-off.
-- [ ] I can name a pitfall.
-- [ ] I can explain isolation levels at a high level.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir ACID con precisión.
+- [ ] Puedo explicar cada letra.
+- [ ] Puedo mencionar un trade-off.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo explicar los niveles de aislamiento a alto nivel.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Transactions](transactions.md)
 
-### Related topics
+### Temas relacionados
 - [Locks](locks.md)
 
-### Compare with
+### Comparar con
 - [Consistency models](consistency-models.md)
