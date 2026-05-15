@@ -1,9 +1,9 @@
 ---
-id: <slug>                      # unique identifier, usually same as filename
-title: "<Human-readable title>"  # e.g. "Backpressure"
+id: <slug>                      # identificador único, normalmente igual al nombre de archivo
+title: "<Título legible>"        # ej. "Backpressure"
 type: <concept|technology|library|pattern|case|skill>
 status: <learning|practicing|mastered|stale>
-importance: <0-100>             # subjective priority
+importance: <0-100>             # prioridad subjetiva
 difficulty: <easy|medium|hard>
 tags: [<tag1>, <tag2>]
 canonical: true
@@ -12,111 +12,111 @@ created_at: <YYYY-MM-DD>
 updated_at: <YYYY-MM-DD>
 ---
 
-# <Human-readable title>
+# <Título legible>
 
 ## TL;DR (BLUF)
-- <1–3 bullets: what it is + when to use it + key trade-off>
+- <1–3 viñetas: qué es + cuándo usarlo + trade-off clave>
 
-## Definition
-**What it is:** <2–4 lines, precise.>  
-**Key terms:** <list key terms; first mention add (English term) if needed.>
+## Definición
+**Qué es:** <2–4 líneas, preciso.>  
+**Términos clave:** <lista de términos clave; primera mención añadir (término en inglés) si es necesario.>
 
-## Why it matters
-- <Impact on correctness / performance / delivery / reliability / interviews>
-- <Typical real-world consequences of getting it wrong>
+## Por qué importa
+- <Impacto en corrección / rendimiento / entrega / fiabilidad / entrevistas>
+- <Consecuencias típicas del mundo real si se hace mal>
 
-## Scope & Non-goals
-**In scope:**
+## Alcance y no-objetivos
+**Dentro del alcance:**
 - ...
-**Out of scope / NOT solved by this:**
-- ...
-
-## Mental model / Intuition
-- <Analogy or mental model that makes it stick>
-- <Short “how to reason about it”>
-
-## Decision rules (When to use / When not to use)
-### Use it when
-- ...
-### Avoid it when
+**Fuera del alcance / NO resuelto por esto:**
 - ...
 
-## How I would use it (practical)
-- **Context:** <project scenario>
-- **Steps:** <concrete steps>
-- **What success looks like:** <measurable outcome>
+## Modelo mental / Intuición
+- <Analogía o modelo mental que lo haga recordar>
+- <Breve "cómo razonar sobre ello">
 
-## Trade-offs & Alternatives
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- ...
+### Evítalo cuando
+- ...
+
+## Cómo lo usaría (práctico)
+- **Contexto:** <escenario de proyecto>
+- **Pasos:** <pasos concretos>
+- **Cómo se ve el éxito:** <resultado medible>
+
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
+- **Ventajas:**
   - ...
-- **Cons / Risks:**
+- **Desventajas / Riesgos:**
   - ...
-### Alternatives
-- **Alternative A:** <when it’s better>
-- **Alternative B:** <when it’s better>
-- **How to choose:** <clear rules>
+### Alternativas
+- **Alternativa A:** <cuándo es mejor>
+- **Alternativa B:** <cuándo es mejor>
+- **Cómo elegir:** <reglas claras>
 
-## Failure modes & Pitfalls
-- <How it breaks in production / common misunderstandings>
-- <Edge cases / gotchas>
+## Modos de fallo y trampas
+- <Cómo se rompe en producción / malentendidos comunes>
+- <Casos límite / gotchas>
 
-## Observability (How to detect issues)
-- **Metrics:** <RED/USE, latency p95, error rate, saturation, etc.>
-- **Logs:** <what to log, what to look for>
-- **Traces:** <what spans reveal>
-- **Alerts:** <what you would alert on>
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** <RED/USE, latencia p95, tasa de error, saturación, etc.>
+- **Logs:** <qué registrar, qué buscar>
+- **Trazas:** <qué revelan los spans>
+- **Alertas:** <sobre qué alertarías>
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
   - [ ] ...
   - [ ] ...
-- **Security / Compliance notes**
+- **Notas de seguridad / cumplimiento**
   - ...
-- **Performance notes**
+- **Notas de rendimiento**
   - ...
-- **Operational notes**
+- **Notas operacionales**
   - ...
 
-## Mini example (if applicable)
-```<language>
-# Keep it small and illustrative. Prefer idiomatic code.
+## Mini ejemplo (si aplica)
+```<lenguaje>
+# Mantenlo pequeño e ilustrativo. Prefiere código idiomático.
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** <what people do>
-  - **Why it’s bad:** ...
-  - **Better approach:** ...
+## Anti-patrones comunes
+- **Anti-patrón:** <lo que la gente hace>
+  - **Por qué es malo:** ...
+  - **Mejor enfoque:** ...
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- <A crisp explanation you could say in 30–60 seconds>
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- <Una explicación clara que puedas dar en 30–60 segundos>
 
-### Trap questions (with answers)
-1) **Q:** ...
-   - **A:** ...
-2) **Q:** ...
-   - **A:** ...
-3) **Q:** ...
-   - **A:** ...
+### Preguntas trampa (con respuestas)
+1) **P:** ...
+   - **R:** ...
+2) **P:** ...
+   - **R:** ...
+3) **P:** ...
+   - **R:** ...
 
-### Quick self-check (5 items)
-- [ ] I can define it precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definirlo con precisión en 2–3 frases.
+- [ ] Puedo decir cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [<Topic>](<relative-link>)
-- (TODO) <topic not yet created>
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [<Tema>](<enlace-relativo>)
+- (TODO) <tema aún no creado>
 
-### Related topics
-- [<Topic>](<relative-link>)
+### Temas relacionados
+- [<Tema>](<enlace-relativo>)
 
-### Compare with
-- [<Topic>](<relative-link>) — <1-line difference>
+### Comparar con
+- [<Tema>](<enlace-relativo>) — <diferencia en 1 línea>
 
-## Notes / Inbox (optional)
-- <loose notes, reminders, partial thoughts; move into sections later>
+## Notas / Bandeja de entrada (opcional)
+- <notas sueltas, recordatorios, pensamientos parciales; mover a secciones después>

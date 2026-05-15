@@ -1,70 +1,70 @@
-# AGENTS.md — Knowledge Gym (Static Markdown First)
+# AGENTS.md — Knowledge Gym (Markdown estático primero)
 
-## Mission
-Build and maintain a **static knowledge base** for long-term learning and interview readiness. The repository is a **graph of topics**: no duplication, only references/links.
+## Misión
+Construir y mantener una **base de conocimiento estática** para aprendizaje a largo plazo y preparación de entrevistas. El repositorio es un **grafo de temas**: sin duplicación, solo referencias/enlaces.
 
-## Core principles (non-negotiable)
-1. **No duplicate explanations.** If content already exists in another topic, link to it instead of rewriting.
-2. **One canonical topic per concept.** If a user adds a term that already exists, create an alias page in `topics/_aliases/` that points to the canonical file.
-3. **Graph-first navigation.** Every topic must include:
-   - prerequisites (links),
-   - related topics (links),
-   - “part-of / compares-to” relationships where relevant.
+## Principios fundamentales (innegociables)
+1. **Sin explicaciones duplicadas.** Si el contenido ya existe en otro tema, enlázalo en lugar de reescribirlo.
+2. **Un tema canónico por concepto.** Si un usuario añade un término que ya existe, crea una página de alias en `topics/_aliases/` que apunte al archivo canónico.
+3. **Navegación basada en grafo.** Cada tema debe incluir:
+   - prerequisitos (enlaces),
+   - temas relacionados (enlaces),
+   - relaciones "parte-de / se-compara-con" cuando sea relevante.
 
-## Repository conventions
-- All docs are Markdown.
-- Primary topic directory: `topics/`
-- Topic filenames use **kebab-case**: `gin-index.md`, `event-sourcing.md`
-- Topic location follows taxonomy in `docs/04-taxonomy.md`.
-- Index pages:
-  - `topics/_index.md` must list topics by category and be updated when new topics are added.
-  - `questions/_index.md` must list question sets if any are added.
-   - `practices/logs/_index.md` must list practice sessions and link to their logs.
+## Convenciones del repositorio
+- Todos los documentos son Markdown.
+- Directorio principal de temas: `topics/`
+- Los nombres de archivo usan **kebab-case**: `gin-index.md`, `event-sourcing.md`
+- La ubicación de los temas sigue la taxonomía en `docs/04-taxonomy.md`.
+- Páginas de índice:
+  - `topics/_index.md` debe listar los temas por categoría y actualizarse cuando se añadan nuevos temas.
+  - `questions/_index.md` debe listar los conjuntos de preguntas si se añaden.
+  - `practices/logs/_index.md` debe listar las sesiones de práctica y enlazar a sus registros.
 
-## Required topic structure
-Use `templates/topic.template.md`. Not all sections must be filled; keep empty sections with “N/A” only if truly not applicable.
+## Estructura requerida de los temas
+Usa `templates/topic.template.md`. No todas las secciones deben estar completas; mantén las secciones vacías con "N/A" solo si realmente no aplican.
 
-Mandatory minimum for every new topic:
-- Definition (What it is)
-- Why it matters
-- When to use / when not to use
-- Trade-offs (at least 2)
-- Links: prerequisites + related
-- At least 3 “trap questions” with answers
+Mínimo obligatorio para cada tema nuevo:
+- Definición (Qué es)
+- Por qué importa
+- Cuándo usar / cuándo no usar
+- Trade-offs (al menos 2)
+- Enlaces: prerequisitos + relacionados
+- Al menos 3 "preguntas trampa" con respuestas
 
-## Linking rules (avoid duplication)
-- Prefer relative links: `../database/index.md`
-- Link the first time a key term appears.
-- If you mention a concept that has a topic file, **always link it**.
+## Reglas de enlace (evitar duplicación)
+- Prefiere enlaces relativos: `../database/index.md`
+- Enlaza la primera vez que aparece un término clave.
+- Si mencionas un concepto que tiene archivo de tema, **siempre enlázalo**.
 
-## Quality bar
-Follow `docs/05-quality-bar.md`. Prioritize correctness, decision rules, and failure modes.
+## Barra de calidad
+Sigue `docs/05-quality-bar.md`. Prioriza corrección, reglas de decisión y modos de fallo.
 
 ## Prompts
-- To create a new topic from a raw term, use: `prompts/A-topic-intake.prompt.md`
-- To create MCQs: `prompts/B-mcq-generator.prompt.md`
-- To evaluate open answers: `prompts/C-open-answer-evaluator.prompt.md`
-- For practice tracking updates: `prompts/D-practice-log-manager.prompt.md`
+- Para crear un tema nuevo a partir de un término en bruto, usa: `prompts/A-topic-intake.prompt.md`
+- Para crear MCQs: `prompts/B-mcq-generator.prompt.md`
+- Para evaluar respuestas abiertas: `prompts/C-open-answer-evaluator.prompt.md`
+- Para actualizar el seguimiento de práctica: `prompts/D-practice-log-manager.prompt.md`
 
-Always use the prompt designed for the action you are performing.
+Usa siempre el prompt diseñado para la acción que estás realizando.
 
-## Typical agent tasks
-1. Add a new topic:
-   - Determine canonical name + file path (taxonomy)
-   - Create topic using template
-   - Update `topics/_index.md`
-   - Add alias file if needed
-   - Add links to prerequisites/related topics
-2. Improve existing topic:
-   - Add missing trade-offs, failure modes, examples
-   - Add “trap questions”
-   - Ensure no duplicated explanation; replace with links
-3. Manage practice tracking:
-   - Logs live in `practices/logs/YYYY-MM-DD.<session-name-kebab>.md`
-   - Update `practices/logs/_index.md`, `practices/next.md`, and `practices/plan.md`
-   - Practice contexts can be organized in subfolders under `practices/` (create as needed)
+## Tareas típicas del agente
+1. Añadir un tema nuevo:
+   - Determinar nombre canónico + ruta del archivo (taxonomía)
+   - Crear tema usando la plantilla
+   - Actualizar `topics/_index.md`
+   - Añadir archivo de alias si es necesario
+   - Añadir enlaces a prerequisitos/temas relacionados
+2. Mejorar un tema existente:
+   - Añadir trade-offs, modos de fallo, ejemplos que falten
+   - Añadir "preguntas trampa"
+   - Asegurarse de que no haya explicaciones duplicadas; reemplazar con enlaces
+3. Gestionar seguimiento de práctica:
+   - Los registros se guardan en `practices/logs/YYYY-MM-DD.<nombre-sesion-kebab>.md`
+   - Actualizar `practices/logs/_index.md`, `practices/next.md` y `practices/plan.md`
+   - Los contextos de práctica pueden organizarse en subcarpetas bajo `practices/` (crear según sea necesario)
 
-## Output expectations for agent
-- Always propose file edits as unified diffs or full-file content.
-- Never introduce new folders without updating docs accordingly.
-- Never change conventions without updating `docs/02-authoring-guide.md`.
+## Expectativas de salida del agente
+- Siempre proponer ediciones de archivos como diffs unificados o contenido completo del archivo.
+- Nunca introducir carpetas nuevas sin actualizar la documentación correspondiente.
+- Nunca cambiar convenciones sin actualizar `docs/02-authoring-guide.md`.

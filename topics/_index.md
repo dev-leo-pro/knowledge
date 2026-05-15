@@ -1,7 +1,7 @@
 
-# Topics Index
+# Índice de temas
 
-## Database systems
+## Sistemas de bases de datos
 ### PostgreSQL
 - [PostgreSQL](databases/postgresql.md)
 - [PostgreSQL MVCC](databases/postgresql-mvcc.md)
@@ -46,8 +46,8 @@
 ### Cassandra
 - [Cassandra](databases/cassandra.md)
 
-## Cross-cutting database concepts
-### Indexing & query planning
+## Conceptos transversales de bases de datos
+### Indexación y planificación de consultas
 - [Index](databases/index.md)
 - [B-Tree index](databases/btree-index.md)
 - [BRIN index](databases/brin-index.md)
@@ -57,13 +57,13 @@
 - [Query planning](databases/query-planning.md)
 - [Database statistics](databases/database-statistics.md)
 
-### SQL fundamentals
+### Fundamentos de SQL
 - [Relational model basics](databases/relational-model-basics.md)
 - [Data modeling basics](databases/data-modeling-basics.md)
 - [SQL foundations](databases/sql-foundations.md)
 - [SQL joins (inner/left)](databases/sql-joins.md)
 
-### Transactions & concurrency
+### Transacciones y concurrencia
 - [Transactions](databases/transactions.md)
 - [Locks](databases/locks.md)
 - [Lock-based concurrency control](databases/lock-based-concurrency-control.md)
@@ -73,13 +73,13 @@
 - [Isolation levels (general)](databases/isolation-levels.md)
 - [Read/write contention](databases/read-write-contention.md)
 
-### Data modeling
+### Modelado de datos
 - [Normalization](databases/normalization.md)
 - [Denormalization](databases/denormalization.md)
 - [Constraints vs app-level enforcement](databases/constraints-vs-app.md)
 - [Data integrity basics](databases/data-integrity-basics.md)
 
-### NoSQL & distributed patterns
+### Patrones NoSQL y distribuidos
 - [NoSQL access patterns](databases/nosql-access-patterns.md)
 - [Key-value data modeling](databases/key-value-data-modeling.md)
 - [Document databases (overview)](databases/document-databases.md)
@@ -88,14 +88,14 @@
 - [Change data capture (CDC)](databases/change-data-capture.md)
 - [TTL (Time-to-Live)](databases/ttl.md)
 
-### Operations & performance
+### Operaciones y rendimiento
 - [Database client basics](databases/database-client-basics.md)
 - [Connection pooling](databases/connection-pooling.md)
 - [Slow query diagnosis](databases/slow-query-diagnosis.md)
 - [Storage compaction](databases/storage-compaction.md)
 - [Storage fundamentals](databases/storage-fundamentals.md)
 
-## System design
+## Diseño de sistemas
 - [Requirements basics](system-design/requirements-basics.md)
 - [Caching fundamentals](system-design/caching-fundamentals.md)
 - [Caching strategy](system-design/caching-strategy.md)
@@ -113,7 +113,7 @@
 - [Versioning APIs and Events](system-design/versioning-apis-and-events.md)
 - [Sync vs Async Communication](system-design/sync-vs-async-communication.md)
 
-### System Design Archetypes
+### Arquetipos de diseño de sistemas
 - [System Design Archetypes (Overview)](system-design/system-design-archetypes.md)
 - [High-Throughput Event Ingestion](system-design/archetype-event-ingestion.md)
 - [Time-Series Aggregation](system-design/archetype-time-series-aggregation.md)
@@ -134,7 +134,7 @@
 - [Real-Time Communication](system-design/archetype-real-time-communication.md)
 - [Security & Access Control](system-design/archetype-security-access-control.md)
 
-## Architecture
+## Arquitectura
 - [Messaging basics](architecture/messaging-basics.md)
 - [Message delivery semantics](architecture/message-delivery-semantics.md)
 - [Request-response architecture](architecture/request-response.md)
@@ -149,7 +149,7 @@
 - [Lambda architecture](architecture/lambda-architecture.md)
 - [Kappa architecture](architecture/kappa-architecture.md)
 - [Saga pattern](architecture/saga-pattern.md)
- - [Two-Stage Retrieval](architecture/two-stage-retrieval.md)
+- [Two-Stage Retrieval](architecture/two-stage-retrieval.md)
 - [Dual-write pattern](architecture/dual-write-pattern.md)
 - [Outbox pattern](architecture/outbox-pattern.md)
 - [Backend for Frontend (BFF)](architecture/backend-for-frontend.md)
@@ -167,7 +167,7 @@
 - [SQS FIFO](aws/sqs-fifo.md)
 - [IAM (AWS)](aws/iam.md)
 
-## Operations
+## Operaciones
 - [Scheduled cleanup jobs](operations/scheduled-cleanup-jobs.md)
 - [Maintenance windows](operations/maintenance-windows.md)
 - [Database proxies](operations/database-proxies.md)
@@ -203,7 +203,7 @@
 - [Service Discovery](operations/service-discovery.md)
 - [Sidecar Pattern](operations/sidecar.md)
 - [Load shedding](operations/load-shedding.md)
- - [Kubernetes (platform basics)](operations/kubernetes.md)
+- [Kubernetes (platform basics)](operations/kubernetes.md)
 - [Kubernetes Operators (custom controllers)](operations/kubernetes-operators.md)
 - [Docker](operations/docker.md)
 - [Incident management basics](operations/incident-management-basics.md)
@@ -215,7 +215,7 @@
 - [Rolling deployments](operations/rolling-deployments.md)
 - [Feature flags](operations/feature-flags.md)
 
-## Quality & Engineering Practices
+## Calidad y prácticas de ingeniería
 - [Software Quality Assurance (SQA)](quality/software-quality-assurance.md)
 - [Testing fundamentals](quality/testing-fundamentals.md)
 - [Testing pyramid](quality/testing-pyramid.md)
@@ -227,4 +227,4 @@
 - [Refactoring techniques](quality/refactoring-techniques.md)
 - [CI/CD basics](quality/ci-cd-basics.md)
 
-## (Add more categories according to `docs/04-taxonomy.md`)
+## (Añadir más categorías según `docs/04-taxonomy.md`)

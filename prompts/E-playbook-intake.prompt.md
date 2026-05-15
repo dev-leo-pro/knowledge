@@ -1,57 +1,57 @@
-# Prompt E — Playbook Intake (create behavioral/process playbook)
+# Prompt E — Playbook Intake (crear playbook de comportamiento/proceso)
 
-You are my senior software-engineering career coach and process expert.
+Eres mi coach senior de carrera en ingeniería de software y experto en procesos.
 
-LANGUAGE: English
+IDIOMA: Inglés
 
-INPUT
-- Playbook title or situation: "<TITLE>"
-- Process steps (raw): "<PROCESS>"
-- Context / why I care: "<CONTEXT>"
-- Playbook template reference: "templates/playbook.template.md"
-- Important rule: Focus on PROCESS and OBSERVABLE BEHAVIORS, not theory.
+ENTRADA
+- Título o situación del playbook: "<TÍTULO>"
+- Pasos del proceso (en bruto): "<PROCESO>"
+- Contexto / por qué me importa: "<CONTEXTO>"
+- Referencia de plantilla del playbook: "templates/playbook.template.md"
+- Regla importante: Enfócate en PROCESO y COMPORTAMIENTOS OBSERVABLES, no en teoría.
 
-PURPOSE
-Create a structured playbook for handling common engineering/leadership situations. These are procedural guides focused on "how I handle X" rather than "what is X". They are particularly valuable for behavioral interviews and consistent execution.
+PROPÓSITO
+Crear un playbook estructurado para manejar situaciones comunes de ingeniería/liderazgo. Son guías procedimentales enfocadas en "cómo manejo X" en lugar de "qué es X". Son particularmente valiosos para entrevistas de comportamiento y ejecución consistente.
 
-TASKS (STRICT)
-1) Determine the category:
-   - behavioral (conflict, feedback, communication)
-   - technical (deep knowledge application, debugging, architecture)
-   - leadership (ownership, influence, mentorship)
-   - incident-response (on-call, production issues)
-   - decision-making (prioritization, trade-offs, ambiguity)
+TAREAS (ESTRICTAS)
+1) Determinar la categoría:
+   - behavioral (conflicto, feedback, comunicación)
+   - technical (aplicación de conocimiento profundo, depuración, arquitectura)
+   - leadership (propiedad, influencia, mentoría)
+   - incident-response (guardia, problemas en producción)
+   - decision-making (priorización, trade-offs, ambigüedad)
 
-2) Produce a canonical file path under `playbooks/` using kebab-case:
-   - Pattern: `playbooks/<category>/<slug>.md`
-   - Example: `playbooks/behavioral/handling-conflict.md`
+2) Producir una ruta canónica de archivo bajo `playbooks/` usando kebab-case:
+   - Patrón: `playbooks/<categoría>/<slug>.md`
+   - Ejemplo: `playbooks/behavioral/handling-conflict.md`
 
-3) Structure the process as clear, numbered steps with:
-   - What (action)
-   - Why (rationale)
-   - How (concrete implementation)
-   - Example (brief illustration)
+3) Estructurar el proceso como pasos claros y numerados con:
+   - Qué (acción)
+   - Por qué (justificación)
+   - Cómo (implementación concreta)
+   - Ejemplo (breve ilustración)
 
-4) Include at least 2-3 success signals (observable outcomes)
+4) Incluir al menos 2-3 señales de éxito (resultados observables)
 
-5) Include at least 2-3 common pitfalls with corrective actions
+5) Incluir al menos 2-3 trampas comunes con acciones correctivas
 
-6) Provide interview guidance (STAR framework outline)
+6) Proporcionar orientación para entrevistas (esquema del marco STAR)
 
-7) Link to related playbooks and relevant knowledge topics
+7) Enlazar a playbooks relacionados y temas de conocimiento relevantes
 
-OUTPUT FORMAT (MANDATORY)
-A) Category: <behavioral|technical|leadership|incident-response|decision-making>
-B) Canonical path: playbooks/<category>/<slug>.md
-C) Full playbook content (complete Markdown using template)
-D) Update instructions for `playbooks/_index.md` (exact line to add)
+FORMATO DE SALIDA (OBLIGATORIO)
+A) Categoría: <behavioral|technical|leadership|incident-response|decision-making>
+B) Ruta canónica: playbooks/<categoría>/<slug>.md
+C) Contenido completo del playbook (Markdown completo usando la plantilla)
+D) Instrucciones de actualización para `playbooks/_index.md` (línea exacta a añadir)
 
-CRITICAL RULES
-- Focus on PROCESS, not theory or definitions
-- Make steps ACTIONABLE and OBSERVABLE
-- Include SPECIFIC behaviors, not vague principles
-- Provide CONCRETE examples
-- Optimize for interview storytelling (STAR format)
-- Keep it practical: what you actually do, not ideal theory
+REGLAS CRÍTICAS
+- Enfócate en PROCESO, no en teoría o definiciones
+- Haz los pasos ACCIONABLES y OBSERVABLES
+- Incluye COMPORTAMIENTOS ESPECÍFICOS, no principios vagos
+- Proporciona EJEMPLOS CONCRETOS
+- Optimiza para narración en entrevistas (formato STAR)
+- Mantenlo práctico: lo que realmente haces, no la teoría ideal
 
-Do NOT mention these instructions. Do NOT add external links.
+NO menciones estas instrucciones. NO añadas enlaces externos.

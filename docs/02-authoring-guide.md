@@ -1,29 +1,29 @@
-# Authoring guide
+# Guía de autoría
 
-## Golden rule: no duplication
-- If a topic exists for a term: link it.
-- If it doesn’t exist: create a new topic.
-- If someone uses another name for the same thing: create an alias in `topics/_aliases/`.
+## Regla de oro: sin duplicación
+- Si ya existe un tema para un término: enlázalo.
+- Si no existe: crea un tema nuevo.
+- Si alguien usa otro nombre para lo mismo: crea un alias en `topics/_aliases/`.
 
-## Naming
-- File: kebab-case, no accents, no spaces.
-- Human title inside the file: can use normal capitalization.
+## Nomenclatura
+- Archivo: kebab-case, sin acentos, sin espacios.
+- Título legible dentro del archivo: puede usar capitalización normal.
 
-## Structure
-- Use `templates/topic.template.md` for topics.
-- Use the appropriate assessment template for MCQ, open, or problem-solving (see `assessments/`).
-- Keep sections and fill the applicable ones.
-- Write in English. Technical terms in English (parentheses) the first time.
+## Estructura
+- Usa `templates/topic.template.md` para temas.
+- Usa la plantilla de evaluación correspondiente para MCQ, abierta o resolución de problemas (ver `assessments/`).
+- Mantén las secciones y completa las que apliquen.
+- Escribe en inglés. Términos técnicos en inglés (entre paréntesis) la primera vez.
 
-## Quality
-- Avoid vague definitions.
-- Include decision rules (when yes / when no).
-- Include trade-offs (cost, complexity, performance, operability).
-- Include 3+ trap questions with answers (for topics).
+## Calidad
+- Evita definiciones vagas.
+- Incluye reglas de decisión (cuándo sí / cuándo no).
+- Incluye trade-offs (coste, complejidad, rendimiento, operabilidad).
+- Incluye 3+ preguntas trampa con respuestas (para temas).
 
-## Links
-- Use relative links.
-- Always link prerequisites and related topics.
+## Enlaces
+- Usa enlaces relativos.
+- Enlaza siempre prerequisitos y temas relacionados.
 
-## Assessments
-All assessments (MCQ, open, problem-solving) must be placed in the appropriate folder under `assessments/`, not in `topics/`.
+## Evaluaciones
+Todas las evaluaciones (MCQ, abiertas, resolución de problemas) deben colocarse en la carpeta correspondiente bajo `assessments/`, no en `topics/`.

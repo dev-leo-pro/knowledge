@@ -1,6 +1,6 @@
 ---
-id: <slug>                      # unique identifier, kebab-case
-title: "<Human-readable title>"  # e.g. "Handling Conflict with Peers"
+id: <slug>                      # identificador único, kebab-case
+title: "<Título legible>"        # ej. "Gestión de conflictos con compañeros"
 type: playbook
 category: <behavioral|technical|leadership|incident-response|decision-making>
 difficulty: <easy|medium|hard>
@@ -10,107 +10,107 @@ created_at: <YYYY-MM-DD>
 updated_at: <YYYY-MM-DD>
 ---
 
-# <Human-readable title>
+# <Título legible>
 
-## Situation
-**When this applies:**
-- <Specific trigger or scenario that calls for this playbook>
-- <Context where you'd use this>
+## Situación
+**Cuándo aplica:**
+- <Disparador o escenario específico que requiere este playbook>
+- <Contexto donde lo usarías>
 
-**Common manifestations:**
-- <How this situation shows up in practice>
-- <Variations of the same problem>
+**Manifestaciones comunes:**
+- <Cómo se presenta esta situación en la práctica>
+- <Variaciones del mismo problema>
 
-## Why this matters
-- <Impact on team/project/career if handled well>
-- <Consequences of handling poorly>
-- <Interview relevance / frequency>
+## Por qué importa
+- <Impacto en equipo/proyecto/carrera si se maneja bien>
+- <Consecuencias de manejarlo mal>
+- <Relevancia en entrevistas / frecuencia>
 
-## My Process (Step-by-step)
+## Mi proceso (paso a paso)
 
-### 1. <First step name>
-- **What:** <What you do>
-- **Why:** <Rationale>
-- **How:** <Concrete actions>
-- **Example:** <Brief illustration>
+### 1. <Nombre del primer paso>
+- **Qué:** <Lo que haces>
+- **Por qué:** <Justificación>
+- **Cómo:** <Acciones concretas>
+- **Ejemplo:** <Breve ilustración>
 
-### 2. <Second step name>
-- **What:** <What you do>
-- **Why:** <Rationale>
-- **How:** <Concrete actions>
-- **Example:** <Brief illustration>
+### 2. <Nombre del segundo paso>
+- **Qué:** <Lo que haces>
+- **Por qué:** <Justificación>
+- **Cómo:** <Acciones concretas>
+- **Ejemplo:** <Breve ilustración>
 
-### 3. <Third step name>
-- **What:** <What you do>
-- **Why:** <Rationale>
-- **How:** <Concrete actions>
-- **Example:** <Brief illustration>
+### 3. <Nombre del tercer paso>
+- **Qué:** <Lo que haces>
+- **Por qué:** <Justificación>
+- **Cómo:** <Acciones concretas>
+- **Ejemplo:** <Breve ilustración>
 
-[Continue with additional steps...]
+[Continuar con pasos adicionales...]
 
-## Success Signals
-**You know it's working when:**
-- [ ] <Observable outcome 1>
-- [ ] <Observable outcome 2>
-- [ ] <Observable outcome 3>
-- [ ] <Measurable metric or behavior>
+## Señales de éxito
+**Sabes que está funcionando cuando:**
+- [ ] <Resultado observable 1>
+- [ ] <Resultado observable 2>
+- [ ] <Resultado observable 3>
+- [ ] <Métrica o comportamiento medible>
 
-## Common Pitfalls (and how to avoid them)
+## Trampas comunes (y cómo evitarlas)
 
-### Pitfall 1: <Common mistake>
-- **Why it happens:** <Root cause>
-- **Impact:** <What goes wrong>
-- **Instead do:** <Corrective action>
+### Trampa 1: <Error común>
+- **Por qué ocurre:** <Causa raíz>
+- **Impacto:** <Qué sale mal>
+- **En su lugar haz:** <Acción correctiva>
 
-### Pitfall 2: <Common mistake>
-- **Why it happens:** <Root cause>
-- **Impact:** <What goes wrong>
-- **Instead do:** <Corrective action>
+### Trampa 2: <Error común>
+- **Por qué ocurre:** <Causa raíz>
+- **Impacto:** <Qué sale mal>
+- **En su lugar haz:** <Acción correctiva>
 
-## Real-world Example
-**Context:** <Anonymous scenario>
+## Ejemplo del mundo real
+**Contexto:** <Escenario anónimo>
 
-**What happened:** <Brief narrative>
+**Qué pasó:** <Narrativa breve>
 
-**Process applied:**
-1. <Step taken>
-2. <Step taken>
-3. <Step taken>
+**Proceso aplicado:**
+1. <Paso tomado>
+2. <Paso tomado>
+3. <Paso tomado>
 
-**Outcome:** <Result and learning>
+**Resultado:** <Resultado y aprendizaje>
 
-## Interview Tips
-### How to talk about this
-- **Framework to use:** <Mental model or structure>
-- **Key points to emphasize:** <What interviewers look for>
-- **Language that works:** <Specific phrases or framing>
+## Consejos para entrevistas
+### Cómo hablar de esto
+- **Marco a usar:** <Modelo mental o estructura>
+- **Puntos clave a enfatizar:** <Lo que buscan los entrevistadores>
+- **Lenguaje que funciona:** <Frases o encuadres específicos>
 
-### Sample STAR response outline
-- **Situation:** <Type of context to describe>
-- **Task:** <Your responsibility>
-- **Action:** <Highlight 2-3 steps from your process>
-- **Result:** <Quantifiable outcome and learning>
+### Esquema de respuesta STAR de ejemplo
+- **Situación:** <Tipo de contexto a describir>
+- **Tarea:** <Tu responsabilidad>
+- **Acción:** <Destacar 2-3 pasos de tu proceso>
+- **Resultado:** <Resultado cuantificable y aprendizaje>
 
-### Red flags to avoid
-- <What not to say or do>
-- <Common mistakes in interviews>
+### Señales de alerta a evitar
+- <Qué no decir o hacer>
+- <Errores comunes en entrevistas>
 
-## Self-assessment
-- [ ] I can describe a specific situation where I used this
-- [ ] I can name 2-3 concrete steps I follow
-- [ ] I can identify the success signals
-- [ ] I can articulate the why behind each step
-- [ ] I can give an example with measurable outcomes
+## Autoevaluación
+- [ ] Puedo describir una situación específica donde lo usé
+- [ ] Puedo nombrar 2-3 pasos concretos que sigo
+- [ ] Puedo identificar las señales de éxito
+- [ ] Puedo articular el porqué detrás de cada paso
+- [ ] Puedo dar un ejemplo con resultados medibles
 
-## Related Playbooks
-- [<Related playbook>](<relative-link>)
-- [<Related playbook>](<relative-link>)
+## Playbooks relacionados
+- [<Playbook relacionado>](<enlace-relativo>)
+- [<Playbook relacionado>](<enlace-relativo>)
 
-## Related Topics (knowledge base)
-- [<Relevant topic>](<relative-link-to-topics>)
-- [<Relevant topic>](<relative-link-to-topics>)
+## Temas relacionados (base de conocimiento)
+- [<Tema relevante>](<enlace-relativo-a-topics>)
+- [<Tema relevante>](<enlace-relativo-a-topics>)
 
-## Notes / Refinements
-- <Personal observations>
-- <Situations where this didn't work>
-- <Adaptations needed for different contexts>
+## Notas / Refinamientos
+- <Observaciones personales>
+- <Situaciones donde no funcionó>
+- <Adaptaciones necesarias para diferentes contextos>

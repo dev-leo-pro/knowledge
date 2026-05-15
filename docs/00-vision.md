@@ -1,12 +1,12 @@
-# Vision
+# Visión
 
-Knowledge Gym is a system to:
-- Capture technical knowledge with a uniform structure.
-- Turn it into deep understanding (decision rules, trade-offs, failure modes).
-- Keep it alive over time (practice and review).
+Knowledge Gym es un sistema para:
+- Capturar conocimiento técnico con una estructura uniforme.
+- Convertirlo en comprensión profunda (reglas de decisión, trade-offs, modos de fallo).
+- Mantenerlo vivo a lo largo del tiempo (práctica y repaso).
 
-Central principle:
-**No duplication**. If one concept depends on another, link it.
+Principio central:
+**Sin duplicación**. Si un concepto depende de otro, enlázalo.
 
-End result:
-Be able to explain any topic in “teacher mode”: what it is, why it matters, when, when not, alternatives, trade-offs, example, and traps.
+Resultado final:
+Ser capaz de explicar cualquier tema en "modo profesor": qué es, por qué importa, cuándo, cuándo no, alternativas, trade-offs, ejemplo y trampas.

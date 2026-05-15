@@ -1,6 +1,6 @@
 ---
 id: <slug>
-title: "<Case title>"
+title: "<Título del caso>"
 type: case
 status: <draft|ready>
 importance: <0-100>
@@ -9,34 +9,34 @@ created_at: <YYYY-MM-DD>
 updated_at: <YYYY-MM-DD>
 ---
 
-# <Case title>
+# <Título del caso>
 
-## One-line headline
-<Impact + what you did>
+## Titular en una línea
+<Impacto + lo que hiciste>
 
-## Context (S)
-- <situation, system, stakes>
+## Contexto (S)
+- <situación, sistema, lo que estaba en juego>
 
-## Task (T)
-- <what you owned / goal>
+## Tarea (T)
+- <de qué eras responsable / objetivo>
 
-## Actions (A)
-- <what you did, step-by-step>
-- <decisions and trade-offs>
+## Acciones (A)
+- <lo que hiciste, paso a paso>
+- <decisiones y trade-offs>
 
-## Results (R)
-- <metrics: error rate, latency, cost, incidents/day, time saved>
+## Resultados (R)
+- <métricas: tasa de error, latencia, coste, incidentes/día, tiempo ahorrado>
 
-## What I’d do differently
+## Qué haría diferente
 - ...
 
-## Lessons / transferable principles
+## Lecciones / principios transferibles
 - ...
 
-## Interview prompts this case answers
-- <e.g. “production incident”, “ship fast with quality risk”, “leading without authority”>
+## Preguntas de entrevista que este caso responde
+- <ej. "incidente en producción", "entregar rápido con riesgo de calidad", "liderar sin autoridad">
 
-## Links
-- Related topics:
-  - [Idempotency](../topics/...)
-  - [Retries](../topics/...)
+## Enlaces
+- Temas relacionados:
+  - [Idempotencia](../topics/...)
+  - [Reintentos](../topics/...)

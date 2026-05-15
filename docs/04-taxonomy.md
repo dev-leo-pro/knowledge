@@ -1,22 +1,20 @@
+# Taxonomía (categorías)
 
-# Taxonomy (categories)
+## Temas
+Ubicación sugerida para los temas:
+- `topics/go/` (Lenguaje Go: concurrencia (goroutines/channels), contexto (context.Context), testing, pprof)
+- `topics/system-design/` (Diseño de APIs, caché, rate limiting, backpressure, balanceo de carga)
+- `topics/database/` (PostgreSQL, índices, JSONB, transacciones, ACID, CAP)
+- `topics/security/` (Autenticación vs autorización, JWT, hashing, cifrado)
+- `topics/architecture/` (Event-driven, CQRS, event sourcing, hexagonal, DDD)
+- `topics/operations/` (Observabilidad, SLI/SLO, runbooks, respuesta a incidentes)
+- `topics/quality/` (Calidad de código, pirámide de testing, clean code, quality gates, SQA)
+- `topics/interviews/` (Comportamental, liderazgo, historias de casos)
 
-## Topics
-Suggested location for topics:
-- `topics/go/` (Go language: concurrency (goroutines/channels), context (context.Context), testing, pprof)
-- `topics/system-design/` (API design, caching, rate limiting, backpressure, load balancing)
-- `topics/database/` (PostgreSQL, indexes, JSONB, transactions, ACID, CAP)
-- `topics/security/` (authentication vs authorization, JWT, hashing, encryption)
-- `topics/architecture/` (event-driven, CQRS, event sourcing, hexagonal, DDD)
-- `topics/operations/` (observability, SLI/SLO, runbooks, incident response)
-- `topics/quality/` (code quality, testing pyramid, clean code, quality gates, SQA)
-- `topics/interviews/` (behavioural, leadership, case stories)
+## Evaluaciones
+Todas las evaluaciones están en la carpeta `assessments/`, agrupadas por tipo:
+- `assessments/mcq/` (Preguntas de opción múltiple)
+- `assessments/open-questions/` (Preguntas abiertas y de diseño)
+- `assessments/problem-solving/` (Problemas algorítmicos y técnicos)
 
-## Assessments
-All assessments are in the `assessments/` folder, grouped by type:
-- `assessments/mcq/` (Multiple Choice Questions)
-- `assessments/open-questions/` (Open and design questions)
-- `assessments/problem-solving/` (Algorithmic and technical problems)
-
-Rule: if in doubt, place it where it's most likely to be found. Refactor later without changing the canonical (or keep an alias).
-
+Regla: en caso de duda, colócalo donde sea más probable encontrarlo. Refactoriza después sin cambiar el canónico (o mantén un alias).

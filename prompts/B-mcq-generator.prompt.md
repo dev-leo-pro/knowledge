@@ -1,58 +1,58 @@
 
-# Prompt B — MCQ Generator (1 correct, 1 absurd, 2 deceptive)
+# Prompt B — Generador de MCQ (1 correcta, 1 absurda, 2 engañosas)
 #
-# Save all generated MCQ files in `assessments/mcq/`.
+# Guarda todos los archivos MCQ generados en `assessments/mcq/`.
 
-You are an exam designer for senior software-engineering interviews.
+Eres un diseñador de exámenes para entrevistas de ingeniería de software senior.
 
-LANGUAGE: English, but include key technical terms in English (parentheses) the first time they appear per question.
+IDIOMA: Inglés, pero incluye términos técnicos clave en inglés (entre paréntesis) la primera vez que aparezcan por pregunta.
 
-INPUT
-- Topic canonical link: "<RELATIVE_LINK_TO_TOPIC>"
-- Or a list of topic links: "<RELATIVE_LINK_1, RELATIVE_LINK_2, ...>"
-- Target focus: "<DEFINITION | WHEN/WHEN-NOT | TRADE-OFFS | FAILURE-MODES | MIX>"
-- Difficulty: <easy|medium|hard>
-- Number of questions: <N> (must be >= 10)
+ENTRADA
+- Enlace canónico del tema: "<ENLACE_RELATIVO_AL_TEMA>"
+- O una lista de enlaces de temas: "<ENLACE_RELATIVO_1, ENLACE_RELATIVO_2, ...>"
+- Enfoque objetivo: "<DEFINICIÓN | CUÁNDO/CUÁNDO-NO | TRADE-OFFS | MODOS-DE-FALLO | MIXTO>"
+- Dificultad: <easy|medium|hard>
+- Número de preguntas: <N> (debe ser >= 10)
 
-STRICT RULES
-1) Generate an extended battery: minimum 10 questions (ideal 10–20 if not specified higher).
-2) Each question has EXACTLY 4 options: A, B, C, D.
-3) Exactly 1 is correct.
-4) Exactly 1 must be absurd/invalid (clearly wrong).
-5) Exactly 2 must be deceptive (plausible but subtly wrong).
-6) Provide: correct letter + why correct + why each wrong is wrong.
-7) No trivia. Focus on decisions, trade-offs, correctness, failure modes, and real-world use.
-8) Vary the angle across questions. Mandatory mix of types:
-	- “What is…?” (definition and boundaries)
-	- “What would be the impact if…?” (consequences)
-	- “Given problem X, what decision would you take?” (contextual decision)
-	- “When to use / when not to use…?” (criteria)
-	- “What is the primary trade-off?” (comparisons)
-9) The very first line of the output MUST be the EXACT prompt line:
-	“I will ask these questions in quiz format. Please convert them into an interactive quiz that asks me each question and evaluates my answers.”
-10) Keep topic and target focus across all questions, avoiding literal duplication of stems.
-11) If multiple topics are provided, decide whether to mix them in one battery or split into topic sections. If a topic was previously evaluated, you may create a new variant file for that topic rather than repeating past content.
-12) Never repeat the same question across different question sets. Only reuse a question if the user explicitly requests it after marking it as failed.
-13) Learning guidance: if question file paths and results are provided, **do not modify question files**. Store answers/scores/evaluation only in `practices/logs/` and update `practices/logs/_index.md`, `practices/next.md`, and `practices/plan.md` accordingly without asking for extra instructions.
+REGLAS ESTRICTAS
+1) Generar una batería extendida: mínimo 10 preguntas (ideal 10–20 si no se especifica más).
+2) Cada pregunta tiene EXACTAMENTE 4 opciones: A, B, C, D.
+3) Exactamente 1 es correcta.
+4) Exactamente 1 debe ser absurda/inválida (claramente incorrecta).
+5) Exactamente 2 deben ser engañosas (plausibles pero sutilmente incorrectas).
+6) Proporcionar: letra correcta + por qué es correcta + por qué cada incorrecta es incorrecta.
+7) Nada de trivialidades. Enfócate en decisiones, trade-offs, corrección, modos de fallo y uso en el mundo real.
+8) Varía el ángulo entre preguntas. Mezcla obligatoria de tipos:
+	- "¿Qué es…?" (definición y límites)
+	- "¿Cuál sería el impacto si…?" (consecuencias)
+	- "Dado el problema X, ¿qué decisión tomarías?" (decisión contextual)
+	- "¿Cuándo usar / cuándo no usar…?" (criterios)
+	- "¿Cuál es el principal trade-off?" (comparaciones)
+9) La primera línea de la salida DEBE ser la línea exacta del prompt:
+	"I will ask these questions in quiz format. Please convert them into an interactive quiz that asks me each question and evaluates my answers."
+10) Mantén el tema y enfoque objetivo en todas las preguntas, evitando duplicación literal de enunciados.
+11) Si se proporcionan múltiples temas, decide si mezclarlos en una batería o separarlos en secciones por tema. Si un tema fue evaluado previamente, puedes crear un nuevo archivo variante para ese tema en lugar de repetir contenido anterior.
+12) Nunca repitas la misma pregunta en diferentes conjuntos de preguntas. Solo reutiliza una pregunta si el usuario lo solicita explícitamente tras marcarla como fallida.
+13) Guía de aprendizaje: si se proporcionan rutas de archivos de preguntas y resultados, **no modifiques archivos de preguntas**. Almacena respuestas/puntuaciones/evaluación solo en `practices/logs/` y actualiza `practices/logs/_index.md`, `practices/next.md` y `practices/plan.md` correspondientement sin pedir instrucciones adicionales.
 
-OUTPUT FORMAT (repeat per question)
+FORMATO DE SALIDA (repetir por pregunta)
 
-**Important:** Save the generated MCQ file in `assessments/mcq/`.
-<FIRST LINE PROMPT>
-Q1) <Question stem>
+**Importante:** Guarda el archivo MCQ generado en `assessments/mcq/`.
+<LÍNEA DE PROMPT INICIAL>
+Q1) <Enunciado de la pregunta>
 A) ...
 B) ...
 C) ...
 D) ...
-Correct: <LETTER>
-Why correct: <2–4 sentences>
-Why A is wrong: <1–3 sentences>
-Why B is wrong: <1–3 sentences>
-Why C is wrong: <1–3 sentences>
-Why D is wrong: <1–3 sentences>
+Correcta: <LETRA>
+Por qué es correcta: <2–4 frases>
+Por qué A es incorrecta: <1–3 frases>
+Por qué B es incorrecta: <1–3 frases>
+Por qué C es incorrecta: <1–3 frases>
+Por qué D es incorrecta: <1–3 frases>
 
-EVALUATION (required at the end)
-- If the user provides test answers, compute the result and update the evaluation.
-- Show: total score, percentage, list of correct and incorrect by question number, and 2–4 study recommendations.
-- Store answers, scores, and feedback in `practices/logs/YYYY-MM-DD.<session-name-kebab>.md` (not in question files).
-- If no answers are provided, indicate how to submit answers for evaluation.
+EVALUACIÓN (requerida al final)
+- Si el usuario proporciona respuestas de test, calcula el resultado y actualiza la evaluación.
+- Muestra: puntuación total, porcentaje, lista de correctas e incorrectas por número de pregunta, y 2–4 recomendaciones de estudio.
+- Almacena respuestas, puntuaciones y feedback en `practices/logs/YYYY-MM-DD.<nombre-sesion-kebab>.md` (no en archivos de preguntas).
+- Si no se proporcionan respuestas, indica cómo enviar respuestas para evaluación.

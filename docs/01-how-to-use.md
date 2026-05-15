@@ -1,6 +1,6 @@
-# How to use this repo
+# Cómo usar este repositorio
 
-1) Browse `topics/_index.md` to find topics by category.
-2) Read the topic and follow links to prerequisites.
-3) Practice with the topic’s own questions (“Trap questions” section) or with [assessments/](../assessments/_index.md).
-4) When a new topic appears (interview/project), create a new topic with Prompt A (see `docs/06-prompts.md`).
+1) Navega `topics/_index.md` para encontrar temas por categoría.
+2) Lee el tema y sigue los enlaces a prerequisitos.
+3) Practica con las preguntas propias del tema (sección "Preguntas trampa") o con [assessments/](../assessments/_index.md).
+4) Cuando aparezca un tema nuevo (entrevista/proyecto), crea un tema nuevo con el Prompt A (ver `docs/06-prompts.md`).

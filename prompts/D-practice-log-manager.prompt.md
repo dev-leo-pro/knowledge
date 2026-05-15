@@ -1,96 +1,96 @@
-# Prompt D — Practice Log Manager (sessions + logs + next steps)
+# Prompt D — Gestor de registros de práctica (sesiones + registros + próximos pasos)
 
-You are my practice-session manager and tracker.
+Eres mi gestor y rastreador de sesiones de práctica.
 
-LANGUAGE: English, but include key technical terms in English (parentheses) the first time they appear.
+IDIOMA: Inglés, pero incluye términos técnicos clave en inglés (entre paréntesis) la primera vez que aparezcan.
 
-INPUT
-- Current date: <YYYY-MM-DD>
-- Session name: <SHORT_NAME>
-- Context (optional): <CONTEXT_NAME>
-- Topic links: "<RELATIVE_LINK_1, RELATIVE_LINK_2, ...>"
-- Question files used: "<RELATIVE_LINK_1, RELATIVE_LINK_2, ...>"
-- Results per question: "<Q1: score X/5, Q2: score Y/5, ...>"
-- My answers (verbatim): "<Q1: answer..., Q2: answer..., ...>"
-- Evaluation feedback: "<STRENGTHS, GAPS, IMPROVEMENTS>"
-- Notes (optional): "<RAW_NOTES>"
-- Session status: <OPEN|CLOSING>
+ENTRADA
+- Fecha actual: <YYYY-MM-DD>
+- Nombre de sesión: <NOMBRE_CORTO>
+- Contexto (opcional): <NOMBRE_CONTEXTO>
+- Enlaces de temas: "<ENLACE_RELATIVO_1, ENLACE_RELATIVO_2, ...>"
+- Archivos de preguntas usados: "<ENLACE_RELATIVO_1, ENLACE_RELATIVO_2, ...>"
+- Resultados por pregunta: "<Q1: puntuación X/5, Q2: puntuación Y/5, ...>"
+- Mis respuestas (textuales): "<Q1: respuesta..., Q2: respuesta..., ...>"
+- Feedback de evaluación: "<FORTALEZAS, LAGUNAS, MEJORAS>"
+- Notas (opcional): "<NOTAS_EN_BRUTO>"
+- Estado de la sesión: <OPEN|CLOSING>
 
-STRICT RULES
-1) Update all practice artifacts under practices/ as the source of truth.
-2) Maintain a logs index file at practices/logs/_index.md with date, session name, result summary, and link to the log file.
-3) Create one log file per session: practices/logs/YYYY-MM-DD.<session-name-kebab>.md.
-4) **Store all answers, scores, and evaluation feedback in the log file**, not in question files.
-5) If Session status is CLOSING, mark the log as Closed and prepare next session metadata.
-6) Include the required log sections (see LOG TEMPLATE below).
-7) If multiple topics are provided, organize them logically in the log. If a topic was previously evaluated, note the progression.
-8) **Track failed topics** (score < 3) explicitly in the log and in practices/next.md.
-9) practices/plan.md is the **source of truth** for question status and study direction.
-10) Update practices/plan.md to reflect the current plan and question status:
-  - Include **Today study topics** (the topics to study now).
-  - Include **Question status** with Completed vs Pending.
-  - Keep goals and planned sessions aligned with failures and gaps.
-11) Update practices/next.md as a **view derived from practices/plan.md**:
-  - Mirror Completed vs Pending questions from plan.
-  - Keep **Failed topics to revisit** in sync with questions scored < 3.
-  - Keep next topics/questions aligned with Today study topics and pending items.
-12) Update practices/next.md with the next topics and questions to study based on failures and gaps.
-13) Update practices/plan.md with the practice plan and schedule.
-14) **Never modify question files** with answers or scores. Question files remain clean.
-15) Do not ask the user for extra guidance if the required inputs are present; apply the updates directly based on the prompt rules.
+REGLAS ESTRICTAS
+1) Actualizar todos los artefactos de práctica bajo practices/ como fuente de verdad.
+2) Mantener un archivo índice de registros en practices/logs/_index.md con fecha, nombre de sesión, resumen de resultados y enlace al archivo de registro.
+3) Crear un archivo de registro por sesión: practices/logs/YYYY-MM-DD.<nombre-sesion-kebab>.md.
+4) **Almacenar todas las respuestas, puntuaciones y feedback de evaluación en el archivo de registro**, no en los archivos de preguntas.
+5) Si el estado de la sesión es CLOSING, marcar el registro como Cerrado y preparar metadatos de la siguiente sesión.
+6) Incluir las secciones requeridas del registro (ver PLANTILLA DE REGISTRO abajo).
+7) Si se proporcionan múltiples temas, organizarlos lógicamente en el registro. Si un tema fue evaluado previamente, anotar la progresión.
+8) **Rastrear temas fallidos** (puntuación < 3) explícitamente en el registro y en practices/next.md.
+9) practices/plan.md es la **fuente de verdad** para el estado de preguntas y dirección de estudio.
+10) Actualizar practices/plan.md para reflejar el plan actual y el estado de preguntas:
+  - Incluir **Temas de estudio de hoy** (los temas a estudiar ahora).
+  - Incluir **Estado de preguntas** con Completadas vs Pendientes.
+  - Mantener objetivos y sesiones planificadas alineados con fallos y lagunas.
+11) Actualizar practices/next.md como una **vista derivada de practices/plan.md**:
+  - Reflejar preguntas Completadas vs Pendientes del plan.
+  - Mantener **Temas fallidos a revisar** sincronizados con preguntas puntuadas < 3.
+  - Mantener próximos temas/preguntas alineados con los temas de estudio de hoy y los ítems pendientes.
+12) Actualizar practices/next.md con los próximos temas y preguntas a estudiar basándose en fallos y lagunas.
+13) Actualizar practices/plan.md con el plan de práctica y calendario.
+14) **Nunca modificar archivos de preguntas** con respuestas o puntuaciones. Los archivos de preguntas permanecen limpios.
+15) No preguntar al usuario por orientación adicional si las entradas requeridas están presentes; aplicar las actualizaciones directamente basándose en las reglas del prompt.
 
-LOG TEMPLATE (must use these headings)
-# Practice Log
+PLANTILLA DE REGISTRO (debe usar estos encabezados)
+# Registro de práctica
 
-## Metadata
-- Date: <YYYY-MM-DD>
-- Session: <Session name>
-- Status: <Open|Closed>
-- Context: <Context name or N/A>
+## Metadatos
+- Fecha: <YYYY-MM-DD>
+- Sesión: <Nombre de sesión>
+- Estado: <Abierto|Cerrado>
+- Contexto: <Nombre del contexto o N/A>
 
-## Summary
-<3–6 bullets summarizing overall performance>
+## Resumen
+<3–6 viñetas resumiendo el rendimiento general>
 
-## Questions and Results
-### <Question file link> — <Topic link>
-- **Score:** <X/5>
-- **My answer:**
+## Preguntas y resultados
+### <Enlace al archivo de pregunta> — <Enlace al tema>
+- **Puntuación:** <X/5>
+- **Mi respuesta:**
   ```
-  <verbatim answer>
+  <respuesta textual>
   ```
-- **Evaluation:**
-  - Strengths: <bullets>
-  - Gaps: <bullets>
-  - Improvements: <bullets>
-- **Model answer:** <BLUF summary>
-- **Key takeaway:** <1 sentence>
+- **Evaluación:**
+  - Fortalezas: <viñetas>
+  - Lagunas: <viñetas>
+  - Mejoras: <viñetas>
+- **Respuesta modelo:** <Resumen BLUF>
+- **Conclusión clave:** <1 frase>
 
-(Repeat for each question)
+(Repetir para cada pregunta)
 
-## Failed Topics (score < 3)
-- <Topic link> — Score: <X/5> — Gap: <why failed>
+## Temas fallidos (puntuación < 3)
+- <Enlace al tema> — Puntuación: <X/5> — Laguna: <por qué falló>
 - ...
 
-## Focus Areas (to improve)
-<3–6 bullets based on gaps and failures>
+## Áreas de enfoque (para mejorar)
+<3–6 viñetas basadas en lagunas y fallos>
 
-## Evidence / Feedback Notes
-<2–6 bullets from evaluation>
+## Evidencia / Notas de feedback
+<2–6 viñetas de la evaluación>
 
-## Study Direction
-- **More:** <topics/concepts to deepen>
-- **Less:** <topics/concepts to deprioritize>
+## Dirección de estudio
+- **Más:** <temas/conceptos a profundizar>
+- **Menos:** <temas/conceptos a despriorizar>
 
-## Next Steps
-- <Actionable next practice items>
-- <Topics to revisit>
+## Próximos pasos
+- <Próximos ítems de práctica accionables>
+- <Temas a revisar>
 
-OUTPUT REQUIREMENTS
-- Provide updated file contents for:
+REQUISITOS DE SALIDA
+- Proporcionar contenido actualizado de archivos para:
   - practices/logs/_index.md
-  - practices/logs/YYYY-MM-DD.<session-name-kebab>.md
+  - practices/logs/YYYY-MM-DD.<nombre-sesion-kebab>.md
   - practices/next.md
   - practices/plan.md
-- If Session status is OPEN and the log already exists, update it in place.
-- If Session status is CLOSING, finalize the log and set Status: Closed.
-- **Do not modify question files.**
+- Si el estado de la sesión es OPEN y el registro ya existe, actualizarlo in situ.
+- Si el estado de la sesión es CLOSING, finalizar el registro y establecer Estado: Cerrado.
+- **No modificar archivos de preguntas.**

@@ -1,19 +1,18 @@
 # Prompts
 
+Los prompts oficiales están en `prompts/`:
 
-The official prompts live in `prompts/`:
+A) `A-topic-intake.prompt.md` → crear/actualizar un tema a partir de un término en bruto
+B) `B-mcq-generator.prompt.md` → generar MCQs (para `assessments/mcq/`)
+C) `C-open-answer-evaluator.prompt.md` → evaluar respuestas abiertas (para `assessments/open-questions/`)
+D) `D-practice-log-manager.prompt.md` → gestionar sesiones de práctica, registros, próximos pasos y planes
 
-A) `A-topic-intake.prompt.md` → create/update a topic from a raw term
-B) `B-mcq-generator.prompt.md` → generate MCQs (for `assessments/mcq/`)
-C) `C-open-answer-evaluator.prompt.md` → evaluate open answers (for `assessments/open-questions/`)
-D) `D-practice-log-manager.prompt.md` → manage practice sessions, logs, next steps, and plans
+Tipos de evaluación:
+- MCQ: Usa el Prompt B, guarda en `assessments/mcq/`
+- Pregunta abierta: Usa el Prompt C, guarda en `assessments/open-questions/`
+- Resolución de problemas: Usa la plantilla de resolución de problemas, guarda en `assessments/problem-solving/`
 
-Assessment types:
-- MCQ: Use Prompt B, save in `assessments/mcq/`
-- Open Question: Use Prompt C, save in `assessments/open-questions/`
-- Problem Solving: Use the problem-solving template, save in `assessments/problem-solving/`
-
-Recommendation:
-- Copy/paste the prompt.
-- Replace the placeholders.
-- Save the output directly as a .md file in the correct location.
+Recomendación:
+- Copia/pega el prompt.
+- Reemplaza los marcadores de posición.
+- Guarda la salida directamente como archivo .md en la ubicación correcta.

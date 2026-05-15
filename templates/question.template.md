@@ -1,6 +1,6 @@
 ---
 id: <slug>
-topic: <relative-link-to-topic-md>
+topic: <enlace-relativo-al-tema-md>
 kind: <mcq|open|debug|design|teach-back|flash>
 difficulty: <easy|medium|hard>
 timebox_minutes: <int>
@@ -8,34 +8,34 @@ created_at: <YYYY-MM-DD>
 updated_at: <YYYY-MM-DD>
 ---
 
-# <Question title>
+# <Título de la pregunta>
 
-## Prompt
-<Write the question. Be specific.>
+## Enunciado
+<Escribe la pregunta. Sé específico.>
 
-## Constraints (optional)
-- <time constraints, assumptions, allowed tools>
+## Restricciones (opcional)
+- <limitaciones de tiempo, suposiciones, herramientas permitidas>
 
-## Answer format (what “good” looks like)
-- <bullets describing expected structure, e.g. BLUF + trade-offs + example>
+## Formato de respuesta (cómo se ve una "buena" respuesta)
+- <viñetas describiendo la estructura esperada, ej. BLUF + trade-offs + ejemplo>
 
-## Answer key / Rubric
-### Correct answer (for MCQ)
-- Correct: <LETTER>
-- Why correct: ...
-- Why A is wrong: ...
-- Why B is wrong: ...
-- Why C is wrong: ...
-- Why D is wrong: ...
+## Clave de respuesta / Rúbrica
+### Respuesta correcta (para MCQ)
+- Correcta: <LETRA>
+- Por qué es correcta: ...
+- Por qué A es incorrecta: ...
+- Por qué B es incorrecta: ...
+- Por qué C es incorrecta: ...
+- Por qué D es incorrecta: ...
 
-### Scoring rubric (for open / design / teach-back)
-Score each 0–5:
-1) Definition correctness
-2) Decision rules (when/when not)
-3) Trade-offs & alternatives
-4) Example / evidence
-5) Failure modes & detection
-6) Clarity (BLUF)
+### Rúbrica de puntuación (para abierta / diseño / teach-back)
+Puntúa cada una 0–5:
+1) Corrección de la definición
+2) Reglas de decisión (cuándo/cuándo no)
+3) Trade-offs y alternativas
+4) Ejemplo / evidencia
+5) Modos de fallo y detección
+6) Claridad (BLUF)
 
-## Common mistakes
+## Errores comunes
 - ...

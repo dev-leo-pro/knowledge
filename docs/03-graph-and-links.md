@@ -1,20 +1,20 @@
-# Graph and links
+# Grafo y enlaces
 
-## Goal
-Make knowledge navigable as a graph:
-- prerequisites → to learn in order
-- related → to compare and decide
-- part-of → to place it in a taxonomy
+## Objetivo
+Hacer el conocimiento navegable como un grafo:
+- prerequisitos → para aprender en orden
+- relacionados → para comparar y decidir
+- parte-de → para ubicarlo en una taxonomía
 
-## Recommended pattern
-- Each topic includes:
-  - Prerequisites (links)
-  - Related (links)
-  - “Compare with” (links)
+## Patrón recomendado
+- Cada tema incluye:
+  - Prerequisitos (enlaces)
+  - Relacionados (enlaces)
+  - "Comparar con" (enlaces)
 
-## Aliases
-- `topics/_aliases/<alias>.md` contains:
-  - a single line pointing to the canonical
+## Alias
+- `topics/_aliases/<alias>.md` contiene:
+  - una sola línea apuntando al canónico
 
-Example:
+Ejemplo:
 `topics/_aliases/gin.md` → `../database/gin-index.md`

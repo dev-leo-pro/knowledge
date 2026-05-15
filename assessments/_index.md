@@ -1,22 +1,22 @@
 
-# Assessments Index
+# Índice de evaluaciones
 
-## Assessment types
+## Tipos de evaluación
 
-- **MCQ** (Multiple Choice Questions): Short, focused questions with 1 correct, 1 absurd, and 2 deceptive answers. See `assessments/mcq/`.
-- **Open Questions**: Open-ended, design, or reasoning questions. See `assessments/open-questions/`.
-- **Problem Solving**: Step-by-step technical or algorithmic problems. See `assessments/problem-solving/`.
+- **MCQ** (Preguntas de opción múltiple): Preguntas cortas y enfocadas con 1 correcta, 1 absurda y 2 engañosas. Ver `assessments/mcq/`.
+- **Preguntas abiertas**: Preguntas abiertas de diseño o razonamiento. Ver `assessments/open-questions/`.
+- **Resolución de problemas**: Problemas técnicos o algorítmicos paso a paso. Ver `assessments/problem-solving/`.
 
-## Practice flow (start here)
-1. Pick a topic from [topics/_index.md](../topics/_index.md).
-2. Do 1 MCQ (4–5 min) + 1 open/design (8–12 min) + 1 problem-solving (optional, 10–20 min).
-3. Answer in BLUF: definition → decision rules → trade-offs → example → failure mode.
-4. Score with Prompt C and get a targeted trap question.
+## Flujo de práctica (empieza aquí)
+1. Elige un tema de [topics/_index.md](../topics/_index.md).
+2. Haz 1 MCQ (4–5 min) + 1 abierta/diseño (8–12 min) + 1 resolución de problemas (opcional, 10–20 min).
+3. Responde en BLUF: definición → reglas de decisión → trade-offs → ejemplo → modo de fallo.
+4. Puntúa con el Prompt C y obtén una pregunta trampa dirigida.
 
-## Directory structure
+## Estructura de directorios
 
-- [MCQ](mcq/): Multiple choice questions
-- [Open Questions](open-questions/): Open-ended and design questions
-- [Problem Solving](problem-solving/): Algorithmic and technical problems
+- [MCQ](mcq/): Preguntas de opción múltiple
+- [Preguntas abiertas](open-questions/): Preguntas abiertas y de diseño
+- [Resolución de problemas](problem-solving/): Problemas algorítmicos y técnicos
 
-Each folder contains assessments grouped by topic and type. See the README in each folder for details.
+Cada carpeta contiene evaluaciones agrupadas por tema y tipo. Consulta el README en cada carpeta para más detalles.
