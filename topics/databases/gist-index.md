@@ -12,97 +12,97 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# GiST Index
+# Índice GiST
 
 ## TL;DR (BLUF)
-- Generalized Search Tree for complex data types (geospatial, ranges, full-text extensions).
-- Use it when operators need spatial or similarity search beyond B-Tree.
-- Trade-off: slower updates and more tuning than B-Tree.
+- Árbol de búsqueda generalizado para tipos de datos complejos (geoespaciales, rangos, extensiones de texto completo).
+- Úsalo cuando los operadores necesiten búsqueda espacial o de similitud más allá de B-Tree.
+- Trade-off: actualizaciones más lentas y más ajuste fino que B-Tree.
 
-## Definition
-**What it is:** A flexible index framework that supports custom search strategies for complex data types.
-**Key terms:** operator class, geospatial, range types.
+## Definición
+**Qué es:** Un framework de índice flexible que soporta estrategias de búsqueda personalizadas para tipos de datos complejos.
+**Términos clave:** clase de operador, geoespacial, tipos de rango.
 
-## Why it matters
-- It enables fast searches for data types that B-Tree cannot handle well.
-- Misuse or wrong operator classes can lead to poor performance.
+## Por qué importa
+- Permite búsquedas rápidas para tipos de datos que B-Tree no puede manejar bien.
+- El mal uso o clases de operador incorrectas pueden llevar a rendimiento pobre.
 
-## Scope & Non-goals
-**In scope:** geospatial, range, similarity queries.
-**Out of scope / NOT solved by this:** simple equality and range on scalar columns.
+## Alcance y no-objetivos
+**Dentro del alcance:** consultas geoespaciales, de rango y similitud.
+**Fuera del alcance / NO resuelto por esto:** igualdad y rango simples en columnas escalares.
 
-## Mental model / Intuition
-- Think of GiST as a “search tree toolkit” for non-standard data types.
+## Modelo mental / Intuición
+- Piensa en GiST como un "kit de herramientas de árbol de búsqueda" para tipos de datos no estándar.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You query geospatial or range data types.
-- You need nearest-neighbor or similarity search.
-### Avoid it when
-- Your queries are simple equality/ranges on scalars.
-- A B-Tree or GIN index fits the operators better.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Consultes tipos de datos geoespaciales o de rango.
+- Necesites búsqueda de vecinos más cercanos o similitud.
+### Evítalo cuando
+- Tus consultas sean igualdad/rangos simples en escalares.
+- Un índice B-Tree o GIN se ajuste mejor a los operadores.
 
-## How I would use it (practical)
-- **Context:** Geospatial queries on location data.
-- **Steps:** choose operator class → create GiST index → validate with EXPLAIN → monitor.
-- **What success looks like:** reduced latency on spatial queries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consultas geoespaciales en datos de ubicación.
+- **Pasos:** elegir clase de operador → crear índice GiST → validar con EXPLAIN → monitorear.
+- **Cómo se ve el éxito:** latencia reducida en consultas espaciales.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** supports complex search types.
-- **Cons / Risks:** slower writes; tuning can be tricky.
-### Alternatives
-- **B-Tree:** for scalar equality/ranges.
-- **GIN index:** for containment queries.
-- **How to choose:** pick GiST for spatial/similarity workloads.
+- **Pros:** soporta tipos de búsqueda complejos.
+- **Contras / Riesgos:** escrituras más lentas; el ajuste fino puede ser complicado.
+### Alternativas
+- **B-Tree:** para igualdad/rangos escalares.
+- **Índice GIN:** para consultas de contención.
+- **Cómo elegir:** elige GiST para cargas de trabajo espaciales/de similitud.
 
-## Failure modes & Pitfalls
-- Using GiST when a B-Tree would be more efficient.
-- Missing operator classes leads to index not being used.
+## Modos de fallo y errores comunes
+- Usar GiST cuando un B-Tree sería más eficiente.
+- Clases de operador faltantes llevan a que el índice no se use.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency on spatial queries, index size growth.
-- **Logs:** slow query logs.
-- **Alerts:** rising latency for spatial endpoints.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas espaciales, crecimiento del tamaño del índice.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** latencia creciente para endpoints espaciales.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Confirm operator class support
-  - [ ] Validate with EXPLAIN
+  - [ ] Confirmar soporte de clase de operador
+  - [ ] Validar con EXPLAIN
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Defaulting to GiST for all indexes.
-  - **Why it’s bad:** adds overhead with no benefit.
-  - **Better approach:** choose based on query operators.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar GiST por defecto para todos los índices.
+  - **Por qué es malo:** agrega sobrecarga sin beneficio.
+  - **Mejor enfoque:** elegir según los operadores de consulta.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- GiST is a flexible index framework for complex data types like geospatial or ranges. It helps when B-Tree can’t, but it’s more expensive to maintain and must match operator classes.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- GiST es un framework de índice flexible para tipos de datos complejos como geoespaciales o rangos. Ayuda cuando B-Tree no puede, pero es más costoso de mantener y debe coincidir con las clases de operador.
 
-### Trap questions (with answers)
-1) **Q:** Is GiST a replacement for B-Tree?
-   - **A:** no; it’s for specialized queries.
-2) **Q:** Can GiST be used for JSONB containment?
-   - **A:** usually GIN is better for JSONB containment.
-3) **Q:** Do GiST indexes require operator classes?
-   - **A:** yes; the index must match operator support.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿GiST es un reemplazo de B-Tree?
+   - **R:** No; es para consultas especializadas.
+2) **P:** ¿GiST se puede usar para contención JSONB?
+   - **R:** Generalmente GIN es mejor para contención JSONB.
+3) **P:** ¿Los índices GiST requieren clases de operador?
+   - **R:** Sí; el índice debe coincidir con el soporte de operadores.
 
-### Quick self-check (5 items)
-- [ ] I can define GiST precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete use case.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir GiST con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un caso de uso concreto.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Índice](index.md)
 
-### Related topics
-- [GIN index](gin-index.md)
-### Compare with
-- [B-Tree index](btree-index.md) — ordered scans vs specialized types.
-- [GIN index](gin-index.md) — containment queries vs spatial/similarity queries.
+### Temas relacionados
+- [Índice GIN](gin-index.md)
+### Comparar con
+- [Índice B-Tree](btree-index.md) — escaneos ordenados vs tipos especializados.
+- [Índice GIN](gin-index.md) — consultas de contención vs consultas espaciales/de similitud.

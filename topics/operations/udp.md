@@ -1,6 +1,6 @@
 ---
 id: udp
-title: "UDP (User Datagram Protocol)"
+title: "UDP (Protocolo de datagramas de usuario)"
 type: technology
 status: learning
 importance: 45
@@ -12,112 +12,112 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# UDP (User Datagram Protocol)
+# UDP (Protocolo de datagramas de usuario)
 
 ## TL;DR (BLUF)
-- UDP is a connectionless, best-effort transport protocol with no ordering or reliability guarantees.
-- Use it for latency-sensitive or loss-tolerant workloads.
-- Trade-off: you must handle reliability at the application layer if needed.
+- UDP es un protocolo de transporte sin conexión y de mejor esfuerzo sin garantías de orden ni fiabilidad.
+- Úsalo para cargas de trabajo sensibles a la latencia o tolerantes a pérdidas.
+- Trade-off: debes manejar la fiabilidad en la capa de aplicación si es necesario.
 
-## Definition
-**What it is:** A transport-layer protocol that sends independent datagrams without connection setup, delivery guarantees, or ordering.  
-**Key terms:** datagram, connectionless, best-effort, loss, reordering.
+## Definición
+**Qué es:** Un protocolo de capa de transporte que envía datagramas independientes sin establecimiento de conexión, garantías de entrega ni ordenamiento.  
+**Términos clave:** datagrama, sin conexión, mejor esfuerzo, pérdida, reordenamiento.
 
-## Why it matters
-- UDP enables low latency and simple transport for real-time systems.
-- It shifts responsibility for reliability and ordering to the application.
+## Por qué importa
+- UDP permite baja latencia y transporte simple para sistemas en tiempo real.
+- Transfiere la responsabilidad de fiabilidad y orden a la aplicación.
 
-## Scope & Non-goals
-**In scope:** UDP characteristics, typical use cases, and trade-offs.  
-**Out of scope / NOT solved by this:** encryption, congestion control, or application-level reliability.
+## Alcance y no-objetivos
+**Dentro del alcance:** características de UDP, casos de uso típicos y trade-offs.  
+**Fuera del alcance / NO resuelto por esto:** cifrado, control de congestión o fiabilidad a nivel de aplicación.
 
-## Mental model / Intuition
-- Think of UDP as postcards: you send them and hope they arrive in order.
+## Modelo mental / Intuición
+- Piensa en UDP como postales: las envías y esperas que lleguen en orden.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Latency is more important than perfect delivery.
-- The application can tolerate loss or implement its own reliability.
-### Avoid it when
-- You require ordered, reliable delivery.
-- You can’t handle loss at the application layer.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La latencia es más importante que la entrega perfecta.
+- La aplicación puede tolerar pérdidas o implementar su propia fiabilidad.
+### Evítalo cuando
+- Requieres entrega fiable y ordenada.
+- No puedes manejar pérdidas en la capa de aplicación.
 
-## How I would use it (practical)
-- **Context:** Metrics collection, streaming media, or online gaming.
-- **Steps:**
-  1) Use UDP for small, frequent messages.
-  2) Implement retries or sequencing only if required.
-  3) Monitor loss and latency.
-- **What success looks like:** low latency with acceptable loss rates.
+## Cómo lo usaría (práctico)
+- **Contexto:** Recolección de métricas, streaming de medios o juegos en línea.
+- **Pasos:**
+  1) Usar UDP para mensajes pequeños y frecuentes.
+  2) Implementar reintentos o secuenciamiento solo si es necesario.
+  3) Monitorear pérdidas y latencia.
+- **Cómo se ve el éxito:** baja latencia con tasas de pérdida aceptables.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** low overhead, low latency, no connection setup.
-- **Cons / Risks:** loss, duplication, and reordering.
-### Alternatives
-- **[TCP](tcp.md):** reliable, ordered delivery for correctness-sensitive data.
-- **How to choose:** use UDP when timeliness outweighs reliability.
+- **Ventajas:** baja sobrecarga, baja latencia, sin establecimiento de conexión.
+- **Desventajas / Riesgos:** pérdida, duplicación y reordenamiento.
+### Alternativas
+- **[TCP](tcp.md):** entrega fiable y ordenada para datos sensibles a la corrección.
+- **Cómo elegir:** usa UDP cuando la puntualidad supera a la fiabilidad.
 
-## Failure modes & Pitfalls
-- Silent packet loss without detection.
-- Application logic assuming ordering that doesn’t exist.
-- Fragmentation causing higher loss rates.
+## Modos de fallo y trampas
+- Pérdida silenciosa de paquetes sin detección.
+- Lógica de aplicación que asume un orden que no existe.
+- Fragmentación causando mayores tasas de pérdida.
 
-## Observability (How to detect issues)
-- **Metrics:** packet loss rate, jitter, latency.
-- **Logs:** dropped packet counters if available.
-- **Traces:** gaps or out-of-order sequence numbers.
-- **Alerts:** sustained loss or jitter spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de pérdida de paquetes, jitter, latencia.
+- **Logs:** contadores de paquetes descartados si están disponibles.
+- **Trazas:** huecos o números de secuencia desordenados.
+- **Alertas:** pérdida sostenida o picos de jitter.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Keep datagrams small to avoid fragmentation
-  - [ ] Add sequence numbers if ordering matters
-- **Security / Compliance notes**
-  - Validate payloads and rate-limit to prevent abuse.
-- **Performance notes**
-  - Batch sends where possible.
-- **Operational notes**
-  - Monitor network jitter and loss.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Mantener datagramas pequeños para evitar fragmentación
+  - [ ] Agregar números de secuencia si el orden importa
+- **Notas de seguridad / cumplimiento**
+  - Validar payloads y limitar la tasa para prevenir abuso.
+- **Notas de rendimiento**
+  - Agrupar envíos donde sea posible.
+- **Notas operacionales**
+  - Monitorear jitter y pérdida de red.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using UDP for data that requires guaranteed delivery.
-  - **Why it’s bad:** lost packets corrupt business workflows.
-  - **Better approach:** use [TCP](tcp.md) or add application-level reliability.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar UDP para datos que requieren entrega garantizada.
+  - **Por qué es malo:** los paquetes perdidos corrompen flujos de negocio.
+  - **Mejor enfoque:** usar [TCP](tcp.md) o agregar fiabilidad a nivel de aplicación.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- UDP sends datagrams without a connection and makes no guarantees about delivery or order. It’s fast and lightweight but requires the app to handle loss if needed.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- UDP envía datagramas sin conexión y no ofrece garantías de entrega ni orden. Es rápido y ligero pero requiere que la aplicación maneje las pérdidas si es necesario.
 
-### Trap questions (with answers)
-1) **Q:** Does UDP guarantee delivery?
-   - **A:** No; it is best-effort.
-2) **Q:** Can UDP packets arrive out of order?
-   - **A:** Yes; ordering is not guaranteed.
-3) **Q:** Is UDP always insecure?
-   - **A:** No; security depends on the application (e.g., DTLS or encryption).
+### Preguntas trampa (con respuestas)
+1) **P:** ¿UDP garantiza la entrega?
+   - **R:** No; es de mejor esfuerzo.
+2) **P:** ¿Pueden los paquetes UDP llegar desordenados?
+   - **R:** Sí; el orden no está garantizado.
+3) **P:** ¿UDP es siempre inseguro?
+   - **R:** No; la seguridad depende de la aplicación (por ejemplo, DTLS o cifrado).
 
-### Quick self-check (5 items)
-- [ ] I can define UDP precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir UDP con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Networking basics](networking-basics.md)
-- [Network layers (OSI & TCP/IP)](network-layers.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de redes](networking-basics.md)
+- [Capas de red (OSI y TCP/IP)](network-layers.md)
 
-### Related topics
+### Temas relacionados
 - [TCP](tcp.md)
-- [API design basics](../system-design/api-design-basics.md)
+- [Fundamentos de diseño de APIs](../system-design/api-design-basics.md)
 
-### Compare with
-- [TCP](tcp.md) — best-effort datagrams vs reliable ordered stream.
+### Comparar con
+- [TCP](tcp.md) — datagramas de mejor esfuerzo vs flujo ordenado fiable.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

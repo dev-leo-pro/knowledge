@@ -1,6 +1,6 @@
 ---
 id: archetype-hot-partition
-title: "Hot Partition / Celebrity Problem"
+title: "Partición Caliente / Problema de la Celebridad"
 type: pattern
 status: learning
 importance: 85
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Hot Partition / Celebrity Problem
+# Partición Caliente / Problema de la Celebridad
 
 ## TL;DR
-- A small subset of keys/entities dominate traffic, overloading one shard/partition.
-- Key challenges: one partition melts while others idle, cascading failures (cache + DB + downstream).
-- Solutions: key salting / fan-out replication, dedicated hot-key infrastructure, caching/CDN.
+- Un pequeño subconjunto de claves/entidades domina el tráfico, sobrecargando un shard/partición.
+- Desafíos clave: una partición se funde mientras otras están ociosas, fallos en cascada (caché + BD + aguas abajo).
+- Soluciones: salting de claves / replicación fan-out, infraestructura dedicada para claves calientes, caché/CDN.
 
-## Where it hurts (why it hurts)
-1. **One partition melts while others idle**: Viral post gets 90% of reads → shard bottleneck
-   - **Solution**: Detect skew early (monitor top keys); salt hot keys (replicate with `key:1`, `key:2`)
-2. **Cascading failures**: Cache miss on hot key → DB overwhelmed → downstream timeouts
-   - **Solution**: CDN / multi-layer caching; dedicated cache for hot keys
-3. **Sharding doesn't help**: Adding more shards doesn't fix single-key hotspot
-   - **Solution**: Replicate hot key across shards; approximate answers (sampling)
+## Dónde duele (por qué duele)
+1. **Una partición se funde mientras otras están ociosas**: Una publicación viral recibe el 90% de las lecturas → cuello de botella en el shard
+   - **Solución**: Detectar asimetría temprano (monitorear claves principales); salt en claves calientes (replicar con `key:1`, `key:2`)
+2. **Fallos en cascada**: Fallo de caché en clave caliente → BD abrumada → timeouts aguas abajo
+   - **Solución**: CDN / caché multi-capa; caché dedicada para claves calientes
+3. **El sharding no ayuda**: Añadir más shards no arregla un hotspot de una sola clave
+   - **Solución**: Replicar clave caliente a través de shards; respuestas aproximadas (muestreo)
 
-## Decision rules
-- **Use when**: Social feeds, trending topics, live events, product pages with viral spikes
-- **Avoid when**: Even traffic distribution (no celebrities)
+## Reglas de decisión
+- **Usar cuando**: Feeds sociales, temas tendencia, eventos en vivo, páginas de producto con picos virales
+- **Evitar cuando**: Distribución de tráfico uniforme (sin celebridades)
 
 ## Trade-offs
-- **Replication (salting)**: Spreads load but complicates invalidation
-- **Dedicated infrastructure**: Fast but operational overhead
-- **Approximate answers**: Cheap but less accurate
+- **Replicación (salting)**: Distribuye carga pero complica la invalidación
+- **Infraestructura dedicada**: Rápida pero con overhead operativo
+- **Respuestas aproximadas**: Baratas pero menos precisas
 
-## Explicit example
-Viral post gets 1M reads/sec. If sharded by post_id, all requests hit one shard → melts. Salt key: store 10 copies (`post:123:0` ... `post:123:9`); client reads random replica. Spreads load 10× across shards.
+## Ejemplo explícito
+Una publicación viral recibe 1M lecturas/seg. Si se shard por post_id, todas las peticiones van a un shard → se funde. Salt de clave: almacenar 10 copias (`post:123:0` ... `post:123:9`); el cliente lee una réplica aleatoria. Distribuye la carga 10× entre shards.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Distributed Caching](archetype-distributed-caching.md), [Partitioning & Sharding](partitioning-and-sharding.md), [DynamoDB Hot Partitions](../databases/dynamodb-hot-partitions.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Caché Distribuida](archetype-distributed-caching.md), [Particionado y Sharding](partitioning-and-sharding.md), [Particiones Calientes en DynamoDB](../databases/dynamodb-hot-partitions.md)

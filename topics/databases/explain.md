@@ -15,92 +15,92 @@ updated_at: 2026-01-19
 # EXPLAIN (PostgreSQL)
 
 ## TL;DR (BLUF)
-- EXPLAIN shows the query plan and cost estimates chosen by the planner.
-- Use it to validate indexes and query shape before optimizing.
-- Trade-off: plans are estimates; they can be wrong if stats are stale.
+- EXPLAIN muestra el plan de consulta y las estimaciones de costo elegidas por el planificador.
+- Úsalo para validar índices y la forma de la consulta antes de optimizar.
+- Trade-off: los planes son estimaciones; pueden ser incorrectos si las estadísticas están desactualizadas.
 
-## Definition
-**What it is:** A command that outputs how PostgreSQL plans to execute a query.
-**Key terms:** query plan, cost estimate, planner, ANALYZE.
+## Definición
+**Qué es:** Un comando que muestra cómo PostgreSQL planea ejecutar una consulta.
+**Términos clave:** plan de consulta, estimación de costo, planificador, ANALYZE.
 
-## Why it matters
-- It helps you understand why a query is slow.
-- It prevents guesswork when adding or removing indexes.
+## Por qué importa
+- Te ayuda a entender por qué una consulta es lenta.
+- Previene las adivinanzas al agregar o eliminar índices.
 
-## Scope & Non-goals
-**In scope:** diagnosing query plans and validating indexes.
-**Out of scope / NOT solved by this:** fixing logic errors in SQL.
+## Alcance y no-objetivos
+**Dentro del alcance:** diagnosticar planes de consulta y validar índices.
+**Fuera del alcance / NO resuelto por esto:** corregir errores lógicos en SQL.
 
-## Mental model / Intuition
-- Think of EXPLAIN as a “map” of how the DB will walk through data.
+## Modelo mental / Intuición
+- Piensa en EXPLAIN como un "mapa" de cómo la BD recorrerá los datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You’re adding indexes or optimizing slow queries.
-- You want to verify planner choices for critical queries.
-### Avoid it when
-- You need execution time without running the query (use EXPLAIN ANALYZE carefully).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Estés agregando índices u optimizando consultas lentas.
+- Quieras verificar las decisiones del planificador para consultas críticas.
+### Evítalo cuando
+- Necesites tiempo de ejecución sin ejecutar la consulta (usa EXPLAIN ANALYZE con cuidado).
 
-## How I would use it (practical)
-- **Context:** A slow endpoint query.
-- **Steps:** run EXPLAIN → check seq scan vs index scan → adjust indexes → rerun.
-- **What success looks like:** planner uses expected indexes and cost drops.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una consulta lenta de un endpoint.
+- **Pasos:** ejecutar EXPLAIN → verificar seq scan vs index scan → ajustar índices → re-ejecutar.
+- **Cómo se ve el éxito:** el planificador usa los índices esperados y el costo baja.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** visibility into planner decisions.
-- **Cons / Risks:** can mislead if stats are stale or data distribution changed.
-### Alternatives
-- **EXPLAIN ANALYZE:** actual execution time, but runs the query.
-- **How to choose:** start with EXPLAIN, validate with EXPLAIN ANALYZE when safe.
+- **Pros:** visibilidad de las decisiones del planificador.
+- **Contras / Riesgos:** puede confundir si las estadísticas están desactualizadas o la distribución de datos cambió.
+### Alternativas
+- **EXPLAIN ANALYZE:** tiempo de ejecución real, pero ejecuta la consulta.
+- **Cómo elegir:** empieza con EXPLAIN, valida con EXPLAIN ANALYZE cuando sea seguro.
 
-## Failure modes & Pitfalls
-- Misreading costs as actual time.
-- Ignoring row estimates and join order.
+## Modos de fallo y errores comunes
+- Confundir costos con tiempo real.
+- Ignorar estimaciones de filas y orden de joins.
 
-## Observability (How to detect issues)
-- **Metrics:** slow query frequency, planner stats freshness.
-- **Logs:** slow query logs with plan capture if available.
-- **Alerts:** high latency after schema or data changes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** frecuencia de consultas lentas, frescura de estadísticas del planificador.
+- **Logs:** logs de consultas lentas con captura de plan si está disponible.
+- **Alertas:** alta latencia después de cambios de esquema o datos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Ensure stats are fresh (ANALYZE)
-  - [ ] Compare row estimates vs actual with EXPLAIN ANALYZE
+  - [ ] Asegurar que las estadísticas estén frescas (ANALYZE)
+  - [ ] Comparar estimaciones de filas vs reales con EXPLAIN ANALYZE
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Adding indexes without checking EXPLAIN.
-  - **Why it’s bad:** you may add indexes the planner won’t use.
-  - **Better approach:** use EXPLAIN to guide index design.
+## Anti-patrones comunes
+- **Anti-patrón:** Agregar índices sin verificar EXPLAIN.
+  - **Por qué es malo:** puedes agregar índices que el planificador no usará.
+  - **Mejor enfoque:** usar EXPLAIN para guiar el diseño de índices.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- EXPLAIN shows how PostgreSQL plans to run a query and whether it will use indexes. It’s the first tool you should use before making performance changes.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- EXPLAIN muestra cómo PostgreSQL planea ejecutar una consulta y si usará índices. Es la primera herramienta que debes usar antes de hacer cambios de rendimiento.
 
-### Trap questions (with answers)
-1) **Q:** Does EXPLAIN show actual runtime?
-   - **A:** no; that’s EXPLAIN ANALYZE.
-2) **Q:** Can EXPLAIN be wrong?
-   - **A:** yes; if statistics are stale, the plan may be misleading.
-3) **Q:** Should you always trust the planner?
-   - **A:** mostly, but validate when results look off.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿EXPLAIN muestra el tiempo de ejecución real?
+   - **R:** No; eso es EXPLAIN ANALYZE.
+2) **P:** ¿EXPLAIN puede estar equivocado?
+   - **R:** Sí; si las estadísticas están desactualizadas, el plan puede ser engañoso.
+3) **P:** ¿Siempre debes confiar en el planificador?
+   - **R:** Generalmente sí, pero valida cuando los resultados parezcan incorrectos.
 
-### Quick self-check (5 items)
-- [ ] I can define EXPLAIN precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete optimization example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir EXPLAIN con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de optimización.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Índice](index.md)
 
-### Related topics
-- [Selectivity](selectivity.md)
+### Temas relacionados
+- [Selectividad](selectivity.md)
 
-### Compare with
-- [Selectivity](selectivity.md) — planner estimates vs data distribution.
+### Comparar con
+- [Selectividad](selectivity.md) — estimaciones del planificador vs distribución de datos.

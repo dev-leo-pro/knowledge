@@ -12,113 +12,113 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Index (Database Index)
+# Índice (Índice de Base de Datos)
 
 ## TL;DR (BLUF)
-- An index is a data structure that speeds up reads at the cost of writes and storage.
-- Use it for selective filters, joins, and ordering on critical queries.
-- Trade-off: too many or wrong indexes hurt write performance and maintenance.
+- Un índice es una estructura de datos que acelera las lecturas a costa de escrituras y almacenamiento.
+- Úsalo para filtros selectivos, joins y ordenamiento en consultas críticas.
+- Trade-off: demasiados índices o los incorrectos perjudican el rendimiento de escritura y el mantenimiento.
 
-## Definition
-**What it is:** A structure that lets the database locate rows faster than a full scan.
-**Key terms:** selectivity, query planner, B-Tree, composite index.
+## Definición
+**Qué es:** Una estructura que permite a la base de datos localizar filas más rápido que un escaneo completo.
+**Términos clave:** selectividad, planificador de consultas, B-Tree, índice compuesto.
 
-## Why it matters
-- It’s often the difference between fast queries and timeouts on large datasets.
-- Bad indexing decisions can silently degrade write throughput.
+## Por qué importa
+- A menudo es la diferencia entre consultas rápidas y timeouts en datasets grandes.
+- Malas decisiones de indexación pueden degradar silenciosamente el throughput de escritura.
 
-## Scope & Non-goals
-**In scope:** improving read performance for known access patterns.
-**Out of scope / NOT solved by this:** fixing poorly designed queries or missing pagination limits.
+## Alcance y no-objetivos
+**Dentro del alcance:** mejorar el rendimiento de lectura para patrones de acceso conocidos.
+**Fuera del alcance / NO resuelto por esto:** arreglar consultas mal diseñadas o límites de paginación faltantes.
 
-## Mental model / Intuition
-- Like a book index: you trade extra pages to find chapters quickly.
-- You pay on writes to keep the index current.
+## Modelo mental / Intuición
+- Como el índice de un libro: intercambias páginas extra para encontrar capítulos rápidamente.
+- Pagas en escrituras para mantener el índice actualizado.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- A query is slow and selective (WHERE / JOIN / ORDER BY) and appears frequently.
-- EXPLAIN shows costly scans.
-### Avoid it when
-- The column has low selectivity and no supporting strategy.
-- The table is write-heavy and the index isn’t critical.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Una consulta sea lenta y selectiva (WHERE / JOIN / ORDER BY) y aparezca frecuentemente.
+- EXPLAIN muestre escaneos costosos.
+### Evítalo cuando
+- La columna tenga baja selectividad y no haya estrategia de soporte.
+- La tabla sea intensiva en escrituras y el índice no sea crítico.
 
-## How I would use it (practical)
-- **Context:** A high-traffic API with slow read endpoints.
-- **Steps:** identify slow queries → run EXPLAIN → add the smallest index that helps → measure → monitor.
-- **What success looks like:** lower p95 latency with minimal write impact.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API de alto tráfico con endpoints de lectura lentos.
+- **Pasos:** identificar consultas lentas → ejecutar EXPLAIN → agregar el índice más pequeño que ayude → medir → monitorear.
+- **Cómo se ve el éxito:** menor latencia p95 con impacto mínimo en escrituras.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** reduces read latency.
-- **Cons / Risks:** worsens writes, increases storage, can add contention.
-### Alternatives
-- **Materialized views:** for heavy read workloads.
-- **Denormalization:** when joins are the bottleneck.
-- **App-level caching:** when data freshness allows it.
-- **How to choose:** if reads are critical and selective, indexes are usually the first step.
+- **Pros:** reduce la latencia de lectura.
+- **Contras / Riesgos:** empeora las escrituras, aumenta el almacenamiento, puede agregar contención.
+### Alternativas
+- **Vistas materializadas:** para cargas de trabajo de lectura intensiva.
+- **Desnormalización:** cuando los joins son el cuello de botella.
+- **Caché a nivel de aplicación:** cuando la frescura de datos lo permite.
+- **Cómo elegir:** si las lecturas son críticas y selectivas, los índices son generalmente el primer paso.
 
-## Failure modes & Pitfalls
-- Index not used because the query doesn’t match the index order.
-- Index bloat from frequent updates.
-- Redundant indexes increasing write cost without benefit.
+## Modos de fallo y errores comunes
+- Índice no usado porque la consulta no coincide con el orden del índice.
+- Inflación del índice por actualizaciones frecuentes.
+- Índices redundantes aumentando el costo de escritura sin beneficio.
 
-## Observability (How to detect issues)
-- **Metrics:** p95 query latency, index usage ratio, bloat, write latency.
-- **Logs:** slow query logs, planner decisions.
-- **Traces:** DB spans showing full table scans.
-- **Alerts:** sustained p95 spikes or increasing write latency after index changes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas p95, ratio de uso de índices, inflación, latencia de escritura.
+- **Logs:** logs de consultas lentas, decisiones del planificador.
+- **Trazas:** spans de BD mostrando escaneos completos de tabla.
+- **Alertas:** picos sostenidos de p95 o latencia de escritura creciente después de cambios de índices.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-   - [ ] Identify critical queries
-   - [ ] Review selectivity
-   - [ ] Validate with EXPLAIN
-   - [ ] Measure impact on writes
-- **Performance notes**
-   - Prefer the smallest index that satisfies the query.
-- **Operational notes**
-   - Periodically review unused indexes.
+   - [ ] Identificar consultas críticas
+   - [ ] Revisar selectividad
+   - [ ] Validar con EXPLAIN
+   - [ ] Medir impacto en escrituras
+- **Notas de rendimiento**
+   - Preferir el índice más pequeño que satisfaga la consulta.
+- **Notas operacionales**
+   - Revisar periódicamente índices sin usar.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** “Index all the things.”
-   - **Why it’s bad:** high write cost with little gain.
-   - **Better approach:** index only for known query patterns.
-- **Anti-pattern:** Ignoring index order in composite indexes.
-   - **Why it’s bad:** the planner can’t use the index effectively.
-   - **Better approach:** order columns to match WHERE/JOIN/ORDER BY.
+## Anti-patrones comunes
+- **Anti-patrón:** "Indexar todas las cosas".
+   - **Por qué es malo:** alto costo de escritura con poca ganancia.
+   - **Mejor enfoque:** indexar solo para patrones de consulta conocidos.
+- **Anti-patrón:** Ignorar el orden del índice en índices compuestos.
+   - **Por qué es malo:** el planificador no puede usar el índice efectivamente.
+   - **Mejor enfoque:** ordenar columnas para coincidir con WHERE/JOIN/ORDER BY.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- An index is like a lookup table that speeds up reads by trading extra storage and write overhead. Use it for frequent, selective queries; avoid it for write-heavy tables or low-selectivity columns.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Un índice es como una tabla de búsqueda que acelera las lecturas intercambiando almacenamiento extra y sobrecarga de escritura. Úsalo para consultas frecuentes y selectivas; evítalo para tablas intensivas en escrituras o columnas de baja selectividad.
 
-### Trap questions (with answers)
-1) **Q:** Why do too many indexes hurt the system?
-    - **A:** they penalize INSERT/UPDATE/DELETE because each index must be updated.
-2) **Q:** Is an index always used?
-    - **A:** no; the planner may skip it if the estimated cost doesn’t pay off.
-3) **Q:** Does an index fix any slow query?
-    - **A:** no; if the filter doesn’t reduce much or the query is poorly designed, the index won’t help.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Por qué demasiados índices perjudican al sistema?
+    - **R:** Penalizan INSERT/UPDATE/DELETE porque cada índice debe actualizarse.
+2) **P:** ¿Un índice siempre se usa?
+    - **R:** No; el planificador puede saltárselo si el costo estimado no compensa.
+3) **P:** ¿Un índice arregla cualquier consulta lenta?
+    - **R:** No; si el filtro no reduce mucho o la consulta está mal diseñada, el índice no ayudará.
 
-### Quick self-check (5 items)
-- [ ] I can define an index precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir un índice con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - [PostgreSQL](postgresql.md)
 
-### Related topics
+### Temas relacionados
 - [JSONB](jsonb.md)
-- [GIN index](gin-index.md)
+- [Índice GIN](gin-index.md)
 
-### Compare with
-- [B-Tree index](btree-index.md) — ordered scans and ranges.
-- [GIN index](gin-index.md) — containment queries in JSONB/arrays.
-- [GiST](gist-index.md) — specialized types (geospatial, ranges).
+### Comparar con
+- [Índice B-Tree](btree-index.md) — escaneos ordenados y rangos.
+- [Índice GIN](gin-index.md) — consultas de contención en JSONB/arrays.
+- [GiST](gist-index.md) — tipos especializados (geoespaciales, rangos).

@@ -1,6 +1,6 @@
 ---
 id: storage-compaction
-title: "Storage Compaction"
+title: "Compactación de almacenamiento"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Storage Compaction
+# Compactación de almacenamiento
 
 ## TL;DR (BLUF)
-- Compaction reclaims space and reorganizes storage.
-- Use it to control bloat and improve read performance.
-- Trade-off: compaction is resource-intensive.
+- La compactación reclama espacio y reorganiza el almacenamiento.
+- Úsala para controlar el bloat y mejorar el rendimiento de lectura.
+- Trade-off: la compactación es intensiva en recursos.
 
-## Definition
-**What it is:** A process that rewrites data to reduce fragmentation and reclaim space.
-**Key terms:** compaction, fragmentation, rewrite.
+## Definición
+**Qué es:** Un proceso que reescribe datos para reducir la fragmentación y reclamar espacio.
+**Términos clave:** compactación, fragmentación, reescritura.
 
-## Why it matters
-- It stabilizes storage usage and read performance.
-- It can consume I/O and affect latency.
+## Por qué importa
+- Estabiliza el uso de almacenamiento y el rendimiento de lectura.
+- Puede consumir E/S y afectar la latencia.
 
-## Scope & Non-goals
-**In scope:** compaction concepts and trade-offs.
-**Out of scope / NOT solved by this:** database-specific compaction internals.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos y trade-offs de compactación.
+**Fuera del alcance / NO resuelto por esto:** internos de compactación específicos de cada base de datos.
 
-## Mental model / Intuition
-- Think of compacting a disk to remove gaps.
+## Modelo mental / Intuición
+- Piensa en compactar un disco para eliminar espacios vacíos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Storage grows despite stable data size.
-### Avoid it when
-- You can tolerate bloat and want minimal maintenance.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El almacenamiento crece a pesar de un tamaño de datos estable.
+### Evítalo cuando
+- Puedes tolerar el bloat y quieres mantenimiento mínimo.
 
-## How I would use it (practical)
-- **Context:** Large table with heavy updates.
-- **Steps:** schedule compaction → monitor I/O → verify size reduction.
-- **What success looks like:** reduced storage size and stable latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Tabla grande con actualizaciones pesadas.
+- **Pasos:** programar compactación → monitorear E/S → verificar reducción de tamaño.
+- **Cómo se ve el éxito:** tamaño de almacenamiento reducido y latencia estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** reclaimed space and improved locality.
-- **Cons / Risks:** I/O spikes and write slowdown.
-### Alternatives
-- **Vacuum/autovacuum:** lighter-weight cleanup in Postgres.
-- **How to choose:** use compaction when lighter cleanup isn’t enough.
+- **Ventajas:** espacio reclamado y mejor localidad.
+- **Desventajas / Riesgos:** picos de E/S y ralentización de escrituras.
+### Alternativas
+- **Vacuum/autovacuum:** limpieza más ligera en Postgres.
+- **Cómo elegir:** usa compactación cuando la limpieza más ligera no es suficiente.
 
-## Failure modes & Pitfalls
-- Compaction during peak traffic causing latency spikes.
+## Modos de fallo y trampas
+- Compactación durante tráfico pico causando picos de latencia.
 
-## Observability (How to detect issues)
-- **Metrics:** disk I/O, latency, table size.
-- **Logs:** compaction activity logs.
-- **Alerts:** sustained I/O spikes during compaction.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** E/S de disco, latencia, tamaño de tabla.
+- **Logs:** logs de actividad de compactación.
+- **Alertas:** picos de E/S sostenidos durante la compactación.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Schedule during low-traffic windows
-  - [ ] Monitor I/O impact
+  - [ ] Programar durante ventanas de bajo tráfico
+  - [ ] Monitorear impacto de E/S
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Compaction during peak traffic.
-  - **Why it’s bad:** causes latency spikes.
-  - **Better approach:** use maintenance windows.
+## Anti-patrones comunes
+- **Anti-patrón:** Compactación durante tráfico pico.
+  - **Por qué es malo:** causa picos de latencia.
+  - **Mejor enfoque:** usar ventanas de mantenimiento.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Compaction rewrites data to reclaim space and improve read locality. It’s useful but expensive, so schedule it carefully.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La compactación reescribe datos para reclamar espacio y mejorar la localidad de lectura. Es útil pero costosa, así que prográmala con cuidado.
 
-### Trap questions (with answers)
-1) **Q:** Does compaction always improve performance?
-   - **A:** not always; it can reduce performance during the process.
-2) **Q:** Is compaction the same as vacuum?
-   - **A:** no; vacuum is lighter and often doesn’t rewrite all data.
-3) **Q:** Can compaction be continuous?
-   - **A:** some systems do, but it still consumes resources.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La compactación siempre mejora el rendimiento?
+   - **R:** no siempre; puede reducir el rendimiento durante el proceso.
+2) **P:** ¿La compactación es lo mismo que vacuum?
+   - **R:** no; vacuum es más ligero y a menudo no reescribe todos los datos.
+3) **P:** ¿La compactación puede ser continua?
+   - **R:** algunos sistemas lo hacen, pero aún consume recursos.
 
-### Quick self-check (5 items)
-- [ ] I can define compaction.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain when to use it.
-- [ ] I can connect it to maintenance windows.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir compactación.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar cuándo usarla.
+- [ ] Puedo conectarla con ventanas de mantenimiento.
 
-## Links (NO duplication)
-### Prerequisites
-- [Storage fundamentals](storage-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de almacenamiento](storage-fundamentals.md)
 
-### Related topics
-- [PostgreSQL bloat](postgresql-bloat.md)
+### Temas relacionados
+- [Bloat en PostgreSQL](postgresql-bloat.md)
 
-### Compare with
-- [PostgreSQL vacuum & autovacuum](postgresql-vacuum-autovacuum.md) — lighter cleanup vs compaction.
+### Comparar con
+- [PostgreSQL vacuum y autovacuum](postgresql-vacuum-autovacuum.md) — limpieza más ligera vs compactación.

@@ -15,93 +15,93 @@ updated_at: 2026-01-19
 # DynamoDB Streams
 
 ## TL;DR (BLUF)
-- DynamoDB Streams is a DynamoDB-native [Change Data Capture (CDC)](change-data-capture.md) mechanism.
-- Use it for event-driven workflows and projections.
-- Trade-off: at-least-once delivery and ordering constraints.
+- DynamoDB Streams es un mecanismo de [Change Data Capture (CDC)](change-data-capture.md) nativo de DynamoDB.
+- Úsalo para flujos de trabajo dirigidos por eventos y proyecciones.
+- Trade-off: entrega at-least-once y restricciones de ordenamiento.
 
-## Definition
-**What it is:** A stream of change records (INSERT/MODIFY/REMOVE) for a DynamoDB table.
-**Key terms:** CDC, stream records, at-least-once delivery.
+## Definición
+**Qué es:** Un flujo de registros de cambio (INSERT/MODIFY/REMOVE) para una tabla DynamoDB.
+**Términos clave:** CDC, registros de stream, entrega at-least-once.
 
-## Why it matters
-- It enables event-driven processing without polling.
-- You must handle retries and duplicate events.
+## Por qué importa
+- Permite procesamiento dirigido por eventos sin polling.
+- Debes manejar reintentos y eventos duplicados.
 
-## Scope & Non-goals
-**In scope:** change capture and downstream consumers.
-**Out of scope / NOT solved by this:** exactly-once processing guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** captura de cambios y consumidores downstream.
+**Fuera del alcance / NO resuelto por esto:** garantías de procesamiento exactamente-una-vez.
 
-## Mental model / Intuition
-- Think of Streams as a change log for your table.
+## Modelo mental / Intuición
+- Piensa en Streams como un log de cambios para tu tabla.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need to react to data changes.
-- You want to build projections or trigger workflows.
-### Avoid it when
-- You need global ordering or exactly-once semantics.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites reaccionar a cambios de datos.
+- Quieras construir proyecciones o disparar flujos de trabajo.
+### Evítalo cuando
+- Necesites ordenamiento global o semántica exactamente-una-vez.
 
-## How I would use it (practical)
-- **Context:** Syncing data to a search index.
-- **Steps:** enable Streams → consume with Lambda → handle retries/idempotency.
-- **What success looks like:** consistent downstream state.
+## Cómo lo usaría (práctico)
+- **Contexto:** Sincronizar datos a un índice de búsqueda.
+- **Pasos:** habilitar Streams → consumir con Lambda → manejar reintentos/idempotencia.
+- **Cómo se ve el éxito:** estado downstream consistente.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** near-real-time change capture.
-- **Cons / Risks:** duplicates and retries.
-### Alternatives
-- **Polling:** simpler but slower and more expensive.
-- **How to choose:** use Streams when you need event-driven reactions.
+- **Pros:** captura de cambios en casi-tiempo-real.
+- **Contras / Riesgos:** duplicados y reintentos.
+### Alternativas
+- **Polling:** más simple pero más lento y costoso.
+- **Cómo elegir:** usa Streams cuando necesites reacciones dirigidas por eventos.
 
-## Failure modes & Pitfalls
-- Missing idempotency in consumers.
-- Backlog causing lag.
+## Modos de fallo y errores comunes
+- Falta de idempotencia en los consumidores.
+- Backlog causando lag.
 
-## Observability (How to detect issues)
-- **Metrics:** stream lag, error rate, iterator age.
-- **Logs:** consumer errors and retries.
-- **Alerts:** rising iterator age.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** lag del stream, tasa de errores, edad del iterador.
+- **Logs:** errores y reintentos del consumidor.
+- **Alertas:** edad del iterador creciente.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Make consumers idempotent
-  - [ ] Monitor iterator age
+  - [ ] Hacer consumidores idempotentes
+  - [ ] Monitorear edad del iterador
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Assuming exactly-once delivery.
-  - **Why it’s bad:** leads to duplicates.
-  - **Better approach:** make consumers idempotent.
+## Anti-patrones comunes
+- **Anti-patrón:** Asumir entrega exactamente-una-vez.
+  - **Por qué es malo:** genera duplicados.
+  - **Mejor enfoque:** hacer consumidores idempotentes.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DynamoDB Streams is a change log for table updates. It enables event-driven processing but delivers events at least once, so consumers must be idempotent.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- DynamoDB Streams es un log de cambios para actualizaciones de tabla. Permite procesamiento dirigido por eventos pero entrega eventos al menos una vez, así que los consumidores deben ser idempotentes.
 
-### Trap questions (with answers)
-1) **Q:** Are Streams events exactly once?
-   - **A:** no; they’re at-least-once.
-2) **Q:** Do Streams preserve global ordering?
-   - **A:** no; ordering is per partition.
-3) **Q:** Can TTL deletions appear in Streams?
-   - **A:** yes; TTL deletions generate stream records.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los eventos de Streams son exactamente-una-vez?
+   - **R:** No; son at-least-once.
+2) **P:** ¿Streams preserva ordenamiento global?
+   - **R:** No; el ordenamiento es por partición.
+3) **P:** ¿Las eliminaciones por TTL aparecen en Streams?
+   - **R:** Sí; las eliminaciones por TTL generan registros de stream.
 
-### Quick self-check (5 items)
-- [ ] I can define Streams precisely.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain ordering limits.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir Streams con precisión.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar los límites de ordenamiento.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - [DynamoDB](dynamodb.md)
 - [Change Data Capture (CDC)](change-data-capture.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB TTL](dynamodb-ttl.md)
 
-### Compare with
+### Comparar con
 - [Kafka](../architecture/kafka.md)

@@ -1,6 +1,6 @@
 ---
 id: rolling-deployments
-title: "Rolling Deployments"
+title: "Despliegues graduales (Rolling Deployments)"
 type: pattern
 status: learning
 importance: 75
@@ -12,138 +12,138 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Rolling Deployments
+# Despliegues graduales (Rolling Deployments)
 
 ## TL;DR (BLUF)
-- Rolling deployment replaces instances of the old version with the new version incrementally (one-by-one or in batches).
-- Use for zero-downtime deployments with minimal infrastructure overhead.
-- Key trade-off: simplicity and low cost vs. slower rollback (compared to blue/green).
+- El despliegue gradual reemplaza instancias de la versión antigua con la nueva versión de forma incremental (una por una o en lotes).
+- Úsalo para despliegues sin tiempo de inactividad con mínima sobrecarga de infraestructura.
+- Trade-off clave: simplicidad y bajo costo vs. reversión más lenta (comparado con blue/green).
 
-## Definition
-**What it is:** A deployment strategy that gradually replaces running instances of the old version with new version instances, one at a time or in small batches, until all instances are updated.  
-**Key terms:** instance replacement, batch size, health checks, rollback window, zero-downtime deployment, graceful shutdown, surge (extra instances during rollout).
+## Definición
+**Qué es:** Una estrategia de despliegue que reemplaza gradualmente las instancias en ejecución de la versión antigua con instancias de la nueva versión, una a la vez o en lotes pequeños, hasta que todas las instancias estén actualizadas.  
+**Términos clave:** reemplazo de instancias, tamaño de lote, health checks, ventana de reversión, despliegue sin tiempo de inactividad, apagado elegante, surge (instancias extra durante el despliegue).
 
-## Why it matters
-- **Zero downtime:** Users experience no service interruption during deployments.
-- **Cost-effective:** No need for 2x infrastructure (unlike blue/green).
-- **Simple to implement:** Standard strategy in Kubernetes, AWS ECS, and most orchestration platforms.
-- **Lower risk than big-bang:** Gradual rollout limits blast radius (but slower than canary).
-- **Interview relevance:** Common deployment pattern in system design discussions.
+## Por qué importa
+- **Sin tiempo de inactividad:** Los usuarios no experimentan interrupción del servicio durante los despliegues.
+- **Rentable:** No necesitas 2x de infraestructura (a diferencia de blue/green).
+- **Simple de implementar:** Estrategia estándar en Kubernetes, AWS ECS y la mayoría de plataformas de orquestación.
+- **Menor riesgo que big-bang:** El despliegue gradual limita el radio de impacto (pero más lento que canary).
+- **Relevancia en entrevistas:** Patrón de despliegue común en discusiones de diseño de sistemas.
 
-## Scope & Non-goals
-**In scope:**
-- Rolling deployment mechanics (instance replacement, batch sizing).
-- When to use rolling vs. other strategies.
-- Health check validation during rollout.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Mecánica del despliegue gradual (reemplazo de instancias, dimensionamiento de lotes).
+- Cuándo usar rolling vs. otras estrategias.
+- Validación de health checks durante el despliegue.
 
-**Out of scope / NOT solved by this:**
-- Database migrations (separate challenge; requires forward-compatible schemas).
-- Specific platform implementations (Kubernetes, ECS—though concepts apply).
-- Advanced progressive delivery (use canary for that).
+**Fuera del alcance / NO resuelto por esto:**
+- Migraciones de base de datos (desafío separado; requiere esquemas compatibles hacia adelante).
+- Implementaciones específicas de plataforma (Kubernetes, ECS — aunque los conceptos aplican).
+- Entrega progresiva avanzada (usa canary para eso).
 
-## Mental model / Intuition
-Think of rolling deployment as **replacing light bulbs in a chandelier one-by-one**:
-- You don't turn off all lights at once (that's big-bang deployment).
-- You replace one bulb at a time while the chandelier stays lit (zero downtime).
-- If a new bulb is defective, you notice it before replacing all bulbs (limited blast radius).
-- Eventually all bulbs are new (full rollout complete).
+## Modelo mental / Intuición
+Piensa en el despliegue gradual como **reemplazar bombillas en un candelabro una por una**:
+- No apagas todas las luces a la vez (eso es un despliegue big-bang).
+- Reemplazas una bombilla a la vez mientras el candelabro sigue encendido (sin tiempo de inactividad).
+- Si una bombilla nueva está defectuosa, lo notas antes de reemplazar todas las bombillas (radio de impacto limitado).
+- Eventualmente todas las bombillas son nuevas (despliegue completo terminado).
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Zero downtime is required (customer-facing services).
-- Infrastructure cost matters (can't afford 2x for blue/green).
-- Deployment is low-risk (mature service, well-tested changes).
-- Platform supports rolling updates natively (Kubernetes, ECS, etc.).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Se requiere cero tiempo de inactividad (servicios orientados al cliente).
+- El costo de infraestructura importa (no puedes permitir 2x para blue/green).
+- El despliegue es de bajo riesgo (servicio maduro, cambios bien probados).
+- La plataforma soporta actualizaciones rolling de forma nativa (Kubernetes, ECS, etc.).
 
-### Avoid it when
-- Instant rollback is critical (use blue/green instead).
-- Gradual validation needed (use canary instead).
-- Version incompatibility (old and new can't coexist).
-- Database migrations are complex (rolling + schema changes is tricky).
+### Evítalo cuando
+- La reversión instantánea es crítica (usa blue/green en su lugar).
+- Se necesita validación gradual (usa canary en su lugar).
+- Incompatibilidad de versiones (la antigua y la nueva no pueden coexistir).
+- Las migraciones de base de datos son complejas (rolling + cambios de esquema es complicado).
 
-## How I would use it (practical)
-- **Context:** Deploying a Go API service on Kubernetes with 10 replicas.
-- **Steps:**
-  1. **Configure rolling update:**
-     - Max surge: 2 (can add up to 2 extra instances during rollout).
-     - Max unavailable: 1 (at most 1 instance can be down during rollout).
-     - This ensures 9-12 instances running at all times (zero downtime).
-  2. **Deploy new version:**
-     - Kubernetes creates 1 new pod (v2).
-     - Waits for health check to pass (readiness probe).
-     - If healthy, terminates 1 old pod (v1).
-     - Repeats until all 10 pods are v2.
-  3. **Monitor during rollout:**
-     - Watch error rate, latency, health checks.
-     - If issues detected, pause or rollback (but slower than blue/green).
-  4. **Complete rollout:**
-     - All 10 pods now running v2.
-     - Total rollout time: ~5-10 minutes (depending on pod startup time).
-- **What success looks like:** Zero downtime; gradual replacement over 10 minutes; health checks validate each instance.
+## Cómo lo usaría (práctico)
+- **Contexto:** Desplegando un servicio API en Go en Kubernetes con 10 réplicas.
+- **Pasos:**
+  1. **Configurar actualización rolling:**
+     - Max surge: 2 (puede agregar hasta 2 instancias extra durante el despliegue).
+     - Max unavailable: 1 (como máximo 1 instancia puede estar caída durante el despliegue).
+     - Esto asegura 9-12 instancias ejecutándose en todo momento (cero tiempo de inactividad).
+  2. **Desplegar nueva versión:**
+     - Kubernetes crea 1 nuevo pod (v2).
+     - Espera a que el health check pase (readiness probe).
+     - Si está sano, termina 1 pod antiguo (v1).
+     - Repite hasta que los 10 pods sean v2.
+  3. **Monitorear durante el despliegue:**
+     - Observar tasa de errores, latencia, health checks.
+     - Si se detectan problemas, pausar o revertir (pero más lento que blue/green).
+  4. **Completar despliegue:**
+     - Los 10 pods ahora ejecutan v2.
+     - Tiempo total del despliegue: ~5-10 minutos (dependiendo del tiempo de arranque del pod).
+- **Cómo se ve el éxito:** Cero tiempo de inactividad; reemplazo gradual durante 10 minutos; los health checks validan cada instancia.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Zero downtime (instances replaced incrementally).
-  - Cost-effective (no 2x infrastructure).
-  - Simple (native support in most platforms).
-  - Lower blast radius than big-bang (issues affect only some instances).
-- **Cons / Risks:**
-  - Slower rollback (must redeploy old version, then roll back incrementally).
-  - Version skew (old and new run concurrently; API compatibility needed).
-  - No instant traffic switch (unlike blue/green).
-  - Slower than canary for risk detection (all instances eventually replaced).
+- **Ventajas:**
+  - Sin tiempo de inactividad (instancias reemplazadas incrementalmente).
+  - Rentable (sin 2x de infraestructura).
+  - Simple (soporte nativo en la mayoría de plataformas).
+  - Menor radio de impacto que big-bang (los problemas afectan solo algunas instancias).
+- **Desventajas / Riesgos:**
+  - Reversión más lenta (debe redesplegar la versión antigua y luego revertir incrementalmente).
+  - Desfase de versión (la antigua y la nueva se ejecutan concurrentemente; se necesita compatibilidad de API).
+  - Sin cambio de tráfico instantáneo (a diferencia de blue/green).
+  - Más lento que canary para detección de riesgos (todas las instancias eventualmente reemplazadas).
 
-### Alternatives
-- **[Blue/green deployments](blue-green-deployments.md):** Instant cutover, instant rollback (higher cost).
-- **[Canary deployments](canary-deployments.md):** Gradual validation with traffic percentage (more complex).
-- **Recreate deployment:** Stop all old, start all new (simple but has downtime).
+### Alternativas
+- **[Despliegues blue/green](blue-green-deployments.md):** Cambio instantáneo, reversión instantánea (mayor costo).
+- **[Despliegues canary](canary-deployments.md):** Validación gradual con porcentaje de tráfico (más complejo).
+- **Despliegue recreate:** Detener todo lo viejo, iniciar todo lo nuevo (simple pero con tiempo de inactividad).
 
-### How to choose
-- **Zero downtime + low cost:** Rolling.
-- **Zero downtime + instant rollback:** Blue/green.
-- **Zero downtime + gradual validation:** Canary.
-- **Simple service, downtime acceptable:** Recreate.
+### Cómo elegir
+- **Sin tiempo de inactividad + bajo costo:** Rolling.
+- **Sin tiempo de inactividad + reversión instantánea:** Blue/green.
+- **Sin tiempo de inactividad + validación gradual:** Canary.
+- **Servicio simple, tiempo de inactividad aceptable:** Recreate.
 
-## Failure modes & Pitfalls
-- **Failed health checks:** New instance fails readiness probe; rollout gets stuck (must fix or rollback).
-- **Too-fast rollout:** Batch size too large (e.g., replace 5 instances at once); issues affect many users.
-- **Version incompatibility:** Old and new instances can't coexist (API breaking changes, shared state issues).
-- **Slow startup:** New instances take 5+ minutes to start; rollout takes hours.
-- **No monitoring:** Deploy without watching metrics; issues go undetected until all instances are new.
+## Modos de fallo y trampas
+- **Health checks fallidos:** La nueva instancia falla el readiness probe; el despliegue se atasca (debe corregir o revertir).
+- **Despliegue muy rápido:** Tamaño de lote muy grande (por ejemplo, reemplazar 5 instancias a la vez); los problemas afectan a muchos usuarios.
+- **Incompatibilidad de versiones:** Las instancias antiguas y nuevas no pueden coexistir (cambios de API incompatibles, problemas de estado compartido).
+- **Arranque lento:** Las nuevas instancias tardan 5+ minutos en iniciar; el despliegue toma horas.
+- **Sin monitoreo:** Desplegar sin observar métricas; los problemas no se detectan hasta que todas las instancias son nuevas.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Deployment progress (% of instances updated).
-  - Error rate (compare new instances to old; flag spikes).
-  - Latency (P95/P99; flag if new instances slower).
-  - Health check success rate (should be 100%).
-- **Logs:** Compare logs between old and new instances (look for new errors).
-- **Traces:** Validate new instances handle requests correctly.
-- **Alerts:** Health check failures, error rate spike, rollout stalled.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Progreso del despliegue (% de instancias actualizadas).
+  - Tasa de errores (comparar nuevas instancias con antiguas; señalar picos).
+  - Latencia (P95/P99; señalar si las nuevas instancias son más lentas).
+  - Tasa de éxito de health checks (debería ser 100%).
+- **Logs:** Comparar logs entre instancias antiguas y nuevas (buscar nuevos errores).
+- **Trazas:** Validar que las nuevas instancias manejan solicitudes correctamente.
+- **Alertas:** Fallos de health check, pico en tasa de errores, despliegue atascado.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Configure rollout strategy (max surge, max unavailable, batch size).
-  - [ ] Define health checks (readiness and liveness probes).
-  - [ ] Set reasonable timeout (pod startup + readiness check; e.g., 5 minutes).
-  - [ ] Monitor during rollout (error rate, latency, health checks).
-  - [ ] Test rollback procedure (redeploy old version if needed).
-  - [ ] Use graceful shutdown (drain connections before terminating old instances).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Configurar estrategia de despliegue (max surge, max unavailable, tamaño de lote).
+  - [ ] Definir health checks (readiness y liveness probes).
+  - [ ] Establecer timeout razonable (arranque del pod + verificación de readiness; por ejemplo, 5 minutos).
+  - [ ] Monitorear durante el despliegue (tasa de errores, latencia, health checks).
+  - [ ] Probar procedimiento de reversión (redesplegar versión antigua si es necesario).
+  - [ ] Usar apagado elegante (drenar conexiones antes de terminar instancias antiguas).
 
-- **Security / Compliance notes**
-  - Ensure new instances have identical security posture (configs, secrets, IAM roles).
-  - Audit rollout events (who deployed, when, what version).
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que las nuevas instancias tengan postura de seguridad idéntica (configs, secretos, roles IAM).
+  - Auditar eventos de despliegue (quién desplegó, cuándo, qué versión).
 
-- **Performance notes**
-  - Warm up new instances (pre-load caches, connections) for faster readiness.
-  - Use connection draining on old instances (graceful shutdown).
+- **Notas de rendimiento**
+  - Pre-calentar nuevas instancias (pre-cargar cachés, conexiones) para readiness más rápida.
+  - Usar drenado de conexiones en instancias antiguas (apagado elegante).
 
-- **Operational notes**
-  - Document rollback procedure (must be executable under pressure).
-  - Monitor closely during first few instance replacements (catch issues early).
+- **Notas operacionales**
+  - Documentar procedimiento de reversión (debe ser ejecutable bajo presión).
+  - Monitorear de cerca durante los primeros reemplazos de instancias (detectar problemas temprano).
 
-## Mini example (Kubernetes)
+## Mini ejemplo (Kubernetes)
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -188,71 +188,71 @@ spec:
 # 3. kubectl rollout undo deployment/api  (if rollback needed)
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** No health checks defined.
-  - **Why it's bad:** Broken instances get traffic; users see errors.
-  - **Better approach:** Define readiness and liveness probes; only route traffic to healthy instances.
+## Anti-patrones comunes
+- **Anti-patrón:** Sin health checks definidos.
+  - **Por qué es malo:** Las instancias rotas reciben tráfico; los usuarios ven errores.
+  - **Mejor enfoque:** Definir readiness y liveness probes; solo enrutar tráfico a instancias sanas.
 
-- **Anti-pattern:** Max unavailable = replicas (replace all at once).
-  - **Why it's bad:** Defeats purpose of rolling deployment; equivalent to recreate (downtime).
-  - **Better approach:** Keep max unavailable small (1-2) to ensure service always available.
+- **Anti-patrón:** Max unavailable = réplicas (reemplazar todo a la vez).
+  - **Por qué es malo:** Anula el propósito del despliegue gradual; equivale a recreate (tiempo de inactividad).
+  - **Mejor enfoque:** Mantener max unavailable pequeño (1-2) para asegurar que el servicio siempre esté disponible.
 
-- **Anti-pattern:** Version incompatibility (API breaking changes).
-  - **Why it's bad:** Old and new instances can't coexist; clients fail on one or the other.
-  - **Better approach:** Ensure backward compatibility; use versioned endpoints if breaking changes needed.
+- **Anti-patrón:** Incompatibilidad de versiones (cambios de API incompatibles).
+  - **Por qué es malo:** Las instancias antiguas y nuevas no pueden coexistir; los clientes fallan en una u otra.
+  - **Mejor enfoque:** Asegurar compatibilidad hacia atrás; usar endpoints versionados si se necesitan cambios incompatibles.
 
-- **Anti-pattern:** No rollback plan.
-  - **Why it's bad:** Issues discovered mid-rollout; no quick way to revert.
-  - **Better approach:** Document rollback procedure (`kubectl rollout undo` or redeploy old version).
+- **Anti-patrón:** Sin plan de reversión.
+  - **Por qué es malo:** Se descubren problemas a mitad del despliegue; sin forma rápida de revertir.
+  - **Mejor enfoque:** Documentar procedimiento de reversión (`kubectl rollout undo` o redesplegar versión antigua).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Rolling deployment replaces old instances with new instances gradually—one at a time or in small batches. For example, if you have 10 instances, Kubernetes might start 1 new instance, wait for it to be healthy, then terminate 1 old instance. It repeats this until all 10 are the new version. The benefits are zero downtime (always have healthy instances serving traffic) and low cost (no 2x infrastructure like blue/green). The downsides are slower rollback (must redeploy old version and roll it out incrementally) and version skew during rollout (old and new coexist temporarily). It's the default strategy in most orchestration platforms because it's simple and effective.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+El despliegue gradual reemplaza instancias antiguas con instancias nuevas de forma gradual — una a la vez o en lotes pequeños. Por ejemplo, si tienes 10 instancias, Kubernetes podría iniciar 1 nueva instancia, esperar a que esté sana, y luego terminar 1 instancia antigua. Repite esto hasta que las 10 sean la nueva versión. Los beneficios son cero tiempo de inactividad (siempre hay instancias sanas sirviendo tráfico) y bajo costo (sin 2x de infraestructura como blue/green). Las desventajas son reversión más lenta (debe redesplegar la versión antigua e ir revirtiéndola incrementalmente) y desfase de versión durante el despliegue (la antigua y la nueva coexisten temporalmente). Es la estrategia predeterminada en la mayoría de plataformas de orquestación porque es simple y efectiva.
 
-### Trap questions (with answers)
-1) **Q:** How is rolling deployment different from blue/green?
-   - **A:** 
-     - **Rolling:** Replaces instances incrementally (one-by-one); no 2x infrastructure; slower rollback.
-     - **Blue/green:** Two full environments; instant traffic switch; instant rollback; 2x infrastructure cost.
-     - Rolling is cost-effective; blue/green is faster and safer.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cómo se diferencia el despliegue gradual del blue/green?
+   - **R:** 
+     - **Rolling:** Reemplaza instancias incrementalmente (una por una); sin 2x de infraestructura; reversión más lenta.
+     - **Blue/green:** Dos entornos completos; cambio de tráfico instantáneo; reversión instantánea; 2x de costo de infraestructura.
+     - Rolling es rentable; blue/green es más rápido y seguro.
 
-2) **Q:** What happens if a new instance fails health checks during rolling deployment?
-   - **A:** The rollout pauses. Kubernetes (or orchestrator) won't terminate old instances if new instances aren't ready. You must fix the issue (code bug, config error) and redeploy, or rollback to the old version. This prevents broken instances from getting traffic.
+2) **P:** ¿Qué pasa si una nueva instancia falla los health checks durante el despliegue gradual?
+   - **R:** El despliegue se pausa. Kubernetes (o el orquestador) no terminará instancias antiguas si las nuevas instancias no están listas. Debes corregir el problema (bug de código, error de configuración) y redesplegar, o revertir a la versión antigua. Esto previene que instancias rotas reciban tráfico.
 
-3) **Q:** Can you have zero downtime with rolling deployments?
-   - **A:** Yes, if configured correctly. Use `maxSurge` to allow extra instances during rollout and `maxUnavailable` to limit how many can be down at once. For example, with 10 replicas, maxSurge=2, maxUnavailable=1, you always have 9-12 healthy instances serving traffic (zero downtime).
+3) **P:** ¿Puedes tener cero tiempo de inactividad con despliegues graduales?
+   - **R:** Sí, si se configura correctamente. Usa `maxSurge` para permitir instancias extra durante el despliegue y `maxUnavailable` para limitar cuántas pueden estar caídas a la vez. Por ejemplo, con 10 réplicas, maxSurge=2, maxUnavailable=1, siempre tienes 9-12 instancias sanas sirviendo tráfico (cero tiempo de inactividad).
 
-4) **Q:** How do you handle database migrations with rolling deployments?
-   - **A:** Use forward-compatible schemas (old and new code can both read/write). Run migrations before deploying new code. For complex changes, use expand/contract pattern: expand schema (add new fields), deploy new code (uses new fields), contract schema (remove old fields) after all instances are new.
+4) **P:** ¿Cómo manejas migraciones de base de datos con despliegues graduales?
+   - **R:** Usa esquemas compatibles hacia adelante (el código antiguo y nuevo pueden leer/escribir ambos). Ejecuta las migraciones antes de desplegar el código nuevo. Para cambios complejos, usa el patrón expand/contract: expandir esquema (agregar nuevos campos), desplegar código nuevo (usa los nuevos campos), contraer esquema (remover campos antiguos) después de que todas las instancias son nuevas.
 
-5) **Q:** What's the difference between rolling and canary deployments?
-   - **A:** 
-     - **Rolling:** Replaces all instances incrementally; no traffic control (instances get equal traffic).
-     - **Canary:** Routes small percentage of traffic to new version; gradually increases (5% → 100%); monitors metrics before full rollout.
-     - Rolling is simpler; canary provides better risk mitigation and validation.
+5) **P:** ¿Cuál es la diferencia entre despliegues rolling y canary?
+   - **R:** 
+     - **Rolling:** Reemplaza todas las instancias incrementalmente; sin control de tráfico (las instancias reciben tráfico igual).
+     - **Canary:** Enruta un pequeño porcentaje de tráfico a la nueva versión; aumenta gradualmente (5% → 100%); monitorea métricas antes del despliegue completo.
+     - Rolling es más simple; canary proporciona mejor mitigación de riesgos y validación.
 
-### Quick self-check (5 items)
-- [ ] I can explain how rolling deployment works (incremental instance replacement).
-- [ ] I can describe the role of health checks in rolling deployments.
-- [ ] I can articulate the trade-off between cost and rollback speed.
-- [ ] I can compare rolling to blue/green and canary deployments.
-- [ ] I can explain how to configure zero-downtime rolling updates (maxSurge, maxUnavailable).
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo explicar cómo funciona el despliegue gradual (reemplazo incremental de instancias).
+- [ ] Puedo describir el rol de los health checks en los despliegues graduales.
+- [ ] Puedo articular el trade-off entre costo y velocidad de reversión.
+- [ ] Puedo comparar rolling con despliegues blue/green y canary.
+- [ ] Puedo explicar cómo configurar actualizaciones rolling sin tiempo de inactividad (maxSurge, maxUnavailable).
 
-## Links (NO duplication)
-### Prerequisites
-- [CI/CD basics](../quality/ci-cd-basics.md)
-- [Reliability basics](reliability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de CI/CD](../quality/ci-cd-basics.md)
+- [Fundamentos de fiabilidad](reliability-basics.md)
 
-### Related topics
-- [Blue/green deployments](blue-green-deployments.md)
-- [Canary deployments](canary-deployments.md)
+### Temas relacionados
+- [Despliegues blue/green](blue-green-deployments.md)
+- [Despliegues canary](canary-deployments.md)
 - [Feature flags](feature-flags.md)
 
-### Compare with
-- [Blue/green deployments](blue-green-deployments.md) — Blue/green is instant switch; rolling is incremental replacement.
-- [Canary deployments](canary-deployments.md) — Canary controls traffic percentage; rolling replaces instances.
+### Comparar con
+- [Despliegues blue/green](blue-green-deployments.md) — Blue/green es cambio instantáneo; rolling es reemplazo incremental.
+- [Despliegues canary](canary-deployments.md) — Canary controla porcentaje de tráfico; rolling reemplaza instancias.
 
-## Notes / Inbox
-- Add examples from real projects: rolling updates for Heimdall, Opportunity Actions deployment strategy.
-- Consider adding section on rollout velocity (how to speed up or slow down rollouts).
-- Link to Kubernetes rolling update details when created.
+## Notas / Bandeja de entrada
+- Agregar ejemplos de proyectos reales: actualizaciones rolling para Heimdall, estrategia de despliegue de Opportunity Actions.
+- Considerar agregar sección sobre velocidad de despliegue (cómo acelerar o ralentizar los despliegues).
+- Vincular a detalles de actualizaciones rolling de Kubernetes cuando se creen.

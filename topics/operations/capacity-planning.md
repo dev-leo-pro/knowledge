@@ -1,6 +1,6 @@
 ---
 id: capacity-planning
-title: "Capacity Planning"
+title: "Planificación de Capacidad"
 type: skill
 status: learning
 importance: 40
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Capacity Planning
+# Planificación de Capacidad
 
 ## TL;DR (BLUF)
-- Capacity planning ensures systems can handle future load.
-- Use it to prevent outages and overprovisioning.
-- Trade-off: inaccurate forecasts cause waste or risk.
+- La planificación de capacidad asegura que los sistemas puedan manejar la carga futura.
+- Úsala para prevenir interrupciones y sobreaprovisionamiento.
+- Trade-off: previsiones inexactas causan desperdicio o riesgo.
 
-## Definition
-**What it is:** Estimating resource needs based on load projections.
-**Key terms:** headroom, forecast, utilization.
+## Definición
+**Qué es:** Estimar las necesidades de recursos basándose en proyecciones de carga.
+**Términos clave:** margen de seguridad, previsión, utilización.
 
-## Why it matters
-- It avoids sudden performance degradation.
-- It balances cost and reliability.
+## Por qué importa
+- Evita la degradación repentina del rendimiento.
+- Equilibra coste y fiabilidad.
 
-## Scope & Non-goals
-**In scope:** planning resource capacity.
-**Out of scope / NOT solved by this:** real-time autoscaling logic.
+## Alcance y no-objetivos
+**Dentro del alcance:** planificar la capacidad de recursos.
+**Fuera del alcance / NO resuelto por esto:** lógica de autoescalado en tiempo real.
 
-## Mental model / Intuition
-- Plan for growth before you hit limits.
+## Modelo mental / Intuición
+- Planificar el crecimiento antes de alcanzar los límites.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have predictable growth or seasonal spikes.
-### Avoid it when
-- Your system is fully autoscaled and stable (rare).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tienes crecimiento predecible o picos estacionales.
+### Evítalo cuando
+- Tu sistema está completamente autoescalado y estable (raro).
 
-## How I would use it (practical)
-- **Context:** Increasing traffic forecasts.
-- **Steps:** estimate demand → check utilization → add headroom.
-- **What success looks like:** no capacity-related incidents.
+## Cómo lo usaría (práctico)
+- **Contexto:** Previsiones de tráfico creciente.
+- **Pasos:** estimar demanda -> verificar utilización -> añadir margen de seguridad.
+- **Cómo se ve el éxito:** sin incidentes relacionados con la capacidad.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** stability and preparedness.
-- **Cons / Risks:** overprovisioning.
-### Alternatives
-- **Autoscaling:** reduces manual planning.
-- **How to choose:** combine autoscaling with planning for limits.
+- **Ventajas:** estabilidad y preparación.
+- **Desventajas / Riesgos:** sobreaprovisionamiento.
+### Alternativas
+- **Autoescalado:** reduce la planificación manual.
+- **Cómo elegir:** combinar autoescalado con planificación para los límites.
 
-## Failure modes & Pitfalls
-- Relying on outdated usage trends.
+## Modos de fallo y trampas
+- Depender de tendencias de uso obsoletas.
 
-## Observability (How to detect issues)
-- **Metrics:** CPU, memory, I/O utilization.
-- **Logs:** scaling events.
-- **Alerts:** sustained high utilization.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** utilización de CPU, memoria, I/O.
+- **Logs:** eventos de escalado.
+- **Alertas:** utilización alta sostenida.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Monitor utilization trends
-  - [ ] Set headroom targets
+  - [ ] Monitorear tendencias de utilización
+  - [ ] Establecer objetivos de margen de seguridad
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Planning for average load only.
-  - **Why it’s bad:** peaks cause outages.
-  - **Better approach:** plan for p95/p99.
+## Anti-patrones comunes
+- **Anti-patrón:** Planificar solo para la carga promedio.
+  - **Por qué es malo:** los picos causan interrupciones.
+  - **Mejor enfoque:** planificar para p95/p99.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Capacity planning predicts resource needs so you don’t hit limits. It balances cost with reliability by adding headroom for growth.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La planificación de capacidad predice las necesidades de recursos para que no alcances los límites. Equilibra coste con fiabilidad añadiendo margen de seguridad para el crecimiento.
 
-### Trap questions (with answers)
-1) **Q:** Is autoscaling enough?
-   - **A:** not always; hard limits still exist.
-2) **Q:** Should you plan on average load?
-   - **A:** no; plan for peaks.
-3) **Q:** Can you skip planning if traffic is low?
-   - **A:** not if you expect growth.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es suficiente el autoescalado?
+   - **R:** no siempre; los límites rígidos siguen existiendo.
+2) **P:** ¿Deberías planificar para la carga promedio?
+   - **R:** no; planificar para los picos.
+3) **P:** ¿Puedes saltarte la planificación si el tráfico es bajo?
+   - **R:** no si esperas crecimiento.
 
-### Quick self-check (5 items)
-- [ ] I can define capacity planning.
-- [ ] I can explain headroom.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can identify a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir planificación de capacidad.
+- [ ] Puedo explicar margen de seguridad.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo identificar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [Performance basics](../system-design/performance-basics.md)
+### Temas relacionados
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
 
-### Compare with
-- [Reliability basics](reliability-basics.md) — capacity vs stability.
+### Comparar con
+- [Fundamentos de fiabilidad](reliability-basics.md) — capacidad vs estabilidad.

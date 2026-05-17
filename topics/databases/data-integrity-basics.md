@@ -1,6 +1,6 @@
 ---
 id: data-integrity-basics
-title: "Data Integrity Basics"
+title: "Fundamentos de Integridad de Datos"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Data Integrity Basics
+# Fundamentos de Integridad de Datos
 
 ## TL;DR (BLUF)
-- Data integrity ensures data is correct, consistent, and trustworthy.
-- Use constraints and validation to enforce invariants.
-- Trade-off: stricter checks can slow writes.
+- La integridad de datos asegura que los datos sean correctos, consistentes y confiables.
+- Usa restricciones y validación para imponer invariantes.
+- Trade-off: verificaciones más estrictas pueden ralentizar las escrituras.
 
-## Definition
-**What it is:** The correctness and consistency of stored data across operations.
-**Key terms:** constraints, invariants, validation.
+## Definición
+**Qué es:** La corrección y consistencia de los datos almacenados a través de las operaciones.
+**Términos clave:** restricciones, invariantes, validación.
 
-## Why it matters
-- Poor integrity leads to incorrect decisions and bugs.
-- Integrity violations compound over time.
+## Por qué importa
+- Una integridad pobre lleva a decisiones incorrectas y bugs.
+- Las violaciones de integridad se acumulan con el tiempo.
 
-## Scope & Non-goals
-**In scope:** core integrity concepts and enforcement layers.
-**Out of scope / NOT solved by this:** cross-system integrity guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos fundamentales de integridad y capas de aplicación.
+**Fuera del alcance / NO resuelto por esto:** garantías de integridad entre sistemas.
 
-## Mental model / Intuition
-- Integrity is a safety net that prevents impossible states.
+## Modelo mental / Intuición
+- La integridad es una red de seguridad que previene estados imposibles.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data correctness is critical to business logic.
-### Avoid it when
-- Data is ephemeral and correctness is less important (rare).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La corrección de datos es crítica para la lógica de negocio.
+### Evítalo cuando
+- Los datos son efímeros y la corrección es menos importante (raro).
 
-## How I would use it (practical)
-- **Context:** User email uniqueness.
-- **Steps:** add unique constraint → validate in app → handle conflict.
-- **What success looks like:** no duplicates under concurrency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Unicidad de email de usuario.
+- **Pasos:** agregar restricción unique → validar en la app → manejar conflictos.
+- **Cómo se ve el éxito:** sin duplicados bajo concurrencia.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong correctness.
-- **Cons / Risks:** write overhead.
-### Alternatives
-- **App-only validation:** more flexible but weaker guarantees.
-- **How to choose:** enforce core invariants in the DB.
+- **Ventajas:** corrección fuerte.
+- **Desventajas / Riesgos:** sobrecarga de escritura.
+### Alternativas
+- **Validación solo en app:** más flexible pero con garantías más débiles.
+- **Cómo elegir:** imponer invariantes fundamentales en la BD.
 
-## Failure modes & Pitfalls
-- Relying only on app checks under race conditions.
+## Modos de fallo y trampas
+- Depender solo de verificaciones en la app bajo condiciones de carrera.
 
-## Observability (How to detect issues)
-- **Metrics:** constraint violations.
-- **Logs:** integrity errors.
-- **Alerts:** spikes in violations.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** violaciones de restricciones.
+- **Logs:** errores de integridad.
+- **Alertas:** picos en violaciones.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify invariants
-  - [ ] Add constraints
+  - [ ] Identificar invariantes
+  - [ ] Agregar restricciones
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Skipping constraints to move faster.
-  - **Why it’s bad:** long-term data corruption.
-  - **Better approach:** add minimal core constraints.
+## Anti-patrones comunes
+- **Anti-patrón:** Omitir restricciones para avanzar más rápido.
+  - **Por qué es malo:** corrupción de datos a largo plazo.
+  - **Mejor enfoque:** agregar restricciones mínimas fundamentales.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Data integrity means the database never stores invalid states. Constraints and validations enforce it; the trade-off is extra write checks.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La integridad de datos significa que la base de datos nunca almacena estados inválidos. Las restricciones y validaciones la imponen; el trade-off es verificaciones extra en las escrituras.
 
-### Trap questions (with answers)
-1) **Q:** Can you rely only on app validation?
-   - **A:** not safely under concurrency.
-2) **Q:** Do constraints eliminate all errors?
-   - **A:** no; business rules still require app logic.
-3) **Q:** Is integrity only about uniqueness?
-   - **A:** no; it includes correctness of all invariants.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Se puede depender solo de la validación en la app?
+   - **R:** no de forma segura bajo concurrencia.
+2) **P:** ¿Las restricciones eliminan todos los errores?
+   - **R:** no; las reglas de negocio aún requieren lógica de app.
+3) **P:** ¿La integridad es solo sobre unicidad?
+   - **R:** no; incluye la corrección de todos los invariantes.
 
-### Quick self-check (5 items)
-- [ ] I can define data integrity.
-- [ ] I can name enforcement layers.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir integridad de datos.
+- [ ] Puedo nombrar las capas de aplicación.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [ACID properties](acid-properties.md)
 
-### Related topics
+### Temas relacionados
 - [Constraints vs app-level enforcement](constraints-vs-app.md)
 
-### Compare with
+### Comparar con
 - [API validation](../system-design/api-validation.md)

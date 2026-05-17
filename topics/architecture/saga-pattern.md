@@ -12,120 +12,120 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# Saga Pattern
+# Patrón Saga
 
 ## TL;DR (BLUF)
-- A saga coordinates a distributed transaction as a sequence of local transactions with compensations.
-- Use it for cross-service workflows where ACID across services is not possible.
-- Trade-off: eventual consistency and complex failure handling.
+- Una saga coordina una transacción distribuida como una secuencia de transacciones locales con compensaciones.
+- Úsala para flujos de trabajo entre servicios donde ACID entre servicios no es posible.
+- Trade-off: consistencia eventual y manejo de fallos complejo.
 
-## Definition
-**What it is:** A pattern for managing multi-step, cross-service workflows using local transactions and compensating actions to undo partial work.  
-**Key terms:** saga, compensation, orchestration, choreography, local transaction, eventual consistency.
+## Definición
+**Qué es:** Un patrón para gestionar flujos de trabajo multi-paso y entre servicios usando transacciones locales y acciones compensatorias para deshacer trabajo parcial.
+**Términos clave:** saga, compensación, orquestación, coreografía, transacción local, consistencia eventual.
 
-## Why it matters
-- It provides a reliable way to handle failures in distributed workflows.
-- It avoids tight coupling and global locks across services.
+## Por qué importa
+- Proporciona una forma fiable de manejar fallos en flujos de trabajo distribuidos.
+- Evita el acoplamiento estrecho y los bloqueos globales entre servicios.
 
-## Scope & Non-goals
-**In scope:** saga flow, compensation strategy, and reliability trade-offs.  
-**Out of scope / NOT solved by this:** strong consistency across services or 2PC equivalents.
+## Alcance y no-objetivos
+**Dentro del alcance:** flujo de saga, estrategia de compensación y trade-offs de fiabilidad.
+**Fuera del alcance / NO resuelto por esto:** consistencia fuerte entre servicios o equivalentes de 2PC.
 
-## Mental model / Intuition
-- Think of a travel booking: flight + hotel + car. If one fails, you cancel the others.
-- Each step commits locally; compensations roll back business effects.
+## Modelo mental / Intuición
+- Piensa en una reserva de viaje: vuelo + hotel + coche. Si uno falla, cancelas los otros.
+- Cada paso hace commit local; las compensaciones deshacen los efectos de negocio.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need cross-service workflows without distributed transactions.
-- Each step can define a compensating action.
-- Eventual consistency is acceptable.
-### Avoid it when
-- You need strict atomicity across services.
-- Compensation is impossible or unsafe.
-- The workflow is simple enough for a single service transaction.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites flujos de trabajo entre servicios sin transacciones distribuidas.
+- Cada paso pueda definir una acción compensatoria.
+- La consistencia eventual sea aceptable.
+### Evítalo cuando
+- Necesites atomicidad estricta entre servicios.
+- La compensación sea imposible o insegura.
+- El flujo de trabajo sea lo bastante simple para una transacción de un solo servicio.
 
-## How I would use it (practical)
-- **Context:** Order creation spanning payments, inventory, and shipping services.
-- **Steps:**
-  1) Model each step as a local transaction.
-  2) Define compensations for each step.
-  3) Choose orchestration (central coordinator) or choreography (events).
-  4) Add timeouts, retries, and a dead-letter queue.
-- **What success looks like:** no stranded resources and clear recovery paths.
+## Cómo lo usaría (práctico)
+- **Contexto:** Creación de orden que abarca servicios de pagos, inventario y envío.
+- **Pasos:**
+  1) Modelar cada paso como una transacción local.
+  2) Definir compensaciones para cada paso.
+  3) Elegir orquestación (coordinador central) o coreografía (eventos).
+  4) Agregar timeouts, reintentos y una cola de mensajes muertos.
+- **Cómo se ve el éxito:** sin recursos huérfanos y rutas de recuperación claras.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** avoids distributed locks, scales across services, resilient to partial failure.
-- **Cons / Risks:** eventual consistency, complex compensation logic, and harder observability.
-### Alternatives
-- **[Request-response architecture](request-response.md):** simpler for synchronous, single-service workflows.
-- **[Outbox pattern](outbox-pattern.md):** safer event publication for local transactions.
-- **How to choose:** use sagas when multi-service coordination and failure recovery matter most.
+- **Pros:** evita bloqueos distribuidos, escala entre servicios, resiliente a fallos parciales.
+- **Contras / Riesgos:** consistencia eventual, lógica de compensación compleja y observabilidad más difícil.
+### Alternativas
+- **[Arquitectura request-response](request-response.md):** más simple para flujos de trabajo síncronos de un solo servicio.
+- **[Patrón Outbox](outbox-pattern.md):** publicación de eventos más segura para transacciones locales.
+- **Cómo elegir:** usa sagas cuando la coordinación multi-servicio y la recuperación de fallos sean lo más importante.
 
-## Failure modes & Pitfalls
-- Compensations not idempotent, causing over-correction.
-- Orchestration becoming a single point of failure.
-- Choreography leading to hidden coupling and unclear flow ownership.
+## Modos de fallo y errores comunes
+- Compensaciones no idempotentes, causando sobre-corrección.
+- La orquestación convirtiéndose en un punto único de fallo.
+- La coreografía generando acoplamiento oculto y propiedad del flujo poco clara.
 
-## Observability (How to detect issues)
-- **Metrics:** saga completion time, rollback rate, compensation failures.
-- **Logs:** saga ID, step transitions, compensation outcomes.
-- **Traces:** end-to-end saga spans with step timing.
-- **Alerts:** high rollback rate, stuck sagas, or repeated compensation failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tiempo de completitud de saga, tasa de rollback, fallos de compensación.
+- **Logs:** ID de saga, transiciones de pasos, resultados de compensación.
+- **Trazas:** spans end-to-end de saga con tiempos por paso.
+- **Alertas:** alta tasa de rollback, sagas atascadas o fallos de compensación repetidos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define compensations for every step
-  - [ ] Ensure idempotency for steps and compensations
-  - [ ] Correlate all steps with a saga ID
-- **Security / Compliance notes**
-  - Ensure compensations preserve audit trails.
-- **Performance notes**
-  - Avoid long-running locks; use timeouts and async retries.
-- **Operational notes**
-  - Monitor stuck or long-running sagas.
+  - [ ] Definir compensaciones para cada paso
+  - [ ] Asegurar idempotencia para pasos y compensaciones
+  - [ ] Correlacionar todos los pasos con un ID de saga
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que las compensaciones preserven las pistas de auditoría.
+- **Notas de rendimiento**
+  - Evitar bloqueos de larga duración; usar timeouts y reintentos asíncronos.
+- **Notas operacionales**
+  - Monitorear sagas atascadas o de larga duración.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using sagas to mimic strict ACID across services.
-  - **Why it’s bad:** compensations are not real rollbacks and can leave side effects.
-  - **Better approach:** redesign workflow or consolidate into one service when possible.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar sagas para imitar ACID estricto entre servicios.
+  - **Por qué es malo:** las compensaciones no son rollbacks reales y pueden dejar efectos secundarios.
+  - **Mejor enfoque:** rediseñar el flujo de trabajo o consolidar en un solo servicio cuando sea posible.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A saga breaks a distributed transaction into local transactions and uses compensating actions to undo partial work. It trades strict consistency for resilience and scalability.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Una saga divide una transacción distribuida en transacciones locales y usa acciones compensatorias para deshacer trabajo parcial. Intercambia consistencia estricta por resiliencia y escalabilidad.
 
-### Trap questions (with answers)
-1) **Q:** Are compensations the same as database rollbacks?
-   - **A:** No; they are business-level actions that may not fully undo side effects.
-2) **Q:** Does a saga guarantee exactly-once execution?
-   - **A:** No; steps must be idempotent and resilient to retries.
-3) **Q:** Is choreography always better than orchestration?
-   - **A:** No; choreography can become opaque and tightly coupled without clear ownership.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las compensaciones son lo mismo que rollbacks de base de datos?
+   - **R:** No; son acciones a nivel de negocio que pueden no deshacer completamente los efectos secundarios.
+2) **P:** ¿Una saga garantiza ejecución exactamente-una-vez?
+   - **R:** No; los pasos deben ser idempotentes y resilientes a reintentos.
+3) **P:** ¿La coreografía siempre es mejor que la orquestación?
+   - **R:** No; la coreografía puede volverse opaca y estrechamente acoplada sin propiedad clara.
 
-### Quick self-check (5 items)
-- [ ] I can define the saga pattern precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el patrón saga con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Event-driven architecture](event-driven-basics.md)
-- [Transactions](../databases/transactions.md)
-- [ACID properties](../databases/acid-properties.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
+- [Transacciones](../databases/transactions.md)
+- [Propiedades ACID](../databases/acid-properties.md)
 
-### Related topics
-- [Outbox pattern](outbox-pattern.md)
-- [Dual-write pattern](dual-write-pattern.md)
+### Temas relacionados
+- [Patrón Outbox](outbox-pattern.md)
+- [Patrón de escritura dual](dual-write-pattern.md)
 - [Change Data Capture (CDC)](../databases/change-data-capture.md)
 
-### Compare with
-- [Request-response architecture](request-response.md) — synchronous flow vs distributed workflow.
+### Comparar con
+- [Arquitectura request-response](request-response.md) — flujo síncrono vs flujo de trabajo distribuido.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

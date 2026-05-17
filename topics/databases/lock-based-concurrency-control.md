@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Lock-Based Concurrency Control
+# Control de Concurrencia Basado en Bloqueos
 
 ## TL;DR (BLUF)
-- Lock-based control uses locks to prevent conflicting operations.
-- Use it when conflicts are common and correctness is critical.
-- Trade-off: reduced concurrency and potential deadlocks.
+- El control basado en bloqueos usa locks para prevenir operaciones conflictivas.
+- Úsalo cuando los conflictos sean comunes y la corrección sea crítica.
+- Trade-off: concurrencia reducida y posibles deadlocks.
 
-## Definition
-**What it is:** A concurrency strategy that uses locks to serialize conflicting operations.
-**Key terms:** locks, blocking, deadlocks.
+## Definición
+**Qué es:** Una estrategia de concurrencia que usa bloqueos para serializar operaciones conflictivas.
+**Términos clave:** bloqueos, bloqueo de espera, deadlocks.
 
-## Why it matters
-- It provides strong correctness under contention.
-- It can reduce throughput and increase latency.
+## Por qué importa
+- Proporciona corrección fuerte bajo contención.
+- Puede reducir el throughput y aumentar la latencia.
 
-## Scope & Non-goals
-**In scope:** lock-based concurrency concepts and trade-offs.
-**Out of scope / NOT solved by this:** distributed locking across services.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos y trade-offs del control de concurrencia basado en bloqueos.
+**Fuera del alcance / NO resuelto por esto:** bloqueo distribuido entre servicios.
 
-## Mental model / Intuition
-- Only one writer at a time per locked resource.
+## Modelo mental / Intuición
+- Solo un escritor a la vez por recurso bloqueado.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Conflicts are frequent and correctness is paramount.
-### Avoid it when
-- Conflicts are rare and optimistic control is more efficient.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los conflictos sean frecuentes y la corrección sea primordial.
+### Evítalo cuando
+- Los conflictos sean raros y el control optimista sea más eficiente.
 
-## How I would use it (practical)
-- **Context:** Inventory decrement under high contention.
-- **Steps:** lock row → update → commit quickly.
-- **What success looks like:** correct counts with manageable lock waits.
+## Cómo lo usaría (práctico)
+- **Contexto:** Decremento de inventario bajo alta contención.
+- **Pasos:** bloquear fila → actualizar → hacer commit rápidamente.
+- **Cómo se ve el éxito:** conteos correctos con tiempos de espera de bloqueo manejables.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** strong correctness.
-- **Cons / Risks:** blocking and deadlocks.
-### Alternatives
-- **Optimistic concurrency control:** for low-conflict workloads.
-- **How to choose:** lock-based for high-conflict scenarios.
+- **Pros:** corrección fuerte.
+- **Contras / Riesgos:** bloqueo de espera y deadlocks.
+### Alternativas
+- **Control de concurrencia optimista:** para cargas de trabajo de bajo conflicto.
+- **Cómo elegir:** basado en bloqueos para escenarios de alto conflicto.
 
-## Failure modes & Pitfalls
-- Long transactions increasing lock wait times.
-- Deadlocks under competing lock order.
+## Modos de fallo y errores comunes
+- Transacciones largas aumentando tiempos de espera de bloqueo.
+- Deadlocks bajo orden de bloqueo competitivo.
 
-## Observability (How to detect issues)
-- **Metrics:** lock waits, deadlocks.
-- **Logs:** lock timeout errors.
-- **Alerts:** rising lock wait time.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** esperas de bloqueo, deadlocks.
+- **Logs:** errores de timeout de bloqueo.
+- **Alertas:** tiempo de espera de bloqueo creciente.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Keep transactions short
-  - [ ] Use consistent lock ordering
+  - [ ] Mantener transacciones cortas
+  - [ ] Usar orden de bloqueo consistente
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Locking more data than needed.
-  - **Why it’s bad:** reduces concurrency.
-  - **Better approach:** narrow the locked scope.
+## Anti-patrones comunes
+- **Anti-patrón:** Bloquear más datos de los necesarios.
+  - **Por qué es malo:** reduce la concurrencia.
+  - **Mejor enfoque:** limitar el alcance del bloqueo.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Lock-based concurrency prevents conflicts by blocking access. It’s safe but can reduce throughput and cause deadlocks if not managed carefully.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El control de concurrencia basado en bloqueos previene conflictos bloqueando el acceso. Es seguro pero puede reducir el throughput y causar deadlocks si no se gestiona cuidadosamente.
 
-### Trap questions (with answers)
-1) **Q:** Are locks always worse than optimistic control?
-   - **A:** no; for high-conflict workloads locks are safer.
-2) **Q:** Do locks eliminate the need for retries?
-   - **A:** no; deadlocks still require retries.
-3) **Q:** Are locks only for writes?
-   - **A:** no; some reads also take locks.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los bloqueos siempre son peores que el control optimista?
+   - **R:** No; para cargas de trabajo de alto conflicto los bloqueos son más seguros.
+2) **P:** ¿Los bloqueos eliminan la necesidad de reintentos?
+   - **R:** No; los deadlocks aún requieren reintentos.
+3) **P:** ¿Los bloqueos son solo para escrituras?
+   - **R:** No; algunas lecturas también toman bloqueos.
 
-### Quick self-check (5 items)
-- [ ] I can define lock-based concurrency control.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain lock ordering.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el control de concurrencia basado en bloqueos.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar el orden de bloqueos.
 
-## Links (NO duplication)
-### Prerequisites
-- [Locks](locks.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Bloqueos](locks.md)
 
-### Related topics
+### Temas relacionados
 - [Deadlocks](deadlocks.md)
 
-### Compare with
-- [Optimistic concurrency control](optimistic-concurrency-control.md)
+### Comparar con
+- [Control de concurrencia optimista](optimistic-concurrency-control.md)

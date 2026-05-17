@@ -1,6 +1,6 @@
 ---
 id: bulkheads
-title: "Bulkheads"
+title: "Bulkheads (Mamparos)"
 type: pattern
 status: learning
 importance: 70
@@ -12,126 +12,126 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Bulkheads
+# Bulkheads (Mamparos)
 
 ## TL;DR (BLUF)
-- Bulkheads isolate resources so a failure in one component doesn’t sink the whole system.
-- Use them to prevent “noisy neighbor” and [Cascading failure](cascading-failure.md).
-- Trade-off: capacity fragmentation and higher operational complexity.
+- Los bulkheads aíslan recursos para que un fallo en un componente no hunda todo el sistema.
+- Úsalos para prevenir "vecinos ruidosos" y [Fallos en cascada](cascading-failure.md).
+- Trade-off: fragmentación de capacidad y mayor complejidad operativa.
 
-## Definition
-**What it is:** A resilience pattern that partitions resources (threads, pools, queues, or services) to contain failures within a bounded fault domain.  
-**Key terms:** isolation, partitioned pools, fault domain, noisy neighbor, saturation.
+## Definición
+**Qué es:** Un patrón de resiliencia que particiona recursos (hilos, pools, colas o servicios) para contener fallos dentro de un dominio de fallo acotado.  
+**Términos clave:** aislamiento, pools particionados, dominio de fallo, vecino ruidoso, saturación.
 
-## Why it matters
-- Prevents one dependency or tenant from exhausting shared resources.
-- Keeps critical paths healthy even when non-critical paths fail.
+## Por qué importa
+- Previene que una dependencia o inquilino agote recursos compartidos.
+- Mantiene las rutas críticas sanas incluso cuando las rutas no críticas fallan.
 
-## Scope & Non-goals
-**In scope:** per-dependency pools, per-tenant quotas, and isolated worker groups.  
-**Out of scope / NOT solved by this:** root-cause recovery (see [Circuit breaker](circuit-breaker.md)) or overload rejection (see [Load shedding](load-shedding.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** pools por dependencia, cuotas por inquilino y grupos de workers aislados.  
+**Fuera del alcance / NO resuelto por esto:** recuperación de causa raíz (ver [Circuit breaker](circuit-breaker.md)) o rechazo por sobrecarga (ver [Load shedding](load-shedding.md)).
 
-## Mental model / Intuition
-- Like compartments in a ship: flooding in one compartment doesn’t sink the entire vessel.
+## Modelo mental / Intuición
+- Como compartimentos en un barco: una inundación en un compartimento no hunde toda la embarcación.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have multiple dependencies with different risk profiles.
-- Multi-tenant systems suffer from noisy neighbors.
-- Shared pools (threads/DB connections) are a frequent source of incidents.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tienes múltiples dependencias con diferentes perfiles de riesgo.
+- Los sistemas multi-inquilino sufren de vecinos ruidosos.
+- Los pools compartidos (hilos/conexiones de BD) son una fuente frecuente de incidentes.
 
-### Avoid it when
-- The system is small and shared resources are not a bottleneck.
-- You cannot afford idle capacity fragmentation.
+### Evítalo cuando
+- El sistema es pequeño y los recursos compartidos no son un cuello de botella.
+- No puedes permitirte la fragmentación de capacidad inactiva.
 
-## How I would use it (practical)
-- **Context:** A service calls two external APIs: one reliable, one flaky.
-- **Steps:**
-  1) Split worker pools and connection limits per dependency.
-  2) Add per-tenant concurrency caps.
-  3) Monitor saturation per pool and tune limits.
-- **What success looks like:** failures in the flaky dependency don’t affect the reliable one.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un servicio llama a dos APIs externas: una fiable, otra inestable.
+- **Pasos:**
+  1) Separar pools de workers y límites de conexión por dependencia.
+  2) Añadir límites de concurrencia por inquilino.
+  3) Monitorear saturación por pool y ajustar límites.
+- **Cómo se ve el éxito:** los fallos en la dependencia inestable no afectan a la fiable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong isolation, reduced blast radius.
-- **Cons / Risks:** idle capacity, more tuning, and possible under-utilization.
-### Alternatives
-- **Backpressure:** limit overall load when capacity is tight.
-- **Load shedding:** reject or degrade low-priority work.
-- **How to choose:** if the main risk is cross-impact between components, choose bulkheads.
+- **Ventajas:** aislamiento fuerte, radio de explosión reducido.
+- **Desventajas / Riesgos:** capacidad inactiva, más ajuste y posible infrautilización.
+### Alternativas
+- **Contrapresión:** limitar la carga general cuando la capacidad es ajustada.
+- **Load shedding:** rechazar o degradar trabajo de baja prioridad.
+- **Cómo elegir:** si el principal riesgo es el impacto cruzado entre componentes, elegir bulkheads.
 
-## Failure modes & Pitfalls
-- Poor sizing → one pool starves while another is underused.
-- No per-tenant isolation → a single tenant still dominates a pool.
-- Over-partitioning → operational overhead with minimal benefit.
+## Modos de fallo y trampas
+- Dimensionamiento pobre -> un pool se queda sin recursos mientras otro está infrautilizado.
+- Sin aislamiento por inquilino -> un solo inquilino sigue dominando un pool.
+- Sobre-particionamiento -> overhead operativo con beneficio mínimo.
 
-## Observability (How to detect issues)
-- **Metrics:** per-pool utilization, queue depth per pool, rejection rate by pool.
-- **Logs:** pool saturation events with tenant/dependency identifiers.
-- **Traces:** show which pool a request used and where it waited.
-- **Alerts:** pool saturation > threshold, per-tenant dominance spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** utilización por pool, profundidad de cola por pool, tasa de rechazo por pool.
+- **Logs:** eventos de saturación del pool con identificadores de inquilino/dependencia.
+- **Trazas:** mostrar qué pool usó una petición y dónde esperó.
+- **Alertas:** saturación del pool > umbral, picos de dominancia por inquilino.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify critical dependencies and tenants
-  - [ ] Partition pools (threads, queues, connections)
-  - [ ] Set per-pool limits and alert thresholds
-  - [ ] Validate isolation in load tests
-- **Security / Compliance notes**
-  - Ensure tenant isolation does not leak data in shared fallbacks
-- **Performance notes**
-  - Measure utilization to avoid wasting capacity
-- **Operational notes**
-  - Document pool sizing logic and re-tuning playbooks
+  - [ ] Identificar dependencias e inquilinos críticos
+  - [ ] Particionar pools (hilos, colas, conexiones)
+  - [ ] Establecer límites por pool y umbrales de alerta
+  - [ ] Validar aislamiento en pruebas de carga
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que el aislamiento de inquilinos no filtre datos en fallbacks compartidos
+- **Notas de rendimiento**
+  - Medir utilización para evitar desperdiciar capacidad
+- **Notas operativas**
+  - Documentar lógica de dimensionamiento del pool y playbooks de re-ajuste
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 critical_pool = 50 connections
 noncritical_pool = 10 connections
-# critical endpoints never compete with non-critical ones
+# los endpoints críticos nunca compiten con los no críticos
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “One giant pool for everything.”
-  - **Why it’s bad:** a noisy neighbor can exhaust shared capacity.
-  - **Better approach:** split pools by dependency or priority.
+## Anti-patrones comunes
+- **Anti-patrón:** "Un pool gigante para todo."
+  - **Por qué es malo:** un vecino ruidoso puede agotar la capacidad compartida.
+  - **Mejor enfoque:** separar pools por dependencia o prioridad.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Bulkheads isolate capacity so one failing or noisy component can’t take down the rest of the system.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los bulkheads aíslan capacidad para que un componente que falla o es ruidoso no pueda tumbar el resto del sistema.
 
-### Trap questions (with answers)
-1) **Q:** Do bulkheads eliminate the need for circuit breakers?
-   - **A:** No. Bulkheads limit blast radius; breakers stop calls to unhealthy dependencies.
-2) **Q:** Are bulkheads only for microservices?
-   - **A:** No. You can apply them inside a monolith with per-pool limits.
-3) **Q:** Is one pool per request path always best?
-   - **A:** No. Over-partitioning wastes capacity and adds overhead.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Eliminan los bulkheads la necesidad de circuit breakers?
+   - **R:** No. Los bulkheads limitan el radio de explosión; los breakers detienen llamadas a dependencias no saludables.
+2) **P:** ¿Son los bulkheads solo para microservicios?
+   - **R:** No. Puedes aplicarlos dentro de un monolito con límites por pool.
+3) **P:** ¿Es siempre mejor un pool por ruta de petición?
+   - **R:** No. El sobre-particionamiento desperdicia capacidad y añade overhead.
 
-### Quick self-check (5 items)
-- [ ] I can define bulkheads precisely.
-- [ ] I can state when to use them and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir bulkheads con precisión.
+- [ ] Puedo indicar cuándo usarlos y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](../system-design/distributed-systems-basics.md)
-- [Performance basics](../system-design/performance-basics.md)
-- [Observability basics](observability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de sistemas distribuidos](../system-design/distributed-systems-basics.md)
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
+- [Fundamentos de observabilidad](observability-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Circuit breaker](circuit-breaker.md)
-- [Backpressure](../system-design/backpressure.md)
+- [Contrapresión](../system-design/backpressure.md)
 - [Load shedding](load-shedding.md)
 - [Timeouts](timeouts.md)
-- [Adaptive concurrency](adaptive-concurrency.md)
+- [Concurrencia adaptativa](adaptive-concurrency.md)
 
-### Compare with
-- [Circuit breaker](circuit-breaker.md) — breaker stops unhealthy calls; bulkheads isolate capacity.
-- [Backpressure](../system-design/backpressure.md) — backpressure limits overall load; bulkheads isolate by component.
+### Comparar con
+- [Circuit breaker](circuit-breaker.md) — el breaker detiene llamadas no saludables; los bulkheads aíslan capacidad.
+- [Contrapresión](../system-design/backpressure.md) — la contrapresión limita carga general; los bulkheads aíslan por componente.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

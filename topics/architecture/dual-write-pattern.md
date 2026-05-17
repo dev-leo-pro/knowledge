@@ -1,6 +1,6 @@
 ---
 id: dual-write-pattern
-title: "Dual-Write Pattern"
+title: "Patrón Dual-Write"
 type: pattern
 status: learning
 importance: 40
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Dual-Write Pattern
+# Patrón Dual-Write
 
 ## TL;DR (BLUF)
-- Dual-write updates two systems in a single logical operation.
-- Use it only when you can tolerate occasional inconsistencies.
-- Trade-off: risk of partial failure and data divergence.
+- Dual-write actualiza dos sistemas en una sola operación lógica.
+- Úsalo solo cuando puedas tolerar inconsistencias ocasionales.
+- Trade-off: riesgo de fallo parcial y divergencia de datos.
 
-## Definition
-**What it is:** Writing to two different systems (e.g., DB and queue) in separate steps.
-**Key terms:** dual-write, inconsistency, retries.
+## Definición
+**Qué es:** Escribir en dos sistemas diferentes (ej., BD y cola) en pasos separados.
+**Términos clave:** dual-write, inconsistencia, reintentos.
 
-## Why it matters
-- It’s common but risky without safeguards.
-- Failures between writes cause divergence.
+## Por qué importa
+- Es común pero arriesgado sin salvaguardas.
+- Los fallos entre escrituras causan divergencia.
 
-## Scope & Non-goals
-**In scope:** dual-write risks and mitigations.
-**Out of scope / NOT solved by this:** exactly-once guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** riesgos y mitigaciones del dual-write.
+**Fuera del alcance / NO resuelto por esto:** garantías de exactamente-una-vez.
 
-## Mental model / Intuition
-- Two writes = two chances to fail.
+## Modelo mental / Intuición
+- Dos escrituras = dos oportunidades de fallar.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You can [reconcile](../operations/data-reconciliation.md) inconsistencies later.
-### Avoid it when
-- You need strong consistency across systems.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Puedas [reconciliar](../operations/data-reconciliation.md) inconsistencias después.
+### Evítalo cuando
+- Necesites consistencia fuerte entre sistemas.
 
-## How I would use it (practical)
-- **Context:** DB write plus event publish.
-- **Steps:** write DB → publish event → handle failures with retries.
-- **What success looks like:** low divergence and recovery playbooks.
+## Cómo lo usaría (práctico)
+- **Contexto:** Escritura en BD más publicación de evento.
+- **Pasos:** escribir BD → publicar evento → manejar fallos con reintentos.
+- **Cómo se ve el éxito:** baja divergencia y playbooks de recuperación.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** simple to implement.
-- **Cons / Risks:** inconsistent state on partial failure.
-### Alternatives
-- **Outbox pattern:** safer event publication.
-- **How to choose:** prefer outbox when correctness matters.
+- **Ventajas:** simple de implementar.
+- **Desventajas / Riesgos:** estado inconsistente en fallo parcial.
+### Alternativas
+- **Patrón Outbox:** publicación de eventos más segura.
+- **Cómo elegir:** preferir outbox cuando la corrección importa.
 
-## Failure modes & Pitfalls
-- Event published without DB commit.
-- DB commit without event published.
+## Modos de fallo y trampas
+- Evento publicado sin commit de BD.
+- Commit de BD sin evento publicado.
 
-## Observability (How to detect issues)
-- **Metrics:** mismatch rates, retry counts.
-- **Logs:** publish failures.
-- **Alerts:** mismatch spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasas de desajuste, conteos de reintentos.
+- **Logs:** fallos de publicación.
+- **Alertas:** picos de desajuste.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Build [reconciliation](../operations/data-reconciliation.md) process
-  - [ ] Add retries with backoff
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Construir proceso de [reconciliación](../operations/data-reconciliation.md)
+  - [ ] Añadir reintentos con backoff
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Assuming dual-write is “good enough.”
-  - **Why it’s bad:** hidden data divergence.
-  - **Better approach:** use an outbox.
+## Anti-patrones comunes
+- **Anti-patrón:** Asumir que dual-write es "suficientemente bueno."
+  - **Por qué es malo:** divergencia de datos oculta.
+  - **Mejor enfoque:** usar un outbox.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Dual-write updates two systems separately. It’s simple but risky because partial failures create inconsistent state, so you usually prefer an outbox.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Dual-write actualiza dos sistemas por separado. Es simple pero arriesgado porque los fallos parciales crean estado inconsistente, así que normalmente se prefiere un outbox.
 
-### Trap questions (with answers)
-1) **Q:** Does dual-write guarantee consistency?
-   - **A:** no; failures can create divergence.
-2) **Q:** Can retries fix all issues?
-   - **A:** no; retries can still fail or duplicate.
-3) **Q:** Is dual-write acceptable for critical data?
-   - **A:** usually not without [reconciliation](../operations/data-reconciliation.md).
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Dual-write garantiza consistencia?
+   - **R:** no; los fallos pueden crear divergencia.
+2) **P:** ¿Los reintentos pueden arreglar todos los problemas?
+   - **R:** no; los reintentos aún pueden fallar o duplicar.
+3) **P:** ¿Es aceptable dual-write para datos críticos?
+   - **R:** generalmente no sin [reconciliación](../operations/data-reconciliation.md).
 
-### Quick self-check (5 items)
-- [ ] I can define dual-write.
-- [ ] I can name a trade-off.
-- [ ] I can describe a failure mode.
-- [ ] I can explain a mitigation.
-- [ ] I can compare with outbox.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir dual-write.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un modo de fallo.
+- [ ] Puedo explicar una mitigación.
+- [ ] Puedo comparar con outbox.
 
-## Links (NO duplication)
-### Prerequisites
-- [Event-driven basics](event-driven-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de arquitectura dirigida por eventos](event-driven-basics.md)
 
-### Related topics
-- [Outbox pattern](outbox-pattern.md)
+### Temas relacionados
+- [Patrón Outbox](outbox-pattern.md)
 
-### Compare with
-- [Outbox pattern](outbox-pattern.md) — safer event publication.
+### Comparar con
+- [Patrón Outbox](outbox-pattern.md) -- publicación de eventos más segura.

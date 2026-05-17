@@ -1,6 +1,6 @@
 ---
 id: archetype-multi-region
-title: "Multi-Region, Replication & Consistency"
+title: "Multi-Región, Replicación y Consistencia"
 type: pattern
 status: learning
 importance: 90
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Multi-Region, Replication & Consistency
+# Multi-Región, Replicación y Consistencia
 
 ## TL;DR
-- Serve users across regions and survive regional failures with geo-distributed infrastructure.
-- Key challenges: data consistency across regions, failover complexity, latency trade-offs.
-- Solutions: active-passive with failover, CRDT/conflict resolution for multi-writer, region-local reads + async replication.
+- Servir a usuarios en diferentes regiones y sobrevivir fallos regionales con infraestructura geo-distribuida.
+- Desafíos clave: consistencia de datos entre regiones, complejidad del failover, trade-offs de latencia.
+- Soluciones: active-passive con failover, CRDT/resolución de conflictos para multi-escritor, lecturas locales por región + replicación asíncrona.
 
-## Where it hurts (why it hurts)
-1. **Data consistency across regions**: Profile updated in EU and US simultaneously → conflicts
-   - **Solution**: Active-passive (one writer) or CRDTs / conflict resolution (multi-writer)
-2. **Failover complexity**: Region failure → manual intervention → RTO in hours
-   - **Solution**: Automated health checks + failover; DR drills
-3. **Latency trade-offs**: Writing to remote region → high latency for some users
-   - **Solution**: Region-local reads + async replication for writes; accept eventual consistency
+## Dónde duele (por qué duele)
+1. **Consistencia de datos entre regiones**: Perfil actualizado en EU y US simultáneamente → conflictos
+   - **Solución**: Active-passive (un escritor) o CRDTs / resolución de conflictos (multi-escritor)
+2. **Complejidad del failover**: Fallo de región → intervención manual → RTO en horas
+   - **Solución**: Health checks automatizados + failover; simulacros de DR
+3. **Trade-offs de latencia**: Escribir en región remota → alta latencia para algunos usuarios
+   - **Solución**: Lecturas locales por región + replicación asíncrona para escrituras; aceptar consistencia eventual
 
-## Decision rules
-- **Use when**: Global user base, disaster recovery (DR) requirements, regulatory data residency
-- **Avoid when**: Regional user base, cost/complexity outweighs DR needs
+## Reglas de decisión
+- **Usar cuando**: Base de usuarios global, requisitos de recuperación ante desastres (DR), residencia regulatoria de datos
+- **Evitar cuando**: Base de usuarios regional, coste/complejidad supera las necesidades de DR
 
 ## Trade-offs
-- **Active-passive**: Simple, strong consistency; higher latency for remote users
-- **Active-active (multi-writer)**: Low latency everywhere; conflict resolution complexity
-- **Choose**: Simplicity / strong consistency → active-passive; global low latency → active-active (if conflicts manageable)
+- **Active-passive**: Simple, consistencia fuerte; mayor latencia para usuarios remotos
+- **Active-active (multi-escritor)**: Baja latencia en todas partes; complejidad de resolución de conflictos
+- **Elegir**: Simplicidad / consistencia fuerte → active-passive; baja latencia global → active-active (si los conflictos son manejables)
 
-## Explicit example
-Global app: EU users + US users. Active-passive: US is primary (writes); EU is replica (read-only). If US fails, manual failover to EU (RTO 15 min). Active-active: both regions accept writes; use CRDT (e.g., last-write-wins with timestamps) to resolve conflicts.
+## Ejemplo explícito
+App global: usuarios EU + usuarios US. Active-passive: US es primario (escrituras); EU es réplica (solo lectura). Si US falla, failover manual a EU (RTO 15 min). Active-active: ambas regiones aceptan escrituras; usar CRDT (ej., last-write-wins con timestamps) para resolver conflictos.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [CAP Theorem](cap-theorem.md), [PACELC](pacelc.md), [Consistency Models](../databases/consistency-models.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Teorema CAP](cap-theorem.md), [PACELC](pacelc.md), [Modelos de Consistencia](../databases/consistency-models.md)

@@ -12,34 +12,34 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Security & Access Control at Scale
+# Seguridad y Control de Acceso a Escala
 
 ## TL;DR
-- Control who can do what, with auditability and low latency at scale.
-- Key challenges: complex rules (roles, resources, contexts), performance of authorization checks, audit requirements.
-- Solutions: policy-as-data (central policy service), RBAC for simple / ABAC for complex, audit log as append-only store.
+- Controlar quién puede hacer qué, con auditabilidad y baja latencia a escala.
+- Desafíos clave: reglas complejas (roles, recursos, contextos), rendimiento de verificaciones de autorización, requisitos de auditoría.
+- Soluciones: política-como-datos (servicio central de políticas), RBAC para simple / ABAC para complejo, log de auditoría como almacenamiento de solo-append.
 
-## Where it hurts (why it hurts)
-1. **Complex rules (roles, resources, contexts)**: "Admin can view payroll but not edit contracts; manager can view only their team"
-   - **Solution**: RBAC (simple roles) or ABAC (attribute-based for complex contexts); policy engine (OPA, Zanzibar)
-2. **Performance of authorization checks**: Every request checks permissions → latency overhead
-   - **Solution**: Cache decisions (with TTL), precompute common checks, policy decisions as data
-3. **Audit requirements**: Compliance requires "who accessed what when" logs
-   - **Solution**: Append-only audit log (immutable), centralized logging service
+## Dónde duele (por qué duele)
+1. **Reglas complejas (roles, recursos, contextos)**: "Admin puede ver nómina pero no editar contratos; manager puede ver solo su equipo"
+   - **Solución**: RBAC (roles simples) o ABAC (basado en atributos para contextos complejos); motor de políticas (OPA, Zanzibar)
+2. **Rendimiento de verificaciones de autorización**: Cada petición verifica permisos → sobrecarga de latencia
+   - **Solución**: Cachear decisiones (con TTL), precomputar verificaciones comunes, decisiones de políticas como datos
+3. **Requisitos de auditoría**: El cumplimiento requiere logs de "quién accedió a qué cuándo"
+   - **Solución**: Log de auditoría de solo-append (inmutable), servicio de logging centralizado
 
-## Decision rules
-- **Use when**: Enterprise SaaS, finance, healthcare (compliance), multi-tenancy with permissions
-- **Avoid when**: Single admin user (no roles), public read-only API
+## Reglas de decisión
+- **Usar cuando**: SaaS empresarial, finanzas, salud (cumplimiento), multi-tenancy con permisos
+- **Evitar cuando**: Usuario admin único (sin roles), API pública de solo lectura
 
 ## Trade-offs
-- **RBAC (Role-Based)**: Simple, easy to reason; limited (role explosion for complex rules)
-- **ABAC (Attribute-Based)**: Flexible, context-aware (time, location, resource attributes); complex to debug
-- **Choose**: Simple roles → RBAC; complex context → ABAC
+- **RBAC (Basado en Roles)**: Simple, fácil de razonar; limitado (explosión de roles para reglas complejas)
+- **ABAC (Basado en Atributos)**: Flexible, consciente del contexto (tiempo, ubicación, atributos del recurso); complejo de depurar
+- **Elegir**: Roles simples → RBAC; contexto complejo → ABAC
 
-## Explicit example
-Enterprise SaaS: Users have roles (Admin, Manager, Employee). Admin can view all data; Manager can view only their team's data; Employee can view only their own. ABAC rule: `allow if (role == Manager AND resource.team_id == user.team_id) OR (role == Admin)`. Policy evaluated on each request; cached for 60s. Audit log: every access logged with (user, resource, action, outcome, timestamp).
+## Ejemplo explícito
+SaaS empresarial: Los usuarios tienen roles (Admin, Manager, Empleado). Admin puede ver todos los datos; Manager puede ver solo los datos de su equipo; Empleado puede ver solo los propios. Regla ABAC: `allow if (role == Manager AND resource.team_id == user.team_id) OR (role == Admin)`. La política se evalúa en cada petición; cacheada por 60s. Log de auditoría: cada acceso registrado con (usuario, recurso, acción, resultado, timestamp).
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Multi-Tenancy](archetype-multi-tenancy.md), [Rate Limiting](archetype-rate-limiting-quotas.md)  
-**Technologies**: OPA (Open Policy Agent), Google Zanzibar, AWS IAM, RBAC, ABAC
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)
+**Relacionado**: [Multi-Tenancy](archetype-multi-tenancy.md), [Limitación de Tasa](archetype-rate-limiting-quotas.md)
+**Tecnologías**: OPA (Open Policy Agent), Google Zanzibar, AWS IAM, RBAC, ABAC

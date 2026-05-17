@@ -1,6 +1,6 @@
 ---
 id: transactions
-title: "Transactions"
+title: "Transacciones"
 type: concept
 status: learning
 importance: 70
@@ -12,97 +12,97 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Transactions
+# Transacciones
 
 ## TL;DR (BLUF)
-- Transactions group operations into an all-or-nothing unit.
-- Use them to maintain consistency across multiple writes.
-- Trade-off: longer transactions increase locks and contention.
+- Las transacciones agrupan operaciones en una unidad de todo-o-nada.
+- Úsalas para mantener la consistencia a través de múltiples escrituras.
+- Trade-off: transacciones más largas aumentan los bloqueos y la contención.
 
-## Definition
-**What it is:** A sequence of operations executed atomically with isolation guarantees.
-**Key terms:** ACID, isolation levels, commit, rollback.
+## Definición
+**Qué es:** Una secuencia de operaciones ejecutadas atómicamente con garantías de aislamiento.
+**Términos clave:** ACID, niveles de aislamiento, commit, rollback.
 
-## Why it matters
-- It prevents partial updates and data corruption.
-- Misusing transactions leads to lock contention and deadlocks.
+## Por qué importa
+- Previene actualizaciones parciales y corrupción de datos.
+- El mal uso de transacciones lleva a contención de bloqueos y deadlocks.
 
-## Scope & Non-goals
-**In scope:** atomicity and isolation basics, when to use transactions.
-**Out of scope / NOT solved by this:** distributed transactions across systems.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de atomicidad y aislamiento, cuándo usar transacciones.
+**Fuera del alcance / NO resuelto por esto:** transacciones distribuidas entre sistemas.
 
-## Mental model / Intuition
-- Think of a transaction as a safe container: either everything succeeds or nothing changes.
+## Modelo mental / Intuición
+- Piensa en una transacción como un contenedor seguro: o todo tiene éxito o nada cambia.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need consistency across multiple related writes.
-- You must prevent partial state exposure.
-### Avoid it when
-- You can tolerate eventual consistency and want higher throughput.
-- You need cross-service atomicity (use sagas/outbox).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas consistencia a través de múltiples escrituras relacionadas.
+- Debes prevenir la exposición de estado parcial.
+### Evítalo cuando
+- Puedes tolerar consistencia eventual y quieres mayor throughput.
+- Necesitas atomicidad cross-servicio (usa sagas/outbox).
 
-## How I would use it (practical)
-- **Context:** Transfer funds between accounts.
-- **Steps:** begin transaction → debit → credit → commit → handle rollback on errors.
-- **What success looks like:** no partial transfers and consistent balances.
+## Cómo lo usaría (práctico)
+- **Contexto:** Transferir fondos entre cuentas.
+- **Pasos:** iniciar transacción → debitar → acreditar → commit → manejar rollback en errores.
+- **Cómo se ve el éxito:** sin transferencias parciales y saldos consistentes.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong consistency and correctness.
-- **Cons / Risks:** contention, deadlocks, reduced throughput.
-### Alternatives
-- **Outbox pattern:** for cross-service consistency.
-- **How to choose:** use transactions for single-database atomicity.
+- **Ventajas:** consistencia y corrección fuertes.
+- **Desventajas / Riesgos:** contención, deadlocks, throughput reducido.
+### Alternativas
+- **Patrón outbox:** para consistencia cross-servicio.
+- **Cómo elegir:** usa transacciones para atomicidad en una sola base de datos.
 
-## Failure modes & Pitfalls
-- Long transactions causing lock buildup.
-- Deadlocks under high concurrency.
+## Modos de fallo y trampas
+- Transacciones largas causando acumulación de bloqueos.
+- Deadlocks bajo alta concurrencia.
 
-## Observability (How to detect issues)
-- **Metrics:** lock waits, deadlock count, transaction duration.
-- **Logs:** deadlock logs.
-- **Alerts:** sustained lock wait spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** esperas de bloqueo, conteo de deadlocks, duración de transacciones.
+- **Logs:** logs de deadlock.
+- **Alertas:** picos sostenidos de espera de bloqueo.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Keep transactions short
-  - [ ] Handle retries on serialization failures
+  - [ ] Mantener transacciones cortas
+  - [ ] Manejar reintentos en fallos de serialización
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Holding transactions open across network calls.
-  - **Why it’s bad:** lock contention and timeouts.
-  - **Better approach:** do external calls outside the transaction.
+## Anti-patrones comunes
+- **Anti-patrón:** Mantener transacciones abiertas durante llamadas de red.
+  - **Por qué es malo:** contención de bloqueos y timeouts.
+  - **Mejor enfoque:** hacer llamadas externas fuera de la transacción.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Transactions make a group of DB operations atomic and isolated. They keep data consistent, but long transactions can slow the system and cause deadlocks.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las transacciones hacen que un grupo de operaciones de BD sea atómico y aislado. Mantienen los datos consistentes, pero transacciones largas pueden ralentizar el sistema y causar deadlocks.
 
-### Trap questions (with answers)
-1) **Q:** Are transactions always required?
-   - **A:** no; some workflows can tolerate eventual consistency.
-2) **Q:** Do transactions prevent deadlocks?
-   - **A:** no; they can still deadlock under concurrency.
-3) **Q:** Is a transaction only for writes?
-   - **A:** no; reads can be in transactions for consistent snapshots.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las transacciones siempre son necesarias?
+   - **R:** no; algunos flujos de trabajo pueden tolerar consistencia eventual.
+2) **P:** ¿Las transacciones previenen deadlocks?
+   - **R:** no; aún pueden producirse deadlocks bajo concurrencia.
+3) **P:** ¿Una transacción es solo para escrituras?
+   - **R:** no; las lecturas pueden estar en transacciones para snapshots consistentes.
 
-### Quick self-check (5 items)
-- [ ] I can define a transaction precisely.
-- [ ] I can state when to use it.
-- [ ] I can describe a trade-off.
-- [ ] I can name a failure mode.
-- [ ] I can explain isolation at a high level.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir una transacción con precisión.
+- [ ] Puedo decir cuándo usarla.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo nombrar un modo de fallo.
+- [ ] Puedo explicar el aislamiento a alto nivel.
 
-## Links (NO duplication)
-### Prerequisites
-- [ACID properties](acid-properties.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Propiedades ACID](acid-properties.md)
 
-### Related topics
-- [Locks](locks.md)
+### Temas relacionados
+- [Bloqueos](locks.md)
 - [Deadlocks](deadlocks.md)
 
-### Compare with
-- [Outbox pattern](../architecture/outbox-pattern.md)
+### Comparar con
+- [Patrón outbox](../architecture/outbox-pattern.md)

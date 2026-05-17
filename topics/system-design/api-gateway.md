@@ -15,136 +15,136 @@ updated_at: 2026-01-26
 # API Gateway
 
 ## TL;DR (BLUF)
-- A single entry point that routes requests to microservices and applies cross-cutting policies.
-- Use it for public APIs, multi-client scenarios, and to centralize auth, rate limiting, and observability.
-- Trade-off: added latency and a potential single point of failure.
+- Un punto de entrada único que enruta peticiones a microservicios y aplica políticas transversales.
+- Úsalo para APIs públicas, escenarios multi-cliente y para centralizar autenticación, rate limiting y observabilidad.
+- Trade-off: latencia añadida y potencial punto único de fallo.
 
-## Definition
-**What it is:** A reverse proxy that acts as the single entry point for client requests, routing them to backend microservices while handling cross-cutting concerns like authentication, rate limiting, TLS termination, and request/response transformation.
+## Definición
+**Qué es:** Un proxy inverso que actúa como punto de entrada único para peticiones de clientes, enrutándolas a microservicios backend mientras maneja preocupaciones transversales como autenticación, rate limiting, terminación TLS y transformación de peticiones/respuestas.
 
-**Key terms:** routing, reverse proxy, TLS termination, authentication, rate limiting, request aggregation, single entry point.
+**Términos clave:** enrutamiento, proxy inverso, terminación TLS, autenticación, rate limiting, agregación de peticiones, punto de entrada único.
 
-## Why it matters
-- Simplifies client integration by hiding internal service topology.
-- Centralizes security policies (auth, CORS, TLS) and operational concerns (logging, tracing, metrics).
-- Reduces coupling between clients and services, enabling independent evolution.
-- Protects backend services from abuse and overload.
+## Por qué importa
+- Simplifica la integración del cliente ocultando la topología interna de servicios.
+- Centraliza políticas de seguridad (autenticación, CORS, TLS) y preocupaciones operativas (logging, tracing, métricas).
+- Reduce el acoplamiento entre clientes y servicios, permitiendo evolución independiente.
+- Protege los servicios backend del abuso y la sobrecarga.
 
-## Scope & Non-goals
-**In scope:** routing, auth enforcement, rate limiting, request/response transformation, protocol translation (HTTP→gRPC), TLS termination.
+## Alcance y no-objetivos
+**Dentro del alcance:** enrutamiento, aplicación de autenticación, rate limiting, transformación de peticiones/respuestas, traducción de protocolos (HTTP→gRPC), terminación TLS.
 
-**Out of scope / NOT solved by this:** 
-- Business logic (belongs in services or [BFF](../architecture/backend-for-frontend.md))
-- Data aggregation for specific clients (see [API Composition](../architecture/api-composition.md) or [BFF](../architecture/backend-for-frontend.md))
-- Service mesh concerns within the cluster (see [Sidecar](../operations/sidecar.md))
+**Fuera del alcance / NO resuelto por esto:**
+- Lógica de negocio (pertenece a los servicios o [BFF](../architecture/backend-for-frontend.md))
+- Agregación de datos para clientes específicos (ver [API Composition](../architecture/api-composition.md) o [BFF](../architecture/backend-for-frontend.md))
+- Preocupaciones de service mesh dentro del clúster (ver [Sidecar](../operations/sidecar.md))
 
-## Mental model / Intuition
-- Think of it as a hotel concierge: one entrance, handles guest identification, directs them to rooms (services), and enforces house rules.
-- In microservices: clients call one URL; the gateway knows which service handles which path.
+## Modelo mental / Intuición
+- Piénsalo como el conserje de un hotel: una entrada, gestiona la identificación de huéspedes, los dirige a las habitaciones (servicios) y aplica las reglas de la casa.
+- En microservicios: los clientes llaman a una URL; el gateway sabe qué servicio maneja cada ruta.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have multiple microservices behind a public API.
-- You need centralized auth, rate limiting, or TLS termination.
-- Clients (web, mobile, partners) should not know internal service structure.
-- You want to version APIs or perform A/B routing.
-- You need request/response transformation or protocol translation.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tienes múltiples microservicios detrás de una API pública.
+- Necesitas autenticación centralizada, rate limiting o terminación TLS.
+- Los clientes (web, móvil, partners) no deben conocer la estructura interna de servicios.
+- Quieres versionar APIs o realizar enrutamiento A/B.
+- Necesitas transformación de peticiones/respuestas o traducción de protocolos.
 
-### Avoid it when
-- You have a monolith or single service (adds unnecessary complexity).
-- Internal service-to-service calls (use [Service Discovery](../operations/service-discovery.md) instead).
-- You need client-specific aggregation logic (use [BFF](../architecture/backend-for-frontend.md) instead).
+### Evítalo cuando
+- Tienes un monolito o un servicio único (añade complejidad innecesaria).
+- Llamadas internas servicio-a-servicio (usa [Service Discovery](../operations/service-discovery.md) en su lugar).
+- Necesitas lógica de agregación específica por cliente (usa [BFF](../architecture/backend-for-frontend.md) en su lugar).
 
-## How I would use it (practical)
-- **Context:** An e-commerce platform with separate services for users, products, orders, and payments exposed to web and mobile clients.
-- **Steps:**
-  1) Deploy an API Gateway (Kong, AWS API Gateway, or NGINX).
-  2) Configure routing rules: `/users/*` → user-service, `/products/*` → product-service.
-  3) Enable JWT validation at the gateway for all authenticated endpoints.
-  4) Apply rate limiting per client (100 req/min for free users, 1000 for premium).
-  5) Enable TLS termination and forward internal traffic as HTTP.
-  6) Add distributed tracing headers (X-Request-ID, trace context).
-  7) Monitor gateway metrics: request rate, latency p95/p99, error rate by route.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una plataforma de e-commerce con servicios separados para usuarios, productos, pedidos y pagos expuestos a clientes web y móvil.
+- **Pasos:**
+  1) Desplegar un API Gateway (Kong, AWS API Gateway o NGINX).
+  2) Configurar reglas de enrutamiento: `/users/*` → user-service, `/products/*` → product-service.
+  3) Habilitar validación JWT en el gateway para todos los endpoints autenticados.
+  4) Aplicar rate limiting por cliente (100 req/min para usuarios gratuitos, 1000 para premium).
+  5) Habilitar terminación TLS y reenviar tráfico interno como HTTP.
+  6) Añadir cabeceras de tracing distribuido (X-Request-ID, contexto de traza).
+  7) Monitorear métricas del gateway: tasa de peticiones, latencia p95/p99, tasa de errores por ruta.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costes (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Added latency (~5-20ms) | Deploy gateways close to clients; optimize routing rules |
-| Single point of failure | Run multiple gateway instances behind load balancer; use health checks |
-| Configuration complexity | Use declarative configs (YAML/JSON); automate with IaC |
-| Can become a bottleneck | Scale horizontally; avoid putting business logic in gateway |
-| Version sprawl | Enforce deprecation policies; track usage with [Observability](../operations/observability-basics.md) |
+| Latencia añadida (~5-20ms) | Desplegar gateways cerca de los clientes; optimizar reglas de enrutamiento |
+| Punto único de fallo | Ejecutar múltiples instancias del gateway detrás de un balanceador de carga; usar health checks |
+| Complejidad de configuración | Usar configs declarativos (YAML/JSON); automatizar con IaC |
+| Puede convertirse en cuello de botella | Escalar horizontalmente; evitar poner lógica de negocio en el gateway |
+| Proliferación de versiones | Aplicar políticas de deprecación; rastrear uso con [Observabilidad](../operations/observability-basics.md) |
 
-## Failure modes / Edge cases
-1. **Gateway becomes a bottleneck:** If all traffic flows through one instance, it saturates CPU/network.
-   - *Mitigation:* Scale horizontally with load balancer.
-2. **Config drift across environments:** Staging vs prod have different routing rules.
-   - *Mitigation:* Use GitOps and automated deployments.
-3. **Business logic creep:** Teams add transformations/validations in gateway.
-   - *Mitigation:* Enforce policy: gateway handles only routing + cross-cutting concerns.
-4. **Cascading failures:** If gateway has aggressive [Timeouts](../operations/timeouts.md), it can amplify backend slowness.
-   - *Mitigation:* Combine with [Circuit Breaker](../operations/circuit-breaker.md) and [Graceful Degradation](../operations/graceful-degradation.md).
-5. **Authentication bypass:** Misconfigured routes allow unauthenticated access.
-   - *Mitigation:* Default-deny policy; automated security tests.
+## Modos de fallo / Casos extremos
+1. **El gateway se convierte en cuello de botella:** Si todo el tráfico fluye por una instancia, satura CPU/red.
+   - *Mitigación:* Escalar horizontalmente con balanceador de carga.
+2. **Deriva de configuración entre entornos:** Staging vs prod tienen reglas de enrutamiento diferentes.
+   - *Mitigación:* Usar GitOps y despliegues automatizados.
+3. **Infiltración de lógica de negocio:** Los equipos añaden transformaciones/validaciones en el gateway.
+   - *Mitigación:* Aplicar política: el gateway solo maneja enrutamiento + preocupaciones transversales.
+4. **Fallos en cascada:** Si el gateway tiene [Timeouts](../operations/timeouts.md) agresivos, puede amplificar la lentitud del backend.
+   - *Mitigación:* Combinar con [Circuit Breaker](../operations/circuit-breaker.md) y [Degradación Elegante](../operations/graceful-degradation.md).
+5. **Bypass de autenticación:** Rutas mal configuradas permiten acceso no autenticado.
+   - *Mitigación:* Política de denegación por defecto; pruebas de seguridad automatizadas.
 
-## Alternatives
-- **Service mesh (Istio, Linkerd):** For internal service-to-service traffic with mTLS, retries, tracing.
-- **BFF (Backend for Frontend):** When you need client-specific logic or aggregation.
-- **Direct service exposure:** Simpler but exposes internal topology and lacks centralized policies.
+## Alternativas
+- **Service mesh (Istio, Linkerd):** Para tráfico interno servicio-a-servicio con mTLS, reintentos, tracing.
+- **BFF (Backend for Frontend):** Cuando necesitas lógica o agregación específica por cliente.
+- **Exposición directa del servicio:** Más simple pero expone topología interna y carece de políticas centralizadas.
 
-## Combinations
-API Gateway is **almost always used with:**
-- **[Rate Limiting](rate-limiting.md):** Protects backend services from abuse.
-- **[Timeout](../operations/timeouts.md):** Prevents hanging requests.
-- **[Circuit Breaker](../operations/circuit-breaker.md):** Fails fast when backends are down.
-- **[Observability](../operations/observability-basics.md):** Logs, metrics, tracing at the edge.
-- **[BFF](../architecture/backend-for-frontend.md):** Gateway routes to BFFs, which aggregate/transform.
+## Combinaciones
+API Gateway **casi siempre se usa con:**
+- **[Rate Limiting](rate-limiting.md):** Protege servicios backend del abuso.
+- **[Timeout](../operations/timeouts.md):** Previene peticiones colgadas.
+- **[Circuit Breaker](../operations/circuit-breaker.md):** Falla rápido cuando los backends están caídos.
+- **[Observabilidad](../operations/observability-basics.md):** Logs, métricas, tracing en el borde.
+- **[BFF](../architecture/backend-for-frontend.md):** El gateway enruta a BFFs, que agregan/transforman.
 
-**Typical combination:**
-- **Public API scenario:** API Gateway + Rate Limiting + Timeout + Retry (with backoff) + Circuit Breaker + Observability
+**Combinación típica:**
+- **Escenario de API pública:** API Gateway + Rate Limiting + Timeout + Retry (con backoff) + Circuit Breaker + Observabilidad
 
-## Prerequisites
-- Understanding of [HTTP](../operations/http.md) and reverse proxies.
-- Familiarity with [Microservices design](../architecture/microservices-design-basics.md).
-- Basic knowledge of [TLS](../operations/tls.md) and authentication (JWT, OAuth).
+## Prerequisitos
+- Comprensión de [HTTP](../operations/http.md) y proxies inversos.
+- Familiaridad con [diseño de Microservicios](../architecture/microservices-design-basics.md).
+- Conocimiento básico de [TLS](../operations/tls.md) y autenticación (JWT, OAuth).
 
-## Related topics
-- [BFF (Backend for Frontend)](../architecture/backend-for-frontend.md): Client-specific aggregation layer.
-- [Service Discovery](../operations/service-discovery.md): Dynamic service location.
-- [Rate Limiting](rate-limiting.md): Protect from abuse.
-- [Observability](../operations/observability-basics.md): Monitor gateway health.
-- [API versioning](versioning-apis-and-events.md): Manage API evolution.
+## Temas relacionados
+- [BFF (Backend for Frontend)](../architecture/backend-for-frontend.md): Capa de agregación específica por cliente.
+- [Service Discovery](../operations/service-discovery.md): Localización dinámica de servicios.
+- [Rate Limiting](rate-limiting.md): Protección contra abuso.
+- [Observabilidad](../operations/observability-basics.md): Monitoreo de salud del gateway.
+- [Versionado de API](versioning-apis-and-events.md): Gestión de evolución de API.
 
-## Real-world examples
-1. **Netflix Zuul / Spring Cloud Gateway:** Routes requests to hundreds of microservices.
-2. **Stripe API Gateway:** Handles auth, rate limiting, versioning for public API.
-3. **AWS API Gateway:** Managed service with built-in auth, throttling, caching.
+## Ejemplos del mundo real
+1. **Netflix Zuul / Spring Cloud Gateway:** Enruta peticiones a cientos de microservicios.
+2. **Stripe API Gateway:** Maneja autenticación, rate limiting, versionado para API pública.
+3. **AWS API Gateway:** Servicio gestionado con autenticación integrada, throttling, caché.
 
-## Checklist (self-test)
-- [ ] I understand when to use an API Gateway vs BFF vs Service Mesh.
-- [ ] I can design routing rules for multi-service APIs.
-- [ ] I know how to apply rate limiting and auth at the gateway.
-- [ ] I can explain the failure modes (bottleneck, config drift, logic creep).
-- [ ] I can monitor gateway latency, error rate, and throughput.
+## Checklist (auto-evaluación)
+- [ ] Entiendo cuándo usar un API Gateway vs BFF vs Service Mesh.
+- [ ] Puedo diseñar reglas de enrutamiento para APIs multi-servicio.
+- [ ] Sé cómo aplicar rate limiting y autenticación en el gateway.
+- [ ] Puedo explicar los modos de fallo (cuello de botella, deriva de config, infiltración de lógica).
+- [ ] Puedo monitorear latencia del gateway, tasa de errores y throughput.
 
-## Reminders / Key takeaways
-- Gateway is for **cross-cutting concerns**, not business logic.
-- Always combine with [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md), and [Observability](../operations/observability-basics.md).
-- Scale horizontally to avoid bottleneck.
-- Use BFF when you need client-specific aggregation.
+## Recordatorios / Conclusiones clave
+- El gateway es para **preocupaciones transversales**, no lógica de negocio.
+- Siempre combinar con [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md) y [Observabilidad](../operations/observability-basics.md).
+- Escalar horizontalmente para evitar cuellos de botella.
+- Usar BFF cuando necesites agregación específica por cliente.
 
-## Trap questions (with answers)
-### Q1: Can I use an API Gateway for internal service-to-service communication?
-**A:** Technically yes, but **not recommended**. API Gateway adds latency and is designed for north-south (client→service) traffic. For east-west (service→service), use [Service Discovery](../operations/service-discovery.md) or a [Service Mesh](../operations/sidecar.md) (Istio, Linkerd) which provides mTLS, retries, and observability without centralized routing.
+## Preguntas trampa (con respuestas)
+### P1: ¿Puedo usar un API Gateway para comunicación interna servicio-a-servicio?
+**R:** Técnicamente sí, pero **no recomendado**. El API Gateway añade latencia y está diseñado para tráfico norte-sur (cliente→servicio). Para tráfico este-oeste (servicio→servicio), usa [Service Discovery](../operations/service-discovery.md) o un [Service Mesh](../operations/sidecar.md) (Istio, Linkerd) que proporciona mTLS, reintentos y observabilidad sin enrutamiento centralizado.
 
-### Q2: Should I put data aggregation logic in the API Gateway?
-**A:** **No**. Aggregation is business logic and belongs in services or a [BFF](../architecture/backend-for-frontend.md). Gateways should only handle routing, auth, rate limiting, and protocol translation. Mixing concerns makes the gateway a monolith and couples it to service internals.
+### P2: ¿Debería poner lógica de agregación de datos en el API Gateway?
+**R:** **No**. La agregación es lógica de negocio y pertenece a los servicios o a un [BFF](../architecture/backend-for-frontend.md). Los gateways solo deben manejar enrutamiento, autenticación, rate limiting y traducción de protocolos. Mezclar preocupaciones convierte al gateway en un monolito y lo acopla a los internos del servicio.
 
-### Q3: If my gateway is highly available, do I still need circuit breakers?
-**A:** **Yes**. High availability protects the gateway itself, but not the backends. If a backend service is slow/failing, the gateway can still saturate its connection pools and cascade the failure. Combine with [Circuit Breaker](../operations/circuit-breaker.md) and [Timeout](../operations/timeouts.md) to fail fast.
+### P3: Si mi gateway tiene alta disponibilidad, ¿aún necesito circuit breakers?
+**R:** **Sí**. La alta disponibilidad protege al gateway en sí, pero no a los backends. Si un servicio backend es lento/falla, el gateway aún puede saturar sus pools de conexiones y propagar el fallo en cascada. Combinar con [Circuit Breaker](../operations/circuit-breaker.md) y [Timeout](../operations/timeouts.md) para fallar rápido.
 
-### Q4: Can an API Gateway replace a load balancer?
-**A:** **Partially**. A gateway can route to multiple instances of a service (basic load balancing), but typically you still need a load balancer **in front of the gateway** for HA and scaling. Additionally, Layer 4 load balancers (TCP/UDP) are more efficient for raw traffic distribution than Layer 7 gateways.
+### P4: ¿Puede un API Gateway reemplazar un balanceador de carga?
+**R:** **Parcialmente**. Un gateway puede enrutar a múltiples instancias de un servicio (balanceo de carga básico), pero típicamente aún necesitas un balanceador de carga **delante del gateway** para HA y escalado. Además, los balanceadores de carga de Capa 4 (TCP/UDP) son más eficientes para distribución de tráfico bruto que los gateways de Capa 7.
 
-### Q5: What's the difference between API Gateway and BFF?
-**A:** **API Gateway** is infrastructure: routing, auth, rate limiting for **all clients**. **BFF** is a service: client-specific aggregation and transformation (one BFF per client type: web-BFF, mobile-BFF). You often use both: Gateway routes to BFFs, which aggregate from backend services. See [BFF](../architecture/backend-for-frontend.md).
+### P5: ¿Cuál es la diferencia entre API Gateway y BFF?
+**R:** **API Gateway** es infraestructura: enrutamiento, autenticación, rate limiting para **todos los clientes**. **BFF** es un servicio: agregación y transformación específica por cliente (un BFF por tipo de cliente: web-BFF, mobile-BFF). A menudo se usan ambos: el Gateway enruta a los BFFs, que agregan desde los servicios backend. Ver [BFF](../architecture/backend-for-frontend.md).

@@ -1,6 +1,6 @@
 ---
 id: dynamodb-keys
-title: "DynamoDB Keys (PK/SK)"
+title: "Claves de DynamoDB (PK/SK)"
 type: concept
 status: learning
 importance: 60
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# DynamoDB Keys (PK/SK)
+# Claves de DynamoDB (PK/SK)
 
 ## TL;DR (BLUF)
-- Partition key (PK) and sort key (SK) define item placement and query access.
-- Use composite keys to support multiple access patterns.
-- Trade-off: poor key design causes hot partitions and limited queries.
+- La clave de partición (PK) y la clave de ordenación (SK) definen la ubicación del ítem y el acceso a consultas.
+- Usa claves compuestas para soportar múltiples patrones de acceso.
+- Trade-off: un diseño de claves pobre causa particiones calientes y consultas limitadas.
 
-## Definition
-**What it is:** The primary key schema in DynamoDB: PK for partitioning and optional SK for sorting.
-**Key terms:** partition key, sort key, composite key, access pattern.
+## Definición
+**Qué es:** El esquema de clave primaria en DynamoDB: PK para particionamiento y SK opcional para ordenación.
+**Términos clave:** clave de partición, clave de ordenación, clave compuesta, patrón de acceso.
 
-## Why it matters
-- Key design determines scalability and query capability.
-- Bad keys cause throttling and uneven load.
+## Por qué importa
+- El diseño de claves determina la escalabilidad y la capacidad de consulta.
+- Claves malas causan throttling y carga desigual.
 
-## Scope & Non-goals
-**In scope:** PK/SK fundamentals and design principles.
-**Out of scope / NOT solved by this:** secondary indexes and streams.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de PK/SK y principios de diseño.
+**Fuera del alcance / NO resuelto por esto:** índices secundarios y streams.
 
-## Mental model / Intuition
-- PK chooses the bucket; SK orders items within it.
+## Modelo mental / Intuición
+- PK elige el bucket; SK ordena los ítems dentro de él.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need predictable performance and key-based access.
-### Avoid it when
-- You require ad-hoc queries across many attributes.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas rendimiento predecible y acceso basado en claves.
+### Evítalo cuando
+- Requieres consultas ad-hoc a través de muchos atributos.
 
-## How I would use it (practical)
-- **Context:** User activity logs.
-- **Steps:** choose PK for user → SK for timestamp → query by time range.
-- **What success looks like:** balanced partitions and efficient range queries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Logs de actividad de usuario.
+- **Pasos:** elegir PK para usuario → SK para timestamp → consultar por rango de tiempo.
+- **Cómo se ve el éxito:** particiones balanceadas y consultas de rango eficientes.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** efficient key-based queries.
-- **Cons / Risks:** rigid access patterns.
-### Alternatives
-- **GSI/LSI:** for secondary access patterns.
-- **How to choose:** start with PK/SK for core access patterns, then add indexes.
+- **Ventajas:** consultas basadas en claves eficientes.
+- **Desventajas / Riesgos:** patrones de acceso rígidos.
+### Alternativas
+- **GSI/LSI:** para patrones de acceso secundarios.
+- **Cómo elegir:** empezar con PK/SK para patrones de acceso principales, luego agregar índices.
 
-## Failure modes & Pitfalls
-- Hot partitions from monotonic keys.
-- Overloaded PK leading to large partitions.
+## Modos de fallo y trampas
+- Particiones calientes por claves monotónicas.
+- PK sobrecargada llevando a particiones grandes.
 
-## Observability (How to detect issues)
-- **Metrics:** throttles, partition skew, latency.
-- **Logs:** hot key access patterns.
-- **Alerts:** sustained throttling.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** throttles, sesgo de partición, latencia.
+- **Logs:** patrones de acceso de claves calientes.
+- **Alertas:** throttling sostenido.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Distribute PK values evenly
-  - [ ] Use SK for range queries
+  - [ ] Distribuir valores de PK uniformemente
+  - [ ] Usar SK para consultas de rango
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using a single static PK for all items.
-  - **Why it’s bad:** creates a hot partition.
-  - **Better approach:** partition by a high-cardinality key.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar una sola PK estática para todos los ítems.
+  - **Por qué es malo:** crea una partición caliente.
+  - **Mejor enfoque:** particionar por una clave de alta cardinalidad.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DynamoDB uses partition keys to distribute data and sort keys to order items within a partition. Good key design is everything for performance and scalability.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- DynamoDB usa claves de partición para distribuir datos y claves de ordenación para ordenar ítems dentro de una partición. Un buen diseño de claves lo es todo para el rendimiento y la escalabilidad.
 
-### Trap questions (with answers)
-1) **Q:** Can a table exist without a sort key?
-   - **A:** yes; it can have only a partition key.
-2) **Q:** Does a good PK guarantee good performance?
-   - **A:** not if it creates hot partitions or skew.
-3) **Q:** Can you query by non-key attributes without indexes?
-   - **A:** not efficiently; you need GSIs/LSIs.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Puede existir una tabla sin clave de ordenación?
+   - **R:** sí; puede tener solo una clave de partición.
+2) **P:** ¿Una buena PK garantiza buen rendimiento?
+   - **R:** no si crea particiones calientes o sesgo.
+3) **P:** ¿Puedes consultar por atributos que no son clave sin índices?
+   - **R:** no eficientemente; necesitas GSIs/LSIs.
 
-### Quick self-check (5 items)
-- [ ] I can define PK and SK.
-- [ ] I can explain why keys matter.
-- [ ] I can describe a hot partition.
-- [ ] I can give a key design example.
-- [ ] I can name a trade-off.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir PK y SK.
+- [ ] Puedo explicar por qué las claves importan.
+- [ ] Puedo describir una partición caliente.
+- [ ] Puedo dar un ejemplo de diseño de claves.
+- [ ] Puedo nombrar un trade-off.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [NoSQL access patterns](nosql-access-patterns.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB](dynamodb.md)
 - [DynamoDB GSI/LSI](dynamodb-gsi-lsi.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — relational keys vs access-pattern keys.
+### Comparar con
+- [PostgreSQL](postgresql.md) — claves relacionales vs claves de patrón de acceso.

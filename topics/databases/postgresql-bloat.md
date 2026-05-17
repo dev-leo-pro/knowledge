@@ -1,6 +1,6 @@
 ---
 id: postgresql-bloat
-title: "PostgreSQL Bloat"
+title: "Bloat en PostgreSQL"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# PostgreSQL Bloat
+# Bloat en PostgreSQL
 
 ## TL;DR (BLUF)
-- Bloat is wasted space from dead tuples and index growth.
-- Use vacuum and good update patterns to control it.
-- Trade-off: aggressive cleanup increases write overhead.
+- El bloat es espacio desperdiciado por tuplas muertas y crecimiento de índices.
+- Usa vacuum y buenos patrones de actualización para controlarlo.
+- Trade-off: una limpieza agresiva aumenta la sobrecarga de escritura.
 
-## Definition
-**What it is:** Extra table/index space that isn’t actively used but not reclaimed.
-**Key terms:** dead tuples, vacuum, fillfactor.
+## Definición
+**Qué es:** Espacio extra en tablas/índices que no se usa activamente pero no se ha reclamado.
+**Términos clave:** tuplas muertas, vacuum, fillfactor.
 
-## Why it matters
-- Bloat increases I/O and slows queries.
-- It can silently grow storage costs.
+## Por qué importa
+- El bloat aumenta la E/S y ralentiza las consultas.
+- Puede hacer crecer silenciosamente los costos de almacenamiento.
 
-## Scope & Non-goals
-**In scope:** bloat causes and mitigations.
-**Out of scope / NOT solved by this:** storage layer compression.
+## Alcance y no-objetivos
+**Dentro del alcance:** causas del bloat y mitigaciones.
+**Fuera del alcance / NO resuelto por esto:** compresión en la capa de almacenamiento.
 
-## Mental model / Intuition
-- Think of bloat as “empty seats” left behind by row updates.
+## Modelo mental / Intuición
+- Piensa en el bloat como "asientos vacíos" dejados por las actualizaciones de filas.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You see table size growing faster than data.
-### Avoid it when
-- You haven’t validated dead tuples or table stats.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Ves que el tamaño de la tabla crece más rápido que los datos.
+### Evítalo cuando
+- No has validado las tuplas muertas o las estadísticas de la tabla.
 
-## How I would use it (practical)
-- **Context:** table grows despite stable row count.
-- **Steps:** measure dead tuples → tune autovacuum → consider VACUUM FULL.
-- **What success looks like:** stable table/index size.
+## Cómo lo usaría (práctico)
+- **Contexto:** la tabla crece a pesar de un conteo de filas estable.
+- **Pasos:** medir tuplas muertas → ajustar autovacuum → considerar VACUUM FULL.
+- **Cómo se ve el éxito:** tamaño estable de tabla/índice.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** lower I/O and better cache utilization.
-- **Cons / Risks:** cleanup overhead.
-### Alternatives
-- **VACUUM FULL:** heavy but compacting.
-- **How to choose:** use regular vacuum; reserve full vacuum for extreme bloat.
+- **Ventajas:** menor E/S y mejor utilización de caché.
+- **Desventajas / Riesgos:** sobrecarga de limpieza.
+### Alternativas
+- **VACUUM FULL:** pesado pero compacta.
+- **Cómo elegir:** usar vacuum regular; reservar vacuum full para bloat extremo.
 
-## Failure modes & Pitfalls
-- Long transactions preventing cleanup.
-- Misreading table size growth.
+## Modos de fallo y trampas
+- Transacciones largas previniendo la limpieza.
+- Mala interpretación del crecimiento del tamaño de tabla.
 
-## Observability (How to detect issues)
-- **Metrics:** dead tuples, table size, cache hit ratio.
-- **Logs:** autovacuum logs.
-- **Alerts:** increasing bloat indicators.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tuplas muertas, tamaño de tabla, ratio de aciertos de caché.
+- **Logs:** logs de autovacuum.
+- **Alertas:** indicadores de bloat en aumento.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Track dead tuples
-  - [ ] Tune autovacuum
-  - [ ] Review update patterns
+  - [ ] Rastrear tuplas muertas
+  - [ ] Ajustar autovacuum
+  - [ ] Revisar patrones de actualización
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Ignoring bloat until disks fill.
-  - **Why it’s bad:** performance degrades gradually.
-  - **Better approach:** monitor and tune early.
+## Anti-patrones comunes
+- **Anti-patrón:** Ignorar el bloat hasta que los discos se llenen.
+  - **Por qué es malo:** el rendimiento se degrada gradualmente.
+  - **Mejor enfoque:** monitorear y ajustar temprano.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Bloat is wasted space from old row versions in Postgres. Vacuum cleans it, but if it lags, tables and indexes grow and queries slow down.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El bloat es espacio desperdiciado por versiones antiguas de filas en Postgres. Vacuum lo limpia, pero si se retrasa, las tablas e índices crecen y las consultas se ralentizan.
 
-### Trap questions (with answers)
-1) **Q:** Does vacuum always shrink table files?
-   - **A:** no; it mainly frees space for reuse.
-2) **Q:** Is bloat only a table problem?
-   - **A:** no; indexes can bloat too.
-3) **Q:** Can long transactions cause bloat?
-   - **A:** yes; they prevent cleanup of old versions.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Vacuum siempre reduce los archivos de tabla?
+   - **R:** no; principalmente libera espacio para reutilización.
+2) **P:** ¿El bloat es solo un problema de tablas?
+   - **R:** no; los índices también pueden sufrir bloat.
+3) **P:** ¿Las transacciones largas pueden causar bloat?
+   - **R:** sí; previenen la limpieza de versiones antiguas.
 
-### Quick self-check (5 items)
-- [ ] I can define bloat.
-- [ ] I can explain how it happens.
-- [ ] I can name a mitigation.
-- [ ] I can describe a signal.
-- [ ] I can relate it to MVCC.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir bloat.
+- [ ] Puedo explicar cómo ocurre.
+- [ ] Puedo nombrar una mitigación.
+- [ ] Puedo describir una señal.
+- [ ] Puedo relacionarlo con MVCC.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [PostgreSQL MVCC](postgresql-mvcc.md)
 
-### Related topics
-- [PostgreSQL vacuum and autovacuum](postgresql-vacuum-autovacuum.md)
+### Temas relacionados
+- [PostgreSQL vacuum y autovacuum](postgresql-vacuum-autovacuum.md)
 
-### Compare with
-- [Storage compaction](storage-compaction.md)
+### Comparar con
+- [Compactación de almacenamiento](storage-compaction.md)

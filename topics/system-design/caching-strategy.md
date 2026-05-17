@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Caching Strategy
+# Estrategia de Caché
 
 ## TL;DR (BLUF)
-- A strategy defines where, what, and how to cache.
-- Use it to balance latency, freshness, and cost.
-- Trade-off: more caching layers add complexity.
+- Una estrategia define dónde, qué y cómo cachear.
+- Úsala para balancear latencia, frescura y costo.
+- Trade-off: más capas de caché agregan complejidad.
 
-## Definition
-**What it is:** The plan for caching layers, TTLs, invalidation, and ownership.
-**Key terms:** cache-aside, write-through, invalidation.
+## Definición
+**Qué es:** El plan para capas de caché, TTLs, invalidación y propiedad.
+**Términos clave:** cache-aside, write-through, invalidación.
 
-## Why it matters
-- Poor strategy leads to stale data or wasted cache.
-- Good strategy reduces DB load and latency.
+## Por qué importa
+- Una mala estrategia lleva a datos obsoletos o caché desperdiciado.
+- Una buena estrategia reduce la carga de BD y la latencia.
 
-## Scope & Non-goals
-**In scope:** strategic choices for caching.
-**Out of scope / NOT solved by this:** low-level cache implementation details.
+## Alcance y no-objetivos
+**Dentro del alcance:** elecciones estratégicas para caché.
+**Fuera del alcance / NO resuelto por esto:** detalles de implementación de caché a bajo nivel.
 
-## Mental model / Intuition
-- Caching is a product decision: what can be stale?
+## Modelo mental / Intuición
+- Cachear es una decisión de producto: ¿qué puede estar obsoleto?
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Multiple services depend on the same data.
-### Avoid it when
-- Correctness requires strictly fresh data.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Múltiples servicios dependan de los mismos datos.
+### Evítalo cuando
+- La corrección requiera datos estrictamente frescos.
 
-## How I would use it (practical)
-- **Context:** Product catalog with heavy reads.
-- **Steps:** choose cache-aside → set TTLs → invalidate on updates.
-- **What success looks like:** reduced DB load with acceptable staleness.
+## Cómo lo usaría (práctico)
+- **Contexto:** Catálogo de productos con lectura intensiva.
+- **Pasos:** elegir cache-aside → establecer TTLs → invalidar en actualizaciones.
+- **Cómo se ve el éxito:** carga reducida en BD con obsolescencia aceptable.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** lower latency and load.
-- **Cons / Risks:** stale data and invalidation complexity.
-### Alternatives
-- **Denormalization:** precompute read models.
-- **How to choose:** cache when read load dominates and staleness is acceptable.
+- **Pros:** menor latencia y carga.
+- **Contras / Riesgos:** datos obsoletos y complejidad de invalidación.
+### Alternativas
+- **Desnormalización:** precomputar modelos de lectura.
+- **Cómo elegir:** cachear cuando la carga de lectura domine y la obsolescencia sea aceptable.
 
-## Failure modes & Pitfalls
-- Cache stampedes and inconsistent invalidation.
+## Modos de fallo y errores comunes
+- Estampidas de caché e invalidación inconsistente.
 
-## Observability (How to detect issues)
-- **Metrics:** hit rate, stale read reports.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de aciertos, reportes de lecturas obsoletas.
 - **Logs:** cache misses.
-- **Alerts:** hit rate drops or stale data spikes.
+- **Alertas:** caídas de tasa de aciertos o picos de datos obsoletos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define freshness requirements
-  - [ ] Choose caching pattern
-  - [ ] Monitor hit rate
+  - [ ] Definir requisitos de frescura
+  - [ ] Elegir patrón de caché
+  - [ ] Monitorear tasa de aciertos
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Caching everything without measuring.
-  - **Why it’s bad:** complexity without benefit.
-  - **Better approach:** cache only hot paths.
+## Anti-patrones comunes
+- **Anti-patrón:** Cachear todo sin medir.
+  - **Por qué es malo:** complejidad sin beneficio.
+  - **Mejor enfoque:** cachear solo rutas calientes.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A caching strategy decides what to cache, how long, and how to invalidate. It’s a balance between freshness and performance.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Una estrategia de caché decide qué cachear, por cuánto tiempo y cómo invalidar. Es un balance entre frescura y rendimiento.
 
-### Trap questions (with answers)
-1) **Q:** Should you always cache at every layer?
-   - **A:** no; each layer adds complexity.
-2) **Q:** Can you ignore invalidation if TTL is short?
-   - **A:** not for correctness-critical data.
-3) **Q:** Is cache hit rate the only metric?
-   - **A:** no; stale data and miss penalties matter.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Debes siempre cachear en cada capa?
+   - **R:** No; cada capa agrega complejidad.
+2) **P:** ¿Puedes ignorar la invalidación si el TTL es corto?
+   - **R:** No para datos donde la corrección es crítica.
+3) **P:** ¿La tasa de aciertos del caché es la única métrica?
+   - **R:** No; los datos obsoletos y las penalizaciones por miss importan.
 
-### Quick self-check (5 items)
-- [ ] I can define caching strategy.
-- [ ] I can state trade-offs.
-- [ ] I can name a pitfall.
-- [ ] I can describe a monitoring signal.
-- [ ] I can compare with denormalization.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir estrategia de caché.
+- [ ] Puedo indicar trade-offs.
+- [ ] Puedo nombrar un error común.
+- [ ] Puedo describir una señal de monitoreo.
+- [ ] Puedo comparar con desnormalización.
 
-## Links (NO duplication)
-### Prerequisites
-- [Caching fundamentals](caching-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de caché](caching-fundamentals.md)
 
-### Related topics
+### Temas relacionados
 - [TTL (Time-to-Live)](../databases/ttl.md)
 
-### Compare with
-- [Denormalization](../databases/denormalization.md) — precompute vs cache.
+### Comparar con
+- [Desnormalización](../databases/denormalization.md) — precomputar vs cachear.

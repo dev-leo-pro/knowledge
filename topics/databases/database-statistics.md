@@ -1,6 +1,6 @@
 ---
 id: database-statistics
-title: "Database Statistics"
+title: "Estadísticas de Base de Datos"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Database Statistics
+# Estadísticas de Base de Datos
 
 ## TL;DR (BLUF)
-- Statistics describe data distribution and guide query planners.
-- Use them to improve plan quality and performance.
-- Trade-off: stats collection adds overhead.
+- Las estadísticas describen la distribución de datos y guían a los planificadores de consultas.
+- Úsalas para mejorar la calidad de los planes y el rendimiento.
+- Trade-off: la recolección de estadísticas añade sobrecarga.
 
-## Definition
-**What it is:** Metadata about data distribution used for cost-based planning.
-**Key terms:** histograms, cardinality, selectivity.
+## Definición
+**Qué es:** Metadatos sobre la distribución de datos usados para planificación basada en costos.
+**Términos clave:** histogramas, cardinalidad, selectividad.
 
-## Why it matters
-- Bad stats lead to bad plans and slow queries.
-- Stats help pick indexes and join order.
+## Por qué importa
+- Estadísticas malas llevan a planes malos y consultas lentas.
+- Las estadísticas ayudan a elegir índices y orden de joins.
 
-## Scope & Non-goals
-**In scope:** general statistics concepts across databases.
-**Out of scope / NOT solved by this:** engine-specific tuning.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos generales de estadísticas en bases de datos.
+**Fuera del alcance / NO resuelto por esto:** ajuste específico del motor.
 
-## Mental model / Intuition
-- Statistics are the planner’s “map” of the data.
+## Modelo mental / Intuición
+- Las estadísticas son el "mapa" del planificador sobre los datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You see plan regressions or slow queries after big data changes.
-### Avoid it when
-- Stats are already fresh and the issue is elsewhere.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Ves regresiones de planes o consultas lentas después de grandes cambios de datos.
+### Evítalo cuando
+- Las estadísticas ya están frescas y el problema está en otro lugar.
 
-## How I would use it (practical)
-- **Context:** Query slowed after large load.
-- **Steps:** update stats → re-check plan → monitor latency.
-- **What success looks like:** improved plans and lower latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consulta se ralentizó después de una carga grande.
+- **Pasos:** actualizar estadísticas → re-verificar plan → monitorear latencia.
+- **Cómo se ve el éxito:** planes mejorados y menor latencia.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better planning and performance.
-- **Cons / Risks:** overhead and imperfect estimates.
-### Alternatives
-- **Plan hints:** when available, but risky.
-- **How to choose:** rely on stats first, hints last.
+- **Ventajas:** mejor planificación y rendimiento.
+- **Desventajas / Riesgos:** sobrecarga y estimaciones imperfectas.
+### Alternativas
+- **Hints de plan:** cuando están disponibles, pero arriesgados.
+- **Cómo elegir:** confiar en estadísticas primero, hints como último recurso.
 
-## Failure modes & Pitfalls
-- Assuming stats are exact.
+## Modos de fallo y trampas
+- Asumir que las estadísticas son exactas.
 
-## Observability (How to detect issues)
-- **Metrics:** plan changes, query latency.
-- **Logs:** stats update logs.
-- **Alerts:** latency spikes after data shifts.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** cambios de plan, latencia de consultas.
+- **Logs:** logs de actualización de estadísticas.
+- **Alertas:** picos de latencia después de cambios de datos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Update stats after large changes
-  - [ ] Validate plan improvements
+  - [ ] Actualizar estadísticas después de cambios grandes
+  - [ ] Validar mejoras en el plan
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Ignoring stats after bulk deletes.
-  - **Why it’s bad:** planner uses stale info.
-  - **Better approach:** refresh stats.
+## Anti-patrones comunes
+- **Anti-patrón:** Ignorar las estadísticas después de eliminaciones masivas.
+  - **Por qué es malo:** el planificador usa información obsoleta.
+  - **Mejor enfoque:** refrescar las estadísticas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Database statistics are summaries of data distribution used by query planners. Keeping them fresh helps the planner choose efficient plans.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las estadísticas de base de datos son resúmenes de la distribución de datos usados por los planificadores de consultas. Mantenerlas frescas ayuda al planificador a elegir planes eficientes.
 
-### Trap questions (with answers)
-1) **Q:** Are statistics always accurate?
-   - **A:** no; they’re estimates.
-2) **Q:** Can stats hurt performance?
-   - **A:** collecting them has overhead.
-3) **Q:** Do stats remove the need for indexes?
-   - **A:** no; they just help choose plans.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las estadísticas son siempre precisas?
+   - **R:** no; son estimaciones.
+2) **P:** ¿Las estadísticas pueden perjudicar el rendimiento?
+   - **R:** recolectarlas tiene sobrecarga.
+3) **P:** ¿Las estadísticas eliminan la necesidad de índices?
+   - **R:** no; solo ayudan a elegir planes.
 
-### Quick self-check (5 items)
-- [ ] I can define database statistics.
-- [ ] I can explain why they matter.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can relate stats to planning.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir estadísticas de base de datos.
+- [ ] Puedo explicar por qué importan.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo relacionar estadísticas con planificación.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Selectivity](selectivity.md)
 
-### Related topics
+### Temas relacionados
 - [Query planning](query-planning.md)
 
-### Compare with
-- [PostgreSQL statistics & ANALYZE](postgresql-stats-and-analyze.md) — Postgres specifics.
+### Comparar con
+- [PostgreSQL statistics & ANALYZE](postgresql-stats-and-analyze.md) — especificidades de Postgres.

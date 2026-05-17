@@ -1,6 +1,6 @@
 ---
 id: testing-pyramid
-title: "Testing Pyramid"
+title: "Pirámide de Pruebas"
 type: pattern
 status: learning
 importance: 85
@@ -12,124 +12,124 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Testing Pyramid
+# Pirámide de Pruebas
 
 ## TL;DR (BLUF)
-- The testing pyramid is a strategy for balancing test types: many fast unit tests at the base, fewer integration tests in the middle, and few slow E2E tests at the top.
-- Use it to optimize for speed, reliability, and maintainability of your test suite.
-- Key trade-off: comprehensive coverage vs. fast feedback loops.
+- La pirámide de pruebas es una estrategia para equilibrar tipos de pruebas: muchas pruebas unitarias rápidas en la base, menos pruebas de integración en el medio, y pocas pruebas E2E lentas en la cima.
+- Úsala para optimizar velocidad, confiabilidad y mantenibilidad de tu suite de pruebas.
+- Trade-off clave: cobertura completa vs. ciclos de retroalimentación rápidos.
 
-## Definition
-**What it is:** A testing strategy that organizes automated tests into layers based on scope and speed, with the majority being fast, isolated unit tests and progressively fewer tests at higher integration levels.  
-**Key terms:** unit test, integration test, end-to-end (E2E) test, contract test, test isolation, test flakiness.
+## Definición
+**Qué es:** Una estrategia de pruebas que organiza pruebas automatizadas en capas basadas en alcance y velocidad, con la mayoría siendo pruebas unitarias rápidas y aisladas, y progresivamente menos pruebas en niveles de integración superiores.  
+**Términos clave:** prueba unitaria, prueba de integración, prueba de extremo a extremo (E2E), prueba de contrato, aislamiento de pruebas, inestabilidad de pruebas.
 
-## Why it matters
-- **Fast feedback:** Unit tests run in milliseconds; you catch bugs immediately during development.
-- **Reliable tests:** Isolated unit tests are deterministic; E2E tests are flaky due to environmental dependencies.
-- **Cost-effective:** Writing and maintaining unit tests is cheaper than E2E tests (simpler setup, faster execution, easier debugging).
-- **Interview relevance:** Testing strategy is a common topic in system design and engineering process discussions.
+## Por qué importa
+- **Retroalimentación rápida:** Las pruebas unitarias se ejecutan en milisegundos; detectas errores inmediatamente durante el desarrollo.
+- **Pruebas confiables:** Las pruebas unitarias aisladas son deterministas; las pruebas E2E son inestables debido a dependencias del entorno.
+- **Rentable:** Escribir y mantener pruebas unitarias es más barato que pruebas E2E (configuración más simple, ejecución más rápida, depuración más fácil).
+- **Relevancia en entrevistas:** La estrategia de pruebas es un tema común en discusiones de diseño de sistemas y procesos de ingeniería.
 
-## Scope & Non-goals
-**In scope:**
-- Ratio of test types: many unit, fewer integration, critical E2E.
-- When to use each test type and what to validate.
-- Trade-offs between speed, coverage, and confidence.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Proporción de tipos de pruebas: muchas unitarias, menos integración, E2E críticas.
+- Cuándo usar cada tipo de prueba y qué validar.
+- Trade-offs entre velocidad, cobertura y confianza.
 
-**Out of scope / NOT solved by this:**
-- Manual testing or exploratory QA (complements, doesn't replace).
-- Specific testing frameworks or tools (pytest, Jest, etc.).
+**Fuera del alcance / NO resuelto por esto:**
+- Pruebas manuales o QA exploratoria (complementa, no reemplaza).
+- Frameworks o herramientas de pruebas específicas (pytest, Jest, etc.).
 
-## Mental model / Intuition
-**Pyramid shape:**
+## Modelo mental / Intuición
+**Forma de pirámide:**
 ```
-       /\       ← E2E tests (few, slow, brittle)
+       /\       ← Pruebas E2E (pocas, lentas, frágiles)
       /  \
-     /____\     ← Integration tests (moderate, medium speed)
+     /____\     ← Pruebas de integración (moderadas, velocidad media)
     /      \
-   /________\   ← Unit tests (many, fast, reliable)
+   /________\   ← Pruebas unitarias (muchas, rápidas, confiables)
 ```
 
-The base is wide because unit tests are cheap to write and run. The top is narrow because E2E tests are expensive and slow. If your test suite looks like an **inverted pyramid** (mostly E2E tests), you'll have slow CI, flaky tests, and long debugging cycles.
+La base es ancha porque las pruebas unitarias son baratas de escribir y ejecutar. La cima es estrecha porque las pruebas E2E son costosas y lentas. Si tu suite de pruebas parece una **pirámide invertida** (mayormente pruebas E2E), tendrás CI lento, pruebas inestables y ciclos largos de depuración.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Building production systems with automated CI/CD.
-- Working in teams where test reliability and speed matter.
-- You need fast feedback loops during development.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Construyes sistemas de producción con CI/CD automatizado.
+- Trabajas en equipos donde la confiabilidad y velocidad de las pruebas importan.
+- Necesitas ciclos de retroalimentación rápidos durante el desarrollo.
 
-### Avoid it when
-- Prototyping throwaway code (tests may be overkill).
-- Testing highly visual UIs where manual QA is more effective than automated E2E (though accessibility and visual regression tests can help).
+### Evítalo cuando
+- Prototipar código desechable (las pruebas pueden ser excesivas).
+- Probar UIs altamente visuales donde QA manual es más efectivo que E2E automatizado (aunque las pruebas de accesibilidad y regresión visual pueden ayudar).
 
-## How I would use it (practical)
-- **Context:** Building a Go API service with a PostgreSQL database.
-- **Steps:**
-  1. **Unit tests (70-80% of tests):** Test business logic in isolation (mocked DB, no network). Example: validate input parsing, business rule enforcement, error handling.
-  2. **Integration tests (15-25% of tests):** Test DB interactions with a real test database (Docker container in CI). Example: verify queries return correct data, transactions rollback on errors.
-  3. **Contract tests (optional):** Validate API contracts between services (Pact or similar). Example: consumer expects `user_id` field; provider includes it.
-  4. **E2E tests (5-10% of tests):** Test critical user flows end-to-end (entire system running). Example: user signup → email verification → login.
-  5. **Performance tests (as needed):** Load test critical endpoints under expected traffic.
-- **What success looks like:** Unit tests run in <10 seconds, integration tests in <2 minutes, E2E tests in <10 minutes. CI completes in <15 minutes total.
+## Cómo lo usaría (práctico)
+- **Contexto:** Construyendo un servicio API en Go con una base de datos PostgreSQL.
+- **Pasos:**
+  1. **Pruebas unitarias (70-80% de las pruebas):** Probar lógica de negocio en aislamiento (BD simulada, sin red). Ejemplo: validar parsing de entrada, imposición de reglas de negocio, manejo de errores.
+  2. **Pruebas de integración (15-25% de las pruebas):** Probar interacciones con BD con una base de datos de prueba real (contenedor Docker en CI). Ejemplo: verificar que las consultas retornan datos correctos, que las transacciones hacen rollback en errores.
+  3. **Pruebas de contrato (opcional):** Validar contratos de API entre servicios (Pact o similar). Ejemplo: el consumidor espera el campo `user_id`; el proveedor lo incluye.
+  4. **Pruebas E2E (5-10% de las pruebas):** Probar flujos críticos de usuario de extremo a extremo (sistema completo ejecutándose). Ejemplo: registro de usuario → verificación de email → inicio de sesión.
+  5. **Pruebas de rendimiento (según necesidad):** Prueba de carga en endpoints críticos bajo tráfico esperado.
+- **Cómo se ve el éxito:** Las pruebas unitarias se ejecutan en <10 segundos, las de integración en <2 minutos, las E2E en <10 minutos. CI se completa en <15 minutos en total.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Fast feedback: unit tests catch most bugs in seconds.
-  - Reliable: fewer dependencies mean fewer flaky tests.
-  - Easy to debug: unit test failures pinpoint exact issue.
-- **Cons / Risks:**
-  - Unit tests don't catch integration issues (e.g., mismatched API contracts, DB query bugs).
-  - Mocking can hide real-world failures (e.g., incorrect assumptions about third-party API behavior).
-  - E2E tests are still necessary for critical flows (can't unit test everything).
+- **Ventajas:**
+  - Retroalimentación rápida: las pruebas unitarias detectan la mayoría de errores en segundos.
+  - Confiable: menos dependencias significan menos pruebas inestables.
+  - Fácil de depurar: los fallos de pruebas unitarias señalan el problema exacto.
+- **Desventajas / Riesgos:**
+  - Las pruebas unitarias no detectan problemas de integración (ej., contratos de API desajustados, errores en consultas de BD).
+  - Simular puede ocultar fallos del mundo real (ej., suposiciones incorrectas sobre comportamiento de APIs de terceros).
+  - Las pruebas E2E siguen siendo necesarias para flujos críticos (no puedes probar todo unitariamente).
 
-### Alternatives
-- **Inverted pyramid (mostly E2E tests):** Slow CI, flaky tests, hard to debug. Avoid unless you have no alternative.
-- **Diamond shape (heavy on integration tests):** Balances speed and coverage but integration tests can be slower and harder to maintain than unit tests.
-- **Trophy shape (heavy on integration tests, fewer E2E):** Popularized by Kent C. Dodds for frontend testing; prioritizes integration over unit tests for better confidence.
+### Alternativas
+- **Pirámide invertida (mayormente pruebas E2E):** CI lento, pruebas inestables, difícil de depurar. Evitar a menos que no haya alternativa.
+- **Forma de diamante (pesado en pruebas de integración):** Equilibra velocidad y cobertura pero las pruebas de integración pueden ser más lentas y difíciles de mantener que las unitarias.
+- **Forma de trofeo (pesado en pruebas de integración, menos E2E):** Popularizado por Kent C. Dodds para pruebas frontend; prioriza integración sobre unitarias para mayor confianza.
 
-### How to choose
-- **Backend services:** Classic pyramid (many unit, fewer integration, critical E2E).
-- **Frontend apps:** Trophy shape may work better (integration tests with DOM catch more real issues than isolated component unit tests).
-- **Microservices:** Add contract tests to validate service boundaries.
+### Cómo elegir
+- **Servicios backend:** Pirámide clásica (muchas unitarias, menos integración, E2E críticas).
+- **Aplicaciones frontend:** La forma de trofeo puede funcionar mejor (las pruebas de integración con DOM detectan más problemas reales que las pruebas unitarias aisladas de componentes).
+- **Microservicios:** Agregar pruebas de contrato para validar límites de servicio.
 
-## Failure modes & Pitfalls
-- **Too many E2E tests:** Slow CI, flaky tests, long feedback loops. Example: 500 E2E tests taking 2 hours to run.
-- **Too few integration tests:** Unit tests pass but system fails when components interact. Example: query works in isolation but deadlocks under concurrent load.
-- **Flaky tests:** Tests that randomly fail due to race conditions, timeouts, or environmental dependencies. This erodes trust in the test suite.
-- **Mocking everything:** Over-mocking hides integration bugs. Example: mocked DB always returns success; real DB has connection pool exhaustion.
-- **No E2E tests:** Critical user flows break in production because no one tested the full system.
+## Modos de fallo y trampas
+- **Demasiadas pruebas E2E:** CI lento, pruebas inestables, ciclos largos de retroalimentación. Ejemplo: 500 pruebas E2E tomando 2 horas en ejecutarse.
+- **Muy pocas pruebas de integración:** Las pruebas unitarias pasan pero el sistema falla cuando los componentes interactúan. Ejemplo: consulta funciona en aislamiento pero hace deadlock bajo carga concurrente.
+- **Pruebas inestables:** Pruebas que fallan aleatoriamente por condiciones de carrera, timeouts o dependencias del entorno. Esto erosiona la confianza en la suite de pruebas.
+- **Simular todo:** Sobre-simular oculta errores de integración. Ejemplo: BD simulada siempre retorna éxito; BD real tiene agotamiento del pool de conexiones.
+- **Sin pruebas E2E:** Flujos críticos de usuario se rompen en producción porque nadie probó el sistema completo.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Test execution time (unit <10s, integration <5min, E2E <15min).
-  - Test flakiness rate (% of tests that fail randomly; aim for <1%).
-  - Code coverage by test type (unit tests should cover most code).
-- **Logs:** Track test failures by layer (unit vs integration vs E2E) to identify weak spots.
-- **Traces:** N/A for testing strategy itself.
-- **Alerts:** CI duration spikes (tests getting slower), flakiness rate increase.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tiempo de ejecución de pruebas (unitarias <10s, integración <5min, E2E <15min).
+  - Tasa de inestabilidad de pruebas (% de pruebas que fallan aleatoriamente; apuntar a <1%).
+  - Cobertura de código por tipo de prueba (las pruebas unitarias deberían cubrir la mayoría del código).
+- **Logs:** Rastrear fallos de pruebas por capa (unitarias vs integración vs E2E) para identificar puntos débiles.
+- **Trazas:** N/A para la estrategia de pruebas en sí.
+- **Alertas:** Picos en duración de CI (pruebas haciéndose más lentas), aumento en tasa de inestabilidad.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Write unit tests first (TDD or test-soon-after).
-  - [ ] Use test doubles (mocks, stubs, fakes) for external dependencies in unit tests.
-  - [ ] Run integration tests against real dependencies in isolated environments (Docker, testcontainers).
-  - [ ] Limit E2E tests to critical happy paths and high-risk failure modes.
-  - [ ] Make tests deterministic (avoid random data, sleeps, time-based flakiness).
-  - [ ] Run unit tests on every commit; integration/E2E tests in CI only (or less frequently).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Escribir pruebas unitarias primero (TDD o probar poco después).
+  - [ ] Usar dobles de prueba (mocks, stubs, fakes) para dependencias externas en pruebas unitarias.
+  - [ ] Ejecutar pruebas de integración contra dependencias reales en entornos aislados (Docker, testcontainers).
+  - [ ] Limitar pruebas E2E a caminos felices críticos y modos de fallo de alto riesgo.
+  - [ ] Hacer pruebas deterministas (evitar datos aleatorios, sleeps, inestabilidad basada en tiempo).
+  - [ ] Ejecutar pruebas unitarias en cada commit; pruebas de integración/E2E solo en CI (o menos frecuentemente).
 
-- **Security / Compliance notes**
-  - Include security tests at each layer: unit tests for input validation, integration tests for auth/authz, E2E tests for end-to-end security flows.
+- **Notas de seguridad / cumplimiento**
+  - Incluir pruebas de seguridad en cada capa: pruebas unitarias para validación de entrada, pruebas de integración para autenticación/autorización, pruebas E2E para flujos de seguridad de extremo a extremo.
 
-- **Performance notes**
-  - Parallelize test execution (run unit tests in parallel by default).
-  - Use in-memory databases or fast test doubles to speed up integration tests.
+- **Notas de rendimiento**
+  - Paralelizar ejecución de pruebas (ejecutar pruebas unitarias en paralelo por defecto).
+  - Usar bases de datos en memoria o dobles de prueba rápidos para acelerar pruebas de integración.
 
-- **Operational notes**
-  - Monitor test flakiness in CI; fix or remove flaky tests immediately.
-  - Keep test suites fast; slow tests kill developer productivity.
+- **Notas operacionales**
+  - Monitorear inestabilidad de pruebas en CI; corregir o eliminar pruebas inestables inmediatamente.
+  - Mantener las suites de pruebas rápidas; pruebas lentas matan la productividad del desarrollador.
 
-## Mini example
-Note: The E2E example uses [HTTP](../operations/http.md).
+## Mini ejemplo
+Nota: El ejemplo E2E usa [HTTP](../operations/http.md).
 ```go
 // Unit test (fast, isolated, no DB)
 func TestCalculateDiscount(t *testing.T) {
@@ -169,58 +169,58 @@ func TestUserSignupFlow_E2E(t *testing.T) {
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Ice cream cone (mostly E2E tests, few unit tests).
-  - **Why it's bad:** Slow CI, flaky tests, hard to debug, expensive to maintain.
-  - **Better approach:** Invert to pyramid shape; rewrite E2E tests as unit/integration tests where possible.
+## Anti-patrones comunes
+- **Anti-patrón:** Cono de helado (mayormente pruebas E2E, pocas pruebas unitarias).
+  - **Por qué es malo:** CI lento, pruebas inestables, difícil de depurar, costoso de mantener.
+  - **Mejor enfoque:** Invertir a forma de pirámide; reescribir pruebas E2E como pruebas unitarias/integración donde sea posible.
 
-- **Anti-pattern:** Testing implementation details in unit tests (e.g., asserting internal method calls).
-  - **Why it's bad:** Tests break on refactoring even when behavior is correct.
-  - **Better approach:** Test public API behavior, not internals.
+- **Anti-patrón:** Probar detalles de implementación en pruebas unitarias (ej., verificar llamadas a métodos internos).
+  - **Por qué es malo:** Las pruebas se rompen al refactorizar incluso cuando el comportamiento es correcto.
+  - **Mejor enfoque:** Probar comportamiento de la API pública, no internos.
 
-- **Anti-pattern:** No integration tests ("unit tests are enough").
-  - **Why it's bad:** Misses bugs in DB queries, API contracts, concurrency.
-  - **Better approach:** Add integration tests for critical paths (DB interactions, third-party APIs).
+- **Anti-patrón:** Sin pruebas de integración ("las pruebas unitarias son suficientes").
+  - **Por qué es malo:** Pierde errores en consultas de BD, contratos de API, concurrencia.
+  - **Mejor enfoque:** Agregar pruebas de integración para rutas críticas (interacciones con BD, APIs de terceros).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-The testing pyramid is a strategy to balance test types for speed and reliability. The base is unit tests—fast, isolated tests of individual functions. The middle is integration tests that verify components work together (e.g., your code with a real database). The top is E2E tests that validate entire user flows. You want many unit tests because they're fast and cheap, fewer integration tests because they're slower, and very few E2E tests because they're slow and flaky. If your test suite is inverted (mostly E2E), you'll have slow CI and unreliable tests.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+La pirámide de pruebas es una estrategia para equilibrar tipos de pruebas en velocidad y confiabilidad. La base son pruebas unitarias—pruebas rápidas y aisladas de funciones individuales. El medio son pruebas de integración que verifican que los componentes funcionen juntos (ej., tu código con una base de datos real). La cima son pruebas E2E que validan flujos completos de usuario. Quieres muchas pruebas unitarias porque son rápidas y baratas, menos pruebas de integración porque son más lentas, y muy pocas pruebas E2E porque son lentas e inestables. Si tu suite de pruebas está invertida (mayormente E2E), tendrás CI lento y pruebas poco confiables.
 
-### Trap questions (with answers)
-1) **Q:** Why not just write E2E tests for everything? They test the real system.
-   - **A:** E2E tests are slow (minutes vs. seconds), flaky (many dependencies that can fail), and hard to debug (failure could be anywhere in the system). You lose fast feedback loops and developer productivity. Use E2E tests sparingly for critical flows only.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Por qué no solo escribir pruebas E2E para todo? Prueban el sistema real.
+   - **R:** Las pruebas E2E son lentas (minutos vs. segundos), inestables (muchas dependencias que pueden fallar) y difíciles de depurar (el fallo puede estar en cualquier parte del sistema). Pierdes ciclos de retroalimentación rápidos y productividad del desarrollador. Usa pruebas E2E con moderación solo para flujos críticos.
 
-2) **Q:** If unit tests use mocks, don't they give false confidence?
-   - **A:** Yes, over-mocking can hide integration bugs. The solution is balance: use integration tests to validate real interactions (DB, APIs), and limit mocking to external dependencies that are expensive or hard to control. Mocks should reflect real behavior.
+2) **P:** Si las pruebas unitarias usan mocks, ¿no dan falsa confianza?
+   - **R:** Sí, sobre-simular puede ocultar errores de integración. La solución es equilibrio: usa pruebas de integración para validar interacciones reales (BD, APIs), y limita la simulación a dependencias externas que son costosas o difíciles de controlar. Los mocks deben reflejar comportamiento real.
 
-3) **Q:** What's the ideal ratio of unit/integration/E2E tests?
-   - **A:** No universal answer, but a common guideline is 70% unit, 20% integration, 10% E2E. Adjust based on your system: backend services lean heavier on unit tests; frontend apps may need more integration tests (testing with real DOM).
+3) **P:** ¿Cuál es la proporción ideal de pruebas unitarias/integración/E2E?
+   - **R:** No hay respuesta universal, pero una guía común es 70% unitarias, 20% integración, 10% E2E. Ajustar según tu sistema: servicios backend se inclinan más hacia pruebas unitarias; aplicaciones frontend pueden necesitar más pruebas de integración (probar con DOM real).
 
-4) **Q:** How do you handle flaky tests?
-   - **A:** Quarantine flaky tests immediately (skip them or move to a separate suite). Investigate root cause: race conditions, timeouts, environmental dependencies. Fix or delete—flaky tests erode trust in the test suite.
+4) **P:** ¿Cómo manejas pruebas inestables?
+   - **R:** Poner en cuarentena pruebas inestables inmediatamente (omitirlas o moverlas a una suite separada). Investigar causa raíz: condiciones de carrera, timeouts, dependencias del entorno. Corregir o eliminar—las pruebas inestables erosionan la confianza en la suite de pruebas.
 
-5) **Q:** Can you skip E2E tests if you have good unit and integration tests?
-   - **A:** For most systems, no. E2E tests catch issues that only appear when the full system runs (e.g., missing CORS headers, incorrect load balancer config, auth flow breaks). Keep E2E tests minimal but don't eliminate them.
+5) **P:** ¿Puedes omitir pruebas E2E si tienes buenas pruebas unitarias y de integración?
+   - **R:** Para la mayoría de sistemas, no. Las pruebas E2E detectan problemas que solo aparecen cuando el sistema completo se ejecuta (ej., headers CORS faltantes, configuración incorrecta del balanceador de carga, flujo de autenticación que se rompe). Mantener pruebas E2E mínimas pero no eliminarlas.
 
-### Quick self-check (5 items)
-- [ ] I can draw the testing pyramid and explain each layer.
-- [ ] I can state the ideal ratio of test types (approximate).
-- [ ] I can explain why E2E tests should be minimal (slow, flaky, expensive).
-- [ ] I can give an example of when integration tests catch bugs that unit tests miss.
-- [ ] I can describe the "ice cream cone" anti-pattern and why it's bad.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo dibujar la pirámide de pruebas y explicar cada capa.
+- [ ] Puedo indicar la proporción ideal de tipos de pruebas (aproximada).
+- [ ] Puedo explicar por qué las pruebas E2E deben ser mínimas (lentas, inestables, costosas).
+- [ ] Puedo dar un ejemplo de cuándo las pruebas de integración detectan errores que las unitarias no.
+- [ ] Puedo describir el anti-patrón del "cono de helado" y por qué es malo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Software Quality Assurance](software-quality-assurance.md)
-- [Testing fundamentals](testing-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
+- [Fundamentos de pruebas](testing-fundamentals.md)
 
-### Related topics
-- [Code quality](code-quality.md)
-- [Quality gates](quality-gates.md)
+### Temas relacionados
+- [Calidad de código](code-quality.md)
+- [Compuertas de calidad](quality-gates.md)
 
-### Compare with
-- Trophy shape (Kent C. Dodds) — Prioritizes integration tests over unit tests for frontend apps; different balance than classic pyramid.
+### Comparar con
+- Forma de trofeo (Kent C. Dodds) — Prioriza pruebas de integración sobre unitarias para aplicaciones frontend; equilibrio diferente que la pirámide clásica.
 
-## Notes / Inbox
-- Add examples from real projects: Heimdall Step Functions (E2E tests for orchestration), Opportunity Actions (integration tests for third-party API calls).
-- Consider adding contract testing as a separate layer for microservices.
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: Step Functions de Heimdall (pruebas E2E para orquestación), Opportunity Actions (pruebas de integración para llamadas a APIs de terceros).
+- Considerar agregar pruebas de contrato como capa separada para microservicios.

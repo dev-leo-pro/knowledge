@@ -12,113 +12,113 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# DNS (Domain Name System)
+# DNS (Sistema de Nombres de Dominio)
 
 ## TL;DR (BLUF)
-- DNS maps human-readable names to IP addresses and other records.
-- Use it to route traffic and decouple services from IP changes.
-- Trade-off: caching and propagation delays can cause stale routing.
+- DNS mapea nombres legibles por humanos a direcciones IP y otros registros.
+- Úsalo para enrutar tráfico y desacoplar servicios de cambios de IP.
+- Trade-off: el caché y los retrasos de propagación pueden causar enrutamiento obsoleto.
 
-## Definition
-**What it is:** A distributed naming system that resolves domain names to resource records (A/AAAA, CNAME, TXT, MX, etc.).  
-**Key terms:** resolver, authoritative server, TTL, cache, A/AAAA, CNAME.
+## Definición
+**Qué es:** Un sistema de nombres distribuido que resuelve nombres de dominio a registros de recursos (A/AAAA, CNAME, TXT, MX, etc.).
+**Términos clave:** resolver, servidor autoritativo, TTL, caché, A/AAAA, CNAME.
 
-## Why it matters
-- DNS failures look like outages even when services are healthy.
-- TTLs and caching affect rollout speed and failover behavior.
+## Por qué importa
+- Los fallos de DNS parecen caídas incluso cuando los servicios están sanos.
+- Los TTLs y el caché afectan la velocidad de despliegue y el comportamiento de failover.
 
-## Scope & Non-goals
-**In scope:** name resolution flow, TTLs, caching, and operational trade-offs.  
-**Out of scope / NOT solved by this:** load balancing algorithms or CDN design.
+## Alcance y no-objetivos
+**Dentro del alcance:** flujo de resolución de nombres, TTLs, caché y trade-offs operacionales.
+**Fuera del alcance / NO resuelto por esto:** algoritmos de balanceo de carga o diseño de CDN.
 
-## Mental model / Intuition
-- DNS is a phonebook: you ask for a name and get a number (IP).
-- Caches speed lookups but can keep old numbers for a while.
+## Modelo mental / Intuición
+- DNS es una guía telefónica: preguntas por un nombre y obtienes un número (IP).
+- Los cachés aceleran las búsquedas pero pueden mantener números antiguos por un tiempo.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need stable names for changing infrastructure.
-- You need to route traffic across regions or providers.
-### Avoid it when
-- You require instant cutovers (DNS caching can delay).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites nombres estables para infraestructura cambiante.
+- Necesites enrutar tráfico entre regiones o proveedores.
+### Evítalo cuando
+- Requieras cutovers instantáneos (el caché DNS puede retrasar).
 
-## How I would use it (practical)
-- **Context:** Blue/green deployment cutover.
-- **Steps:**
-  1) Set a low TTL before planned changes.
-  2) Update DNS records during cutover.
-  3) Monitor resolution and error rates.
-- **What success looks like:** predictable propagation and minimal user impact.
+## Cómo lo usaría (práctico)
+- **Contexto:** Cutover de despliegue blue/green.
+- **Pasos:**
+  1) Establecer un TTL bajo antes de cambios planificados.
+  2) Actualizar registros DNS durante el cutover.
+  3) Monitorear resolución y tasas de error.
+- **Cómo se ve el éxito:** propagación predecible e impacto mínimo al usuario.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** decouples service identity from IPs; global reach.
-- **Cons / Risks:** caching delays, resolver variability, and partial propagation.
-### Alternatives
-- **Load balancer cutover:** faster and more controllable for traffic switching.
-- **How to choose:** use DNS for stable naming and coarse routing, not instant failover.
+- **Pros:** desacopla la identidad del servicio de las IPs; alcance global.
+- **Contras / Riesgos:** retrasos de caché, variabilidad de resolvers y propagación parcial.
+### Alternativas
+- **Cutover por balanceador de carga:** más rápido y controlable para cambio de tráfico.
+- **Cómo elegir:** usa DNS para nombres estables y enrutamiento grueso, no para failover instantáneo.
 
-## Failure modes & Pitfalls
-- Misconfigured records causing traffic black holes.
-- Stale caches preventing rapid rollback.
-- Split-horizon DNS leading to inconsistent routing.
+## Modos de fallo y errores comunes
+- Registros mal configurados causando agujeros negros de tráfico.
+- Cachés obsoletos previniendo rollback rápido.
+- DNS split-horizon generando enrutamiento inconsistente.
 
-## Observability (How to detect issues)
-- **Metrics:** resolution latency, NXDOMAIN rate, cache hit ratio.
-- **Logs:** resolver errors, record changes.
-- **Traces:** increased latency before app-level timeouts.
-- **Alerts:** spikes in NXDOMAIN or resolution failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de resolución, tasa de NXDOMAIN, ratio de aciertos de caché.
+- **Logs:** errores de resolver, cambios de registros.
+- **Trazas:** latencia aumentada antes de timeouts a nivel de aplicación.
+- **Alertas:** picos en NXDOMAIN o fallos de resolución.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define TTLs per record type
-  - [ ] Automate DNS changes with audit trails
-- **Security / Compliance notes**
-  - Protect DNS changes with strong access control.
-- **Performance notes**
-  - Use local resolvers or caching to reduce latency.
-- **Operational notes**
-  - Document rollback steps and expected propagation time.
+  - [ ] Definir TTLs por tipo de registro
+  - [ ] Automatizar cambios DNS con pistas de auditoría
+- **Notas de seguridad / cumplimiento**
+  - Proteger cambios DNS con control de acceso fuerte.
+- **Notas de rendimiento**
+  - Usar resolvers locales o caché para reducir latencia.
+- **Notas operacionales**
+  - Documentar pasos de rollback y tiempo esperado de propagación.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using DNS for instant cutover.
-  - **Why it’s bad:** caching delays make the switch slow and inconsistent.
-  - **Better approach:** use a load balancer or service mesh for fast switches.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar DNS para cutover instantáneo.
+  - **Por qué es malo:** los retrasos de caché hacen el cambio lento e inconsistente.
+  - **Mejor enfoque:** usar un balanceador de carga o service mesh para cambios rápidos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DNS maps names to IPs using a distributed, cached system. It’s essential for routing but can introduce delays due to caching.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- DNS mapea nombres a IPs usando un sistema distribuido con caché. Es esencial para el enrutamiento pero puede introducir retrasos debido al caché.
 
-### Trap questions (with answers)
-1) **Q:** Does lowering TTL guarantee instant propagation?
-   - **A:** No; caches may still hold old records and resolvers behave differently.
-2) **Q:** Is DNS highly consistent globally?
-   - **A:** No; it’s eventually consistent due to caching and propagation.
-3) **Q:** Can DNS replace a load balancer?
-   - **A:** Not for instant failover; DNS is slower and less controllable.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Bajar el TTL garantiza propagación instantánea?
+   - **R:** No; los cachés pueden retener registros antiguos y los resolvers se comportan diferente.
+2) **P:** ¿DNS es altamente consistente globalmente?
+   - **R:** No; es eventualmente consistente debido al caché y la propagación.
+3) **P:** ¿DNS puede reemplazar un balanceador de carga?
+   - **R:** No para failover instantáneo; DNS es más lento y menos controlable.
 
-### Quick self-check (5 items)
-- [ ] I can explain how DNS resolution works end-to-end.
-- [ ] I can describe TTL trade-offs.
-- [ ] I can name 1 failure mode and how to detect it.
-- [ ] I can explain why DNS cutovers are slow.
-- [ ] I can relate DNS to availability.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar cómo funciona la resolución DNS end-to-end.
+- [ ] Puedo describir los trade-offs de TTL.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
+- [ ] Puedo explicar por qué los cutovers DNS son lentos.
+- [ ] Puedo relacionar DNS con la disponibilidad.
 
-## Links (NO duplication)
-### Prerequisites
-- [Networking basics](networking-basics.md)
-- [Network layers (OSI & TCP/IP)](network-layers.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de redes](networking-basics.md)
+- [Capas de red (OSI y TCP/IP)](network-layers.md)
 
-### Related topics
+### Temas relacionados
 - [TCP](tcp.md)
 - [HTTP](http.md)
-- [Blue/green deployments](blue-green-deployments.md)
+- [Despliegues blue/green](blue-green-deployments.md)
 
-### Compare with
-- (TODO) Load balancing — DNS routing vs L4/L7 traffic control.
+### Comparar con
+- (TODO) Balanceo de carga — enrutamiento DNS vs control de tráfico L4/L7.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

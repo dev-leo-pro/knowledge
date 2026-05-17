@@ -1,6 +1,6 @@
 ---
 id: design-patterns
-title: "Design Patterns (Overview)"
+title: "Patrones de Diseño (Resumen)"
 type: concept
 status: learning
 importance: 75
@@ -12,132 +12,132 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Design Patterns (Overview)
+# Patrones de Diseño (Resumen)
 
 ## TL;DR (BLUF)
-- Design patterns are reusable solutions to common software design problems (e.g., Strategy, Factory, Observer).
-- Use them to solve recurring problems with proven approaches, not as blueprints to apply everywhere.
-- Key trade-off: flexibility and reusability vs. simplicity and directness.
+- Los patrones de diseño son soluciones reutilizables a problemas comunes de diseño de software (ej., Strategy, Factory, Observer).
+- Úsalos para resolver problemas recurrentes con enfoques probados, no como planos para aplicar en todas partes.
+- Trade-off clave: flexibilidad y reutilización vs. simplicidad y directividad.
 
-## Definition
-**What it is:** Formalized best practices for solving common design problems in software, categorized into creational, structural, and behavioral patterns.  
-**Key terms:** Gang of Four (GoF), creational patterns (how objects are created), structural patterns (how objects are composed), behavioral patterns (how objects interact), anti-pattern.
+## Definición
+**Qué es:** Mejores prácticas formalizadas para resolver problemas comunes de diseño en software, categorizados en patrones creacionales, estructurales y de comportamiento.  
+**Términos clave:** Gang of Four (GoF), patrones creacionales (cómo se crean los objetos), patrones estructurales (cómo se componen los objetos), patrones de comportamiento (cómo interactúan los objetos), anti-patrón.
 
-## Why it matters
-- **Shared vocabulary:** "Use a Factory" conveys a complex idea quickly to other engineers.
-- **Proven solutions:** Patterns codify solutions that have worked across many projects.
-- **Easier maintenance:** Patterns create recognizable structure, making code easier to understand.
-- **Interview relevance:** Design patterns are common in system design and architecture discussions.
+## Por qué importa
+- **Vocabulario compartido:** "Usa un Factory" transmite una idea compleja rápidamente a otros ingenieros.
+- **Soluciones probadas:** Los patrones codifican soluciones que han funcionado en muchos proyectos.
+- **Mantenimiento más fácil:** Los patrones crean estructura reconocible, haciendo el código más fácil de entender.
+- **Relevancia en entrevistas:** Los patrones de diseño son comunes en discusiones de diseño de sistemas y arquitectura.
 
-## Scope & Non-goals
-**In scope:**
-- Overview of pattern categories (creational, structural, behavioral).
-- When to use patterns and when they're overkill.
-- Common patterns: Singleton, Factory, Strategy, Observer, Adapter, Decorator.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Resumen de categorías de patrones (creacionales, estructurales, de comportamiento).
+- Cuándo usar patrones y cuándo son excesivos.
+- Patrones comunes: Singleton, Factory, Strategy, Observer, Adapter, Decorator.
 
-**Out of scope / NOT solved by this:**
-- Exhaustive catalog of all patterns (23 GoF patterns + more).
-- Implementation in specific languages (though examples provided in Go).
-- Domain-specific patterns (microservices patterns, cloud patterns—separate topics).
+**Fuera del alcance / NO resuelto por esto:**
+- Catálogo exhaustivo de todos los patrones (23 patrones GoF + más).
+- Implementación en lenguajes específicos (aunque se proporcionan ejemplos en Go).
+- Patrones específicos de dominio (patrones de microservicios, patrones cloud—temas separados).
 
-## Mental model / Intuition
-Think of design patterns as **architectural blueprints**:
-- You don't design a house from scratch every time; you adapt proven layouts (open floor plan, split-level, etc.).
-- Patterns are templates, not rigid rules—adapt them to your context.
-- Using a pattern where it doesn't fit is like building a mansion for a dog (over-engineering).
+## Modelo mental / Intuición
+Piensa en los patrones de diseño como **planos arquitectónicos**:
+- No diseñas una casa desde cero cada vez; adaptas diseños probados (planta abierta, split-level, etc.).
+- Los patrones son plantillas, no reglas rígidas—adáptalos a tu contexto.
+- Usar un patrón donde no encaja es como construir una mansión para un perro (sobre-ingeniería).
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You encounter a recurring design problem (e.g., "How do I create objects without coupling to specific classes?").
-- Code is growing complex and hard to extend (patterns provide structure).
-- Team benefits from shared vocabulary (patterns communicate design intent).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Encuentras un problema de diseño recurrente (ej., "¿Cómo creo objetos sin acoplarme a clases específicas?").
+- El código está creciendo en complejidad y es difícil de extender (los patrones proporcionan estructura).
+- El equipo se beneficia de un vocabulario compartido (los patrones comunican intención de diseño).
 
-### Avoid it when
-- Problem is simple and doesn't recur (direct solution is clearer).
-- Applying patterns prematurely (YAGNI—You Aren't Gonna Need It).
-- Team is unfamiliar with patterns (learning curve may slow delivery).
+### Evítalo cuando
+- El problema es simple y no se repite (la solución directa es más clara).
+- Aplicas patrones prematuramente (YAGNI—You Aren't Gonna Need It).
+- El equipo no está familiarizado con patrones (la curva de aprendizaje puede ralentizar la entrega).
 
-## How I would use it (practical)
-- **Context:** Building a notification system that sends emails, SMS, and push notifications.
-- **Steps:**
-  1. **Identify problem:** Need to select notification method at runtime without hardcoding.
-  2. **Choose pattern:** Strategy pattern (encapsulate algorithms, make them interchangeable).
-  3. **Implementation:**
-     - Define `Notifier` interface.
-     - Create `EmailNotifier`, `SMSNotifier`, `PushNotifier` implementations.
-     - `NotificationService` depends on `Notifier` interface, not concrete classes.
-  4. **Benefit:** Adding Slack notifications requires only a new `SlackNotifier` class, no changes to existing code.
-- **What success looks like:** New notification methods added in <1 hour with zero changes to core service.
+## Cómo lo usaría (práctico)
+- **Contexto:** Construyendo un sistema de notificaciones que envía emails, SMS y notificaciones push.
+- **Pasos:**
+  1. **Identificar problema:** Necesito seleccionar el método de notificación en tiempo de ejecución sin codificarlo fijo.
+  2. **Elegir patrón:** Patrón Strategy (encapsular algoritmos, hacerlos intercambiables).
+  3. **Implementación:**
+     - Definir interfaz `Notifier`.
+     - Crear implementaciones `EmailNotifier`, `SMSNotifier`, `PushNotifier`.
+     - `NotificationService` depende de la interfaz `Notifier`, no de clases concretas.
+  4. **Beneficio:** Agregar notificaciones de Slack requiere solo una nueva clase `SlackNotifier`, sin cambios al código existente.
+- **Cómo se ve el éxito:** Nuevos métodos de notificación agregados en <1 hora con cero cambios al servicio central.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Solve common problems with proven approaches.
-  - Improve code structure and flexibility.
-  - Shared vocabulary accelerates communication.
-- **Cons / Risks:**
-  - Can over-complicate simple problems.
-  - Premature pattern application (solving problems you don't have).
-  - Patterns are language/paradigm-specific (GoF patterns are OOP-focused).
+- **Ventajas:**
+  - Resuelven problemas comunes con enfoques probados.
+  - Mejoran la estructura y flexibilidad del código.
+  - El vocabulario compartido acelera la comunicación.
+- **Desventajas / Riesgos:**
+  - Pueden sobre-complicar problemas simples.
+  - Aplicación prematura de patrones (resolver problemas que no tienes).
+  - Los patrones son específicos de lenguaje/paradigma (los patrones GoF están enfocados en POO).
 
-### Alternatives
-- **No patterns:** Solve problems directly. Works for simple, stable code.
-- **Functional patterns:** Composition, higher-order functions, immutability (different paradigm).
-- **Pragmatic approach:** Learn patterns, apply when they fit, don't force them.
+### Alternativas
+- **Sin patrones:** Resolver problemas directamente. Funciona para código simple y estable.
+- **Patrones funcionales:** Composición, funciones de orden superior, inmutabilidad (paradigma diferente).
+- **Enfoque pragmático:** Aprender patrones, aplicar cuando encajen, no forzarlos.
 
-### How to choose
-- **Recurring, complex problem:** Use a pattern.
-- **Simple, one-off problem:** Direct solution is clearer.
-- **Refactoring:** Introduce patterns when code becomes hard to maintain.
+### Cómo elegir
+- **Problema recurrente y complejo:** Usa un patrón.
+- **Problema simple y único:** La solución directa es más clara.
+- **Refactorización:** Introduce patrones cuando el código se vuelva difícil de mantener.
 
-## Failure modes & Pitfalls
-- **Pattern fever:** Applying patterns everywhere, even when simple code suffices.
-- **Wrong pattern:** Using Factory when Strategy fits better (mismatched solution).
-- **Overuse of Singleton:** Singleton is often an anti-pattern (global state, hard to test).
-- **Cargo-cult patterns:** Using patterns without understanding why (following rules blindly).
-- **Ignoring simplicity:** Patterns should simplify, not complicate.
+## Modos de fallo y trampas
+- **Fiebre de patrones:** Aplicar patrones en todas partes, incluso cuando el código simple es suficiente.
+- **Patrón equivocado:** Usar Factory cuando Strategy encaja mejor (solución desajustada).
+- **Abuso de Singleton:** Singleton a menudo es un anti-patrón (estado global, difícil de probar).
+- **Patrones cargo-cult:** Usar patrones sin entender por qué (seguir reglas ciegamente).
+- **Ignorar la simplicidad:** Los patrones deberían simplificar, no complicar.
 
-## Observability (How to detect issues)
-- **Metrics:** N/A for patterns themselves.
-- **Logs:** N/A for patterns themselves.
-- **Traces:** N/A for patterns themselves.
-- **Alerts:** N/A for patterns themselves.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** N/A para los patrones en sí.
+- **Logs:** N/A para los patrones en sí.
+- **Trazas:** N/A para los patrones en sí.
+- **Alertas:** N/A para los patrones en sí.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Identify the recurring problem or design challenge.
-  - [ ] Choose a pattern that fits (don't force a pattern).
-  - [ ] Implement the pattern, adapting to your context.
-  - [ ] Validate that the pattern simplifies code (not complicates it).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Identificar el problema recurrente o desafío de diseño.
+  - [ ] Elegir un patrón que encaje (no forzar un patrón).
+  - [ ] Implementar el patrón, adaptándolo a tu contexto.
+  - [ ] Validar que el patrón simplifica el código (no lo complica).
 
-- **Security / Compliance notes**
-  - Patterns don't inherently improve security, but structure can help (e.g., Adapter isolates third-party dependencies).
+- **Notas de seguridad / cumplimiento**
+  - Los patrones no mejoran inherentemente la seguridad, pero la estructura puede ayudar (ej., Adapter aísla dependencias de terceros).
 
-- **Performance notes**
-  - Patterns may introduce slight overhead (indirection, interfaces), but usually negligible.
-  - Don't sacrifice performance for pattern purity without profiling.
+- **Notas de rendimiento**
+  - Los patrones pueden introducir ligera sobrecarga (indirección, interfaces), pero generalmente insignificante.
+  - No sacrificar rendimiento por pureza del patrón sin perfilar.
 
-- **Operational notes**
-  - Patterns make code easier to maintain and extend (when applied correctly).
+- **Notas operacionales**
+  - Los patrones hacen el código más fácil de mantener y extender (cuando se aplican correctamente).
 
-## Common Patterns (Brief Overview)
+## Patrones comunes (Resumen breve)
 
-### Creational Patterns (Object Creation)
-- **Factory:** Create objects without specifying exact class. Use when object creation is complex or varies by context.
-- **Builder:** Construct complex objects step-by-step. Use for objects with many optional parameters.
-- **Singleton:** Ensure only one instance exists. Often an anti-pattern (global state, hard to test); use sparingly.
+### Patrones creacionales (Creación de objetos)
+- **Factory:** Crear objetos sin especificar la clase exacta. Úsalo cuando la creación de objetos es compleja o varía según el contexto.
+- **Builder:** Construir objetos complejos paso a paso. Úsalo para objetos con muchos parámetros opcionales.
+- **Singleton:** Asegurar que solo exista una instancia. A menudo un anti-patrón (estado global, difícil de probar); usar con moderación.
 
-### Structural Patterns (Object Composition)
-- **Adapter:** Wrap incompatible interface to match expected interface. Use when integrating third-party libraries.
-- **Decorator:** Add behavior to objects dynamically without subclassing. Use for flexible feature combinations.
-- **Facade:** Provide simplified interface to complex subsystem. Use to hide complexity from clients.
+### Patrones estructurales (Composición de objetos)
+- **Adapter:** Envolver una interfaz incompatible para que coincida con la interfaz esperada. Úsalo al integrar bibliotecas de terceros.
+- **Decorator:** Agregar comportamiento a objetos dinámicamente sin usar herencia. Úsalo para combinaciones flexibles de funcionalidades.
+- **Facade:** Proporcionar una interfaz simplificada a un subsistema complejo. Úsalo para ocultar complejidad a los clientes.
 
-### Behavioral Patterns (Object Interaction)
-- **Strategy:** Encapsulate algorithms, make them interchangeable. Use for runtime selection of behavior.
-- **Observer:** Notify multiple objects when state changes. Use for event-driven systems.
-- **Command:** Encapsulate requests as objects. Use for undo/redo, queueing, logging.
+### Patrones de comportamiento (Interacción de objetos)
+- **Strategy:** Encapsular algoritmos, hacerlos intercambiables. Úsalo para selección de comportamiento en tiempo de ejecución.
+- **Observer:** Notificar a múltiples objetos cuando cambia el estado. Úsalo para sistemas basados en eventos.
+- **Command:** Encapsular solicitudes como objetos. Úsalo para deshacer/rehacer, encolamiento, registro.
 
-## Mini example (Strategy Pattern in Go)
+## Mini ejemplo (Patrón Strategy en Go)
 ```go
 // Strategy pattern: encapsulate algorithms
 type Notifier interface {
@@ -174,59 +174,59 @@ emailService := &NotificationService{notifier: &EmailNotifier{client: emailClien
 smsService := &NotificationService{notifier: &SMSNotifier{client: smsClient}}
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Using Singleton for everything.
-  - **Why it's bad:** Global state, hard to test, tight coupling.
-  - **Better approach:** Use dependency injection; limit Singleton to truly global resources (logger, config).
+## Anti-patrones comunes
+- **Anti-patrón:** Usar Singleton para todo.
+  - **Por qué es malo:** Estado global, difícil de probar, acoplamiento fuerte.
+  - **Mejor enfoque:** Usar inyección de dependencias; limitar Singleton a recursos verdaderamente globales (logger, configuración).
 
-- **Anti-pattern:** Applying patterns without understanding the problem.
-  - **Why it's bad:** Over-complicates code; patterns should simplify, not obscure.
-  - **Better approach:** Understand the problem first, then choose a pattern (if needed).
+- **Anti-patrón:** Aplicar patrones sin entender el problema.
+  - **Por qué es malo:** Sobre-complica el código; los patrones deberían simplificar, no oscurecer.
+  - **Mejor enfoque:** Entender el problema primero, luego elegir un patrón (si es necesario).
 
-- **Anti-pattern:** God objects disguised as patterns.
-  - **Why it's bad:** A "Manager" or "Handler" class doing everything isn't a pattern; it's a code smell.
-  - **Better approach:** Follow SRP; break into focused classes.
+- **Anti-patrón:** Objetos dios disfrazados de patrones.
+  - **Por qué es malo:** Una clase "Manager" o "Handler" haciendo todo no es un patrón; es un code smell.
+  - **Mejor enfoque:** Seguir SRP; dividir en clases enfocadas.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Design patterns are reusable solutions to common software design problems. They're categorized into creational (how to create objects), structural (how to compose objects), and behavioral (how objects interact). For example, the Strategy pattern lets you swap algorithms at runtime—instead of hardcoding "send email," you define a Notifier interface and create EmailNotifier, SMSNotifier, etc. Patterns provide a shared vocabulary (saying "use a Factory" is faster than explaining object creation logic) and proven solutions. The key is to use patterns when they fit, not force them everywhere—patterns should simplify code, not complicate it.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+Los patrones de diseño son soluciones reutilizables a problemas comunes de diseño de software. Se categorizan en creacionales (cómo crear objetos), estructurales (cómo componer objetos) y de comportamiento (cómo interactúan los objetos). Por ejemplo, el patrón Strategy te permite intercambiar algoritmos en tiempo de ejecución—en lugar de codificar fijo "enviar email", defines una interfaz Notifier y creas EmailNotifier, SMSNotifier, etc. Los patrones proporcionan un vocabulario compartido (decir "usa un Factory" es más rápido que explicar la lógica de creación de objetos) y soluciones probadas. La clave es usar patrones cuando encajen, no forzarlos en todas partes—los patrones deberían simplificar el código, no complicarlo.
 
-### Trap questions (with answers)
-1) **Q:** Should you always use design patterns?
-   - **A:** No. Use patterns when they solve a real problem. For simple, stable code, direct solutions are clearer. Patterns are tools, not mandates. Apply them when complexity justifies the structure.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Siempre deberías usar patrones de diseño?
+   - **R:** No. Usa patrones cuando resuelvan un problema real. Para código simple y estable, las soluciones directas son más claras. Los patrones son herramientas, no mandatos. Aplícalos cuando la complejidad justifique la estructura.
 
-2) **Q:** What's the most important design pattern?
-   - **A:** No single pattern is most important; it depends on the problem. Strategy and Factory are very common for flexibility. Singleton is often overused (anti-pattern). Learn the problem each pattern solves, then apply appropriately.
+2) **P:** ¿Cuál es el patrón de diseño más importante?
+   - **R:** No hay un solo patrón más importante; depende del problema. Strategy y Factory son muy comunes para flexibilidad. Singleton a menudo se usa en exceso (anti-patrón). Aprende el problema que cada patrón resuelve, luego aplica apropiadamente.
 
-3) **Q:** Aren't design patterns just for object-oriented programming?
-   - **A:** GoF patterns are OOP-focused, but the principles apply to other paradigms. Functional programming has its own patterns (composition, higher-order functions, monads). The core idea—reusable solutions to common problems—transcends paradigms.
+3) **P:** ¿Los patrones de diseño no son solo para programación orientada a objetos?
+   - **R:** Los patrones GoF están enfocados en POO, pero los principios aplican a otros paradigmas. La programación funcional tiene sus propios patrones (composición, funciones de orden superior, mónadas). La idea central—soluciones reutilizables a problemas comunes—trasciende paradigmas.
 
-4) **Q:** How do you know which pattern to use?
-   - **A:** Identify the problem first. Need to create objects without coupling? Factory. Need to swap algorithms at runtime? Strategy. Need to notify multiple objects of state changes? Observer. Don't start with a pattern; start with the problem.
+4) **P:** ¿Cómo sabes qué patrón usar?
+   - **R:** Identifica el problema primero. ¿Necesitas crear objetos sin acoplamiento? Factory. ¿Necesitas intercambiar algoritmos en tiempo de ejecución? Strategy. ¿Necesitas notificar a múltiples objetos de cambios de estado? Observer. No empieces con un patrón; empieza con el problema.
 
-5) **Q:** Can patterns hurt code quality?
-   - **A:** Yes, if misapplied. Over-engineering with patterns makes code harder to understand (more indirection, more classes). Use patterns to simplify, not to demonstrate knowledge. If a direct solution is clearer, use it.
+5) **P:** ¿Los patrones pueden perjudicar la calidad del código?
+   - **R:** Sí, si se aplican mal. Sobre-ingenierizar con patrones hace el código más difícil de entender (más indirección, más clases). Usa patrones para simplificar, no para demostrar conocimiento. Si una solución directa es más clara, úsala.
 
-### Quick self-check (5 items)
-- [ ] I can name at least 5 design patterns and categorize them (creational/structural/behavioral).
-- [ ] I can explain when to use Strategy pattern and when it's overkill.
-- [ ] I can describe why Singleton is often an anti-pattern.
-- [ ] I can articulate the trade-off between flexibility (patterns) and simplicity (direct code).
-- [ ] I can give an example of a problem and choose an appropriate pattern.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo nombrar al menos 5 patrones de diseño y categorizarlos (creacional/estructural/comportamiento).
+- [ ] Puedo explicar cuándo usar el patrón Strategy y cuándo es excesivo.
+- [ ] Puedo describir por qué Singleton a menudo es un anti-patrón.
+- [ ] Puedo articular el trade-off entre flexibilidad (patrones) y simplicidad (código directo).
+- [ ] Puedo dar un ejemplo de un problema y elegir un patrón apropiado.
 
-## Links (NO duplication)
-### Prerequisites
-- [SOLID principles](solid-principles.md)
-- [Clean code](clean-code.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Principios SOLID](solid-principles.md)
+- [Código limpio](clean-code.md)
 
-### Related topics
-- [Code quality](code-quality.md)
-- [Refactoring techniques](refactoring-techniques.md)
+### Temas relacionados
+- [Calidad de código](code-quality.md)
+- [Técnicas de refactorización](refactoring-techniques.md)
 
-### Compare with
-- [SOLID principles](solid-principles.md) — SOLID provides design principles; patterns provide concrete solutions.
+### Comparar con
+- [Principios SOLID](solid-principles.md) — SOLID proporciona principios de diseño; los patrones proporcionan soluciones concretas.
 
-## Notes / Inbox
-- Consider creating detailed topics for individual patterns (Strategy, Factory, Observer, etc.).
-- Add examples from real projects: Factory for creating database clients, Strategy for notification routing.
-- Link to "Refactoring to Patterns" concept when created.
+## Notas / Bandeja de entrada (opcional)
+- Considerar crear temas detallados para patrones individuales (Strategy, Factory, Observer, etc.).
+- Agregar ejemplos de proyectos reales: Factory para crear clientes de base de datos, Strategy para enrutamiento de notificaciones.
+- Enlazar al concepto "Refactoring to Patterns" cuando sea creado.

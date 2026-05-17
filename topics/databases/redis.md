@@ -15,112 +15,112 @@ updated_at: 2026-01-19
 # Redis
 
 ## TL;DR (BLUF)
-- In-memory key-value store with rich data structures and optional persistence.
-- Use it for caching, rate limiting, queues, and low-latency lookups.
-- Trade-off: memory cost, durability options, and operational complexity at scale.
+- Almacén clave-valor en memoria con estructuras de datos ricas y persistencia opcional.
+- Úsalo para caché, limitación de tasa, colas y búsquedas de baja latencia.
+- Trade-off: costo de memoria, opciones de durabilidad y complejidad operativa a escala.
 
-## Definition
-**What it is:** An in-memory data store that supports [Redis data types](redis-data-types.md) and optional [Redis persistence (RDB/AOF)](redis-persistence.md).
-**Key terms:** in-memory, [TTL (Time-to-Live)](ttl.md), [Redis persistence (RDB/AOF)](redis-persistence.md), [Redis eviction policies](redis-eviction-policies.md), [Redis replication & Sentinel](redis-replication-sentinel.md), [Redis scaling](redis-scaling.md), [Redis Pub/Sub](redis-pub-sub.md), [Redis Streams](redis-streams.md).
+## Definición
+**Qué es:** Un almacén de datos en memoria que soporta [tipos de datos de Redis](redis-data-types.md) y [persistencia de Redis (RDB/AOF)](redis-persistence.md) opcional.
+**Términos clave:** en memoria, [TTL (Time-to-Live)](ttl.md), [persistencia de Redis (RDB/AOF)](redis-persistence.md), [políticas de desalojo de Redis](redis-eviction-policies.md), [replicación y Sentinel de Redis](redis-replication-sentinel.md), [escalado de Redis](redis-scaling.md), [Redis Pub/Sub](redis-pub-sub.md), [Redis Streams](redis-streams.md).
 
-## Why it matters
-- It enables very low-latency access for hot data and coordination patterns.
-- Misuse can cause data loss or cache stampedes.
+## Por qué importa
+- Habilita acceso de muy baja latencia para datos calientes y patrones de coordinación.
+- El mal uso puede causar pérdida de datos o estampidas de caché.
 
-## Scope & Non-goals
-**In scope:** caching, fast key-value access, counters, rate limiting, lightweight queues.
-**Out of scope / NOT solved by this:** complex relational queries, analytics, or durable primary storage.
+## Alcance y no-objetivos
+**Dentro del alcance:** caché, acceso rápido clave-valor, contadores, limitación de tasa, colas ligeras.
+**Fuera del alcance / NO resuelto por esto:** consultas relacionales complejas, analíticas o almacenamiento primario duradero.
 
-## Mental model / Intuition
-- Think of Redis as a super-fast shared memory with data structures.
+## Modelo mental / Intuición
+- Piensa en Redis como una memoria compartida súper rápida con estructuras de datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need sub-millisecond access to hot data.
-- You need TTL-based caching, counters, rate limiting, or short-lived queues.
-- You can tolerate eventual persistence or accept Redis as a secondary store.
-### Avoid it when
-- You require strong durability as the system of record.
-- Your dataset cannot fit in memory or you cannot accept eviction.
-- You need complex joins or ad-hoc queries.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas acceso sub-milisegundo a datos calientes.
+- Necesitas caché basado en TTL, contadores, limitación de tasa o colas de corta duración.
+- Puedes tolerar persistencia eventual o aceptar Redis como almacén secundario.
+### Evítalo cuando
+- Requieres durabilidad fuerte como sistema de registro.
+- Tu conjunto de datos no cabe en memoria o no puedes aceptar desalojo.
+- Necesitas joins complejos o consultas ad-hoc.
 
-## How I would use it (practical)
-- **Context:** API responses with repeated reads.
-- **Steps:** add cache-aside → set TTLs → prevent stampede → monitor hit rate and evictions.
-- **What success looks like:** high cache hit rate and reduced DB load.
+## Cómo lo usaría (práctico)
+- **Contexto:** Respuestas de API con lecturas repetidas.
+- **Pasos:** agregar cache-aside → configurar TTLs → prevenir estampida → monitorear tasa de aciertos y desalojos.
+- **Cómo se ve el éxito:** alta tasa de aciertos de caché y carga reducida en la BD.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** extremely fast, rich data structures, flexible primitives.
-- **Cons / Risks:** memory cost; persistence trade-offs; clustering complexity.
-### Alternatives
-- **PostgreSQL:** durable relational storage.
-- **DynamoDB:** durable key-value at scale.
-- **How to choose:** use Redis for caching and fast ephemeral data; use durable DBs for source of truth.
+- **Ventajas:** extremadamente rápido, estructuras de datos ricas, primitivas flexibles.
+- **Desventajas / Riesgos:** costo de memoria; trade-offs de persistencia; complejidad de clustering.
+### Alternativas
+- **PostgreSQL:** almacenamiento relacional duradero.
+- **DynamoDB:** clave-valor duradero a escala.
+- **Cómo elegir:** usa Redis para caché y datos efímeros rápidos; usa BDs duraderas para la fuente de verdad.
 
-## Failure modes & Pitfalls
-- Evictions causing sudden cache misses.
-- Thundering herd on cache expiry.
-- Hot keys causing latency spikes.
-- Overuse of large values causing memory pressure.
-- Replication lag leading to stale reads if you read replicas.
+## Modos de fallo y trampas
+- Desalojos causando fallos de caché repentinos.
+- Estampida (thundering herd) al expirar el caché.
+- Claves calientes causando picos de latencia.
+- Sobreuso de valores grandes causando presión de memoria.
+- Retraso de replicación llevando a lecturas obsoletas si lees de réplicas.
 
-## Observability (How to detect issues)
-- **Metrics:** hit ratio, memory usage, fragmentation, eviction count, latency p95, replication lag.
-- **Logs:** slowlog events, persistence errors.
-- **Alerts:** rising evictions, hit ratio drops, or replication lag spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** ratio de aciertos, uso de memoria, fragmentación, conteo de desalojos, latencia p95, retraso de replicación.
+- **Logs:** eventos de slowlog, errores de persistencia.
+- **Alertas:** desalojos en aumento, caída del ratio de aciertos o picos de retraso de replicación.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-   - [ ] Choose eviction policy (e.g., allkeys-lru)
-   - [ ] Set TTLs on cache keys
-   - [ ] Protect against stampede (lock or jittered TTLs)
-   - [ ] Choose persistence mode (RDB vs AOF) if needed
-   - [ ] Monitor memory, evictions, and hit ratio
+   - [ ] Elegir política de desalojo (ej., allkeys-lru)
+   - [ ] Configurar TTLs en claves de caché
+   - [ ] Proteger contra estampida (bloqueo o TTLs con jitter)
+   - [ ] Elegir modo de persistencia (RDB vs AOF) si es necesario
+   - [ ] Monitorear memoria, desalojos y ratio de aciertos
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using Redis as the only system of record.
-  - **Why it’s bad:** data loss on failure or misconfiguration.
-  - **Better approach:** keep a durable database as source of truth.
-- **Anti-pattern:** Using `KEYS *` in production.
-   - **Why it’s bad:** blocks the server and spikes latency.
-   - **Better approach:** use `SCAN` with pagination.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar Redis como el único sistema de registro.
+  - **Por qué es malo:** pérdida de datos en fallo o mala configuración.
+  - **Mejor enfoque:** mantener una base de datos duradero como fuente de verdad.
+- **Anti-patrón:** Usar `KEYS *` en producción.
+   - **Por qué es malo:** bloquea el servidor y dispara la latencia.
+   - **Mejor enfoque:** usar `SCAN` con paginación.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Redis is an in-memory key-value store that’s great for caching and low-latency operations. It’s fast but not a replacement for a durable database.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Redis es un almacén clave-valor en memoria que es genial para caché y operaciones de baja latencia. Es rápido pero no es un reemplazo para una base de datos duradero.
 
-### Trap questions (with answers)
-1) **Q:** Is Redis a durable database by default?
-   - **A:** no; persistence is optional and has trade-offs.
-2) **Q:** Does Redis always improve performance?
-   - **A:** no; poor cache strategy can add complexity without benefits.
-3) **Q:** Can Redis store complex data types?
-   - **A:** yes; it supports lists, sets, hashes, and more.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Redis es una base de datos duradero por defecto?
+   - **R:** no; la persistencia es opcional y tiene trade-offs.
+2) **P:** ¿Redis siempre mejora el rendimiento?
+   - **R:** no; una mala estrategia de caché puede agregar complejidad sin beneficios.
+3) **P:** ¿Redis puede almacenar tipos de datos complejos?
+   - **R:** sí; soporta lists, sets, hashes y más.
 
-### Quick self-check (5 items)
-- [ ] I can define Redis precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a caching example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir Redis con precisión.
+- [ ] Puedo decir cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo de caché.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Caching fundamentals](../system-design/caching-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de caché](../system-design/caching-fundamentals.md)
 
-### Related topics
+### Temas relacionados
 - [PostgreSQL](postgresql.md)
-- [Redis eviction policies](redis-eviction-policies.md)
-- [Redis data types](redis-data-types.md)
+- [Políticas de desalojo de Redis](redis-eviction-policies.md)
+- [Tipos de datos de Redis](redis-data-types.md)
 - [Redis Pub/Sub](redis-pub-sub.md)
-- [Redis scaling (scale up and out)](redis-scaling.md)
+- [Escalado de Redis (vertical y horizontal)](redis-scaling.md)
 - [Redis Streams](redis-streams.md)
-- [Redis persistence (RDB/AOF)](redis-persistence.md)
-- [Redis replication & Sentinel](redis-replication-sentinel.md)
-### Compare with
-- [DynamoDB](dynamodb.md) — durable key-value vs in-memory cache.
-- [PostgreSQL](postgresql.md) — durable relational storage.
+- [Persistencia de Redis (RDB/AOF)](redis-persistence.md)
+- [Replicación y Sentinel de Redis](redis-replication-sentinel.md)
+### Comparar con
+- [DynamoDB](dynamodb.md) — clave-valor duradero vs caché en memoria.
+- [PostgreSQL](postgresql.md) — almacenamiento relacional duradero.

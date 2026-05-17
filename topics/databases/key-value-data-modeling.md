@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Key-Value Data Modeling
+# Modelado de Datos Clave-Valor
 
 ## TL;DR (BLUF)
-- Key-value modeling designs data around key-based access.
-- Use it when queries are simple and predictable.
-- Trade-off: limited flexibility for new query patterns.
+- El modelado clave-valor diseña datos alrededor del acceso basado en claves.
+- Úsalo cuando las consultas sean simples y predecibles.
+- Trade-off: flexibilidad limitada para nuevos patrones de consulta.
 
-## Definition
-**What it is:** Structuring data so lookups are done by primary keys with optional range keys.
-**Key terms:** partition key, sort key, access pattern.
+## Definición
+**Qué es:** Estructurar datos para que las búsquedas se hagan por claves primarias con claves de rango opcionales.
+**Términos clave:** clave de partición, clave de ordenamiento, patrón de acceso.
 
-## Why it matters
-- It’s the foundation for DynamoDB and other NoSQL systems.
-- Poor key design leads to hot partitions and redesigns.
+## Por qué importa
+- Es la base de DynamoDB y otros sistemas NoSQL.
+- Un mal diseño de claves lleva a particiones calientes y rediseños.
 
-## Scope & Non-goals
-**In scope:** key-centric modeling for KV-style queries.
-**Out of scope / NOT solved by this:** broader NoSQL modeling trade-offs across document/column stores.
+## Alcance y no-objetivos
+**Dentro del alcance:** modelado centrado en claves para consultas estilo KV.
+**Fuera del alcance / NO resuelto por esto:** trade-offs más amplios de modelado NoSQL entre stores de documentos/columnas.
 
-## Mental model / Intuition
-- Design around “get by key” and “get range by key.”
+## Modelo mental / Intuición
+- Diseña alrededor de "obtener por clave" y "obtener rango por clave".
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Access patterns are fixed and key-based.
-### Avoid it when
-- You need flexible filtering across many attributes.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los patrones de acceso sean fijos y basados en claves.
+### Evítalo cuando
+- Necesites filtrado flexible a través de muchos atributos.
 
-## How I would use it (practical)
-- **Context:** Event log by user ID.
-- **Steps:** choose PK for user → SK for time → design secondary indexes if needed.
-- **What success looks like:** predictable latency with balanced partitions.
+## Cómo lo usaría (práctico)
+- **Contexto:** Log de eventos por ID de usuario.
+- **Pasos:** elegir PK por usuario → SK por tiempo → diseñar índices secundarios si es necesario.
+- **Cómo se ve el éxito:** latencia predecible con particiones balanceadas.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** predictable and scalable.
-- **Cons / Risks:** rigid query patterns.
-### Alternatives
-- **SQL databases:** flexible querying.
-- **How to choose:** key-value modeling for scale and predictability.
+- **Pros:** predecible y escalable.
+- **Contras / Riesgos:** patrones de consulta rígidos.
+### Alternativas
+- **Bases de datos SQL:** consultas flexibles.
+- **Cómo elegir:** modelado clave-valor para escala y predecibilidad.
 
-## Failure modes & Pitfalls
-- Monotonic keys causing skew.
+## Modos de fallo y errores comunes
+- Claves monótonas causando sesgo.
 
-## Observability (How to detect issues)
-- **Metrics:** throttling, latency p95.
-- **Logs:** hot key patterns.
-- **Alerts:** repeated throttles.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** throttling, latencia p95.
+- **Logs:** patrones de claves calientes.
+- **Alertas:** throttling repetido.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Validate access patterns
-  - [ ] Distribute key space
+  - [ ] Validar patrones de acceso
+  - [ ] Distribuir el espacio de claves
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Designing entities before access patterns.
-  - **Why it’s bad:** expensive redesigns.
-  - **Better approach:** model by queries.
+## Anti-patrones comunes
+- **Anti-patrón:** Diseñar entidades antes que patrones de acceso.
+  - **Por qué es malo:** rediseños costosos.
+  - **Mejor enfoque:** modelar por consultas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Key-value modeling starts from the access pattern. You pick keys that support your queries and distribute load; if queries change, the model must change.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El modelado clave-valor comienza desde el patrón de acceso. Eliges claves que soporten tus consultas y distribuyan la carga; si las consultas cambian, el modelo debe cambiar.
 
-### Trap questions (with answers)
-1) **Q:** Can you add new queries without changing the model?
-   - **A:** not always; you may need new indexes or tables.
-2) **Q:** Are key-value stores always simpler than SQL?
-   - **A:** not necessarily; modeling can be complex.
-3) **Q:** Do keys only matter for writes?
-   - **A:** no; they define reads and scalability.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Puedes agregar nuevas consultas sin cambiar el modelo?
+   - **R:** No siempre; puedes necesitar nuevos índices o tablas.
+2) **P:** ¿Los stores clave-valor siempre son más simples que SQL?
+   - **R:** No necesariamente; el modelado puede ser complejo.
+3) **P:** ¿Las claves solo importan para escrituras?
+   - **R:** No; definen las lecturas y la escalabilidad.
 
-### Quick self-check (5 items)
-- [ ] I can define key-value modeling.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a failure mode.
-- [ ] I can explain access patterns.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el modelado clave-valor.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un modo de fallo.
+- [ ] Puedo explicar los patrones de acceso.
 
-## Links (NO duplication)
-### Prerequisites
-- [NoSQL access patterns](nosql-access-patterns.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Patrones de acceso NoSQL](nosql-access-patterns.md)
 
-### Related topics
-- [DynamoDB keys (PK/SK)](dynamodb-keys.md)
-- [NoSQL access patterns](nosql-access-patterns.md)
+### Temas relacionados
+- [Claves DynamoDB (PK/SK)](dynamodb-keys.md)
+- [Patrones de acceso NoSQL](nosql-access-patterns.md)
 
-### Compare with
-- [SQL foundations](sql-foundations.md) — declarative queries vs key-based access.
+### Comparar con
+- [Fundamentos de SQL](sql-foundations.md) — consultas declarativas vs acceso basado en claves.

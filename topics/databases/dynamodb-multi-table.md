@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# DynamoDB Multi-Table Design
+# Diseño Multi-Tabla en DynamoDB
 
 ## TL;DR (BLUF)
-- Multi-table design models each entity or access pattern in its own table.
-- Use it when access patterns are simple or teams need isolation.
-- Trade-off: more tables and operational overhead.
+- El diseño multi-tabla modela cada entidad o patrón de acceso en su propia tabla.
+- Úsalo cuando los patrones de acceso sean simples o los equipos necesiten aislamiento.
+- Trade-off: más tablas y sobrecarga operacional.
 
-## Definition
-**What it is:** A DynamoDB modeling approach that uses multiple tables for different entities or access patterns.
-**Key terms:** table-per-entity, access pattern, isolation.
+## Definición
+**Qué es:** Un enfoque de modelado en DynamoDB que usa múltiples tablas para diferentes entidades o patrones de acceso.
+**Términos clave:** tabla-por-entidad, patrón de acceso, aislamiento.
 
-## Why it matters
-- It’s simpler to reason about but can limit cross-entity queries.
-- It can reduce complexity compared to single-table design.
+## Por qué importa
+- Es más simple de razonar pero puede limitar consultas entre entidades.
+- Puede reducir la complejidad comparado con el diseño de tabla única.
 
-## Scope & Non-goals
-**In scope:** when to split into multiple tables.
-**Out of scope / NOT solved by this:** ad-hoc queries across entities.
+## Alcance y no-objetivos
+**Dentro del alcance:** cuándo dividir en múltiples tablas.
+**Fuera del alcance / NO resuelto por esto:** consultas ad-hoc entre entidades.
 
-## Mental model / Intuition
-- Think “one table per domain concept.”
+## Modelo mental / Intuición
+- Piensa "una tabla por concepto de dominio".
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Access patterns are straightforward and do not need cross-entity joins.
-- You want team or domain isolation.
-### Avoid it when
-- You need multiple access patterns across entities in one table.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los patrones de acceso sean directos y no necesiten joins entre entidades.
+- Quieras aislamiento por equipo o dominio.
+### Evítalo cuando
+- Necesites múltiples patrones de acceso entre entidades en una tabla.
 
-## How I would use it (practical)
-- **Context:** Separate tables for users and orders.
-- **Steps:** define access patterns per table → design keys → keep GSIs minimal.
-- **What success looks like:** simple queries with low operational overhead.
+## Cómo lo usaría (práctico)
+- **Contexto:** Tablas separadas para usuarios y pedidos.
+- **Pasos:** definir patrones de acceso por tabla → diseñar claves → mantener GSIs al mínimo.
+- **Cómo se ve el éxito:** consultas simples con baja sobrecarga operacional.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** simpler design and debugging.
-- **Cons / Risks:** more tables, less flexibility.
-### Alternatives
-- **Single-table design:** more powerful but complex.
-- **How to choose:** use multi-table when simplicity and isolation are priorities.
+- **Pros:** diseño y depuración más simples.
+- **Contras / Riesgos:** más tablas, menos flexibilidad.
+### Alternativas
+- **Diseño de tabla única:** más potente pero complejo.
+- **Cómo elegir:** usa multi-tabla cuando la simplicidad y el aislamiento sean prioridades.
 
-## Failure modes & Pitfalls
-- Duplicated data across tables for access patterns.
+## Modos de fallo y errores comunes
+- Datos duplicados entre tablas para patrones de acceso.
 
-## Observability (How to detect issues)
-- **Metrics:** per-table throttles, latency.
-- **Logs:** access pattern misses.
-- **Alerts:** per-table throttling spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** throttling por tabla, latencia.
+- **Logs:** fallos de patrones de acceso.
+- **Alertas:** picos de throttling por tabla.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define access patterns per table
-  - [ ] Keep GSIs minimal
+  - [ ] Definir patrones de acceso por tabla
+  - [ ] Mantener GSIs al mínimo
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Creating many tables for minor variations.
-  - **Why it’s bad:** operational sprawl.
-  - **Better approach:** consolidate where access patterns overlap.
+## Anti-patrones comunes
+- **Anti-patrón:** Crear muchas tablas para variaciones menores.
+  - **Por qué es malo:** dispersión operacional.
+  - **Mejor enfoque:** consolidar donde los patrones de acceso se solapen.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Multi-table design in DynamoDB keeps each entity in its own table, which is simpler but less flexible. Single-table is more powerful but complex.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El diseño multi-tabla en DynamoDB mantiene cada entidad en su propia tabla, lo cual es más simple pero menos flexible. El diseño de tabla única es más potente pero complejo.
 
-### Trap questions (with answers)
-1) **Q:** Is multi-table always simpler?
-   - **A:** often, but it can still be complex if access patterns overlap.
-2) **Q:** Does multi-table eliminate data duplication?
-   - **A:** no; you may still duplicate for access patterns.
-3) **Q:** Is single-table required for scale?
-   - **A:** no; multi-table can scale too.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Multi-tabla siempre es más simple?
+   - **R:** A menudo sí, pero aún puede ser complejo si los patrones de acceso se solapan.
+2) **P:** ¿Multi-tabla elimina la duplicación de datos?
+   - **R:** No; aún puedes duplicar para patrones de acceso.
+3) **P:** ¿Se requiere tabla única para escalar?
+   - **R:** No; multi-tabla también puede escalar.
 
-### Quick self-check (5 items)
-- [ ] I can define multi-table design.
-- [ ] I can compare it with single-table.
-- [ ] I can name a trade-off.
-- [ ] I can describe a use case.
-- [ ] I can identify a pitfall.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el diseño multi-tabla.
+- [ ] Puedo compararlo con tabla única.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un caso de uso.
+- [ ] Puedo identificar un error común.
 
-## Links (NO duplication)
-### Prerequisites
-- [NoSQL access patterns](nosql-access-patterns.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Patrones de acceso NoSQL](nosql-access-patterns.md)
 
-### Related topics
-- [DynamoDB single-table design](dynamodb-single-table.md)
+### Temas relacionados
+- [Diseño de tabla única en DynamoDB](dynamodb-single-table.md)
 
-### Compare with
-- [DynamoDB single-table design](dynamodb-single-table.md) — flexibility vs simplicity.
+### Comparar con
+- [Diseño de tabla única en DynamoDB](dynamodb-single-table.md) — flexibilidad vs simplicidad.

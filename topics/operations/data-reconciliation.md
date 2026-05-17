@@ -12,56 +12,56 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Data Reconciliation
+# Reconciliación de Datos
 
 ## TL;DR (BLUF)
-- A process that detects and corrects data inconsistencies between systems by comparing states and resolving differences.
-- Use it when eventual consistency is acceptable but divergence must be bounded and corrected.
-- Trade-off: operational complexity and latency in detecting/fixing inconsistencies.
+- Un proceso que detecta y corrige inconsistencias de datos entre sistemas comparando estados y resolviendo diferencias.
+- Úsalo cuando la consistencia eventual sea aceptable pero la divergencia deba estar acotada y corregida.
+- Trade-off: complejidad operacional y latencia en detectar/corregir inconsistencias.
 
-## Definition
-**What it is:** A pattern where systems periodically or on-demand compare their data state with authoritative sources (or each other) to detect and correct inconsistencies that arise from failed writes, lost events, network partitions, or bugs.
+## Definición
+**Qué es:** Un patrón donde los sistemas periódicamente o bajo demanda comparan su estado de datos con fuentes autoritativas (o entre sí) para detectar y corregir inconsistencias que surgen de escrituras fallidas, eventos perdidos, particiones de red o bugs.
 
-**Key terms:** state comparison, drift detection, source of truth, compensating action, periodic reconciliation, on-demand reconciliation, data consistency, convergence.
+**Términos clave:** comparación de estado, detección de desvío, fuente de verdad, acción compensatoria, reconciliación periódica, reconciliación bajo demanda, consistencia de datos, convergencia.
 
-## Why it matters
-- Provides safety net for eventual consistency systems (event-driven, dual-write scenarios).
-- Detects bugs in production (lost events, failed compensations, race conditions).
-- Enables recovery from infrastructure failures (network partitions, service outages).
-- Builds confidence in distributed systems despite lack of strong consistency.
+## Por qué importa
+- Proporciona red de seguridad para sistemas de consistencia eventual (dirigidos por eventos, escenarios de escritura dual).
+- Detecta bugs en producción (eventos perdidos, compensaciones fallidas, condiciones de carrera).
+- Permite la recuperación de fallos de infraestructura (particiones de red, caídas de servicio).
+- Genera confianza en sistemas distribuidos a pesar de la falta de consistencia fuerte.
 
-## Scope & Non-goals
-**In scope:** detecting inconsistencies, resolving conflicts, periodic checks, manual vs automated reconciliation.
+## Alcance y no-objetivos
+**Dentro del alcance:** detectar inconsistencias, resolver conflictos, verificaciones periódicas, reconciliación manual vs automatizada.
 
-**Out of scope / NOT solved by this:**
-- Preventing inconsistencies (use [Outbox](../architecture/outbox-pattern.md), [Saga](../architecture/saga-pattern.md))
-- Strong consistency (use ACID transactions within service)
-- Real-time conflict resolution (reconciliation accepts lag)
+**Fuera del alcance / NO resuelto por esto:**
+- Prevenir inconsistencias (usar [Outbox](../architecture/outbox-pattern.md), [Saga](../architecture/saga-pattern.md))
+- Consistencia fuerte (usar transacciones ACID dentro del servicio)
+- Resolución de conflictos en tiempo real (la reconciliación acepta lag)
 
-## Mental model / Intuition
-- Like balancing your bank account: periodically compare your records vs bank statement, identify differences, investigate and correct.
-- In distributed systems: compare order-service DB vs payment-service DB; if order exists but payment missing → investigate and fix.
+## Modelo mental / Intuición
+- Como balancear tu cuenta bancaria: periódicamente comparar tus registros vs el extracto del banco, identificar diferencias, investigar y corregir.
+- En sistemas distribuidos: comparar BD de order-service vs BD de payment-service; si existe la orden pero falta el pago → investigar y corregir.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have eventual consistency between systems (event-driven, dual-write, cache sync).
-- Inconsistencies are rare but must be detected and fixed (not ignored).
-- You can tolerate bounded staleness (minutes to hours).
-- Systems can agree on "source of truth" or conflict resolution rules.
-- Manual intervention for edge cases is acceptable.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tengas consistencia eventual entre sistemas (dirigido por eventos, escritura dual, sincronización de caché).
+- Las inconsistencias sean raras pero deban detectarse y corregirse (no ignorarse).
+- Puedas tolerar obsolescencia acotada (minutos a horas).
+- Los sistemas puedan acordar una "fuente de verdad" o reglas de resolución de conflictos.
+- La intervención manual para casos límite sea aceptable.
 
-### Avoid it when
-- You need real-time consistency (use synchronous calls or distributed transactions).
-- Reconciliation cost exceeds inconsistency cost (e.g., analytics where 99.9% accuracy is fine).
-- You can't define source of truth or conflict resolution rules.
-- Systems change too frequently (reconciliation always playing catch-up).
+### Evítalo cuando
+- Necesites consistencia en tiempo real (usar llamadas síncronas o transacciones distribuidas).
+- El costo de reconciliación exceda el costo de inconsistencia (ej., analítica donde 99.9% de precisión está bien).
+- No puedas definir fuente de verdad o reglas de resolución de conflictos.
+- Los sistemas cambien demasiado frecuentemente (la reconciliación siempre va detrás).
 
-## How I would use it (practical)
-- **Context:** E-commerce with order-service and payment-service. Events sync them, but occasionally events are lost.
-- **Steps:**
-  1) **Define source of truth:** payment-service is authoritative for payment status.
-  2) **Schedule periodic reconciliation:** every 1 hour, compare last 24 hours of orders.
-  3) **Detection logic:**
+## Cómo lo usaría (práctico)
+- **Contexto:** E-commerce con order-service y payment-service. Los eventos los sincronizan, pero ocasionalmente se pierden eventos.
+- **Pasos:**
+  1) **Definir fuente de verdad:** payment-service es autoritativo para el estado de pago.
+  2) **Programar reconciliación periódica:** cada 1 hora, comparar las últimas 24 horas de órdenes.
+  3) **Lógica de detección:**
      ```sql
      SELECT o.order_id, o.payment_status, p.status
      FROM orders o
@@ -69,147 +69,147 @@ updated_at: 2026-01-26
      WHERE o.payment_status != p.status
        OR (o.payment_status = 'PAID' AND p.id IS NULL)
      ```
-  4) **Conflict resolution rules:**
-     - If payment exists but order missing → create order (rare, investigate).
-     - If order PAID but payment missing → mark order PENDING, alert ops (investigate).
-     - If statuses differ → trust payment-service, update order-service.
-  5) **Automated actions:**
-     - Log discrepancies to dashboard.
-     - Auto-fix simple cases (status mismatch).
-     - Create tickets for manual review (missing records).
-  6) **On-demand reconciliation:** Triggered after timeout on payment API call.
+  4) **Reglas de resolución de conflictos:**
+     - Si existe pago pero falta orden → crear orden (raro, investigar).
+     - Si orden PAID pero pago faltante → marcar orden PENDING, alertar a ops (investigar).
+     - Si los estados difieren → confiar en payment-service, actualizar order-service.
+  5) **Acciones automatizadas:**
+     - Registrar discrepancias en dashboard.
+     - Auto-corregir casos simples (desajuste de estado).
+     - Crear tickets para revisión manual (registros faltantes).
+  6) **Reconciliación bajo demanda:** Disparada después de timeout en llamada API de pago.
      ```go
-     // After timeout on payment API
+     // Después de timeout en API de pago
      if err == TimeoutError {
-         // Don't retry; reconcile instead
-         go reconcilePaymentStatus(orderID) // async status check
+         // No reintentar; reconciliar en su lugar
+         go reconcilePaymentStatus(orderID) // verificación asíncrona de estado
      }
      ```
-  7) **Monitor:** reconciliation lag, discrepancy rate, auto-fix vs manual rate.
+  7) **Monitorear:** lag de reconciliación, tasa de discrepancias, ratio auto-corrección vs manual.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Lag between inconsistency and detection | Run reconciliation more frequently; add on-demand triggers |
-| Reconciliation job load on DBs | Run during off-peak; use read replicas; paginate queries |
-| Conflict resolution ambiguity | Define clear rules; escalate ambiguous cases to manual review |
-| False positives (transient inconsistencies) | Add grace period (e.g., ignore if < 5 min old) |
-| Operational overhead (monitoring, alerts) | Automate simple fixes; build dashboards; set SLOs for reconciliation lag |
+| Lag entre inconsistencia y detección | Ejecutar reconciliación más frecuentemente; agregar disparadores bajo demanda |
+| Carga del job de reconciliación en BDs | Ejecutar en horas valle; usar réplicas de lectura; paginar consultas |
+| Ambigüedad en resolución de conflictos | Definir reglas claras; escalar casos ambiguos a revisión manual |
+| Falsos positivos (inconsistencias transitorias) | Agregar período de gracia (ej., ignorar si < 5 min de antigüedad) |
+| Sobrecarga operacional (monitoreo, alertas) | Automatizar correcciones simples; construir dashboards; establecer SLOs para lag de reconciliación |
 
-## Failure modes / Edge cases
-1. **Reconciliation job fails:** Inconsistencies accumulate undetected.
-   - *Mitigation:* Monitor job health; alert on failures; retry with backoff.
-2. **Both systems wrong:** No clear source of truth.
-   - *Mitigation:* Use event log as source of truth; replay events.
-3. **Infinite reconciliation loop:** Auto-fix triggers opposite auto-fix.
-   - *Mitigation:* Add idempotency; version data; prevent ping-pong with conflict flag.
-4. **Reconciliation creates new inconsistency:** Fix introduces bug.
-   - *Mitigation:* Test reconciliation logic thoroughly; dry-run mode; manual approval for large batches.
-5. **High cardinality data:** Millions of records, slow reconciliation.
-   - *Mitigation:* Incremental reconciliation (last N hours); use checksums/hashes for bulk comparison.
+## Modos de fallo / Casos límite
+1. **El job de reconciliación falla:** Las inconsistencias se acumulan sin detectar.
+   - *Mitigación:* Monitorear salud del job; alertar en fallos; reintentar con backoff.
+2. **Ambos sistemas incorrectos:** Sin fuente de verdad clara.
+   - *Mitigación:* Usar log de eventos como fuente de verdad; reproducir eventos.
+3. **Bucle infinito de reconciliación:** Auto-corrección dispara auto-corrección opuesta.
+   - *Mitigación:* Agregar idempotencia; versionar datos; prevenir ping-pong con flag de conflicto.
+4. **La reconciliación crea nueva inconsistencia:** La corrección introduce bug.
+   - *Mitigación:* Probar lógica de reconciliación exhaustivamente; modo dry-run; aprobación manual para lotes grandes.
+5. **Datos de alta cardinalidad:** Millones de registros, reconciliación lenta.
+   - *Mitigación:* Reconciliación incremental (últimas N horas); usar checksums/hashes para comparación masiva.
 
-## Patterns
-### 1. Periodic Reconciliation (Batch)
-- Scheduled job (cron, Airflow) compares full dataset or time window.
-- **Pros:** Simple, comprehensive.
-- **Cons:** High latency (hours), resource-intensive.
-- **Use:** Nightly reconciliation of orders, inventory, billing.
+## Patrones
+### 1. Reconciliación Periódica (Batch)
+- Job programado (cron, Airflow) compara dataset completo o ventana temporal.
+- **Pros:** Simple, exhaustivo.
+- **Contras:** Alta latencia (horas), intensivo en recursos.
+- **Uso:** Reconciliación nocturna de órdenes, inventario, facturación.
 
-### 2. On-Demand Reconciliation (Reactive)
-- Triggered by specific events (timeout, user complaint, suspicious pattern).
-- **Pros:** Fast for critical cases.
-- **Cons:** Doesn't catch unknown issues.
-- **Use:** After payment timeout, check payment status before retrying.
+### 2. Reconciliación Bajo Demanda (Reactiva)
+- Disparada por eventos específicos (timeout, queja de usuario, patrón sospechoso).
+- **Pros:** Rápida para casos críticos.
+- **Contras:** No detecta problemas desconocidos.
+- **Uso:** Después de timeout de pago, verificar estado de pago antes de reintentar.
 
-### 3. Continuous Reconciliation (Stream)
-- Real-time comparison using event streams (Kafka, Change Data Capture).
-- **Pros:** Low latency (seconds).
-- **Cons:** Complex, higher resource usage.
-- **Use:** High-value transactions, real-time fraud detection.
+### 3. Reconciliación Continua (Stream)
+- Comparación en tiempo real usando flujos de eventos (Kafka, Change Data Capture).
+- **Pros:** Baja latencia (segundos).
+- **Contras:** Complejo, mayor uso de recursos.
+- **Uso:** Transacciones de alto valor, detección de fraude en tiempo real.
 
-### 4. Checksum-based Reconciliation
-- Compare aggregate checksums (hash of dataset) instead of row-by-row.
-- **Pros:** Fast for large datasets.
-- **Cons:** Doesn't identify specific inconsistencies.
-- **Use:** Detect drift; drill down only if checksums differ.
+### 4. Reconciliación basada en Checksum
+- Comparar checksums agregados (hash del dataset) en vez de fila por fila.
+- **Pros:** Rápido para datasets grandes.
+- **Contras:** No identifica inconsistencias específicas.
+- **Uso:** Detectar desvío; profundizar solo si los checksums difieren.
 
-## Conflict Resolution Strategies
-1. **Source of truth wins:** One system is authoritative (simplest).
-2. **Last write wins (LWW):** Use timestamp; newest update wins (Cassandra, DynamoDB).
-3. **Manual resolution:** Escalate to ops/support for human decision.
-4. **Merge / union:** Combine both versions if not conflicting (CRDTs).
-5. **Compensating action:** Trigger saga compensation (e.g., refund + cancel order).
+## Estrategias de Resolución de Conflictos
+1. **Gana la fuente de verdad:** Un sistema es autoritativo (más simple).
+2. **Gana la última escritura (LWW):** Usar timestamp; la actualización más nueva gana (Cassandra, DynamoDB).
+3. **Resolución manual:** Escalar a ops/soporte para decisión humana.
+4. **Merge / unión:** Combinar ambas versiones si no conflictúan (CRDTs).
+5. **Acción compensatoria:** Disparar compensación de saga (ej., reembolso + cancelar orden).
 
-## Combinations
-Data Reconciliation is **almost always used with:**
-- **[Idempotency](idempotency.md):** Reconciliation actions must be safe to retry.
-- **[Outbox pattern](../architecture/outbox-pattern.md):** Reduces need for reconciliation (reliable events).
-- **[Saga](../architecture/saga-pattern.md):** Reconcile failed compensations.
-- **[Observability](observability-basics.md):** Monitor drift, reconciliation lag, fix rate.
-- **[Change Data Capture](../databases/change-data-capture.md):** Stream changes for continuous reconciliation.
+## Combinaciones
+La Reconciliación de Datos **casi siempre se usa con:**
+- **[Idempotencia](idempotency.md):** Las acciones de reconciliación deben ser seguras de reintentar.
+- **[Patrón Outbox](../architecture/outbox-pattern.md):** Reduce la necesidad de reconciliación (eventos fiables).
+- **[Saga](../architecture/saga-pattern.md):** Reconciliar compensaciones fallidas.
+- **[Observabilidad](observability-basics.md):** Monitorear desvío, lag de reconciliación, tasa de corrección.
+- **[Change Data Capture](../databases/change-data-capture.md):** Transmitir cambios para reconciliación continua.
 
-**Typical combination:**
-- **Event-driven system:** Outbox (reduce drift) + Idempotency (safe fixes) + Reconciliation (safety net) + Observability
+**Combinación típica:**
+- **Sistema dirigido por eventos:** Outbox (reducir desvío) + Idempotencia (correcciones seguras) + Reconciliación (red de seguridad) + Observabilidad
 
-## Prerequisites
-- Understanding of [Eventual consistency](../databases/consistency-models.md).
-- Familiarity with [Event-driven architecture](../architecture/event-driven-basics.md).
-- Knowledge of [Dual-write pattern](../architecture/dual-write-pattern.md) and its problems.
+## Prerrequisitos
+- Comprensión de [consistencia eventual](../databases/consistency-models.md).
+- Familiaridad con [arquitectura dirigida por eventos](../architecture/event-driven-basics.md).
+- Conocimiento del [patrón de escritura dual](../architecture/dual-write-pattern.md) y sus problemas.
 
-## Related topics
-- [Outbox pattern](../architecture/outbox-pattern.md): Prevents inconsistencies proactively.
-- [Saga pattern](../architecture/saga-pattern.md): Reconcile failed compensations.
-- [Dual-write pattern](../architecture/dual-write-pattern.md): Common source of drift.
-- [Idempotency](idempotency.md): Required for safe reconciliation.
-- [Change Data Capture](../databases/change-data-capture.md): Stream-based reconciliation.
-- [Observability](observability-basics.md): Detect drift early.
+## Temas relacionados
+- [Patrón Outbox](../architecture/outbox-pattern.md): Previene inconsistencias proactivamente.
+- [Patrón Saga](../architecture/saga-pattern.md): Reconciliar compensaciones fallidas.
+- [Patrón de escritura dual](../architecture/dual-write-pattern.md): Fuente común de desvío.
+- [Idempotencia](idempotency.md): Requerida para reconciliación segura.
+- [Change Data Capture](../databases/change-data-capture.md): Reconciliación basada en streams.
+- [Observabilidad](observability-basics.md): Detectar desvío tempranamente.
 
-## Real-world examples
-1. **Stripe:** Reconciles payment events with bank settlement files daily.
-2. **Amazon:** Reconciles order status across warehouses, inventory, and shipping.
-3. **Banking:** ATM transactions reconciled nightly with core banking system.
-4. **Netflix:** Reconciles user viewing history across regional data centers.
+## Ejemplos del mundo real
+1. **Stripe:** Reconcilia eventos de pago con archivos de liquidación bancaria diariamente.
+2. **Amazon:** Reconcilia estado de órdenes entre almacenes, inventario y envío.
+3. **Banca:** Transacciones de ATM reconciliadas nocturnamente con sistema bancario central.
+4. **Netflix:** Reconcilia historial de visualización de usuarios entre centros de datos regionales.
 
-## Checklist (self-test)
-- [ ] I can identify when reconciliation is needed vs when prevention is better.
-- [ ] I know how to define source of truth and conflict resolution rules.
-- [ ] I can design periodic vs on-demand vs continuous reconciliation.
-- [ ] I understand the trade-off between reconciliation frequency and cost.
-- [ ] I can monitor reconciliation health (lag, discrepancy rate, fix rate).
+## Checklist (auto-evaluación)
+- [ ] Puedo identificar cuándo se necesita reconciliación vs cuándo es mejor la prevención.
+- [ ] Sé cómo definir fuente de verdad y reglas de resolución de conflictos.
+- [ ] Puedo diseñar reconciliación periódica vs bajo demanda vs continua.
+- [ ] Entiendo el trade-off entre frecuencia de reconciliación y costo.
+- [ ] Puedo monitorear la salud de la reconciliación (lag, tasa de discrepancias, tasa de corrección).
 
-## Reminders / Key takeaways
-- Reconciliation is a **safety net**, not a primary strategy (prevent inconsistencies first).
-- Always define **source of truth** and **conflict resolution rules** upfront.
-- Use **[Idempotency](idempotency.md)** for reconciliation actions (safe to retry).
-- Monitor **drift rate** and **reconciliation lag** (SLOs).
-- Combine with **[Outbox](../architecture/outbox-pattern.md)** to minimize need for reconciliation.
+## Recordatorios / Puntos clave
+- La reconciliación es una **red de seguridad**, no una estrategia primaria (prevenir inconsistencias primero).
+- Siempre definir **fuente de verdad** y **reglas de resolución de conflictos** por adelantado.
+- Usar **[Idempotencia](idempotency.md)** para acciones de reconciliación (seguras de reintentar).
+- Monitorear **tasa de desvío** y **lag de reconciliación** (SLOs).
+- Combinar con **[Outbox](../architecture/outbox-pattern.md)** para minimizar la necesidad de reconciliación.
 
-## Trap questions (with answers)
-### Q1: Should I use reconciliation instead of fixing the dual-write problem?
-**A:** **No**. Reconciliation is a **safety net**, not a fix. First, eliminate dual-write using [Outbox pattern](../architecture/outbox-pattern.md) or [Change Data Capture](../databases/change-data-capture.md). Then add reconciliation to catch edge cases (bugs, infrastructure failures). Relying solely on reconciliation means accepting frequent inconsistencies.
+## Preguntas trampa (con respuestas)
+### P1: ¿Debo usar reconciliación en vez de arreglar el problema de escritura dual?
+**R:** **No**. La reconciliación es una **red de seguridad**, no una solución. Primero, eliminar la escritura dual usando [patrón Outbox](../architecture/outbox-pattern.md) o [Change Data Capture](../databases/change-data-capture.md). Luego agregar reconciliación para detectar casos límite (bugs, fallos de infraestructura). Depender solo de la reconciliación significa aceptar inconsistencias frecuentes.
 
-### Q2: How often should I run reconciliation?
-**A:** **Depends on tolerance for drift**. Guidelines:
-- **Critical data (payments, orders):** Every 5-15 minutes OR on-demand after timeouts.
-- **Important data (inventory, user profiles):** Hourly.
-- **Analytics, caches:** Daily or weekly.
-Balance: frequency vs DB load. Monitor **drift rate**—if high, fix root cause, don't just reconcile faster.
+### P2: ¿Con qué frecuencia debo ejecutar la reconciliación?
+**R:** **Depende de la tolerancia al desvío**. Directrices:
+- **Datos críticos (pagos, órdenes):** Cada 5-15 minutos O bajo demanda después de timeouts.
+- **Datos importantes (inventario, perfiles de usuario):** Cada hora.
+- **Analítica, cachés:** Diario o semanal.
+Balance: frecuencia vs carga en BD. Monitorear **tasa de desvío** — si es alta, arreglar la causa raíz, no solo reconciliar más rápido.
 
-### Q3: What if reconciliation finds conflicting data in both systems?
-**A:** **Define conflict resolution rules**:
-1. **Source of truth:** One system is authoritative (simplest).
-2. **Last write wins:** Use timestamps (beware clock skew).
-3. **Manual review:** Escalate to ops (for complex cases).
-4. **Event log:** Replay events to reconstruct correct state.
-If no rule applies, log for manual investigation. Never silently pick one—this hides bugs.
+### P3: ¿Qué pasa si la reconciliación encuentra datos conflictivos en ambos sistemas?
+**R:** **Definir reglas de resolución de conflictos**:
+1. **Fuente de verdad:** Un sistema es autoritativo (más simple).
+2. **Gana la última escritura:** Usar timestamps (cuidado con el desfase de reloj).
+3. **Revisión manual:** Escalar a ops (para casos complejos).
+4. **Log de eventos:** Reproducir eventos para reconstruir el estado correcto.
+Si ninguna regla aplica, registrar para investigación manual. Nunca elegir silenciosamente uno — eso oculta bugs.
 
-### Q4: Can reconciliation replace idempotency?
-**A:** **No, they're complementary**. **[Idempotency](idempotency.md)** ensures **duplicate requests don't cause side effects**. **Reconciliation** **detects and fixes inconsistencies** that already occurred. You need both: idempotency prevents duplicates during reconciliation; reconciliation catches cases where idempotency failed (e.g., TTL expired).
+### P4: ¿La reconciliación puede reemplazar la idempotencia?
+**R:** **No, son complementarios**. La **[Idempotencia](idempotency.md)** asegura que **las peticiones duplicadas no causen efectos secundarios**. La **reconciliación** **detecta y corrige inconsistencias** que ya ocurrieron. Necesitas ambas: la idempotencia previene duplicados durante la reconciliación; la reconciliación detecta casos donde la idempotencia falló (ej., TTL expirado).
 
-### Q5: After a timeout on a payment API call, should I retry or reconcile?
-**A:** **Reconcile first, then decide**. Timeout means you don't know if payment succeeded. Options:
-1. **Check status** (GET /payments/{id}) using [Idempotency](idempotency.md) key.
-2. If "Processing" → wait/poll (don't retry POST).
-3. If "Success" → mark order paid (no retry).
-4. If "Failed" → safe to retry POST.
-Never blindly retry POST after timeout—risks double charge. See [Timeouts](timeouts.md) and [Third-party integration](../operations/third-party-integration-resilience.md).
+### P5: Después de un timeout en una llamada API de pago, ¿debo reintentar o reconciliar?
+**R:** **Reconciliar primero, luego decidir**. El timeout significa que no sabes si el pago tuvo éxito. Opciones:
+1. **Verificar estado** (GET /payments/{id}) usando clave de [Idempotencia](idempotency.md).
+2. Si "Procesando" → esperar/consultar (no reintentar POST).
+3. Si "Exitoso" → marcar orden pagada (sin reintento).
+4. Si "Fallido" → seguro reintentar POST.
+Nunca reintentar ciegamente POST después de timeout — riesgo de doble cargo. Ver [Timeouts](timeouts.md) y [Resiliencia de integración con terceros](../operations/third-party-integration-resilience.md).

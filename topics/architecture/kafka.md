@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Kafka (Core Concepts)
+# Kafka (Conceptos Fundamentales)
 
 ## TL;DR (BLUF)
-- Kafka is a distributed log for high-throughput event streaming.
-- Use it for durable event pipelines and decoupled systems.
-- Trade-off: operational complexity and eventual consistency.
+- Kafka es un log distribuido para streaming de eventos de alto rendimiento.
+- Úsalo para pipelines de eventos durables y sistemas desacoplados.
+- Trade-off: complejidad operacional y consistencia eventual.
 
-## Definition
-**What it is:** A distributed log-based messaging system with partitions and consumer groups.
-**Key terms:** partition, offset, consumer group, retention.
+## Definición
+**Qué es:** Un sistema de mensajería distribuido basado en log con particiones y grupos de consumidores.
+**Términos clave:** partición, offset, grupo de consumidores, retención.
 
-## Why it matters
-- It scales event processing and enables replay.
-- Misconfiguration can cause lag and data loss.
+## Por qué importa
+- Escala el procesamiento de eventos y permite el replay.
+- Una mala configuración puede causar lag y pérdida de datos.
 
-## Scope & Non-goals
-**In scope:** Kafka core concepts.
-**Out of scope / NOT solved by this:** deep broker configuration.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos fundamentales de Kafka.
+**Fuera del alcance / NO resuelto por esto:** configuración profunda de brokers.
 
-## Mental model / Intuition
-- Think of Kafka as a durable append-only log.
+## Modelo mental / Intuición
+- Piensa en Kafka como un log durable de solo-append.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need durable event streams and replay.
-### Avoid it when
-- You need simple queues with minimal ops.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites flujos de eventos durables y replay.
+### Evítalo cuando
+- Necesites colas simples con operaciones mínimas.
 
-## How I would use it (practical)
-- **Context:** Event pipeline for analytics.
-- **Steps:** define topics → partition by key → build consumers with offsets.
-- **What success looks like:** low lag and reliable processing.
+## Cómo lo usaría (práctico)
+- **Contexto:** Pipeline de eventos para analítica.
+- **Pasos:** definir topics → particionar por clave → construir consumidores con offsets.
+- **Cómo se ve el éxito:** bajo lag y procesamiento fiable.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** scalable, durable, replayable.
-- **Cons / Risks:** operational complexity and ordering limits.
-### Alternatives
-- **SQS/SNS:** simpler managed queues.
-- **How to choose:** use Kafka for high-throughput streaming.
+- **Pros:** escalable, durable, reproducible.
+- **Contras / Riesgos:** complejidad operacional y límites de ordenamiento.
+### Alternativas
+- **SQS/SNS:** colas gestionadas más simples.
+- **Cómo elegir:** usa Kafka para streaming de alto rendimiento.
 
-## Failure modes & Pitfalls
-- Lag buildup from slow consumers.
-- Poor partition keys causing hot partitions.
+## Modos de fallo y errores comunes
+- Acumulación de lag por consumidores lentos.
+- Claves de partición pobres causando particiones calientes.
 
-## Observability (How to detect issues)
-- **Metrics:** consumer lag, throughput, error rate.
-- **Logs:** broker errors.
-- **Alerts:** rising lag or partition imbalance.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** lag de consumidores, throughput, tasa de errores.
+- **Logs:** errores de broker.
+- **Alertas:** lag creciente o desbalance de particiones.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose good partition keys
-  - [ ] Monitor consumer lag
+  - [ ] Elegir buenas claves de partición
+  - [ ] Monitorear lag de consumidores
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Treating Kafka as a queue without retention planning.
-  - **Why it’s bad:** data loss risk.
-  - **Better approach:** configure retention and replay strategy.
+## Anti-patrones comunes
+- **Anti-patrón:** Tratar Kafka como una cola sin planificar la retención.
+  - **Por qué es malo:** riesgo de pérdida de datos.
+  - **Mejor enfoque:** configurar retención y estrategia de replay.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Kafka is a distributed event log. Producers append events to partitions, consumers read them using offsets, and you can replay events when needed.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Kafka es un log de eventos distribuido. Los productores agregan eventos a particiones, los consumidores los leen usando offsets, y puedes reproducir eventos cuando sea necesario.
 
-### Trap questions (with answers)
-1) **Q:** Does Kafka guarantee global ordering?
-   - **A:** no; ordering is per partition.
-2) **Q:** Is Kafka a database?
-   - **A:** no; it’s a streaming log.
-3) **Q:** Are consumers push-based?
-   - **A:** no; they pull by offsets.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Kafka garantiza ordenamiento global?
+   - **R:** No; el ordenamiento es por partición.
+2) **P:** ¿Kafka es una base de datos?
+   - **R:** No; es un log de streaming.
+3) **P:** ¿Los consumidores son basados en push?
+   - **R:** No; hacen pull por offsets.
 
-### Quick self-check (5 items)
-- [ ] I can define Kafka.
-- [ ] I can explain partitions and offsets.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain consumer lag.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir Kafka.
+- [ ] Puedo explicar particiones y offsets.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar el lag de consumidores.
 
-## Links (NO duplication)
-### Prerequisites
-- [Event-driven basics](event-driven-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de arquitectura dirigida por eventos](event-driven-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Change Data Capture (CDC)](../databases/change-data-capture.md)
 
-### Compare with
+### Comparar con
 - [RabbitMQ vs Kafka](rabbitmq-vs-kafka.md)

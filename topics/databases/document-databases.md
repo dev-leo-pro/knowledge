@@ -1,6 +1,6 @@
 ---
 id: document-databases
-title: "Document Databases (Overview)"
+title: "Bases de Datos de Documentos (Visión General)"
 type: concept
 status: learning
 importance: 50
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Document Databases (Overview)
+# Bases de Datos de Documentos (Visión General)
 
 ## TL;DR (BLUF)
-- Document databases store data as JSON-like documents with flexible schema.
-- Use them for hierarchical data and rapid schema evolution.
-- Trade-off: limited joins and consistency trade-offs.
+- Las bases de datos de documentos almacenan datos como documentos tipo JSON con esquema flexible.
+- Úsalas para datos jerárquicos y evolución rápida de esquema.
+- Trade-off: joins limitados y trade-offs de consistencia.
 
-## Definition
-**What it is:** A database model where each record is a document with nested fields.
-**Key terms:** document, embedding, referencing, schema flexibility.
+## Definición
+**Qué es:** Un modelo de base de datos donde cada registro es un documento con campos anidados.
+**Términos clave:** documento, embedding, referenciación, flexibilidad de esquema.
 
-## Why it matters
-- It enables faster iteration for evolving product data.
-- Poor modeling can cause duplication and inconsistent data.
+## Por qué importa
+- Permite iteración más rápida para datos de producto en evolución.
+- Un modelado pobre puede causar duplicación y datos inconsistentes.
 
-## Scope & Non-goals
-**In scope:** document model concepts and trade-offs.
-**Out of scope / NOT solved by this:** vendor-specific behavior (MongoDB details).
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos del modelo de documentos y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** comportamiento específico del proveedor (detalles de MongoDB).
 
-## Mental model / Intuition
-- A document is a self-contained object representing a real-world entity.
+## Modelo mental / Intuición
+- Un documento es un objeto autocontenido que representa una entidad del mundo real.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data is naturally hierarchical and read together.
-- You need flexible schemas with quick iteration.
-### Avoid it when
-- You need strong relational constraints and joins.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los datos son naturalmente jerárquicos y se leen juntos.
+- Necesitas esquemas flexibles con iteración rápida.
+### Evítalo cuando
+- Necesitas restricciones relacionales fuertes y joins.
 
-## How I would use it (practical)
-- **Context:** Product catalog with variable attributes.
-- **Steps:** decide embed vs reference → index critical fields → enforce schema in app.
-- **What success looks like:** low query latency with minimal duplication.
+## Cómo lo usaría (práctico)
+- **Contexto:** Catálogo de productos con atributos variables.
+- **Pasos:** decidir embed vs referencia → indexar campos críticos → imponer esquema en la app.
+- **Cómo se ve el éxito:** baja latencia de consulta con mínima duplicación.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** flexible schema, natural nested modeling.
-- **Cons / Risks:** duplication, weaker constraints.
-### Alternatives
-- **PostgreSQL + JSONB:** flexible fields with relational constraints.
-- **How to choose:** use documents when nested reads dominate and schema changes often.
+- **Ventajas:** esquema flexible, modelado anidado natural.
+- **Desventajas / Riesgos:** duplicación, restricciones más débiles.
+### Alternativas
+- **PostgreSQL + JSONB:** campos flexibles con restricciones relacionales.
+- **Cómo elegir:** usar documentos cuando las lecturas anidadas dominan y el esquema cambia frecuentemente.
 
-## Failure modes & Pitfalls
-- Over-embedding leading to large documents.
-- Excessive references causing multiple round trips.
+## Modos de fallo y trampas
+- Sobre-embedding llevando a documentos grandes.
+- Referencias excesivas causando múltiples viajes de ida y vuelta.
 
-## Observability (How to detect issues)
-- **Metrics:** document size growth, query latency.
-- **Logs:** slow query logs.
-- **Alerts:** rising latency on document queries.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** crecimiento del tamaño de documentos, latencia de consultas.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** latencia creciente en consultas de documentos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define embed vs reference rules
-  - [ ] Index high-traffic fields
+  - [ ] Definir reglas de embed vs referencia
+  - [ ] Indexar campos de alto tráfico
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Embedding everything without size limits.
-  - **Why it’s bad:** large docs and slow writes.
-  - **Better approach:** embed only what is read together.
+## Anti-patrones comunes
+- **Anti-patrón:** Embeber todo sin límites de tamaño.
+  - **Por qué es malo:** documentos grandes y escrituras lentas.
+  - **Mejor enfoque:** embeber solo lo que se lee junto.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Document databases store JSON-like documents, which makes them great for hierarchical data and schema changes. The cost is fewer constraints and harder joins.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las bases de datos de documentos almacenan documentos tipo JSON, lo que las hace ideales para datos jerárquicos y cambios de esquema. El costo es menos restricciones y joins más difíciles.
 
-### Trap questions (with answers)
-1) **Q:** Do document databases remove the need for schema design?
-   - **A:** no; you still design for access patterns.
-2) **Q:** Are document databases always faster?
-   - **A:** no; performance depends on indexing and modeling.
-3) **Q:** Can you enforce relational constraints easily?
-   - **A:** not like in relational databases.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las bases de datos de documentos eliminan la necesidad de diseño de esquema?
+   - **R:** no; aún diseñas para patrones de acceso.
+2) **P:** ¿Las bases de datos de documentos son siempre más rápidas?
+   - **R:** no; el rendimiento depende del indexado y modelado.
+3) **P:** ¿Se pueden imponer restricciones relacionales fácilmente?
+   - **R:** no como en bases de datos relacionales.
 
-### Quick self-check (5 items)
-- [ ] I can define a document database.
-- [ ] I can state when to use it.
-- [ ] I can explain a trade-off.
-- [ ] I can give a modeling example.
-- [ ] I can name a pitfall.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir una base de datos de documentos.
+- [ ] Puedo indicar cuándo usarla.
+- [ ] Puedo explicar un trade-off.
+- [ ] Puedo dar un ejemplo de modelado.
+- [ ] Puedo nombrar una trampa.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [NoSQL access patterns](nosql-access-patterns.md)
 
-### Related topics
+### Temas relacionados
 - [MongoDB documents](mongodb-documents.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — relational constraints vs document flexibility.
+### Comparar con
+- [PostgreSQL](postgresql.md) — restricciones relacionales vs flexibilidad de documentos.

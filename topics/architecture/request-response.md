@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Request-Response Architecture
+# Arquitectura Request-Response
 
 ## TL;DR (BLUF)
-- Request-response is synchronous communication between services.
-- Use it for low-latency, immediate responses.
-- Trade-off: tighter coupling and higher failure impact.
+- Request-response es comunicación síncrona entre servicios.
+- Úsala para respuestas inmediatas de baja latencia.
+- Trade-off: acoplamiento más estrecho y mayor impacto de fallos.
 
-## Definition
-**What it is:** A synchronous pattern where a client sends a request and waits for a response.
-**Key terms:** synchronous, timeout, retry.
+## Definición
+**Qué es:** Un patrón síncrono donde un cliente envía una petición y espera una respuesta.
+**Términos clave:** síncrono, timeout, reintento.
 
-## Why it matters
-- It’s simple and easy to reason about.
-- It can propagate failures and increase latency.
+## Por qué importa
+- Es simple y fácil de razonar.
+- Puede propagar fallos y aumentar la latencia.
 
-## Scope & Non-goals
-**In scope:** synchronous communication trade-offs.
-**Out of scope / NOT solved by this:** async messaging patterns.
+## Alcance y no-objetivos
+**Dentro del alcance:** trade-offs de comunicación síncrona.
+**Fuera del alcance / NO resuelto por esto:** patrones de mensajería asíncrona.
 
-## Mental model / Intuition
-- Like a phone call: you wait for a response.
+## Modelo mental / Intuición
+- Como una llamada telefónica: esperas la respuesta.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need immediate results.
-### Avoid it when
-- The work can be asynchronous.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites resultados inmediatos.
+### Evítalo cuando
+- El trabajo pueda ser asíncrono.
 
-## How I would use it (practical)
-- **Context:** User profile lookup.
-- **Steps:** request → response → handle timeouts.
-- **What success looks like:** low latency with clear error handling.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consulta de perfil de usuario.
+- **Pasos:** petición → respuesta → manejar timeouts.
+- **Cómo se ve el éxito:** baja latencia con manejo de errores claro.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** simplicity and immediate response.
-- **Cons / Risks:** coupling and [Cascading failure](../operations/cascading-failure.md).
-### Alternatives
-- **Messaging:** async processing.
-- **How to choose:** use request-response for strict latency requirements.
+- **Pros:** simplicidad y respuesta inmediata.
+- **Contras / Riesgos:** acoplamiento y [fallo en cascada](../operations/cascading-failure.md).
+### Alternativas
+- **Mensajería:** procesamiento asíncrono.
+- **Cómo elegir:** usa request-response para requisitos estrictos de latencia.
 
-## Failure modes & Pitfalls
-- [Cascading failure](../operations/cascading-failure.md) due to synchronous dependencies.
+## Modos de fallo y errores comunes
+- [Fallo en cascada](../operations/cascading-failure.md) debido a dependencias síncronas.
 
-## Observability (How to detect issues)
-- **Metrics:** latency, error rate.
-- **Logs:** timeout errors.
-- **Alerts:** elevated p95 latency.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia, tasa de errores.
+- **Logs:** errores de timeout.
+- **Alertas:** latencia p95 elevada.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Set timeouts
-  - [ ] Use retries with backoff
+  - [ ] Configurar timeouts
+  - [ ] Usar reintentos con backoff
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Long chains of synchronous calls.
-  - **Why it’s bad:** high latency and failure propagation.
-  - **Better approach:** use async where possible.
+## Anti-patrones comunes
+- **Anti-patrón:** Cadenas largas de llamadas síncronas.
+  - **Por qué es malo:** alta latencia y propagación de fallos.
+  - **Mejor enfoque:** usar asíncrono donde sea posible.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Request-response is a synchronous pattern where the client waits for a reply. It’s simple but can increase coupling and latency.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Request-response es un patrón síncrono donde el cliente espera una respuesta. Es simple pero puede aumentar el acoplamiento y la latencia.
 
-### Trap questions (with answers)
-1) **Q:** Are retries always safe?
-   - **A:** no; they can amplify load and duplicate work.
-2) **Q:** Can request-response be fully reliable?
-   - **A:** it depends on timeouts and error handling.
-3) **Q:** Is async always better?
-   - **A:** no; some use cases need immediate responses.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los reintentos siempre son seguros?
+   - **R:** No; pueden amplificar la carga y duplicar trabajo.
+2) **P:** ¿Request-response puede ser completamente fiable?
+   - **R:** Depende de los timeouts y el manejo de errores.
+3) **P:** ¿Lo asíncrono siempre es mejor?
+   - **R:** No; algunos casos de uso necesitan respuestas inmediatas.
 
-### Quick self-check (5 items)
-- [ ] I can define request-response.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain observability signals.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir request-response.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar señales de observabilidad.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - N/A
 
-### Related topics
-- [Messaging basics](messaging-basics.md)
+### Temas relacionados
+- [Fundamentos de mensajería](messaging-basics.md)
 
-### Compare with
-- [Event-driven basics](event-driven-basics.md) — async vs sync.
+### Comparar con
+- [Fundamentos de arquitectura dirigida por eventos](event-driven-basics.md) — asíncrono vs síncrono.

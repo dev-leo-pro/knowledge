@@ -1,6 +1,6 @@
 ---
 id: maintenance-windows
-title: "Maintenance Windows"
+title: "Ventanas de mantenimiento"
 type: pattern
 status: learning
 importance: 45
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Maintenance Windows
+# Ventanas de mantenimiento
 
 ## TL;DR (BLUF)
-- Maintenance windows are planned periods for heavy maintenance tasks.
-- Use them for operations that impact performance (vacuum full, compaction).
-- Trade-off: reduced availability during the window.
+- Las ventanas de mantenimiento son períodos planificados para tareas de mantenimiento pesadas.
+- Úsalas para operaciones que impactan el rendimiento (vacuum full, compactación).
+- Trade-off: disponibilidad reducida durante la ventana.
 
-## Definition
-**What it is:** A scheduled time window for disruptive maintenance tasks.
-**Key terms:** maintenance, downtime, off-peak.
+## Definición
+**Qué es:** Una ventana de tiempo programada para tareas de mantenimiento disruptivas.
+**Términos clave:** mantenimiento, tiempo de inactividad, horas de baja demanda.
 
-## Why it matters
-- It reduces user impact from heavy operations.
-- It requires coordination and communication.
+## Por qué importa
+- Reduce el impacto en los usuarios de operaciones pesadas.
+- Requiere coordinación y comunicación.
 
-## Scope & Non-goals
-**In scope:** planning maintenance tasks.
-**Out of scope / NOT solved by this:** automated zero-downtime upgrades.
+## Alcance y no-objetivos
+**Dentro del alcance:** planificación de tareas de mantenimiento.
+**Fuera del alcance / NO resuelto por esto:** actualizaciones automatizadas sin tiempo de inactividad.
 
-## Mental model / Intuition
-- Think of it as a planned service pause.
+## Modelo mental / Intuición
+- Piénsalo como una pausa de servicio planificada.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Maintenance tasks are heavy and disruptive.
-### Avoid it when
-- You can do online maintenance without impact.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Las tareas de mantenimiento son pesadas y disruptivas.
+### Evítalo cuando
+- Puedes hacer mantenimiento en línea sin impacto.
 
-## How I would use it (practical)
-- **Context:** VACUUM FULL on large tables.
-- **Steps:** schedule window → notify stakeholders → run tasks.
-- **What success looks like:** maintenance completed with limited impact.
+## Cómo lo usaría (práctico)
+- **Contexto:** VACUUM FULL en tablas grandes.
+- **Pasos:** programar ventana → notificar a interesados → ejecutar tareas.
+- **Cómo se ve el éxito:** mantenimiento completado con impacto limitado.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** controlled risk.
-- **Cons / Risks:** downtime or degraded performance.
-### Alternatives
-- **Online maintenance:** less disruption.
-- **How to choose:** use windows when online options aren’t safe.
+- **Ventajas:** riesgo controlado.
+- **Desventajas / Riesgos:** tiempo de inactividad o rendimiento degradado.
+### Alternativas
+- **Mantenimiento en línea:** menor disrupción.
+- **Cómo elegir:** usa ventanas cuando las opciones en línea no son seguras.
 
-## Failure modes & Pitfalls
-- Maintenance overruns causing extended downtime.
+## Modos de fallo y trampas
+- El mantenimiento se extiende causando tiempo de inactividad prolongado.
 
-## Observability (How to detect issues)
-- **Metrics:** maintenance duration, error rate.
-- **Logs:** task failures.
-- **Alerts:** maintenance overruns.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** duración del mantenimiento, tasa de errores.
+- **Logs:** fallos de tareas.
+- **Alertas:** extensiones del mantenimiento.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Announce window
-  - [ ] Run heavy tasks
-  - [ ] Validate service health
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Anunciar ventana
+  - [ ] Ejecutar tareas pesadas
+  - [ ] Validar salud del servicio
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Running heavy maintenance during peak traffic.
-  - **Why it’s bad:** user impact.
-  - **Better approach:** schedule off-peak windows.
+## Anti-patrones comunes
+- **Anti-patrón:** Ejecutar mantenimiento pesado durante el tráfico pico.
+  - **Por qué es malo:** impacto en los usuarios.
+  - **Mejor enfoque:** programar ventanas en horas de baja demanda.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Maintenance windows are planned times to run heavy operations with minimal user impact. They’re a trade-off between availability and safety.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Las ventanas de mantenimiento son tiempos planificados para ejecutar operaciones pesadas con mínimo impacto en los usuarios. Son un trade-off entre disponibilidad y seguridad.
 
-### Trap questions (with answers)
-1) **Q:** Are maintenance windows always necessary?
-   - **A:** no; some operations can be online.
-2) **Q:** Should you skip communication for short windows?
-   - **A:** no; stakeholders should be informed.
-3) **Q:** Is maintenance the same as backups?
-   - **A:** no; backups are separate operational tasks.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son siempre necesarias las ventanas de mantenimiento?
+   - **R:** no; algunas operaciones pueden ser en línea.
+2) **P:** ¿Deberías omitir la comunicación para ventanas cortas?
+   - **R:** no; los interesados deben ser informados.
+3) **P:** ¿Es lo mismo el mantenimiento que los respaldos?
+   - **R:** no; los respaldos son tareas operacionales separadas.
 
-### Quick self-check (5 items)
-- [ ] I can define maintenance windows.
-- [ ] I can state when to use them.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a monitoring signal.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir ventanas de mantenimiento.
+- [ ] Puedo indicar cuándo usarlas.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Operational planning](operational-planning.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Planificación operacional](operational-planning.md)
 
-### Related topics
-- [PostgreSQL vacuum & autovacuum](../databases/postgresql-vacuum-autovacuum.md)
+### Temas relacionados
+- [PostgreSQL vacuum y autovacuum](../databases/postgresql-vacuum-autovacuum.md)
 
-### Compare with
-- [Storage compaction](../databases/storage-compaction.md) — heavy maintenance vs routine cleanup.
+### Comparar con
+- [Compactación de almacenamiento](../databases/storage-compaction.md) — mantenimiento pesado vs limpieza rutinaria.

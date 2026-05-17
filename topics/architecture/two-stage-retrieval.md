@@ -12,65 +12,65 @@ created_at: 2026-02-23
 updated_at: 2026-02-23
 ---
 
-# Two-Stage Retrieval
+# Recuperación en Dos Etapas
 
 ## TL;DR (BLUF)
-- Two-stage retrieval means: use a cheap, coarse-grained first-stage to narrow candidates, then apply an expensive, precise second-stage on that smaller set.
-- Use when full-precision searches are expensive or large (e.g., vector search, fuzzy text, date ranges). Trade-off: extra complexity for big performance gains.
+- La recuperación en dos etapas significa: usar una primera etapa barata y de grano grueso para reducir candidatos, luego aplicar una segunda etapa costosa y precisa sobre ese conjunto más pequeño.
+- Úsala cuando las búsquedas de precisión total sean costosas o grandes (ej., búsqueda vectorial, texto difuso, rangos de fechas). Trade-off: complejidad extra a cambio de grandes mejoras de rendimiento.
 
-## Definition
-**What it is:** A retrieval pattern where queries are executed in two phases: a fast, approximate or coarse filter (stage 1) that returns a candidate set, followed by an expensive, exact, or higher-fidelity rerank/filter (stage 2) applied only to those candidates.
-**Key terms:** candidate generation, re-ranking, coarse filter, exact filter, index, locality-sensitive hashing (LSH), inverted index, bloom filter.
+## Definición
+**Qué es:** Un patrón de recuperación donde las consultas se ejecutan en dos fases: un filtro rápido, aproximado o grueso (etapa 1) que devuelve un conjunto de candidatos, seguido de un re-ranking/filtro costoso, exacto o de mayor fidelidad (etapa 2) aplicado solo a esos candidatos.
+**Términos clave:** generación de candidatos, re-ranking, filtro grueso, filtro exacto, índice, locality-sensitive hashing (LSH), índice invertido, bloom filter.
 
-## Why it matters
-- Reduces CPU/IO work by avoiding expensive operations across the full dataset.
-- Enables low-latency results for complex queries (semantic search, fuzzy match, large graphs) while keeping high precision by rechecking candidates.
+## Por qué importa
+- Reduce el trabajo de CPU/IO evitando operaciones costosas sobre el dataset completo.
+- Permite resultados de baja latencia para consultas complejas (búsqueda semántica, coincidencia difusa, grafos grandes) mientras mantiene alta precisión al reverificar candidatos.
 
-## Scope & Non-goals
-**In scope:** search and retrieval problems across text, vectors, time-series, caches, and graphs where candidate sets can be pruned cheaply.
-**Out of scope:** single-stage exact retrieval where data size is small enough to scan cheaply.
+## Alcance y no-objetivos
+**Dentro del alcance:** problemas de búsqueda y recuperación en texto, vectores, series temporales, cachés y grafos donde los conjuntos de candidatos pueden podarse de forma barata.
+**Fuera del alcance:** recuperación exacta de una sola etapa donde el tamaño de los datos es lo bastante pequeño para escanear de forma barata.
 
-## Mental model / Intuition
-- Think of it as “coarse sieve + fine comb”: the sieve throws away most irrelevant items cheaply; the comb inspects the leftovers carefully.
+## Modelo mental / Intuición
+- Piénsalo como "tamiz grueso + peine fino": el tamiz descarta la mayoría de ítems irrelevantes de forma barata; el peine inspecciona los restantes cuidadosamente.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- The exact operation is expensive (heavy scoring, vector distances, graph expansion).
-- The candidate set can be efficiently approximated (e.g., coarse time buckets, prefix indexes, vector ANN, partitions).
-### Avoid it when
-- Dataset is small enough for exact queries to be cheap.
-- The coarse filter frequently omits true positives (high recall loss).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La operación exacta sea costosa (scoring pesado, distancias vectoriales, expansión de grafos).
+- El conjunto de candidatos pueda aproximarse eficientemente (ej., buckets temporales gruesos, índices de prefijo, ANN vectorial, particiones).
+### Evítalo cuando
+- El dataset sea lo bastante pequeño para que las consultas exactas sean baratas.
+- El filtro grueso frecuentemente omita verdaderos positivos (alta pérdida de recall).
 
-## How I would use it (practical)
-- **Context:** large event store where users query precise timestamp ranges and content similarity.
-- **Steps:** 1) Build a coarse index (day buckets, prefix keys, ANN index) 2) Query coarse index to get candidates 3) Refilter/rerank candidates in memory using exact criteria 4) Return sorted results
-- **What success looks like:** 90% reduction in disk reads and sub-100ms p95 latency for typical queries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un event store grande donde los usuarios consultan rangos de timestamps precisos y similitud de contenido.
+- **Pasos:** 1) Construir un índice grueso (buckets por día, claves de prefijo, índice ANN) 2) Consultar índice grueso para obtener candidatos 3) Re-filtrar/re-rankear candidatos en memoria usando criterios exactos 4) Devolver resultados ordenados
+- **Cómo se ve el éxito:** 90% de reducción en lecturas de disco y latencia p95 sub-100ms para consultas típicas.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** Lower latency, reduced I/O/compute, scalable to large corpora.
-- **Cons:** More complexity, potential recall loss if coarse stage is too aggressive, harder debugging/observability.
-### Alternatives
-- Single-stage exact index (simpler, but higher cost).  Use when data small.
-- Materialized views for common queries (fast but high maintenance).
+- **Pros:** Menor latencia, I/O y cómputo reducidos, escalable a corpus grandes.
+- **Contras:** Más complejidad, potencial pérdida de recall si la etapa gruesa es demasiado agresiva, depuración/observabilidad más difícil.
+### Alternativas
+- Índice exacto de una sola etapa (más simple, pero mayor costo). Usar cuando los datos sean pequeños.
+- Vistas materializadas para consultas comunes (rápido pero alto mantenimiento).
 
-## Failure modes & Pitfalls
-- Coarse index misses true positives (bad recall) — tune to favor recall.
-- Candidate set too large (coarse stage ineffective) — redesign coarse index.
-- Stale indexes between stages (consistency issues) — ensure synchronized updates.
+## Modos de fallo y errores comunes
+- El índice grueso pierde verdaderos positivos (mal recall) — ajustar para favorecer recall.
+- Conjunto de candidatos demasiado grande (etapa gruesa inefectiva) — rediseñar índice grueso.
+- Índices desactualizados entre etapas (problemas de consistencia) — asegurar actualizaciones sincronizadas.
 
-## Observability (How to detect issues)
-- **Metrics:** candidate reduction ratio (coarse_count / full_count), recall @k, p95 latency, error rate.
-- **Logs:** coarse-query parameters, candidate counts, re-rank time per query.
-- **Traces:** span for coarse stage + span for second-stage processing to find hotspots.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** ratio de reducción de candidatos (conteo_grueso / conteo_total), recall @k, latencia p95, tasa de errores.
+- **Logs:** parámetros de consulta gruesa, conteos de candidatos, tiempo de re-ranking por consulta.
+- **Trazas:** span para etapa gruesa + span para procesamiento de segunda etapa para encontrar cuellos de botella.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - Checklist:
-  - [ ] Ensure coarse index favors recall over precision.
-  - [ ] Measure candidate reduction and end-to-end latency.
-  - [ ] Add alerts if candidate counts exceed thresholds.
+  - [ ] Asegurar que el índice grueso favorezca recall sobre precisión.
+  - [ ] Medir reducción de candidatos y latencia end-to-end.
+  - [ ] Agregar alertas si los conteos de candidatos superan umbrales.
 
-## Mini example (pseudocode)
+## Mini ejemplo (pseudocódigo)
 ```pseudo
 candidates = coarse_index.query(q)
 results = []
@@ -80,42 +80,42 @@ for c in candidates:
 return sort_by_score(results)
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Aggressive coarse filters that optimize latency but drop many true positives.
-  - **Why it’s bad:** lowers recall and user satisfaction.
-  - **Better approach:** tune coarse filter or increase candidate window.
+## Anti-patrones comunes
+- **Anti-patrón:** Filtros gruesos agresivos que optimizan latencia pero descartan muchos verdaderos positivos.
+  - **Por qué es malo:** reduce el recall y la satisfacción del usuario.
+  - **Mejor enfoque:** ajustar filtro grueso o aumentar la ventana de candidatos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Two-stage retrieval means you first find a small set of possible matches quickly, then do the expensive exact check only on those — like checking only a shortlist of candidates instead of everyone.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La recuperación en dos etapas significa que primero encuentras un conjunto pequeño de posibles coincidencias rápidamente, luego haces la verificación exacta costosa solo sobre esos — como revisar solo una lista corta de candidatos en vez de a todos.
 
-### Trap questions (with answers)
-1) **Q:** How do you pick between recall and precision for the coarse stage?
-   - **A:** Prefer recall for the coarse stage; tune thresholds and measure recall@k. Adjust candidate window or expand buckets if recall drops.
-2) **Q:** How do you keep stages consistent with updates?
-   - **A:** Use synchronous writes to both indexes or design eventual-consistency checks; include sequence numbers/timestamps to detect staleness.
-3) **Q:** When does two-stage retrieval add unnecessary complexity?
-   - **A:** When data is small or exact queries are already fast — then single-stage exact search may be simpler and cheaper overall.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cómo eliges entre recall y precisión para la etapa gruesa?
+   - **R:** Prefiere recall para la etapa gruesa; ajusta umbrales y mide recall@k. Ajusta la ventana de candidatos o expande los buckets si el recall cae.
+2) **P:** ¿Cómo mantienes las etapas consistentes con las actualizaciones?
+   - **R:** Usa escrituras síncronas a ambos índices o diseña verificaciones de consistencia eventual; incluye números de secuencia/timestamps para detectar obsolescencia.
+3) **P:** ¿Cuándo la recuperación en dos etapas agrega complejidad innecesaria?
+   - **R:** Cuando los datos son pequeños o las consultas exactas ya son rápidas — entonces la búsqueda exacta de una sola etapa puede ser más simple y barata en general.
 
-## Quick self-check (5 items)
-- [ ] I can define it precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+## Auto-verificación rápida (5 ítems)
+- [ ] Puedo definirlo con precisión en 2–3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Search & Indexing Pipeline](system-design/archetype-search-indexing.md)
-- [Caching fundamentals](system-design/caching-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Pipeline de Búsqueda e Indexación](system-design/archetype-search-indexing.md)
+- [Fundamentos de caché](system-design/caching-fundamentals.md)
 
-### Related topics
-- [Materialized Views / CQRS](system-design/archetype-materialized-views.md)
-- [Vector search / ANN (TODO)](topics/_aliases/ann.md)
-- [Inverted index (TODO)](topics/_aliases/inverted-index.md)
+### Temas relacionados
+- [Vistas Materializadas / CQRS](system-design/archetype-materialized-views.md)
+- [Búsqueda vectorial / ANN (TODO)](topics/_aliases/ann.md)
+- [Índice invertido (TODO)](topics/_aliases/inverted-index.md)
 
-### Compare with
-- [Kappa architecture](architecture/kappa-architecture.md) — two-stage is an indexing/query pattern; Kappa is a data-processing architecture.
+### Comparar con
+- [Arquitectura Kappa](architecture/kappa-architecture.md) — recuperación en dos etapas es un patrón de indexación/consulta; Kappa es una arquitectura de procesamiento de datos.
 
-## Notes / Inbox (optional)
-- Examples and problem-solving files saved in `assessments/problem-solving/`.
+## Notas / Bandeja de entrada (opcional)
+- Ejemplos y archivos de resolución de problemas guardados en `assessments/problem-solving/`.

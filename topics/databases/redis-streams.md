@@ -15,102 +15,102 @@ updated_at: 2026-01-19
 # Redis Streams
 
 ## TL;DR (BLUF)
-- Redis Streams provide an append-only log with consumer groups.
-- Use them for durable event processing with retry and replay.
-- Trade-off: more operational complexity than Pub/Sub.
+- Redis Streams proporciona un log de solo-adición con grupos de consumidores.
+- Úsalos para procesamiento de eventos duradero con reintento y replay.
+- Trade-off: más complejidad operativa que Pub/Sub.
 
-## Definition
-**What it is:** A Redis data type and feature that stores ordered messages with IDs and supports consumer groups for at-least-once processing.  
-**Key terms:** stream, entry ID, consumer group, pending entries list (PEL), acknowledgements.
+## Definición
+**Qué es:** Un tipo de dato y funcionalidad de Redis que almacena mensajes ordenados con IDs y soporta grupos de consumidores para procesamiento al-menos-una-vez.
+**Términos clave:** stream, ID de entrada, grupo de consumidores, lista de entradas pendientes (PEL), acuses de recibo.
 
-## Why it matters
-- It provides durability and replay that Redis Pub/Sub lacks.
-- It enables event-driven workflows without an external broker.
+## Por qué importa
+- Proporciona durabilidad y replay que Redis Pub/Sub no tiene.
+- Habilita flujos de trabajo dirigidos por eventos sin un broker externo.
 
-## Scope & Non-goals
-**In scope:** durable messaging, replay, consumer groups, at-least-once processing.  
-**Out of scope / NOT solved by this:** exactly-once delivery, complex routing, or cross-stream transactions.
+## Alcance y no-objetivos
+**Dentro del alcance:** mensajería duradero, replay, grupos de consumidores, procesamiento al-menos-una-vez.
+**Fuera del alcance / NO resuelto por esto:** entrega exactamente-una-vez, enrutamiento complejo o transacciones cross-stream.
 
-## Mental model / Intuition
-- Think of it as a lightweight commit log inside Redis.
+## Modelo mental / Intuición
+- Piensa en ello como un commit log ligero dentro de Redis.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need persistent events with replay and consumer tracking.
-- You want Redis-native queues without a separate broker.
-### Avoid it when
-- You need exactly-once semantics or multi-region durability.
-- You need complex routing and [Backpressure](../system-design/backpressure.md) across many topics.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas eventos persistentes con replay y seguimiento de consumidores.
+- Quieres colas nativas de Redis sin un broker separado.
+### Evítalo cuando
+- Necesitas semántica exactamente-una-vez o durabilidad multi-región.
+- Necesitas enrutamiento complejo y [Backpressure](../system-design/backpressure.md) a través de muchos topics.
 
-## How I would use it (practical)
-- **Context:** Order events processed by multiple worker groups.
-- **Steps:** `XADD` → `XGROUP CREATE` → consumers `XREADGROUP` → `XACK` and retry pending.
-- **What success looks like:** stable processing lag with bounded pending entries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Eventos de pedidos procesados por múltiples grupos de workers.
+- **Pasos:** `XADD` → `XGROUP CREATE` → consumidores `XREADGROUP` → `XACK` y reintentar pendientes.
+- **Cómo se ve el éxito:** retraso de procesamiento estable con entradas pendientes acotadas.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** durability, replay, consumer groups.
-- **Cons / Risks:** operational tuning, memory growth if not trimmed.
-### Alternatives
-- **Redis Pub/Sub:** ultra-low latency but no persistence.
-- **Kafka:** stronger durability and ecosystem.
-- **How to choose:** use Streams for Redis-native durability; use Kafka for large-scale streaming pipelines.
+- **Ventajas:** durabilidad, replay, grupos de consumidores.
+- **Desventajas / Riesgos:** ajuste operativo, crecimiento de memoria si no se recorta.
+### Alternativas
+- **Redis Pub/Sub:** ultra-baja latencia pero sin persistencia.
+- **Kafka:** durabilidad y ecosistema más fuertes.
+- **Cómo elegir:** usa Streams para durabilidad nativa de Redis; usa Kafka para pipelines de streaming a gran escala.
 
-## Failure modes & Pitfalls
-- Not trimming streams, leading to unbounded memory growth.
-- Unacked pending entries that never get retried.
-- Using streams without [Backpressure](../system-design/backpressure.md) controls.
+## Modos de fallo y trampas
+- No recortar streams, llevando a crecimiento ilimitado de memoria.
+- Entradas pendientes sin acusar que nunca se reintentan.
+- Usar streams sin controles de [Backpressure](../system-design/backpressure.md).
 
-## Observability (How to detect issues)
-- **Metrics:** stream length, consumer lag, pending entries count, memory usage.
-- **Logs:** failed consumer processing and retry counts.
-- **Alerts:** growing pending list or lag beyond SLO.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** longitud del stream, retraso del consumidor, conteo de entradas pendientes, uso de memoria.
+- **Logs:** procesamiento fallido de consumidores y conteos de reintento.
+- **Alertas:** lista de pendientes creciente o retraso más allá del SLO.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define trimming strategy (`MAXLEN` or manual).
-  - [ ] Monitor consumer lag and pending entries.
-  - [ ] Implement retry and dead-letter handling.
+  - [ ] Definir estrategia de recorte (`MAXLEN` o manual).
+  - [ ] Monitorear retraso del consumidor y entradas pendientes.
+  - [ ] Implementar reintento y manejo de dead-letter.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Treating Streams like Pub/Sub without a retention policy.
-  - **Why it’s bad:** memory grows without bounds.
-  - **Better approach:** configure trimming and retention.
+## Anti-patrones comunes
+- **Anti-patrón:** Tratar Streams como Pub/Sub sin política de retención.
+  - **Por qué es malo:** la memoria crece sin límite.
+  - **Mejor enfoque:** configurar recorte y retención.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Redis Streams are an append-only log with consumer groups. Unlike Pub/Sub, they persist messages and let you replay or retry them.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Redis Streams es un log de solo-adición con grupos de consumidores. A diferencia de Pub/Sub, persisten los mensajes y permiten reproducirlos o reintentarlos.
 
-### Trap questions (with answers)
-1) **Q:** Are Redis Streams exactly once?
-   - **A:** no; they are at-least-once and require idempotent consumers.
-2) **Q:** Does Streams replace Kafka for all cases?
-   - **A:** no; Kafka scales and persists better for large pipelines.
-3) **Q:** Do Streams auto-trim by default?
-   - **A:** no; you must configure trimming or manage retention.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Redis Streams es exactamente-una-vez?
+   - **R:** no; es al-menos-una-vez y requiere consumidores idempotentes.
+2) **P:** ¿Streams reemplaza a Kafka en todos los casos?
+   - **R:** no; Kafka escala y persiste mejor para pipelines grandes.
+3) **P:** ¿Streams se recorta automáticamente por defecto?
+   - **R:** no; debes configurar el recorte o gestionar la retención.
 
-### Quick self-check (5 items)
-- [ ] I can explain Streams in 2–3 sentences.
-- [ ] I can describe consumer groups and pending entries.
-- [ ] I can set a retention/trimming strategy.
-- [ ] I can explain at-least-once semantics.
-- [ ] I can name when to choose Streams vs Pub/Sub.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar Streams en 2-3 oraciones.
+- [ ] Puedo describir grupos de consumidores y entradas pendientes.
+- [ ] Puedo establecer una estrategia de retención/recorte.
+- [ ] Puedo explicar la semántica al-menos-una-vez.
+- [ ] Puedo decir cuándo elegir Streams vs Pub/Sub.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Redis](redis.md)
-- [Redis data types](redis-data-types.md)
-- [Messaging basics](../architecture/messaging-basics.md)
+- [Tipos de datos de Redis](redis-data-types.md)
+- [Fundamentos de mensajería](../architecture/messaging-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Redis Pub/Sub](redis-pub-sub.md)
-- [Event-driven basics](../architecture/event-driven-basics.md)
+- [Fundamentos de arquitectura dirigida por eventos](../architecture/event-driven-basics.md)
 
-### Compare with
-- [Kafka](../architecture/kafka.md) — larger-scale durable log with stronger guarantees.
+### Comparar con
+- [Kafka](../architecture/kafka.md) — log duradero a mayor escala con garantías más fuertes.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

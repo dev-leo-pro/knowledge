@@ -15,92 +15,92 @@ updated_at: 2026-01-19
 # DynamoDB GSI/LSI
 
 ## TL;DR (BLUF)
-- GSIs and LSIs provide secondary access patterns in DynamoDB.
-- Use them when you need additional query patterns beyond PK/SK.
-- Trade-off: extra write cost and complexity.
+- Los GSIs y LSIs proporcionan patrones de acceso secundarios en DynamoDB.
+- Úsalos cuando necesitas patrones de consulta adicionales más allá de PK/SK.
+- Trade-off: costo de escritura extra y complejidad.
 
-## Definition
-**What it is:** Secondary indexes in DynamoDB: Global Secondary Index (GSI) and Local Secondary Index (LSI).
-**Key terms:** GSI, LSI, projection, write amplification.
+## Definición
+**Qué es:** Índices secundarios en DynamoDB: Índice Secundario Global (GSI) e Índice Secundario Local (LSI).
+**Términos clave:** GSI, LSI, proyección, amplificación de escritura.
 
-## Why it matters
-- They enable alternate query paths without full table scans.
-- Overuse increases write costs and latency.
+## Por qué importa
+- Permiten rutas de consulta alternativas sin escaneos completos de tabla.
+- El uso excesivo aumenta los costos de escritura y la latencia.
 
-## Scope & Non-goals
-**In scope:** secondary index purpose and trade-offs.
-**Out of scope / NOT solved by this:** ad-hoc analytics or joins.
+## Alcance y no-objetivos
+**Dentro del alcance:** propósito de índices secundarios y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** analítica ad-hoc o joins.
 
-## Mental model / Intuition
-- Think of GSIs/LSIs as extra “views” of the same data keyed differently.
+## Modelo mental / Intuición
+- Piensa en los GSIs/LSIs como "vistas" adicionales de los mismos datos con claves diferentes.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need secondary query patterns not served by PK/SK.
-### Avoid it when
-- You can model with a single-table design without extra indexes.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas patrones de consulta secundarios no servidos por PK/SK.
+### Evítalo cuando
+- Puedes modelar con un diseño de tabla única sin índices extra.
 
-## How I would use it (practical)
-- **Context:** Query items by status in addition to user.
-- **Steps:** add GSI on status → project needed attributes → monitor write cost.
-- **What success looks like:** secondary queries under SLA without heavy scans.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consultar ítems por estado además de por usuario.
+- **Pasos:** agregar GSI en estado → proyectar atributos necesarios → monitorear costo de escritura.
+- **Cómo se ve el éxito:** consultas secundarias dentro del SLA sin escaneos pesados.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** enable new access patterns.
-- **Cons / Risks:** write amplification and extra cost.
-### Alternatives
-- **Table redesign:** adjust keys to avoid extra indexes.
-- **How to choose:** add only when access patterns are real and frequent.
+- **Ventajas:** habilitan nuevos patrones de acceso.
+- **Desventajas / Riesgos:** amplificación de escritura y costo extra.
+### Alternativas
+- **Rediseño de tabla:** ajustar claves para evitar índices extra.
+- **Cómo elegir:** agregar solo cuando los patrones de acceso son reales y frecuentes.
 
-## Failure modes & Pitfalls
-- GSI throttling under heavy writes.
-- Projecting too many attributes increases cost.
+## Modos de fallo y trampas
+- Throttling de GSI bajo escrituras pesadas.
+- Proyectar demasiados atributos aumenta el costo.
 
-## Observability (How to detect issues)
-- **Metrics:** GSI write throttles, index size, query latency.
-- **Logs:** throttling errors.
-- **Alerts:** increasing GSI write errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** throttles de escritura de GSI, tamaño del índice, latencia de consultas.
+- **Logs:** errores de throttling.
+- **Alertas:** errores de escritura de GSI crecientes.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Confirm access pattern necessity
-  - [ ] Project minimal attributes
-  - [ ] Monitor write cost
+  - [ ] Confirmar necesidad del patrón de acceso
+  - [ ] Proyectar atributos mínimos
+  - [ ] Monitorear costo de escritura
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Adding GSIs for hypothetical queries.
-  - **Why it’s bad:** extra cost without benefit.
-  - **Better approach:** add indexes only for proven queries.
+## Anti-patrones comunes
+- **Anti-patrón:** Agregar GSIs para consultas hipotéticas.
+  - **Por qué es malo:** costo extra sin beneficio.
+  - **Mejor enfoque:** agregar índices solo para consultas probadas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- GSIs and LSIs are DynamoDB’s secondary indexes. They let you query by alternative keys but add write cost and complexity.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los GSIs y LSIs son los índices secundarios de DynamoDB. Permiten consultar por claves alternativas pero agregan costo de escritura y complejidad.
 
-### Trap questions (with answers)
-1) **Q:** Are GSIs free to add?
-   - **A:** no; they increase write cost and can throttle.
-2) **Q:** Can LSIs have different partition keys?
-   - **A:** no; LSIs share the base table partition key.
-3) **Q:** Do GSIs guarantee strong consistency?
-   - **A:** no; GSI queries are eventually consistent.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los GSIs son gratis de agregar?
+   - **R:** no; aumentan el costo de escritura y pueden hacer throttling.
+2) **P:** ¿Los LSIs pueden tener claves de partición diferentes?
+   - **R:** no; los LSIs comparten la clave de partición de la tabla base.
+3) **P:** ¿Los GSIs garantizan consistencia fuerte?
+   - **R:** no; las consultas de GSI son eventualmente consistentes.
 
-### Quick self-check (5 items)
-- [ ] I can define GSI and LSI.
-- [ ] I can state when to use them.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain GSI consistency.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir GSI y LSI.
+- [ ] Puedo indicar cuándo usarlos.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar la consistencia de GSI.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [DynamoDB keys](dynamodb-keys.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB](dynamodb.md)
 
-### Compare with
-- [Index](index.md) — relational indexes vs DynamoDB secondary indexes.
+### Comparar con
+- [Index](index.md) — índices relacionales vs índices secundarios de DynamoDB.

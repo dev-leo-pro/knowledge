@@ -15,151 +15,151 @@ updated_at: 2026-01-26
 # Backend for Frontend (BFF)
 
 ## TL;DR (BLUF)
-- A specialized backend service tailored to the needs of a specific client (web, mobile, partners).
-- Use it when different clients need different payloads, caching, or API contracts.
-- Trade-off: code duplication across BFFs and increased operational overhead.
+- Un servicio backend especializado adaptado a las necesidades de un cliente específico (web, móvil, socios).
+- Úsalo cuando diferentes clientes necesiten payloads, caché o contratos de API distintos.
+- Trade-off: duplicación de código entre BFFs y mayor sobrecarga operacional.
 
-## Definition
-**What it is:** A pattern where each type of frontend (web, mobile, desktop, partners) has its own dedicated backend service that aggregates, transforms, and optimizes data from downstream microservices.
+## Definición
+**Qué es:** Un patrón donde cada tipo de frontend (web, móvil, escritorio, socios) tiene su propio servicio backend dedicado que agrega, transforma y optimiza datos de los microservicios downstream.
 
-**Key terms:** backend for frontend, client-specific API, aggregation layer, payload optimization, independent evolution.
+**Términos clave:** backend for frontend, API específica por cliente, capa de agregación, optimización de payload, evolución independiente.
 
-## Why it matters
-- Decouples frontend experience from backend service structure.
-- Allows each client to evolve independently (web releases vs mobile releases).
-- Optimizes payloads per client (mobile needs less data, web needs more).
-- Prevents "lowest common denominator" API design.
+## Por qué importa
+- Desacopla la experiencia del frontend de la estructura de los servicios backend.
+- Permite que cada cliente evolucione independientemente (releases de web vs releases de móvil).
+- Optimiza payloads por cliente (móvil necesita menos datos, web necesita más).
+- Previene el diseño de API de "mínimo común denominador".
 
-## Scope & Non-goals
-**In scope:** client-specific aggregation, transformation, caching, authentication delegation, payload optimization.
+## Alcance y no-objetivos
+**Dentro del alcance:** agregación específica por cliente, transformación, caché, delegación de autenticación, optimización de payload.
 
-**Out of scope / NOT solved by this:**
-- Cross-cutting concerns (auth, rate limiting) → [API Gateway](../system-design/api-gateway.md)
-- Business logic (belongs in domain services)
-- Service mesh concerns → [Sidecar](../operations/sidecar.md)
+**Fuera del alcance / NO resuelto por esto:**
+- Preocupaciones transversales (auth, limitación de tasa) → [API Gateway](../system-design/api-gateway.md)
+- Lógica de negocio (pertenece a servicios de dominio)
+- Preocupaciones de service mesh → [Sidecar](../operations/sidecar.md)
 
-## Mental model / Intuition
-- Think of a restaurant with different menus for dine-in, takeout, and delivery. Same kitchen (services), different presentation.
-- Web-BFF: full details, rich filtering.
-- Mobile-BFF: minimal payload, optimized for slow networks.
-- Partner-BFF: specific fields, strict versioning.
+## Modelo mental / Intuición
+- Piensa en un restaurante con diferentes menús para comer en el local, para llevar y para entrega. Misma cocina (servicios), diferente presentación.
+- Web-BFF: detalles completos, filtrado enriquecido.
+- Mobile-BFF: payload mínimo, optimizado para redes lentas.
+- Partner-BFF: campos específicos, versionado estricto.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Different clients (web, mobile, IoT) have different payload/performance needs.
-- Clients release independently (web every week, mobile every month).
-- You need client-specific caching, rate limiting, or security policies.
-- Aggregating from multiple services creates "chatty client" problems.
-- You want to experiment with new features for one client without affecting others.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Diferentes clientes (web, móvil, IoT) tienen diferentes necesidades de payload/rendimiento.
+- Los clientes se despliegan independientemente (web cada semana, móvil cada mes).
+- Necesitas caché, limitación de tasa o políticas de seguridad específicas por cliente.
+- Agregar de múltiples servicios crea problemas de "cliente parlanchín".
+- Quieres experimentar con nuevas funcionalidades para un cliente sin afectar a otros.
 
-### Avoid it when
-- You have a single client or clients share identical needs.
-- Aggregation logic is simple and can live in the client.
-- Operational overhead of multiple BFFs outweighs benefits.
-- Teams lack resources to maintain separate codebases.
+### Evítalo cuando
+- Tienes un solo cliente o los clientes comparten necesidades idénticas.
+- La lógica de agregación es simple y puede vivir en el cliente.
+- La sobrecarga operacional de múltiples BFFs supera los beneficios.
+- Los equipos carecen de recursos para mantener bases de código separadas.
 
-## How I would use it (practical)
-- **Context:** E-commerce platform with web and mobile clients, calling user, product, order, and recommendation services.
-- **Steps:**
-  1) Create two BFFs: `web-bff` and `mobile-bff`.
+## Cómo lo usaría (práctico)
+- **Contexto:** Plataforma de comercio electrónico con clientes web y móvil, llamando a servicios de usuario, producto, pedido y recomendación.
+- **Pasos:**
+  1) Crear dos BFFs: `web-bff` y `mobile-bff`.
   2) **Web-BFF:**
-     - Aggregates user profile + recent orders + recommendations.
-     - Returns full product details (images, descriptions, reviews).
-     - Implements server-side pagination.
+     - Agrega perfil de usuario + pedidos recientes + recomendaciones.
+     - Devuelve detalles completos del producto (imágenes, descripciones, reseñas).
+     - Implementa paginación del lado del servidor.
   3) **Mobile-BFF:**
-     - Returns minimal product details (thumbnail, title, price).
-     - Implements aggressive caching (CDN + Redis).
-     - Uses optimized image formats (WebP).
-  4) Both BFFs call the same downstream services but transform responses.
-  5) [API Gateway](../system-design/api-gateway.md) routes: `/web/*` → web-bff, `/mobile/*` → mobile-bff.
-  6) Monitor: latency, cache hit rate, error rate per BFF.
+     - Devuelve detalles mínimos del producto (miniatura, título, precio).
+     - Implementa caché agresivo (CDN + Redis).
+     - Usa formatos de imagen optimizados (WebP).
+  4) Ambos BFFs llaman a los mismos servicios downstream pero transforman las respuestas.
+  5) [API Gateway](../system-design/api-gateway.md) enruta: `/web/*` → web-bff, `/mobile/*` → mobile-bff.
+  6) Monitorear: latencia, tasa de aciertos de caché, tasa de error por BFF.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Code duplication (shared aggregation logic) | Extract common libraries/SDKs; use shared data access layer |
-| Operational overhead (deploy, monitor N BFFs) | Use templated deployment pipelines; shared observability stack |
-| Risk of divergence (BFFs drift apart) | Enforce shared contracts with downstream services; automated integration tests |
-| Increased latency (extra hop) | Optimize with caching, parallel calls, HTTP/2 |
-| Harder to enforce consistency | Use shared domain services; BFFs only do transformation |
+| Duplicación de código (lógica de agregación compartida) | Extraer bibliotecas/SDKs comunes; usar capa de acceso a datos compartida |
+| Sobrecarga operacional (desplegar, monitorear N BFFs) | Usar pipelines de despliegue con plantillas; stack de observabilidad compartido |
+| Riesgo de divergencia (los BFFs se desvían) | Imponer contratos compartidos con servicios downstream; tests de integración automatizados |
+| Latencia añadida (salto extra) | Optimizar con caché, llamadas paralelas, HTTP/2 |
+| Más difícil mantener consistencia | Usar servicios de dominio compartidos; los BFFs solo hacen transformación |
 
-## Failure modes / Edge cases
-1. **BFF becomes a mini-monolith:** Teams add business logic instead of transformation.
-   - *Mitigation:* Enforce policy: BFFs are thin aggregation layers, not domain services.
-2. **Cascading failures from downstream:** If one service is slow, BFF blocks.
-   - *Mitigation:* Combine with [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md), and [Graceful Degradation](../operations/graceful-degradation.md).
-3. **Stale cache inconsistencies:** Mobile BFF caches aggressively, shows old data.
-   - *Mitigation:* Use cache invalidation (events, TTLs); monitor staleness metrics.
-4. **Ownership confusion:** Who owns the BFF? Frontend team or backend team?
-   - *Mitigation:* Clear ownership model (typically frontend team owns BFF).
-5. **N+1 query problem:** BFF calls downstream service in a loop.
-   - *Mitigation:* Use batching, parallel calls, or GraphQL-style data loaders.
+## Modos de fallo / Casos límite
+1. **El BFF se convierte en un mini-monolito:** Los equipos añaden lógica de negocio en lugar de transformación.
+   - *Mitigación:* Imponer política: los BFFs son capas delgadas de agregación, no servicios de dominio.
+2. **Fallos en cascada desde downstream:** Si un servicio es lento, el BFF se bloquea.
+   - *Mitigación:* Combinar con [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md) y [Degradación Elegante](../operations/graceful-degradation.md).
+3. **Inconsistencias por caché obsoleto:** El Mobile BFF cachea agresivamente, muestra datos antiguos.
+   - *Mitigación:* Usar invalidación de caché (eventos, TTLs); monitorear métricas de obsolescencia.
+4. **Confusión de propiedad:** ¿Quién es dueño del BFF? ¿El equipo de frontend o backend?
+   - *Mitigación:* Modelo de propiedad claro (típicamente el equipo de frontend es dueño del BFF).
+5. **Problema de consulta N+1:** El BFF llama al servicio downstream en un bucle.
+   - *Mitigación:* Usar batching, llamadas paralelas o data loaders estilo GraphQL.
 
-## Alternatives
-- **API Gateway with transformation:** Lighter but limited to simple transformations.
-- **GraphQL:** Clients query exactly what they need; reduces BFF logic.
-- **API Composition in client:** Client calls multiple services directly (chattier, slower).
-- **Shared backend API:** One API for all clients (forces lowest common denominator).
+## Alternativas
+- **API Gateway con transformación:** Más ligero pero limitado a transformaciones simples.
+- **GraphQL:** Los clientes consultan exactamente lo que necesitan; reduce la lógica del BFF.
+- **Composición de API en el cliente:** El cliente llama a múltiples servicios directamente (más parlanchín, más lento).
+- **API backend compartida:** Una API para todos los clientes (fuerza el mínimo común denominador).
 
-## Combinations
-BFF is **almost always used with:**
-- **[API Gateway](../system-design/api-gateway.md):** Routes traffic to appropriate BFF.
-- **[API Composition](api-composition.md):** BFF aggregates data from multiple services.
-- **[Timeout](../operations/timeouts.md):** Prevents slow downstream calls from blocking.
-- **[Circuit Breaker](../operations/circuit-breaker.md):** Fails fast when downstream is unhealthy.
-- **[Graceful Degradation](../operations/graceful-degradation.md):** Returns partial data if non-critical services fail.
-- **[Observability](../operations/observability-basics.md):** Track latency, error rate per BFF.
+## Combinaciones
+El BFF **casi siempre se usa con:**
+- **[API Gateway](../system-design/api-gateway.md):** Enruta tráfico al BFF apropiado.
+- **[Composición de APIs](api-composition.md):** El BFF agrega datos de múltiples servicios.
+- **[Timeout](../operations/timeouts.md):** Evita que llamadas downstream lentas bloqueen.
+- **[Circuit Breaker](../operations/circuit-breaker.md):** Falla rápido cuando el downstream no está saludable.
+- **[Degradación Elegante](../operations/graceful-degradation.md):** Devuelve datos parciales si servicios no críticos fallan.
+- **[Observabilidad](../operations/observability-basics.md):** Rastrear latencia, tasa de error por BFF.
 
-**Typical combination:**
-- **Mobile + Web scenario:** API Gateway + BFF (web/mobile) + API Composition (in BFF) + Observability
+**Combinación típica:**
+- **Escenario Móvil + Web:** API Gateway + BFF (web/móvil) + Composición de APIs (en BFF) + Observabilidad
 
-## Prerequisites
-- Understanding of [Microservices design](microservices-design-basics.md).
-- Familiarity with [API design](../system-design/api-design-basics.md) and [REST/GraphQL](../system-design/api-design-basics.md).
-- Knowledge of [Caching](../system-design/caching-fundamentals.md) and [HTTP](../operations/http.md).
+## Prerequisitos
+- Comprensión de [Diseño de Microservicios](microservices-design-basics.md).
+- Familiaridad con [Diseño de APIs](../system-design/api-design-basics.md) y [REST/GraphQL](../system-design/api-design-basics.md).
+- Conocimiento de [Caché](../system-design/caching-fundamentals.md) y [HTTP](../operations/http.md).
 
-## Related topics
-- [API Gateway](../system-design/api-gateway.md): Routes to BFFs.
-- [API Composition](api-composition.md): Aggregation pattern used within BFFs.
-- [Graceful Degradation](../operations/graceful-degradation.md): Partial responses when services fail.
-- [Microservices design](microservices-design-basics.md): Context for BFF pattern.
-- [Caching strategy](../system-design/caching-strategy.md): Optimize BFF performance.
+## Temas relacionados
+- [API Gateway](../system-design/api-gateway.md): Enruta a los BFFs.
+- [Composición de APIs](api-composition.md): Patrón de agregación usado dentro de los BFFs.
+- [Degradación Elegante](../operations/graceful-degradation.md): Respuestas parciales cuando los servicios fallan.
+- [Diseño de Microservicios](microservices-design-basics.md): Contexto para el patrón BFF.
+- [Estrategia de caché](../system-design/caching-strategy.md): Optimizar el rendimiento del BFF.
 
-## Real-world examples
-1. **Netflix:** Separate BFFs for web, mobile, TV clients—each optimized for device constraints.
-2. **SoundCloud:** Web-BFF aggregates playlists + recommendations; mobile-BFF returns minimal data.
-3. **Spotify:** Mobile-BFF uses aggressive caching and optimized image sizes.
+## Ejemplos del mundo real
+1. **Netflix:** BFFs separados para clientes web, móvil y TV, cada uno optimizado para las restricciones del dispositivo.
+2. **SoundCloud:** El Web-BFF agrega listas de reproducción + recomendaciones; el Mobile-BFF devuelve datos mínimos.
+3. **Spotify:** El Mobile-BFF usa caché agresivo y tamaños de imagen optimizados.
 
-## Checklist (self-test)
-- [ ] I can explain when BFF is needed vs when API Gateway is enough.
-- [ ] I understand the ownership model (frontend team owns BFF).
-- [ ] I can design aggregation logic without putting business rules in BFF.
-- [ ] I know how to handle partial failures (circuit breaker, graceful degradation).
-- [ ] I can monitor BFF health (latency, cache hit rate, error rate).
+## Lista de verificación (auto-evaluación)
+- [ ] Puedo explicar cuándo se necesita un BFF vs cuándo es suficiente un API Gateway.
+- [ ] Entiendo el modelo de propiedad (el equipo de frontend es dueño del BFF).
+- [ ] Puedo diseñar lógica de agregación sin poner reglas de negocio en el BFF.
+- [ ] Sé cómo manejar fallos parciales (circuit breaker, degradación elegante).
+- [ ] Puedo monitorear la salud del BFF (latencia, tasa de aciertos de caché, tasa de error).
 
-## Reminders / Key takeaways
-- BFF is a **thin aggregation layer**, not a domain service.
-- One BFF per client type: web-BFF, mobile-BFF, partner-BFF.
-- Always combine with [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md), and [Graceful Degradation](../operations/graceful-degradation.md).
-- Use [API Gateway](../system-design/api-gateway.md) to route traffic to BFFs.
+## Recordatorios / Conclusiones clave
+- El BFF es una **capa delgada de agregación**, no un servicio de dominio.
+- Un BFF por tipo de cliente: web-BFF, mobile-BFF, partner-BFF.
+- Siempre combinar con [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md) y [Degradación Elegante](../operations/graceful-degradation.md).
+- Usar [API Gateway](../system-design/api-gateway.md) para enrutar tráfico a los BFFs.
 
-## Trap questions (with answers)
-### Q1: Can I put business logic in a BFF?
-**A:** **No**. BFFs should only **aggregate, transform, and optimize** data from downstream services. Business logic (validation, calculations, domain rules) belongs in domain services. Violating this creates tight coupling and duplicates logic across BFFs.
+## Preguntas trampa (con respuestas)
+### P1: ¿Puedo poner lógica de negocio en un BFF?
+**R:** **No**. Los BFFs solo deben **agregar, transformar y optimizar** datos de los servicios downstream. La lógica de negocio (validación, cálculos, reglas de dominio) pertenece a los servicios de dominio. Violar esto crea acoplamiento fuerte y duplica lógica entre BFFs.
 
-### Q2: What's the difference between BFF and API Gateway?
-**A:** **API Gateway** is infrastructure: routing, auth, rate limiting, TLS termination for **all clients**. **BFF** is a service: client-specific aggregation and transformation. You use both: Gateway routes to BFFs (`/web/*` → web-bff, `/mobile/*` → mobile-bff). See [API Gateway](../system-design/api-gateway.md).
+### P2: ¿Cuál es la diferencia entre BFF y API Gateway?
+**R:** El **API Gateway** es infraestructura: enrutamiento, auth, limitación de tasa, terminación TLS para **todos los clientes**. El **BFF** es un servicio: agregación y transformación específica por cliente. Usas ambos: el Gateway enruta a los BFFs (`/web/*` → web-bff, `/mobile/*` → mobile-bff). Ver [API Gateway](../system-design/api-gateway.md).
 
-### Q3: Should I create a BFF for every single page/screen?
-**A:** **No**. Create BFFs per **client type** (web, mobile, partners), not per page. Within a BFF, different endpoints handle different screens. Creating too many BFFs increases operational overhead without significant benefit.
+### P3: ¿Debería crear un BFF para cada página/pantalla individual?
+**R:** **No**. Crea BFFs por **tipo de cliente** (web, móvil, socios), no por página. Dentro de un BFF, diferentes endpoints manejan diferentes pantallas. Crear demasiados BFFs aumenta la sobrecarga operacional sin beneficio significativo.
 
-### Q4: Can BFFs share code?
-**A:** **Yes, but carefully**. Extract shared logic into libraries (HTTP clients, auth helpers, data mappers). However, don't force shared aggregation logic—BFFs exist precisely to diverge based on client needs. Balance: shared infrastructure, independent business transformations.
+### P4: ¿Los BFFs pueden compartir código?
+**R:** **Sí, pero con cuidado**. Extraer lógica compartida en bibliotecas (clientes HTTP, helpers de auth, mapeadores de datos). Sin embargo, no fuerces lógica de agregación compartida; los BFFs existen precisamente para divergir según las necesidades del cliente. Balance: infraestructura compartida, transformaciones de negocio independientes.
 
-### Q5: How do I prevent BFFs from becoming bottlenecks?
-**A:** 
-1. Use **parallel calls** to downstream services (not sequential).
-2. Implement **caching** (Redis, CDN) for expensive aggregations.
-3. Add [Circuit Breaker](../operations/circuit-breaker.md) and [Timeout](../operations/timeouts.md) to fail fast.
-4. Scale BFFs horizontally (stateless design).
-5. Monitor latency and optimize slow endpoints. See [Performance basics](../system-design/performance-basics.md).
+### P5: ¿Cómo evito que los BFFs se conviertan en cuellos de botella?
+**R:**
+1. Usar **llamadas paralelas** a servicios downstream (no secuenciales).
+2. Implementar **caché** (Redis, CDN) para agregaciones costosas.
+3. Añadir [Circuit Breaker](../operations/circuit-breaker.md) y [Timeout](../operations/timeouts.md) para fallar rápido.
+4. Escalar los BFFs horizontalmente (diseño sin estado).
+5. Monitorear latencia y optimizar endpoints lentos. Ver [Fundamentos de rendimiento](../system-design/performance-basics.md).

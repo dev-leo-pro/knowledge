@@ -1,6 +1,6 @@
 ---
 id: archetype-multi-tenancy
-title: "Multi-Tenancy & Isolation"
+title: "Multi-Tenencia y Aislamiento"
 type: pattern
 status: learning
 importance: 90
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Multi-Tenancy & Isolation
+# Multi-Tenencia y Aislamiento
 
 ## TL;DR
-- Serve many customers on shared infrastructure safely without one impacting others.
-- Key challenges: noisy neighbor impacts others, data isolation & compliance, per-tenant scaling/billing.
-- Solutions: per-tenant quotas / rate limiting, partitioning by tenant ID, workload isolation (queues, pools).
+- Servir a muchos clientes en infraestructura compartida de forma segura sin que uno impacte a otros.
+- Desafíos clave: el vecino ruidoso impacta a otros, aislamiento de datos y cumplimiento, escalado/facturación por tenant.
+- Soluciones: cuotas / rate limiting por tenant, particionado por tenant ID, aislamiento de cargas de trabajo (colas, pools).
 
-## Where it hurts (why it hurts)
-1. **Noisy neighbor impacts others**: One tenant runs huge payroll export → slows API for all
-   - **Solution**: Per-tenant rate limiting / quotas; separate worker pools for heavy operations
-2. **Data isolation & compliance**: GDPR/compliance requires strict tenant separation
-   - **Solution**: Tenant ID in every key + authz enforcement; DB-per-tenant for strictest isolation
-3. **Per-tenant scaling and billing**: Need to track usage and costs per tenant
-   - **Solution**: Instrumentation per tenant ID; quotas + usage metering
+## Dónde duele (por qué duele)
+1. **El vecino ruidoso impacta a otros**: Un tenant ejecuta una exportación de nómina masiva → ralentiza la API para todos
+   - **Solución**: Rate limiting / cuotas por tenant; pools de workers separados para operaciones pesadas
+2. **Aislamiento de datos y cumplimiento**: GDPR/cumplimiento requiere separación estricta de tenants
+   - **Solución**: Tenant ID en cada clave + aplicación de autorización; BD-por-tenant para el aislamiento más estricto
+3. **Escalado y facturación por tenant**: Necesidad de rastrear uso y costes por tenant
+   - **Solución**: Instrumentación por tenant ID; cuotas + medición de uso
 
-## Decision rules
-- **Use when**: SaaS platforms, B2B products, shared infrastructure serving multiple customers
-- **Avoid when**: Single customer (no multi-tenancy), B2C with uniform users (no "tenants")
+## Reglas de decisión
+- **Usar cuando**: Plataformas SaaS, productos B2B, infraestructura compartida sirviendo a múltiples clientes
+- **Evitar cuando**: Cliente único (sin multi-tenencia), B2C con usuarios uniformes (sin "tenants")
 
 ## Trade-offs
-- **Shared DB**: Cheaper, easier ops; risk of noisy neighbor
-- **DB-per-tenant**: Strict isolation, independent scaling; operational burden
-- **Choose**: Most start shared DB + quotas; move to DB-per-tenant for large/regulated tenants
+- **BD compartida**: Más barata, operaciones más fáciles; riesgo de vecino ruidoso
+- **BD-por-tenant**: Aislamiento estricto, escalado independiente; carga operativa
+- **Elegir**: La mayoría empieza con BD compartida + cuotas; pasar a BD-por-tenant para tenants grandes/regulados
 
-## Explicit example
-SaaS HR platform: Tenant A runs massive payroll export (10k rows) → locks DB tables → Tenant B's API calls timeout. Solution: Per-tenant rate limits + async job queue with quotas. Tenant A's job queued separately; doesn't block Tenant B.
+## Ejemplo explícito
+Plataforma SaaS de RRHH: El Tenant A ejecuta una exportación de nómina masiva (10k filas) → bloquea tablas de la BD → las llamadas API del Tenant B hacen timeout. Solución: Límites de tasa por tenant + cola de trabajos asíncrona con cuotas. El trabajo del Tenant A se encola por separado; no bloquea al Tenant B.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Rate Limiting](archetype-rate-limiting-quotas.md), [Security & Access Control](archetype-security-access-control.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Rate Limiting](archetype-rate-limiting-quotas.md), [Seguridad y Control de Acceso](archetype-security-access-control.md)

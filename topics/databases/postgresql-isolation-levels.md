@@ -1,6 +1,6 @@
 ---
 id: postgresql-isolation-levels
-title: "PostgreSQL Isolation Levels"
+title: "Niveles de aislamiento en PostgreSQL"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# PostgreSQL Isolation Levels
+# Niveles de aislamiento en PostgreSQL
 
 ## TL;DR (BLUF)
-- Isolation controls how transactions see concurrent changes.
-- Use higher isolation for correctness; accept lower for throughput.
-- Trade-off: stronger isolation can increase retries and contention.
+- El aislamiento controla cómo las transacciones ven los cambios concurrentes.
+- Usa un aislamiento mayor para corrección; acepta uno menor para throughput.
+- Trade-off: un aislamiento más fuerte puede aumentar reintentos y contención.
 
-## Definition
-**What it is:** Transaction visibility rules: Read Committed, Repeatable Read, Serializable.
-**Key terms:** isolation level, serialization failures, anomalies.
+## Definición
+**Qué es:** Reglas de visibilidad de transacciones: Read Committed, Repeatable Read, Serializable.
+**Términos clave:** nivel de aislamiento, fallos de serialización, anomalías.
 
-## Why it matters
-- It determines correctness guarantees under concurrency.
-- Wrong isolation can lead to subtle bugs.
+## Por qué importa
+- Determina las garantías de corrección bajo concurrencia.
+- Un aislamiento incorrecto puede llevar a bugs sutiles.
 
-## Scope & Non-goals
-**In scope:** Postgres isolation levels and trade-offs.
-**Out of scope / NOT solved by this:** distributed transaction isolation.
+## Alcance y no-objetivos
+**Dentro del alcance:** niveles de aislamiento de Postgres y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** aislamiento de transacciones distribuidas.
 
-## Mental model / Intuition
-- Think of isolation as how stable your snapshot is during a transaction.
+## Modelo mental / Intuición
+- Piensa en el aislamiento como qué tan estable es tu snapshot durante una transacción.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need stronger correctness (e.g., financial operations).
-### Avoid it when
-- Throughput is more important than strict isolation.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas corrección más fuerte (ej., operaciones financieras).
+### Evítalo cuando
+- El throughput es más importante que el aislamiento estricto.
 
-## How I would use it (practical)
-- **Context:** Account balance transfers.
-- **Steps:** use Serializable or Repeatable Read → handle retries → keep transactions short.
-- **What success looks like:** correctness with manageable retries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Transferencias de saldos de cuentas.
+- **Pasos:** usar Serializable o Repeatable Read → manejar reintentos → mantener transacciones cortas.
+- **Cómo se ve el éxito:** corrección con reintentos manejables.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** stronger correctness.
-- **Cons / Risks:** higher contention and retries.
-### Alternatives
-- **Application-level checks:** when isolation is too costly.
-- **How to choose:** use the lowest isolation that still guarantees correctness.
+- **Ventajas:** corrección más fuerte.
+- **Desventajas / Riesgos:** mayor contención y reintentos.
+### Alternativas
+- **Verificaciones a nivel de aplicación:** cuando el aislamiento es demasiado costoso.
+- **Cómo elegir:** usa el aislamiento más bajo que aún garantice corrección.
 
-## Failure modes & Pitfalls
-- Serialization failures not handled with retries.
-- Assuming Repeatable Read prevents all anomalies.
+## Modos de fallo y trampas
+- Fallos de serialización no manejados con reintentos.
+- Asumir que Repeatable Read previene todas las anomalías.
 
-## Observability (How to detect issues)
-- **Metrics:** serialization failures, retry rate.
-- **Logs:** transaction aborts.
-- **Alerts:** spikes in serialization failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** fallos de serialización, tasa de reintentos.
+- **Logs:** abortos de transacciones.
+- **Alertas:** picos en fallos de serialización.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose the minimal safe isolation
-  - [ ] Implement retry logic for serialization errors
+  - [ ] Elegir el aislamiento mínimo seguro
+  - [ ] Implementar lógica de reintento para errores de serialización
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Running all transactions at Serializable.
-  - **Why it’s bad:** unnecessary contention.
-  - **Better approach:** only raise isolation when needed.
+## Anti-patrones comunes
+- **Anti-patrón:** Ejecutar todas las transacciones en Serializable.
+  - **Por qué es malo:** contención innecesaria.
+  - **Mejor enfoque:** solo aumentar el aislamiento cuando sea necesario.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Isolation levels define how stable your view of the data is while a transaction runs. Postgres defaults to Read Committed; higher levels give stronger guarantees but can increase retries.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los niveles de aislamiento definen qué tan estable es tu vista de los datos mientras una transacción se ejecuta. Postgres usa Read Committed por defecto; niveles más altos dan garantías más fuertes pero pueden aumentar los reintentos.
 
-### Trap questions (with answers)
-1) **Q:** Does Repeatable Read prevent all anomalies?
-   - **A:** no; serializable is the strongest and still can fail with retries.
-2) **Q:** Are serialization failures bugs?
-   - **A:** no; they’re expected and should be retried.
-3) **Q:** Is Read Committed always safe?
-   - **A:** no; some workflows require stronger guarantees.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Repeatable Read previene todas las anomalías?
+   - **R:** no; serializable es el más fuerte y aún puede fallar con reintentos.
+2) **P:** ¿Los fallos de serialización son bugs?
+   - **R:** no; son esperados y deben reintentarse.
+3) **P:** ¿Read Committed siempre es seguro?
+   - **R:** no; algunos flujos de trabajo requieren garantías más fuertes.
 
-### Quick self-check (5 items)
-- [ ] I can name the Postgres isolation levels.
-- [ ] I can explain a trade-off.
-- [ ] I can describe retry needs.
-- [ ] I can name a pitfall.
-- [ ] I can tie isolation to MVCC.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo nombrar los niveles de aislamiento de Postgres.
+- [ ] Puedo explicar un trade-off.
+- [ ] Puedo describir las necesidades de reintento.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo relacionar el aislamiento con MVCC.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](transactions.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Transacciones](transactions.md)
 - [PostgreSQL MVCC](postgresql-mvcc.md)
 
-### Related topics
+### Temas relacionados
 - [Deadlocks](deadlocks.md)
 
-### Compare with
-- [Consistency models](consistency-models.md)
+### Comparar con
+- [Modelos de consistencia](consistency-models.md)

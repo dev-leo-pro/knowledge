@@ -1,6 +1,6 @@
 ---
 id: bounded-contexts
-title: "Bounded Contexts"
+title: "Contextos Acotados"
 type: concept
 status: learning
 importance: 85
@@ -12,109 +12,109 @@ created_at: 2026-01-22
 updated_at: 2026-01-22
 ---
 
-# Bounded Contexts
+# Contextos Acotados
 
 ## TL;DR (BLUF)
-- A bounded context is the boundary where a model and language are consistent.
-- Use it to split complex domains into coherent parts with clear contracts.
-- Trade-off: upfront modeling effort and integration complexity between contexts.
+- Un contexto acotado es la frontera donde un modelo y un lenguaje son consistentes.
+- Úsalo para dividir dominios complejos en partes coherentes con contratos claros.
+- Trade-off: esfuerzo de modelado inicial y complejidad de integración entre contextos.
 
-## Definition
-**What it is:** A boundary within which a domain model and ubiquitous language are consistent and enforced.
-**Key terms:** bounded context, ubiquitous language (ubiquitous language), context map (context map), integration contract (integration contract).
+## Definición
+**Qué es:** Una frontera dentro de la cual un modelo de dominio y un lenguaje ubicuo son consistentes y se aplican.
+**Términos clave:** contexto acotado, lenguaje ubicuo, mapa de contexto, contrato de integración.
 
-## Why it matters
-- It prevents “one big model” and reduces accidental coupling.
-- It guides service boundaries, ownership, and integration patterns.
+## Por qué importa
+- Previene "un gran modelo único" y reduce el acoplamiento accidental.
+- Guía las fronteras de servicio, la propiedad y los patrones de integración.
 
-## Scope & Non-goals
-**In scope:** modeling boundaries, ownership, and integration contracts.
-**Out of scope / NOT solved by this:** deployment topology or team org charts.
+## Alcance y no-objetivos
+**Dentro del alcance:** fronteras de modelado, propiedad y contratos de integración.
+**Fuera del alcance / NO resuelto por esto:** topología de despliegue u organigramas de equipo.
 
-## Mental model / Intuition
-- Think of each bounded context as its own dictionary: same word may mean different things across contexts.
+## Modelo mental / Intuición
+- Piensa en cada contexto acotado como su propio diccionario: la misma palabra puede significar cosas diferentes entre contextos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- The domain is complex with conflicting concepts and rules.
-- Multiple teams/services interact in the same business area.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El dominio es complejo con conceptos y reglas en conflicto.
+- Múltiples equipos/servicios interactúan en la misma área de negocio.
 
-### Avoid it when
-- The domain is simple CRUD with minimal rules.
-- You cannot invest in domain discovery and shared language.
+### Evítalo cuando
+- El dominio es CRUD simple con reglas mínimas.
+- No puedes invertir en descubrimiento de dominio y lenguaje compartido.
 
-## How I would use it (practical)
-- **Context:** Debt-collection platform with “Cases”, “Contacts”, and “Payments”.
-- **Steps:**
-  1) Run domain discovery to list core terms and invariants.
-  2) Split contexts (e.g., Case Management, Contacting, Payments).
-  3) Define APIs/events between contexts with versioned contracts.
-- **What success looks like:** fewer cross-team conflicts and clearer ownership.
+## Cómo lo usaría (práctico)
+- **Contexto:** Plataforma de cobro de deudas con "Casos", "Contactos" y "Pagos".
+- **Pasos:**
+  1) Ejecutar descubrimiento de dominio para listar términos centrales e invariantes.
+  2) Separar contextos (ej., Gestión de Casos, Contacto, Pagos).
+  3) Definir APIs/eventos entre contextos con contratos versionados.
+- **Cómo se ve el éxito:** menos conflictos entre equipos y propiedad más clara.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clarity, reduced coupling, safer evolution.
-- **Cons / Risks:** integration overhead, duplication of data across contexts.
+- **Ventajas:** claridad, acoplamiento reducido, evolución más segura.
+- **Desventajas / Riesgos:** sobrecarga de integración, duplicación de datos entre contextos.
 
-### Alternatives
-- **Single shared model:** faster early on but harder to scale and evolve.
-- **How to choose:** if domain complexity or team size grows, bounded contexts pay off.
+### Alternativas
+- **Modelo compartido único:** más rápido al inicio pero más difícil de escalar y evolucionar.
+- **Cómo elegir:** si la complejidad del dominio o el tamaño del equipo crece, los contextos acotados valen la pena.
 
-## Failure modes & Pitfalls
-- Splitting by technical layers instead of domain concepts.
-- Over-splitting into tiny contexts with chatty integrations.
-- Not documenting integration contracts (leads to semantic drift).
+## Modos de fallo y trampas
+- Dividir por capas técnicas en lugar de conceptos de dominio.
+- Sobre-dividir en contextos diminutos con integraciones parlanchinas.
+- No documentar contratos de integración (lleva a deriva semántica).
 
-## Observability (How to detect issues)
-- **Metrics:** cross-context call volume, integration error rate, change lead time per context.
-- **Logs:** contract version mismatches or schema validation failures.
-- **Traces:** high fan-out across contexts indicates over-splitting.
-- **Alerts:** repeated integration failures between specific contexts.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** volumen de llamadas entre contextos, tasa de error de integración, tiempo de entrega de cambios por contexto.
+- **Logs:** desajustes de versión de contrato o fallos de validación de esquema.
+- **Trazas:** alto fan-out entre contextos indica sobre-división.
+- **Alertas:** fallos de integración repetidos entre contextos específicos.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define ubiquitous language per context
-  - [ ] Document ownership and contracts
-  - [ ] Choose integration style (sync vs async)
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir lenguaje ubicuo por contexto
+  - [ ] Documentar propiedad y contratos
+  - [ ] Elegir estilo de integración (síncrono vs asíncrono)
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** “One global domain model for everything.”
-  - **Why it’s bad:** it creates tight coupling and slows change.
-  - **Better approach:** bounded contexts with explicit contracts.
+## Anti-patrones comunes
+- **Anti-patrón:** "Un modelo de dominio global para todo."
+  - **Por qué es malo:** crea acoplamiento fuerte y ralentiza los cambios.
+  - **Mejor enfoque:** contextos acotados con contratos explícitos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A bounded context is a boundary where a domain model and language are consistent; it helps split a complex domain into coherent parts with clear integration contracts.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Un contexto acotado es una frontera donde un modelo de dominio y un lenguaje son consistentes; ayuda a dividir un dominio complejo en partes coherentes con contratos de integración claros.
 
-### Trap questions (with answers)
-1) **Q:** Are bounded contexts the same as microservices?
-   - **A:** No; they are conceptual boundaries that can map to services or modules.
-2) **Q:** Should every term mean the same thing across contexts?
-   - **A:** No; different contexts can intentionally use different meanings.
-3) **Q:** Do bounded contexts remove the need for integration work?
-   - **A:** No; they make integration explicit and intentional.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los contextos acotados son lo mismo que los microservicios?
+   - **R:** No; son fronteras conceptuales que pueden mapearse a servicios o módulos.
+2) **P:** ¿Cada término debería significar lo mismo entre contextos?
+   - **R:** No; diferentes contextos pueden usar intencionalmente significados diferentes.
+3) **P:** ¿Los contextos acotados eliminan la necesidad de trabajo de integración?
+   - **R:** No; hacen la integración explícita e intencional.
 
-### Quick self-check (5 items)
-- [ ] I can define bounded context precisely.
-- [ ] I can explain why it reduces coupling.
-- [ ] I can give a context split example.
-- [ ] I can list a trade-off.
-- [ ] I can name a failure mode.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir contexto acotado con precisión.
+- [ ] Puedo explicar por qué reduce el acoplamiento.
+- [ ] Puedo dar un ejemplo de separación de contextos.
+- [ ] Puedo listar un trade-off.
+- [ ] Puedo nombrar un modo de fallo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Domain-Driven Design (DDD)](domain-driven-design.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Diseño Orientado al Dominio (DDD)](domain-driven-design.md)
 
-### Related topics
-- [Microservices design basics](microservices-design-basics.md)
-- [Event-driven architecture](event-driven-basics.md)
-- [API design basics](../system-design/api-design-basics.md)
+### Temas relacionados
+- [Fundamentos de diseño de microservicios](microservices-design-basics.md)
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
+- [Fundamentos de diseño de APIs](../system-design/api-design-basics.md)
 
-### Compare with
-- [Hexagonal architecture](hexagonal-architecture.md) — bounded contexts are about domain boundaries; hexagonal is about dependency direction.
+### Comparar con
+- [Arquitectura hexagonal](hexagonal-architecture.md) -- los contextos acotados tratan sobre fronteras de dominio; la hexagonal trata sobre la dirección de dependencias.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

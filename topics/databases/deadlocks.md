@@ -15,92 +15,92 @@ updated_at: 2026-01-19
 # Deadlocks
 
 ## TL;DR (BLUF)
-- A deadlock occurs when transactions block each other in a cycle.
-- Use short transactions and consistent lock ordering to avoid them.
-- Trade-off: higher safety may reduce concurrency.
+- Un deadlock ocurre cuando las transacciones se bloquean mutuamente en un ciclo.
+- Usa transacciones cortas y orden consistente de bloqueos para evitarlos.
+- Trade-off: mayor seguridad puede reducir la concurrencia.
 
-## Definition
-**What it is:** A cyclic wait where each transaction holds a lock needed by another.
-**Key terms:** lock ordering, wait graph, rollback.
+## Definición
+**Qué es:** Una espera cíclica donde cada transacción mantiene un bloqueo que la otra necesita.
+**Términos clave:** orden de bloqueos, grafo de espera, rollback.
 
-## Why it matters
-- Deadlocks cause transaction failures and retries.
-- High deadlock rates signal contention or poor access patterns.
+## Por qué importa
+- Los deadlocks causan fallos de transacciones y reintentos.
+- Altas tasas de deadlocks señalan contención o patrones de acceso pobres.
 
-## Scope & Non-goals
-**In scope:** DB deadlocks and mitigation patterns.
-**Out of scope / NOT solved by this:** distributed deadlocks across services.
+## Alcance y no-objetivos
+**Dentro del alcance:** deadlocks en BD y patrones de mitigación.
+**Fuera del alcance / NO resuelto por esto:** deadlocks distribuidos entre servicios.
 
-## Mental model / Intuition
-- Think of two people holding keys to each other’s locks.
+## Modelo mental / Intuición
+- Piensa en dos personas sosteniendo las llaves de los candados del otro.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need strict transactional consistency and can tolerate retries.
-### Avoid it when
-- You can redesign access to reduce lock overlap.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas consistencia transaccional estricta y puedes tolerar reintentos.
+### Evítalo cuando
+- Puedes rediseñar el acceso para reducir la superposición de bloqueos.
 
-## How I would use it (practical)
-- **Context:** Concurrent updates on shared rows.
-- **Steps:** enforce consistent lock ordering → keep transactions short → retry on deadlock.
-- **What success looks like:** deadlock rate near zero.
+## Cómo lo usaría (práctico)
+- **Contexto:** Actualizaciones concurrentes en filas compartidas.
+- **Pasos:** imponer orden consistente de bloqueos → mantener transacciones cortas → reintentar en deadlock.
+- **Cómo se ve el éxito:** tasa de deadlocks cercana a cero.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** preserves correctness under concurrency.
-- **Cons / Risks:** retries and latency spikes.
-### Alternatives
-- **Optimistic concurrency control:** version checks.
-- **How to choose:** use deadlock retries when strict consistency is required.
+- **Ventajas:** preserva la corrección bajo concurrencia.
+- **Desventajas / Riesgos:** reintentos y picos de latencia.
+### Alternativas
+- **Control de concurrencia optimista:** verificaciones de versión.
+- **Cómo elegir:** usar reintentos de deadlock cuando se requiere consistencia estricta.
 
-## Failure modes & Pitfalls
-- Long transactions holding locks for too long.
-- Inconsistent lock ordering across code paths.
+## Modos de fallo y trampas
+- Transacciones largas manteniendo bloqueos demasiado tiempo.
+- Orden inconsistente de bloqueos entre rutas de código.
 
-## Observability (How to detect issues)
-- **Metrics:** deadlock count, transaction retries.
-- **Logs:** deadlock detector logs.
-- **Alerts:** spikes in deadlock errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** conteo de deadlocks, reintentos de transacciones.
+- **Logs:** logs del detector de deadlocks.
+- **Alertas:** picos en errores de deadlocks.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Keep transactions short
-  - [ ] Order lock acquisition consistently
-  - [ ] Retry with backoff
+  - [ ] Mantener transacciones cortas
+  - [ ] Ordenar la adquisición de bloqueos consistentemente
+  - [ ] Reintentar con backoff
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Retrying without fixing root cause.
-  - **Why it’s bad:** hides contention.
-  - **Better approach:** reduce lock overlap.
+## Anti-patrones comunes
+- **Anti-patrón:** Reintentar sin arreglar la causa raíz.
+  - **Por qué es malo:** oculta la contención.
+  - **Mejor enfoque:** reducir la superposición de bloqueos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A deadlock is when two transactions each hold a lock the other needs, so neither can proceed. Databases detect this and abort one transaction; you should keep transactions short and lock rows in a consistent order.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Un deadlock es cuando dos transacciones mantienen cada una un bloqueo que la otra necesita, así que ninguna puede avanzar. Las bases de datos detectan esto y abortan una transacción; debes mantener las transacciones cortas y bloquear filas en un orden consistente.
 
-### Trap questions (with answers)
-1) **Q:** Can deadlocks happen without writes?
-   - **A:** yes; some reads take locks depending on isolation.
-2) **Q:** Are deadlocks a bug in the database?
-   - **A:** no; they’re a concurrency reality with locking.
-3) **Q:** Can you ignore deadlocks?
-   - **A:** no; you must handle retries and reduce contention.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Pueden ocurrir deadlocks sin escrituras?
+   - **R:** sí; algunas lecturas toman bloqueos dependiendo del aislamiento.
+2) **P:** ¿Los deadlocks son un bug en la base de datos?
+   - **R:** no; son una realidad de concurrencia con bloqueos.
+3) **P:** ¿Se pueden ignorar los deadlocks?
+   - **R:** no; debes manejar reintentos y reducir la contención.
 
-### Quick self-check (5 items)
-- [ ] I can define deadlocks precisely.
-- [ ] I can name a cause.
-- [ ] I can explain a mitigation.
-- [ ] I can identify a signal.
-- [ ] I can explain retry strategy.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir deadlocks con precisión.
+- [ ] Puedo nombrar una causa.
+- [ ] Puedo explicar una mitigación.
+- [ ] Puedo identificar una señal.
+- [ ] Puedo explicar la estrategia de reintentos.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Locks](locks.md)
 
-### Related topics
+### Temas relacionados
 - [Transactions](transactions.md)
 
-### Compare with
+### Comparar con
 - [Optimistic concurrency control](optimistic-concurrency-control.md)

@@ -1,35 +1,35 @@
 ---
-title: Third-party Data APIs
+title: APIs de datos de terceros
 ---
 
-# Third-party Data APIs
+# APIs de datos de terceros
 
-## Definition
-Third-party data APIs are external interfaces provided by vendors or platforms to access data or services, such as email, CRM, or analytics.
+## Definición
+Las APIs de datos de terceros son interfaces externas proporcionadas por proveedores o plataformas para acceder a datos o servicios, como email, CRM o analíticas.
 
-## Why it matters
-They enable rapid integration of external capabilities, but introduce risks around reliability, privacy, and compliance.
+## Por qué importa
+Permiten una integración rápida de capacidades externas, pero introducen riesgos en torno a fiabilidad, privacidad y cumplimiento.
 
-## When to use / when not to use
-Use when you need to enrich your application with external data or services. Not needed for purely internal systems.
+## Cuándo usar / cuándo no usar
+Úsalas cuando necesites enriquecer tu aplicación con datos o servicios externos. No es necesario para sistemas puramente internos.
 
 ## Trade-offs
-- + Rapid access to external capabilities
-- + Reduces development time
-- - Vendor lock-in and changing APIs
-- - Privacy, compliance, and reliability risks
+- + Acceso rápido a capacidades externas
+- + Reduce tiempo de desarrollo
+- - Dependencia del proveedor y APIs cambiantes
+- - Riesgos de privacidad, cumplimiento y fiabilidad
 
-## Prerequisites
+## Prerequisitos
 - [Webhooks](webhooks.md)
 
-## Related topics
+## Temas relacionados
 - [Nylas](nylas.md)
 - [Gong](gong.md)
 
-## Trap questions
-1. What is a third-party data API?
-   - An external interface to access data or services from another provider.
-2. What is a common risk with third-party APIs?
-   - Breaking changes or outages outside your control.
-3. How can you mitigate risks with third-party APIs?
-   - Use retries, monitoring, and clear contracts.
+## Preguntas trampa
+1. ¿Qué es una API de datos de terceros?
+   - Una interfaz externa para acceder a datos o servicios de otro proveedor.
+2. ¿Cuál es un riesgo común con APIs de terceros?
+   - Cambios incompatibles o interrupciones fuera de tu control.
+3. ¿Cómo puedes mitigar los riesgos con APIs de terceros?
+   - Usa reintentos, monitoreo y contratos claros.

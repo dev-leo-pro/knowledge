@@ -1,6 +1,6 @@
 ---
 id: refactoring-techniques
-title: "Refactoring Techniques"
+title: "Técnicas de Refactorización"
 type: skill
 status: learning
 importance: 80
@@ -12,141 +12,141 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Refactoring Techniques
+# Técnicas de Refactorización
 
 ## TL;DR (BLUF)
-- Refactoring is restructuring code to improve design without changing behavior—safer with tests as safety nets.
-- Use small, incremental changes (extract function, rename variable, remove duplication) rather than large rewrites.
-- Key trade-off: time spent improving structure vs. shipping features.
+- La refactorización es reestructurar código para mejorar el diseño sin cambiar el comportamiento—más seguro con pruebas como red de seguridad.
+- Usa cambios pequeños e incrementales (extraer función, renombrar variable, eliminar duplicación) en lugar de grandes reescrituras.
+- Trade-off clave: tiempo invertido en mejorar la estructura vs. entregar funcionalidades.
 
-## Definition
-**What it is:** The process of improving code structure, readability, and maintainability without altering its external behavior.  
-**Key terms:** code smell (symptom of poor design), technical debt, red-green-refactor (TDD cycle), extract method/function, inline, rename, remove duplication, simplify conditionals.
+## Definición
+**Qué es:** El proceso de mejorar la estructura, legibilidad y mantenibilidad del código sin alterar su comportamiento externo.  
+**Términos clave:** code smell (síntoma de mal diseño), deuda técnica, red-green-refactor (ciclo TDD), extraer método/función, inline, renombrar, eliminar duplicación, simplificar condicionales.
 
-## Why it matters
-- **Prevents rot:** Code degrades over time without refactoring; becomes unmaintainable.
-- **Enables velocity:** Clean code is faster to change; refactoring pays back in delivery speed.
-- **Reduces bugs:** Simpler code has fewer places for bugs to hide.
-- **Safer changes:** Tests ensure refactoring doesn't break behavior.
-- **Interview relevance:** Senior engineers must demonstrate ability to improve code quality while maintaining correctness.
+## Por qué importa
+- **Previene la degradación:** El código se degrada con el tiempo sin refactorización; se vuelve inmantenible.
+- **Permite velocidad:** El código limpio es más rápido de cambiar; la refactorización se paga en velocidad de entrega.
+- **Reduce errores:** El código más simple tiene menos lugares donde los errores se esconden.
+- **Cambios más seguros:** Las pruebas aseguran que la refactorización no rompa el comportamiento.
+- **Relevancia en entrevistas:** Los ingenieros senior deben demostrar capacidad para mejorar la calidad del código manteniendo la corrección.
 
-## Scope & Non-goals
-**In scope:**
-- Common refactoring techniques (extract function, rename, remove duplication, etc.).
-- When to refactor and when to leave code alone.
-- Safe refactoring workflow (tests → small changes → verify).
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Técnicas comunes de refactorización (extraer función, renombrar, eliminar duplicación, etc.).
+- Cuándo refactorizar y cuándo dejar el código como está.
+- Flujo de trabajo de refactorización segura (pruebas → cambios pequeños → verificar).
 
-**Out of scope / NOT solved by this:**
-- Rewrites (replacing entire systems—different from refactoring).
-- Performance optimization (separate concern, though refactoring can enable it).
+**Fuera del alcance / NO resuelto por esto:**
+- Reescrituras (reemplazar sistemas completos—diferente de refactorización).
+- Optimización de rendimiento (preocupación separada, aunque la refactorización puede habilitarla).
 
-## Mental model / Intuition
-Think of refactoring as **tidying a workspace**:
-- Small, frequent tidying (daily): Easy, low-risk, keeps space usable.
-- Letting mess accumulate (months): Eventually requires big cleanup (risky, expensive).
-- Refactoring is continuous tidying, not once-a-year overhaul.
+## Modelo mental / Intuición
+Piensa en la refactorización como **ordenar un espacio de trabajo**:
+- Ordenar pequeño y frecuente (diario): Fácil, bajo riesgo, mantiene el espacio utilizable.
+- Dejar que se acumule el desorden (meses): Eventualmente requiere una gran limpieza (riesgosa, costosa).
+- La refactorización es orden continuo, no una reorganización anual.
 
-Also, refactoring with tests is like **editing with a safety net**: tests catch you if you break behavior.
+También, refactorizar con pruebas es como **editar con red de seguridad**: las pruebas te atrapan si rompes el comportamiento.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Code is hard to understand or change (long functions, deep nesting, duplication).
-- Adding features requires touching messy code (refactor first, then add feature).
-- Tests exist (refactoring without tests is risky).
-- Technical debt is slowing delivery.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El código es difícil de entender o cambiar (funciones largas, anidamiento profundo, duplicación).
+- Agregar funcionalidades requiere tocar código desordenado (refactorizar primero, luego agregar funcionalidad).
+- Existen pruebas (refactorizar sin pruebas es riesgoso).
+- La deuda técnica está ralentizando la entrega.
 
-### Avoid it when
-- Code works and rarely changes (stable, low-churn areas).
-- No tests (refactoring without tests risks breaking behavior).
-- Feature deadline is immediate (refactor after shipping; or refactor opportunistically).
+### Evítalo cuando
+- El código funciona y rara vez cambia (áreas estables, de baja rotación).
+- No hay pruebas (refactorizar sin pruebas arriesga romper el comportamiento).
+- El plazo de entrega de la funcionalidad es inmediato (refactorizar después de entregar; o refactorizar oportunísticamente).
 
-## How I would use it (practical)
-- **Context:** Refactoring a 300-line Go function that processes orders.
-- **Steps:**
-  1. **Ensure tests exist:** If not, write characterization tests (capture current behavior).
-  2. **Identify code smells:** Long function, deep nesting, duplicated validation logic.
-  3. **Extract functions:** Break into `validateOrder()`, `fetchUser()`, `chargePayment()`, `sendConfirmation()`.
-  4. **Run tests after each extraction:** Verify behavior unchanged.
-  5. **Rename variables:** `o` → `order`, `u` → `user`, `res` → `result`.
-  6. **Remove duplication:** Extract repeated validation into `validateEmail()`.
-  7. **Simplify conditionals:** Replace nested if-else with early returns.
-  8. **Commit incrementally:** Small commits, each with tests passing.
-- **What success looks like:** Function is <50 lines; logic is clear; tests still pass; new feature takes <1 hour to add.
+## Cómo lo usaría (práctico)
+- **Contexto:** Refactorizando una función de 300 líneas en Go que procesa pedidos.
+- **Pasos:**
+  1. **Asegurar que existan pruebas:** Si no, escribir pruebas de caracterización (capturar comportamiento actual).
+  2. **Identificar code smells:** Función larga, anidamiento profundo, lógica de validación duplicada.
+  3. **Extraer funciones:** Dividir en `validateOrder()`, `fetchUser()`, `chargePayment()`, `sendConfirmation()`.
+  4. **Ejecutar pruebas después de cada extracción:** Verificar que el comportamiento no cambió.
+  5. **Renombrar variables:** `o` → `order`, `u` → `user`, `res` → `result`.
+  6. **Eliminar duplicación:** Extraer validación repetida en `validateEmail()`.
+  7. **Simplificar condicionales:** Reemplazar if-else anidados con retornos tempranos.
+  8. **Hacer commits incrementales:** Commits pequeños, cada uno con pruebas pasando.
+- **Cómo se ve el éxito:** La función tiene <50 líneas; la lógica es clara; las pruebas siguen pasando; agregar una nueva funcionalidad toma <1 hora.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Improves maintainability (easier to change over time).
-  - Reduces bugs (simpler code, fewer hiding spots).
-  - Accelerates delivery long-term (clean code = faster iteration).
-- **Cons / Risks:**
-  - Upfront time cost (refactoring takes time).
-  - Risk of breaking behavior (mitigated by tests).
-  - Can be tempting to over-refactor (premature abstraction).
+- **Ventajas:**
+  - Mejora la mantenibilidad (más fácil de cambiar con el tiempo).
+  - Reduce errores (código más simple, menos escondites).
+  - Acelera la entrega a largo plazo (código limpio = iteración más rápida).
+- **Desventajas / Riesgos:**
+  - Costo de tiempo inicial (la refactorización toma tiempo).
+  - Riesgo de romper comportamiento (mitigado por pruebas).
+  - Puede ser tentador sobre-refactorizar (abstracción prematura).
 
-### Alternatives
-- **Rewrite from scratch:** Risky; often takes longer than expected; may introduce new bugs.
-- **Leave code as-is:** Fast short-term but accumulates debt (eventually slows delivery).
-- **Opportunistic refactoring:** Refactor only when touching code for features (balanced approach).
+### Alternativas
+- **Reescribir desde cero:** Riesgoso; a menudo toma más tiempo del esperado; puede introducir nuevos errores.
+- **Dejar el código como está:** Rápido a corto plazo pero acumula deuda (eventualmente ralentiza la entrega).
+- **Refactorización oportunista:** Refactorizar solo al tocar código para funcionalidades (enfoque equilibrado).
 
-### How to choose
-- **Messy code with good tests:** Refactor incrementally.
-- **Messy code without tests:** Add tests first, then refactor.
-- **Stable, working code:** Leave it alone (don't fix what isn't broken).
+### Cómo elegir
+- **Código desordenado con buenas pruebas:** Refactorizar incrementalmente.
+- **Código desordenado sin pruebas:** Agregar pruebas primero, luego refactorizar.
+- **Código estable y funcional:** Dejarlo como está (no arreglar lo que no está roto).
 
-## Failure modes & Pitfalls
-- **Refactoring without tests:** High risk of breaking behavior; no safety net.
-- **Big-bang refactoring:** Large, risky changes; hard to review and debug.
-- **Premature abstraction:** Refactoring before you understand the problem (YAGNI violation).
-- **Refactoring on a deadline:** Creates pressure to cut corners or skip tests.
-- **Gold-plating:** Refactoring beyond what's needed (perfectionism).
+## Modos de fallo y trampas
+- **Refactorizar sin pruebas:** Alto riesgo de romper comportamiento; sin red de seguridad.
+- **Refactorización big-bang:** Cambios grandes y riesgosos; difícil de revisar y depurar.
+- **Abstracción prematura:** Refactorizar antes de entender el problema (violación de YAGNI).
+- **Refactorizar con plazo:** Crea presión para tomar atajos u omitir pruebas.
+- **Gold-plating:** Refactorizar más allá de lo necesario (perfeccionismo).
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Cyclomatic complexity (flag functions >10).
-  - Function length (flag >50 lines).
-  - Code churn (files changed frequently may need refactoring).
-- **Logs:** N/A for refactoring itself.
-- **Traces:** N/A for refactoring itself.
-- **Alerts:** N/A for refactoring itself.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Complejidad ciclomática (señalar funciones >10).
+  - Longitud de función (señalar >50 líneas).
+  - Rotación de código (archivos cambiados frecuentemente pueden necesitar refactorización).
+- **Logs:** N/A para la refactorización en sí.
+- **Trazas:** N/A para la refactorización en sí.
+- **Alertas:** N/A para la refactorización en sí.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Ensure tests exist and pass (if not, write tests first).
-  - [ ] Identify code smell (long function, duplication, deep nesting, unclear names).
-  - [ ] Choose a refactoring technique (extract function, rename, simplify conditionals, etc.).
-  - [ ] Make one small change at a time.
-  - [ ] Run tests after each change (verify behavior unchanged).
-  - [ ] Commit incrementally (small commits, each with tests passing).
-  - [ ] Stop when code is "good enough" (don't over-refactor).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Asegurar que las pruebas existan y pasen (si no, escribir pruebas primero).
+  - [ ] Identificar code smell (función larga, duplicación, anidamiento profundo, nombres poco claros).
+  - [ ] Elegir una técnica de refactorización (extraer función, renombrar, simplificar condicionales, etc.).
+  - [ ] Hacer un cambio pequeño a la vez.
+  - [ ] Ejecutar pruebas después de cada cambio (verificar que el comportamiento no cambió).
+  - [ ] Hacer commits incrementalmente (commits pequeños, cada uno con pruebas pasando).
+  - [ ] Parar cuando el código esté "suficientemente bueno" (no sobre-refactorizar).
 
-- **Security / Compliance notes**
-  - Refactoring doesn't change behavior, so security should be unaffected.
-  - Use tests to verify security constraints are preserved.
+- **Notas de seguridad / cumplimiento**
+  - La refactorización no cambia el comportamiento, por lo que la seguridad no debería verse afectada.
+  - Usar pruebas para verificar que las restricciones de seguridad se preserven.
 
-- **Performance notes**
-  - Refactoring often improves performance (simpler code is easier to optimize).
-  - If performance regresses, profile and adjust (but test first).
+- **Notas de rendimiento**
+  - La refactorización a menudo mejora el rendimiento (código más simple es más fácil de optimizar).
+  - Si el rendimiento regresa, perfilar y ajustar (pero probar primero).
 
-- **Operational notes**
-  - Refactor in small PRs (easier to review, less risky).
-  - Allocate 10-20% of sprint capacity to technical debt/refactoring.
+- **Notas operacionales**
+  - Refactorizar en PRs pequeños (más fácil de revisar, menos riesgoso).
+  - Asignar 10-20% de la capacidad del sprint a deuda técnica/refactorización.
 
-## Common Refactoring Techniques
+## Técnicas comunes de refactorización
 
-### Extract Function
-**Smell:** Long function doing multiple things.  
-**Technique:** Extract cohesive block into a new function with descriptive name.  
-**Example:**
+### Extraer función
+**Smell:** Función larga haciendo múltiples cosas.  
+**Técnica:** Extraer bloque cohesivo en una nueva función con nombre descriptivo.  
+**Ejemplo:**
 ```go
-// Before
+// Antes
 func ProcessOrder(order Order) error {
-    // 50 lines of validation
-    // 50 lines of payment processing
-    // 50 lines of notification
+    // 50 líneas de validación
+    // 50 líneas de procesamiento de pago
+    // 50 líneas de notificación
 }
 
-// After
+// Después
 func ProcessOrder(order Order) error {
     if err := validateOrder(order); err != nil {
         return err
@@ -158,26 +158,26 @@ func ProcessOrder(order Order) error {
 }
 ```
 
-### Rename Variable/Function
-**Smell:** Unclear names (`x`, `tmp`, `proc()`).  
-**Technique:** Rename to descriptive name.  
-**Example:** `u` → `user`, `calc()` → `calculateDiscount()`.
+### Renombrar variable/función
+**Smell:** Nombres poco claros (`x`, `tmp`, `proc()`).  
+**Técnica:** Renombrar a nombre descriptivo.  
+**Ejemplo:** `u` → `user`, `calc()` → `calculateDiscount()`.
 
-### Remove Duplication (DRY)
-**Smell:** Same logic repeated in multiple places.  
-**Technique:** Extract shared logic into a function.  
-**Example:**
+### Eliminar duplicación (DRY)
+**Smell:** Misma lógica repetida en múltiples lugares.  
+**Técnica:** Extraer lógica compartida en una función.  
+**Ejemplo:**
 ```go
-// Before
+// Antes
 if user.Email == "" || !strings.Contains(user.Email, "@") {
     return errors.New("invalid email")
 }
-// ... 10 lines later
+// ... 10 líneas después
 if admin.Email == "" || !strings.Contains(admin.Email, "@") {
     return errors.New("invalid email")
 }
 
-// After
+// Después
 func validateEmail(email string) error {
     if email == "" || !strings.Contains(email, "@") {
         return errors.New("invalid email")
@@ -186,17 +186,17 @@ func validateEmail(email string) error {
 }
 ```
 
-### Simplify Conditionals
-**Smell:** Deep nesting, complex if-else chains.  
-**Technique:** Use early returns, guard clauses, or extract to functions.  
-**Example:**
+### Simplificar condicionales
+**Smell:** Anidamiento profundo, cadenas complejas de if-else.  
+**Técnica:** Usar retornos tempranos, cláusulas de guarda, o extraer a funciones.  
+**Ejemplo:**
 ```go
-// Before
+// Antes
 func Charge(user User, amount int) error {
     if user.ID != "" {
         if user.Status == "active" {
             if user.Balance >= amount {
-                // charge logic
+                // lógica de cobro
                 return nil
             } else {
                 return ErrInsufficientBalance
@@ -209,7 +209,7 @@ func Charge(user User, amount int) error {
     }
 }
 
-// After
+// Después
 func Charge(user User, amount int) error {
     if user.ID == "" {
         return ErrInvalidUser
@@ -220,27 +220,27 @@ func Charge(user User, amount int) error {
     if user.Balance < amount {
         return ErrInsufficientBalance
     }
-    // charge logic
+    // lógica de cobro
     return nil
 }
 ```
 
-### Inline Function
-**Smell:** Function that's only called once and doesn't add clarity.  
-**Technique:** Inline the function body into the caller.  
-**Use sparingly:** Only when function doesn't improve readability.
+### Función inline
+**Smell:** Función que solo se llama una vez y no agrega claridad.  
+**Técnica:** Poner el cuerpo de la función en el llamador.  
+**Usar con moderación:** Solo cuando la función no mejora la legibilidad.
 
-### Replace Magic Numbers with Constants
-**Smell:** Hardcoded numbers (`if status == 3`).  
-**Technique:** Define constants or enums.  
-**Example:**
+### Reemplazar números mágicos con constantes
+**Smell:** Números codificados directamente (`if status == 3`).  
+**Técnica:** Definir constantes o enums.  
+**Ejemplo:**
 ```go
-// Before
+// Antes
 if user.Status == 3 {
     // ...
 }
 
-// After
+// Después
 const (
     StatusInactive = 1
     StatusPending  = 2
@@ -251,60 +251,60 @@ if user.Status == StatusActive {
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Refactoring without tests.
-  - **Why it's bad:** No safety net; high risk of breaking behavior.
-  - **Better approach:** Write tests first (or at minimum, characterization tests).
+## Anti-patrones comunes
+- **Anti-patrón:** Refactorizar sin pruebas.
+  - **Por qué es malo:** Sin red de seguridad; alto riesgo de romper comportamiento.
+  - **Mejor enfoque:** Escribir pruebas primero (o al menos, pruebas de caracterización).
 
-- **Anti-pattern:** Big-bang refactoring (rewrite entire module).
-  - **Why it's bad:** Risky, hard to review, blocks other work.
-  - **Better approach:** Incremental refactoring (small changes, frequent commits).
+- **Anti-patrón:** Refactorización big-bang (reescribir módulo completo).
+  - **Por qué es malo:** Riesgoso, difícil de revisar, bloquea otro trabajo.
+  - **Mejor enfoque:** Refactorización incremental (cambios pequeños, commits frecuentes).
 
-- **Anti-pattern:** Refactoring for the sake of refactoring.
-  - **Why it's bad:** Wastes time; code churn without benefit.
-  - **Better approach:** Refactor when adding features or fixing bugs (opportunistic).
+- **Anti-patrón:** Refactorizar por el gusto de refactorizar.
+  - **Por qué es malo:** Desperdicia tiempo; rotación de código sin beneficio.
+  - **Mejor enfoque:** Refactorizar al agregar funcionalidades o corregir errores (oportunístico).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Refactoring is improving code structure without changing behavior. It's like tidying a workspace—small, frequent cleanups keep things usable. Common techniques include extracting long functions into smaller ones, renaming unclear variables, removing duplication, and simplifying nested conditionals. The key is to refactor in small steps with tests as safety nets. Each change should be small enough to verify quickly. Refactoring prevents technical debt from accumulating and keeps code maintainable. The trade-off is time—refactoring takes time upfront but pays back in faster delivery long-term.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+La refactorización es mejorar la estructura del código sin cambiar el comportamiento. Es como ordenar un espacio de trabajo—limpiezas pequeñas y frecuentes mantienen las cosas utilizables. Las técnicas comunes incluyen extraer funciones largas en más pequeñas, renombrar variables poco claras, eliminar duplicación y simplificar condicionales anidados. La clave es refactorizar en pasos pequeños con pruebas como red de seguridad. Cada cambio debe ser lo suficientemente pequeño para verificar rápidamente. La refactorización previene que la deuda técnica se acumule y mantiene el código mantenible. El trade-off es tiempo—la refactorización toma tiempo inicial pero se paga en entrega más rápida a largo plazo.
 
-### Trap questions (with answers)
-1) **Q:** When should you refactor?
-   - **A:** Refactor opportunistically (when touching code for features), when code is hard to understand or change, or when technical debt is slowing delivery. Don't refactor code that works and rarely changes. Always ensure tests exist before refactoring.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cuándo deberías refactorizar?
+   - **R:** Refactorizar oportunísticamente (al tocar código para funcionalidades), cuando el código es difícil de entender o cambiar, o cuando la deuda técnica está ralentizando la entrega. No refactorizar código que funciona y rara vez cambia. Siempre asegurar que existan pruebas antes de refactorizar.
 
-2) **Q:** How do you know when to stop refactoring?
-   - **A:** Stop when code is "good enough"—readable, testable, and easy to change. Don't pursue perfection (diminishing returns). Use heuristics: functions <50 lines, complexity <10, no obvious duplication. If adding a feature is easy, you're done.
+2) **P:** ¿Cómo sabes cuándo parar de refactorizar?
+   - **R:** Parar cuando el código esté "suficientemente bueno"—legible, testeable y fácil de cambiar. No perseguir la perfección (rendimientos decrecientes). Usar heurísticas: funciones <50 líneas, complejidad <10, sin duplicación obvia. Si agregar una funcionalidad es fácil, ya terminaste.
 
-3) **Q:** What if you don't have tests?
-   - **A:** Write characterization tests first (tests that capture current behavior, even if it's buggy). Then refactor. Refactoring without tests is risky—you have no way to verify you didn't break anything.
+3) **P:** ¿Qué pasa si no tienes pruebas?
+   - **R:** Escribir pruebas de caracterización primero (pruebas que capturan el comportamiento actual, incluso si tiene errores). Luego refactorizar. Refactorizar sin pruebas es riesgoso—no tienes forma de verificar que no rompiste nada.
 
-4) **Q:** Isn't refactoring just wasted time? Why not rewrite?
-   - **A:** Rewrites are risky: they take longer than expected, often introduce new bugs, and may not deliver value. Refactoring is incremental and safe (with tests). Refactor when the cost is justified; rewrite only when the system is fundamentally broken.
+4) **P:** ¿La refactorización no es solo tiempo perdido? ¿Por qué no reescribir?
+   - **R:** Las reescrituras son riesgosas: toman más tiempo del esperado, a menudo introducen nuevos errores, y pueden no entregar valor. La refactorización es incremental y segura (con pruebas). Refactorizar cuando el costo se justifica; reescribir solo cuando el sistema está fundamentalmente roto.
 
-5) **Q:** How do you refactor legacy code with no tests?
-   - **A:** Add tests incrementally around the area you need to change (characterization tests). Refactor small pieces at a time. Use techniques like "sprout method" (add new, tested function; call from legacy code) to gradually improve. It's slow but safer than big rewrites.
+5) **P:** ¿Cómo refactorizas código legacy sin pruebas?
+   - **R:** Agregar pruebas incrementalmente alrededor del área que necesitas cambiar (pruebas de caracterización). Refactorizar piezas pequeñas a la vez. Usar técnicas como "sprout method" (agregar nueva función probada; llamar desde código legacy) para mejorar gradualmente. Es lento pero más seguro que reescrituras grandes.
 
-### Quick self-check (5 items)
-- [ ] I can name at least 5 refactoring techniques (extract function, rename, remove duplication, simplify conditionals, etc.).
-- [ ] I can explain why refactoring without tests is risky.
-- [ ] I can describe the red-green-refactor cycle (TDD).
-- [ ] I can identify a code smell (long function, deep nesting, duplication) and fix it.
-- [ ] I can articulate when to refactor and when to leave code alone.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo nombrar al menos 5 técnicas de refactorización (extraer función, renombrar, eliminar duplicación, simplificar condicionales, etc.).
+- [ ] Puedo explicar por qué refactorizar sin pruebas es riesgoso.
+- [ ] Puedo describir el ciclo red-green-refactor (TDD).
+- [ ] Puedo identificar un code smell (función larga, anidamiento profundo, duplicación) y corregirlo.
+- [ ] Puedo articular cuándo refactorizar y cuándo dejar el código como está.
 
-## Links (NO duplication)
-### Prerequisites
-- [Clean code](clean-code.md)
-- [Testing fundamentals](testing-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Código limpio](clean-code.md)
+- [Fundamentos de pruebas](testing-fundamentals.md)
 
-### Related topics
-- [Code quality](code-quality.md)
-- [SOLID principles](solid-principles.md)
-- [Design patterns](design-patterns.md)
+### Temas relacionados
+- [Calidad de código](code-quality.md)
+- [Principios SOLID](solid-principles.md)
+- [Patrones de diseño](design-patterns.md)
 
-### Compare with
-- [Clean code](clean-code.md) — Clean code is the goal; refactoring is the process to get there.
+### Comparar con
+- [Código limpio](clean-code.md) — El código limpio es el objetivo; la refactorización es el proceso para llegar ahí.
 
-## Notes / Inbox
-- Add examples from real projects: refactoring Heimdall handlers, simplifying Opportunity Actions logic.
-- Consider adding section on "Strangler Fig" pattern for refactoring large systems.
-- Link to Martin Fowler's "Refactoring" book (external link in future versions).
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: refactorizar handlers de Heimdall, simplificar lógica de Opportunity Actions.
+- Considerar agregar sección sobre el patrón "Strangler Fig" para refactorizar sistemas grandes.
+- Enlazar al libro "Refactoring" de Martin Fowler (enlace externo en versiones futuras).

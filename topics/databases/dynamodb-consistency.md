@@ -1,6 +1,6 @@
 ---
 id: dynamodb-consistency
-title: "DynamoDB Consistency"
+title: "Consistencia en DynamoDB"
 type: concept
 status: learning
 importance: 50
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# DynamoDB Consistency
+# Consistencia en DynamoDB
 
 ## TL;DR (BLUF)
-- DynamoDB consistency is a DynamoDB-specific case of [Consistency models](consistency-models.md).
-- Use strong reads when correctness outweighs latency/cost.
-- Trade-off: strong reads are more expensive and may be slower.
+- La consistencia en DynamoDB es un caso específico de DynamoDB de [Modelos de consistencia](consistency-models.md).
+- Usa lecturas fuertes cuando la corrección supera la latencia/costo.
+- Trade-off: las lecturas fuertes son más costosas y pueden ser más lentas.
 
-## Definition
-**What it is:** Read consistency options that determine staleness and cost in DynamoDB.
-**Key terms:** eventual consistency, strong consistency, read capacity.
+## Definición
+**Qué es:** Opciones de consistencia de lectura que determinan la obsolescencia y el costo en DynamoDB.
+**Términos clave:** consistencia eventual, consistencia fuerte, capacidad de lectura.
 
-## Why it matters
-- Consistency choices affect correctness and latency.
-- Wrong choice can cause stale reads or higher cost.
+## Por qué importa
+- Las elecciones de consistencia afectan la corrección y la latencia.
+- Una elección incorrecta puede causar lecturas obsoletas o mayor costo.
 
-## Scope & Non-goals
-**In scope:** read consistency options and trade-offs.
-**Out of scope / NOT solved by this:** cross-region global consistency.
+## Alcance y no-objetivos
+**Dentro del alcance:** opciones de consistencia de lectura y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** consistencia global entre regiones.
 
-## Mental model / Intuition
-- Eventual consistency is “fast and cheap,” strong is “fresh and pricey.”
+## Modelo mental / Intuición
+- La consistencia eventual es "rápida y barata", la fuerte es "fresca y costosa".
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need read-your-writes consistency for critical workflows.
-### Avoid it when
-- Slight staleness is acceptable and cost matters.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas consistencia de leer-tus-escrituras para flujos de trabajo críticos.
+### Evítalo cuando
+- Una ligera obsolescencia es aceptable y el costo importa.
 
-## How I would use it (practical)
-- **Context:** User updates profile then reads it.
-- **Steps:** use strong read after write → fall back to eventual for other reads.
-- **What success looks like:** correct UX without excessive cost.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un usuario actualiza su perfil y luego lo lee.
+- **Pasos:** usar lectura fuerte después de escribir → recurrir a eventual para otras lecturas.
+- **Cómo se ve el éxito:** UX correcta sin costo excesivo.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** correctness when needed.
-- **Cons / Risks:** higher cost and latency.
-### Alternatives
-- **Client-side caching with validation:** reduce strong reads.
-- **How to choose:** use strong reads sparingly for correctness-critical flows.
+- **Ventajas:** corrección cuando se necesita.
+- **Desventajas / Riesgos:** mayor costo y latencia.
+### Alternativas
+- **Caché del lado del cliente con validación:** reducir lecturas fuertes.
+- **Cómo elegir:** usar lecturas fuertes con moderación para flujos críticos de corrección.
 
-## Failure modes & Pitfalls
-- Assuming eventual reads are always fresh.
-- Overusing strong reads and increasing costs.
+## Modos de fallo y trampas
+- Asumir que las lecturas eventuales siempre son frescas.
+- Sobreusar lecturas fuertes y aumentar costos.
 
-## Observability (How to detect issues)
-- **Metrics:** read capacity consumption, latency p95.
-- **Logs:** stale read reports.
-- **Alerts:** cost spikes or increased latency.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** consumo de capacidad de lectura, latencia p95.
+- **Logs:** reportes de lecturas obsoletas.
+- **Alertas:** picos de costo o latencia incrementada.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify correctness-critical reads
-  - [ ] Use strong reads selectively
+  - [ ] Identificar lecturas críticas para la corrección
+  - [ ] Usar lecturas fuertes selectivamente
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using strong reads everywhere.
-  - **Why it’s bad:** higher cost and latency.
-  - **Better approach:** use eventual reads where acceptable.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar lecturas fuertes en todas partes.
+  - **Por qué es malo:** mayor costo y latencia.
+  - **Mejor enfoque:** usar lecturas eventuales donde sea aceptable.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DynamoDB reads are eventually consistent by default, but you can request strong consistency when you need fresh data. It’s a cost/latency trade-off.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las lecturas de DynamoDB son eventualmente consistentes por defecto, pero puedes solicitar consistencia fuerte cuando necesitas datos frescos. Es un trade-off de costo/latencia.
 
-### Trap questions (with answers)
-1) **Q:** Are GSIs strongly consistent?
-   - **A:** no; GSI reads are eventually consistent.
-2) **Q:** Does strong consistency apply across regions?
-   - **A:** no; it’s within a region.
-3) **Q:** Can you get stale reads after a write?
-   - **A:** yes, with eventual consistency.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los GSIs son fuertemente consistentes?
+   - **R:** no; las lecturas de GSI son eventualmente consistentes.
+2) **P:** ¿La consistencia fuerte aplica entre regiones?
+   - **R:** no; es dentro de una región.
+3) **P:** ¿Puedes obtener lecturas obsoletas después de una escritura?
+   - **R:** sí, con consistencia eventual.
 
-### Quick self-check (5 items)
-- [ ] I can define DynamoDB consistency options.
-- [ ] I can state when to use strong reads.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain GSI consistency.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir las opciones de consistencia de DynamoDB.
+- [ ] Puedo indicar cuándo usar lecturas fuertes.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar la consistencia de GSI.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [DynamoDB](dynamodb.md)
 - [Consistency models](consistency-models.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB GSI/LSI](dynamodb-gsi-lsi.md)
 
-### Compare with
+### Comparar con
 - [Consistency models](consistency-models.md)

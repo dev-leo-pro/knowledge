@@ -1,35 +1,35 @@
 ---
-title: Integration Testing
+title: Pruebas de Integración
 ---
 
-# Integration Testing
+# Pruebas de Integración
 
-## Definition
-Integration testing verifies that multiple components or systems work together as intended, focusing on their interactions and data flow.
+## Definición
+Las pruebas de integración verifican que múltiples componentes o sistemas funcionen juntos según lo previsto, enfocándose en sus interacciones y flujo de datos.
 
-## Why it matters
-It catches issues that unit tests miss, such as misconfigured dependencies, broken contracts, or real-world data problems.
+## Por qué importa
+Detecta problemas que las pruebas unitarias no capturan, como dependencias mal configuradas, contratos rotos o problemas con datos del mundo real.
 
-## When to use / when not to use
-Use when you have multiple components/services that interact. Not needed for isolated, pure functions.
+## Cuándo usar / cuándo no usar
+Úsalas cuando tienes múltiples componentes/servicios que interactúan. No es necesario para funciones puras aisladas.
 
 ## Trade-offs
-- + Detects real integration issues
-- + Increases confidence in system behavior
-- - Slower and more complex than unit tests
-- - Can be flaky if external dependencies are unstable
+- + Detecta problemas reales de integración
+- + Aumenta la confianza en el comportamiento del sistema
+- - Más lentas y complejas que las pruebas unitarias
+- - Pueden ser inestables si las dependencias externas son inestables
 
-## Prerequisites
-- [Testing fundamentals](../quality/testing-fundamentals.md)
+## Prerequisitos
+- [Fundamentos de pruebas](../quality/testing-fundamentals.md)
 
-## Related topics
-- [Contract Testing](contract-testing.md)
-- [Unit Testing](../quality/testing-fundamentals.md)
+## Temas relacionados
+- [Pruebas de Contrato](contract-testing.md)
+- [Pruebas Unitarias](../quality/testing-fundamentals.md)
 
-## Trap questions
-1. Why are integration tests often slower than unit tests?
-   - They involve real dependencies (DB, network, etc.), not just in-memory logic.
-2. What is a common pitfall of integration testing?
-   - Flaky tests due to unstable external systems.
-3. Should you mock dependencies in integration tests?
-   - No, use real or realistic dependencies to test actual integration.
+## Preguntas trampa
+1. ¿Por qué las pruebas de integración suelen ser más lentas que las pruebas unitarias?
+   - Involucran dependencias reales (BD, red, etc.), no solo lógica en memoria.
+2. ¿Cuál es un error común de las pruebas de integración?
+   - Pruebas inestables debido a sistemas externos inestables.
+3. ¿Deberías simular dependencias en las pruebas de integración?
+   - No, usa dependencias reales o realistas para probar la integración real.

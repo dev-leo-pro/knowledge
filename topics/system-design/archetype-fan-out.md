@@ -1,6 +1,6 @@
 ---
 id: archetype-fan-out
-title: "Fan-Out / Broadcast Delivery"
+title: "Fan-Out / Entrega por Difusión"
 type: pattern
 status: learning
 importance: 85
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Fan-Out / Broadcast Delivery
+# Fan-Out / Entrega por Difusión
 
 ## TL;DR
-- One event must be delivered to many consumers/targets (N followers, subscribers, devices).
-- Key challenges: explosion of work (N targets), backpressure and retries, delivering "once" per target.
-- Solutions: async queues + worker pools, topic-based pub/sub, fan-out on write vs read trade-off.
+- Un evento debe ser entregado a muchos consumidores/destinos (N seguidores, suscriptores, dispositivos).
+- Desafíos clave: explosión de trabajo (N destinos), contrapresión y reintentos, entregar "una vez" por destino.
+- Soluciones: colas asíncronas + pools de workers, pub/sub basado en topics, trade-off fan-out en escritura vs lectura.
 
-## Where it hurts (why it hurts)
-1. **Explosion of work (N followers)**: One post → 5M deliveries → synchronous collapse
-   - **Solution**: Async queues + worker pools for scalable delivery; batch where possible
-2. **Backpressure and retries**: Failed deliveries must retry without blocking others
-   - **Solution**: Per-target DLQ; retry with exponential backoff; parallelism
-3. **Delivering "once" per target**: Retries cause duplicates
-   - **Solution**: Idempotent delivery (track delivery per target); dedupe
+## Dónde duele (por qué duele)
+1. **Explosión de trabajo (N seguidores)**: Una publicación → 5M entregas → colapso síncrono
+   - **Solución**: Colas asíncronas + pools de workers para entrega escalable; agrupar donde sea posible
+2. **Contrapresión y reintentos**: Las entregas fallidas deben reintentarse sin bloquear otras
+   - **Solución**: DLQ por destino; reintento con backoff exponencial; paralelismo
+3. **Entregar "una vez" por destino**: Los reintentos causan duplicados
+   - **Solución**: Entrega idempotente (rastrear entrega por destino); deduplicación
 
-## Decision rules
-- **Use when**: Notifications, feeds, real-time updates, webhooks to partners
-- **Avoid when**: Targets < 10 (direct calls simpler), strict real-time latency (fan-out adds delay)
+## Reglas de decisión
+- **Usar cuando**: Notificaciones, feeds, actualizaciones en tiempo real, webhooks a partners
+- **Evitar cuando**: Destinos < 10 (llamadas directas más simple), latencia estricta en tiempo real (fan-out añade retraso)
 
 ## Trade-offs
-- **Fan-out on write**: Precompute/deliver immediately (fast reads, slow/expensive writes)
-- **Fan-out on read**: Compute on demand (fast writes, slow reads, cheaper storage)
-- **Choose**: < 10k followers → fan-out on write; > 100k → fan-out on read
+- **Fan-out en escritura**: Pre-computar/entregar inmediatamente (lecturas rápidas, escrituras lentas/caras)
+- **Fan-out en lectura**: Computar bajo demanda (escrituras rápidas, lecturas lentas, almacenamiento más barato)
+- **Elegir**: < 10k seguidores → fan-out en escritura; > 100k → fan-out en lectura
 
-## Explicit example
-Creator posts content; 5M followers should get notified. Synchronous fan-out collapses service. Async: publish event → worker pool fetches follower list in batches → enqueues 5M delivery tasks → workers process with retries.
+## Ejemplo explícito
+Un creador publica contenido; 5M seguidores deben ser notificados. El fan-out síncrono colapsa el servicio. Asíncrono: publicar evento → pool de workers obtiene lista de seguidores en lotes → encola 5M tareas de entrega → workers procesan con reintentos.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [High-Throughput Event Ingestion](archetype-event-ingestion.md), [Idempotency](archetype-idempotency-dedup.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Ingestión de Eventos de Alto Rendimiento](archetype-event-ingestion.md), [Idempotencia](archetype-idempotency-dedup.md)

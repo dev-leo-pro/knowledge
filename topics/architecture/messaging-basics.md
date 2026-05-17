@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Messaging Basics
+# Fundamentos de Mensajería
 
 ## TL;DR (BLUF)
-- Messaging enables async communication between services.
-- Use it to decouple producers and consumers.
-- Trade-off: eventual consistency and operational complexity.
+- La mensajería permite la comunicación asíncrona entre servicios.
+- Úsala para desacoplar productores y consumidores.
+- Trade-off: consistencia eventual y complejidad operacional.
 
-## Definition
-**What it is:** Asynchronous communication via queues or topics.
-**Key terms:** queue, topic, producer, consumer.
+## Definición
+**Qué es:** Comunicación asíncrona mediante colas o topics.
+**Términos clave:** cola, topic, productor, consumidor.
 
-## Why it matters
-- It improves resilience and scalability.
-- It adds latency and complexity.
+## Por qué importa
+- Mejora la resiliencia y la escalabilidad.
+- Añade latencia y complejidad.
 
-## Scope & Non-goals
-**In scope:** messaging concepts and trade-offs.
-**Out of scope / NOT solved by this:** broker-specific tuning.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos de mensajería y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** ajuste fino específico de brokers.
 
-## Mental model / Intuition
-- A message is a unit of work handed to another service.
+## Modelo mental / Intuición
+- Un mensaje es una unidad de trabajo entregada a otro servicio.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need async processing or decoupling.
-### Avoid it when
-- You need synchronous guarantees.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites procesamiento asíncrono o desacoplamiento.
+### Evítalo cuando
+- Necesites garantías síncronas.
 
-## How I would use it (practical)
-- **Context:** Email sending after user signup.
-- **Steps:** enqueue message → consumer sends email → handle retries.
-- **What success looks like:** reliable processing with low lag.
+## Cómo lo usaría (práctico)
+- **Contexto:** Envío de email después del registro de usuario.
+- **Pasos:** encolar mensaje → consumidor envía email → manejar reintentos.
+- **Cómo se ve el éxito:** procesamiento fiable con bajo lag.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** decoupling and resilience.
-- **Cons / Risks:** ordering and duplicate handling.
-### Alternatives
-- **Request-response:** synchronous calls.
-- **How to choose:** use messaging for async workflows.
+- **Pros:** desacoplamiento y resiliencia.
+- **Contras / Riesgos:** ordenamiento y manejo de duplicados.
+### Alternativas
+- **Request-response:** llamadas síncronas.
+- **Cómo elegir:** usa mensajería para flujos de trabajo asíncronos.
 
-## Failure modes & Pitfalls
-- Duplicate messages without idempotency.
+## Modos de fallo y errores comunes
+- Mensajes duplicados sin idempotencia.
 
-## Observability (How to detect issues)
-- **Metrics:** queue depth, consumer lag.
-- **Logs:** processing errors.
-- **Alerts:** growing backlog.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** profundidad de cola, lag de consumidores.
+- **Logs:** errores de procesamiento.
+- **Alertas:** backlog creciente.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Make consumers idempotent
-  - [ ] Monitor lag
+  - [ ] Hacer consumidores idempotentes
+  - [ ] Monitorear lag
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using messaging for request/response.
-  - **Why it’s bad:** adds latency and complexity.
-  - **Better approach:** use direct calls for synchronous needs.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar mensajería para request/response.
+  - **Por qué es malo:** añade latencia y complejidad.
+  - **Mejor enfoque:** usar llamadas directas para necesidades síncronas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Messaging lets services communicate asynchronously. It’s great for decoupling, but you must handle retries, ordering, and duplicates.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La mensajería permite que los servicios se comuniquen asíncronamente. Es genial para desacoplar, pero debes manejar reintentos, ordenamiento y duplicados.
 
-### Trap questions (with answers)
-1) **Q:** Are messages always delivered exactly once?
-   - **A:** no; at-least-once is common.
-2) **Q:** Are queues and topics the same?
-   - **A:** no; queues deliver to one consumer, topics to many.
-3) **Q:** Can you skip idempotency?
-   - **A:** no; duplicates happen.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los mensajes siempre se entregan exactamente una vez?
+   - **R:** No; at-least-once es lo común.
+2) **P:** ¿Las colas y los topics son lo mismo?
+   - **R:** No; las colas entregan a un consumidor, los topics a muchos.
+3) **P:** ¿Puedes omitir la idempotencia?
+   - **R:** No; los duplicados ocurren.
 
-### Quick self-check (5 items)
-- [ ] I can define messaging basics.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain queue vs topic.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir los fundamentos de mensajería.
+- [ ] Puedo indicar cuándo usarla.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar cola vs topic.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - N/A
 
-### Related topics
-- [Event-driven basics](event-driven-basics.md)
+### Temas relacionados
+- [Fundamentos de arquitectura dirigida por eventos](event-driven-basics.md)
 
-### Compare with
-- [Request-response architecture](request-response.md) — async vs sync.
+### Comparar con
+- [Arquitectura request-response](request-response.md) — asíncrono vs síncrono.

@@ -15,98 +15,98 @@ updated_at: 2026-01-19
 # DynamoDB
 
 ## TL;DR (BLUF)
-- Managed NoSQL key-value/document database optimized for predictable low latency at scale.
-- Use it when you can design access patterns upfront and need massive scale with minimal ops.
-- Trade-off: modeling is access-pattern driven; complex ad-hoc queries are limited.
+- Base de datos NoSQL gestionada clave-valor/documento optimizada para baja latencia predecible a escala.
+- Úsala cuando puedes diseñar patrones de acceso de antemano y necesitas escala masiva con operaciones mínimas.
+- Trade-off: el modelado es orientado a patrones de acceso; las consultas ad-hoc complejas son limitadas.
 
-## Definition
-**What it is:** A fully managed NoSQL database with partitioned storage and throughput-based scaling.
-**Key terms:** partition key, sort key, GSI/LSI, access patterns, eventual consistency.
+## Definición
+**Qué es:** Una base de datos NoSQL completamente gestionada con almacenamiento particionado y escalado basado en throughput.
+**Términos clave:** clave de partición, clave de ordenación, GSI/LSI, patrones de acceso, consistencia eventual.
 
-## Why it matters
-- It delivers predictable performance and scalability with low operational overhead.
-- Poor access-pattern design can lead to hot partitions and expensive refactors.
+## Por qué importa
+- Entrega rendimiento predecible y escalabilidad con baja carga operacional.
+- Un diseño pobre de patrones de acceso puede llevar a particiones calientes y refactorizaciones costosas.
 
-## Scope & Non-goals
-**In scope:** key-value access, high scale, predictable latency.
-**Out of scope / NOT solved by this:** complex relational joins or ad-hoc analytics.
+## Alcance y no-objetivos
+**Dentro del alcance:** acceso clave-valor, alta escala, latencia predecible.
+**Fuera del alcance / NO resuelto por esto:** joins relacionales complejos o analítica ad-hoc.
 
-## Mental model / Intuition
-- Think “one table, many access patterns,” modeled around queries, not entities.
+## Modelo mental / Intuición
+- Piensa "una tabla, muchos patrones de acceso", modelado alrededor de consultas, no entidades.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You can express data access as key-based lookups and range queries.
-- You need high scale with minimal operational burden.
-### Avoid it when
-- You need complex joins or flexible SQL querying.
-- Your access patterns are unclear or change frequently.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Puedes expresar el acceso a datos como búsquedas basadas en claves y consultas de rango.
+- Necesitas alta escala con carga operacional mínima.
+### Evítalo cuando
+- Necesitas joins complejos o consultas SQL flexibles.
+- Tus patrones de acceso no están claros o cambian frecuentemente.
 
-## How I would use it (practical)
-- **Context:** High-traffic service with key-based lookups.
-- **Steps:** define access patterns → design PK/SK → add GSIs → load test hot partitions.
-- **What success looks like:** consistent latency with stable partition distribution.
+## Cómo lo usaría (práctico)
+- **Contexto:** Servicio de alto tráfico con búsquedas basadas en claves.
+- **Pasos:** definir patrones de acceso → diseñar PK/SK → agregar GSIs → pruebas de carga en particiones calientes.
+- **Cómo se ve el éxito:** latencia consistente con distribución de particiones estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** managed scaling, low latency, high availability.
-- **Cons / Risks:** limited query flexibility; costly redesigns for new access patterns.
-### Alternatives
-- **PostgreSQL:** relational flexibility with higher ops.
-- **MongoDB:** more flexible querying, different consistency model.
-- **How to choose:** choose DynamoDB when access patterns are stable and scale is critical.
+- **Ventajas:** escalado gestionado, baja latencia, alta disponibilidad.
+- **Desventajas / Riesgos:** flexibilidad de consulta limitada; rediseños costosos para nuevos patrones de acceso.
+### Alternativas
+- **PostgreSQL:** flexibilidad relacional con mayor carga operacional.
+- **MongoDB:** consultas más flexibles, modelo de consistencia diferente.
+- **Cómo elegir:** elige DynamoDB cuando los patrones de acceso son estables y la escala es crítica.
 
-## Failure modes & Pitfalls
-- Hot partitions from skewed keys.
-- Unexpected throttling due to traffic spikes.
+## Modos de fallo y trampas
+- Particiones calientes por claves sesgadas.
+- Throttling inesperado debido a picos de tráfico.
 
-## Observability (How to detect issues)
-- **Metrics:** throttle events, consumed RCUs/WCUs, latency p95.
-- **Logs:** access patterns causing hot keys.
-- **Alerts:** throttling spikes or rising latency.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** eventos de throttle, RCUs/WCUs consumidas, latencia p95.
+- **Logs:** patrones de acceso causando claves calientes.
+- **Alertas:** picos de throttling o latencia creciente.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define access patterns up front
-  - [ ] Choose PK/SK to avoid hot partitions
-  - [ ] Add GSIs sparingly
-- **Performance notes**
-  - Batch operations and limit item size.
+  - [ ] Definir patrones de acceso de antemano
+  - [ ] Elegir PK/SK para evitar particiones calientes
+  - [ ] Agregar GSIs con moderación
+- **Notas de rendimiento**
+  - Operaciones por lotes y limitar el tamaño de ítems.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Modeling entities first, queries later.
-  - **Why it’s bad:** leads to expensive redesigns.
-  - **Better approach:** start from access patterns.
+## Anti-patrones comunes
+- **Anti-patrón:** Modelar entidades primero, consultas después.
+  - **Por qué es malo:** lleva a rediseños costosos.
+  - **Mejor enfoque:** empezar desde los patrones de acceso.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DynamoDB is a managed NoSQL database optimized for low-latency key-based access at scale. It works best when you can design your schema around known access patterns; otherwise you’ll pay with complexity and refactors.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- DynamoDB es una base de datos NoSQL gestionada optimizada para acceso basado en claves de baja latencia a escala. Funciona mejor cuando puedes diseñar tu esquema alrededor de patrones de acceso conocidos; de lo contrario pagarás con complejidad y refactorizaciones.
 
-### Trap questions (with answers)
-1) **Q:** Does DynamoDB support ad-hoc SQL joins?
-   - **A:** no; it’s key-value/document oriented without joins.
-2) **Q:** Can you fix hot partitions without changing keys?
-   - **A:** not reliably; you usually need to redesign keys or add sharding.
-3) **Q:** Is it always eventually consistent?
-   - **A:** no; you can choose strongly consistent reads (with trade-offs).
+### Preguntas trampa (con respuestas)
+1) **P:** ¿DynamoDB soporta joins SQL ad-hoc?
+   - **R:** no; es orientada a clave-valor/documento sin joins.
+2) **P:** ¿Puedes arreglar particiones calientes sin cambiar claves?
+   - **R:** no de forma confiable; usualmente necesitas rediseñar claves o agregar sharding.
+3) **P:** ¿Siempre es eventualmente consistente?
+   - **R:** no; puedes elegir lecturas fuertemente consistentes (con trade-offs).
 
-### Quick self-check (5 items)
-- [ ] I can define DynamoDB precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete access-pattern example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir DynamoDB con precisión.
+- [ ] Puedo indicar cuándo usarla y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de patrón de acceso.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Index](index.md)
 
-### Related topics
+### Temas relacionados
 - [PostgreSQL](postgresql.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — relational SQL vs key-value access.
-- [MongoDB documents](mongodb-documents.md) — document queries vs access-pattern design.
+### Comparar con
+- [PostgreSQL](postgresql.md) — SQL relacional vs acceso clave-valor.
+- [MongoDB documents](mongodb-documents.md) — consultas de documento vs diseño de patrón de acceso.

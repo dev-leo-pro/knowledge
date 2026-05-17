@@ -1,6 +1,6 @@
 ---
 id: consistency-models
-title: "Consistency Models"
+title: "Modelos de Consistencia"
 type: concept
 status: learning
 importance: 55
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Consistency Models
+# Modelos de Consistencia
 
 ## TL;DR (BLUF)
-- Consistency models define how fresh reads are relative to writes.
-- Use them to reason about correctness in distributed systems.
-- Trade-off: stronger consistency can reduce availability or latency.
+- Los modelos de consistencia definen qué tan frescas son las lecturas en relación con las escrituras.
+- Úsalos para razonar sobre la corrección en sistemas distribuidos.
+- Trade-off: una consistencia más fuerte puede reducir la disponibilidad o la latencia.
 
-## Definition
-**What it is:** Guarantees about read visibility across replicas and time.
-**Key terms:** strong consistency, eventual consistency, read-your-writes.
+## Definición
+**Qué es:** Garantías sobre la visibilidad de lectura entre réplicas y a lo largo del tiempo.
+**Términos clave:** consistencia fuerte, consistencia eventual, leer-tus-escrituras.
 
-## Why it matters
-- It determines whether users can see stale data.
-- It influences design choices and failure handling.
+## Por qué importa
+- Determina si los usuarios pueden ver datos obsoletos.
+- Influye en las decisiones de diseño y el manejo de fallos.
 
-## Scope & Non-goals
-**In scope:** high-level consistency guarantees and trade-offs.
-**Out of scope / NOT solved by this:** formal proofs or consensus algorithms.
+## Alcance y no-objetivos
+**Dentro del alcance:** garantías de consistencia a alto nivel y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** pruebas formales o algoritmos de consenso.
 
-## Mental model / Intuition
-- Think of consistency as how “in sync” copies of data are.
+## Modelo mental / Intuición
+- Piensa en la consistencia como qué tan "sincronizadas" están las copias de los datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need correctness guarantees for user flows.
-### Avoid it when
-- Slight staleness is acceptable and availability matters more.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas garantías de corrección para flujos de usuario.
+### Evítalo cuando
+- Una ligera obsolescencia es aceptable y la disponibilidad importa más.
 
-## How I would use it (practical)
-- **Context:** User updates profile then reads it.
-- **Steps:** require strong reads for critical flows → allow eventual for feed data.
-- **What success looks like:** correct UX with acceptable latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un usuario actualiza su perfil y luego lo lee.
+- **Pasos:** requerir lecturas fuertes para flujos críticos → permitir eventual para datos de feed.
+- **Cómo se ve el éxito:** UX correcta con latencia aceptable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** stronger correctness with strong consistency.
-- **Cons / Risks:** higher latency or reduced availability.
-### Alternatives
-- **Client-side caching:** for performance with validation.
-- **How to choose:** use the weakest consistency that meets correctness needs.
+- **Ventajas:** mayor corrección con consistencia fuerte.
+- **Desventajas / Riesgos:** mayor latencia o disponibilidad reducida.
+### Alternativas
+- **Caché del lado del cliente:** para rendimiento con validación.
+- **Cómo elegir:** usar la consistencia más débil que cumpla las necesidades de corrección.
 
-## Failure modes & Pitfalls
-- Assuming eventual consistency is always fresh.
-- Mixing consistency levels without clear rules.
+## Modos de fallo y trampas
+- Asumir que la consistencia eventual siempre es fresca.
+- Mezclar niveles de consistencia sin reglas claras.
 
-## Observability (How to detect issues)
-- **Metrics:** stale read reports, latency p95.
-- **Logs:** consistency-related errors.
-- **Alerts:** spikes in stale read complaints.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** reportes de lecturas obsoletas, latencia p95.
+- **Logs:** errores relacionados con consistencia.
+- **Alertas:** picos en quejas de lecturas obsoletas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify correctness-critical reads
-  - [ ] Document consistency expectations
+  - [ ] Identificar lecturas críticas para la corrección
+  - [ ] Documentar las expectativas de consistencia
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using strong consistency everywhere.
-  - **Why it’s bad:** higher latency and cost.
-  - **Better approach:** use strong reads only where required.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar consistencia fuerte en todas partes.
+  - **Por qué es malo:** mayor latencia y costo.
+  - **Mejor enfoque:** usar lecturas fuertes solo donde se requiera.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Consistency models describe how quickly reads reflect writes. Strong consistency gives fresh data but can be slower; eventual consistency is faster but can be stale.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los modelos de consistencia describen qué tan rápido las lecturas reflejan las escrituras. La consistencia fuerte da datos frescos pero puede ser más lenta; la consistencia eventual es más rápida pero puede ser obsoleta.
 
-### Trap questions (with answers)
-1) **Q:** Does eventual consistency mean “always stale”?
-   - **A:** no; it just allows staleness in some cases.
-2) **Q:** Is strong consistency always available?
-   - **A:** no; it can reduce availability during partitions.
-3) **Q:** Can you mix consistency levels?
-   - **A:** yes, but you must be explicit about expectations.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Consistencia eventual significa "siempre obsoleto"?
+   - **R:** no; solo permite obsolescencia en algunos casos.
+2) **P:** ¿La consistencia fuerte siempre está disponible?
+   - **R:** no; puede reducir la disponibilidad durante particiones.
+3) **P:** ¿Se pueden mezclar niveles de consistencia?
+   - **R:** sí, pero debes ser explícito sobre las expectativas.
 
-### Quick self-check (5 items)
-- [ ] I can define consistency models.
-- [ ] I can explain a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can name a decision rule.
-- [ ] I can relate it to CAP.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir modelos de consistencia.
+- [ ] Puedo explicar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo nombrar una regla de decisión.
+- [ ] Puedo relacionarlo con CAP.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [CAP theorem (practical)](../system-design/cap-theorem.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB consistency](dynamodb-consistency.md)
 
-### Compare with
+### Comparar con
 - [Isolation levels (general)](isolation-levels.md)

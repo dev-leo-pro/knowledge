@@ -1,6 +1,6 @@
 ---
 id: database-client-basics
-title: "Database Client Basics"
+title: "Fundamentos de Clientes de Base de Datos"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Database Client Basics
+# Fundamentos de Clientes de Base de Datos
 
 ## TL;DR (BLUF)
-- DB clients manage connections, pooling, and timeouts.
-- Use them to control resource usage and latency.
-- Trade-off: misconfiguration can cause outages.
+- Los clientes de BD gestionan conexiones, pooling y timeouts.
+- Úsalos para controlar el uso de recursos y la latencia.
+- Trade-off: una mala configuración puede causar caídas.
 
-## Definition
-**What it is:** Client-side configuration and behavior for connecting to databases.
-**Key terms:** connection pool, timeout, retry.
+## Definición
+**Qué es:** Configuración y comportamiento del lado del cliente para conectarse a bases de datos.
+**Términos clave:** pool de conexiones, timeout, reintento.
 
-## Why it matters
-- Client settings control load on the database.
-- Wrong settings cause connection storms or timeouts.
+## Por qué importa
+- La configuración del cliente controla la carga en la base de datos.
+- Configuraciones incorrectas causan tormentas de conexiones o timeouts.
 
-## Scope & Non-goals
-**In scope:** connection lifecycle, pooling configuration, and timeouts.
-**Out of scope / NOT solved by this:** pool sizing strategies and DB-side limits.
+## Alcance y no-objetivos
+**Dentro del alcance:** ciclo de vida de conexión, configuración de pooling y timeouts.
+**Fuera del alcance / NO resuelto por esto:** estrategias de dimensionamiento de pools y límites del lado de la BD.
 
-## Mental model / Intuition
-- The client is a gatekeeper that controls how hard you hit the DB.
+## Modelo mental / Intuición
+- El cliente es un guardián que controla cuánto impactas la BD.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need stable latency and predictable DB load.
-### Avoid it when
-- You already exceed DB connection limits.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas latencia estable y carga predecible en la BD.
+### Evítalo cuando
+- Ya excedes los límites de conexión de la BD.
 
-## How I would use it (practical)
-- **Context:** High-traffic API service.
-- **Steps:** configure pool size → set timeouts → monitor queueing.
-- **What success looks like:** steady latency and stable connection counts.
+## Cómo lo usaría (práctico)
+- **Contexto:** Servicio API de alto tráfico.
+- **Pasos:** configurar tamaño del pool → establecer timeouts → monitorear encolamiento.
+- **Cómo se ve el éxito:** latencia estable y conteo de conexiones estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** controlled resource usage.
-- **Cons / Risks:** misconfigurations cause outages.
-### Alternatives
-- **DB proxies:** managed pooling and connection reuse.
-- **How to choose:** use clients by default and add proxies when needed.
+- **Ventajas:** uso controlado de recursos.
+- **Desventajas / Riesgos:** malas configuraciones causan caídas.
+### Alternativas
+- **Proxies de BD:** pooling gestionado y reutilización de conexiones.
+- **Cómo elegir:** usar clientes por defecto y agregar proxies cuando sea necesario.
 
-## Failure modes & Pitfalls
-- Too many connections from many service instances.
+## Modos de fallo y trampas
+- Demasiadas conexiones desde muchas instancias del servicio.
 
-## Observability (How to detect issues)
-- **Metrics:** active connections, pool wait time.
-- **Logs:** connection timeout errors.
-- **Alerts:** spikes in connection errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** conexiones activas, tiempo de espera del pool.
+- **Logs:** errores de timeout de conexión.
+- **Alertas:** picos en errores de conexión.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Set reasonable pool size
-  - [ ] Configure timeouts
+  - [ ] Establecer un tamaño de pool razonable
+  - [ ] Configurar timeouts
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Default pool settings across all services.
-  - **Why it’s bad:** can overload the DB.
-  - **Better approach:** size pools per service and DB capacity.
+## Anti-patrones comunes
+- **Anti-patrón:** Configuración de pool por defecto en todos los servicios.
+  - **Por qué es malo:** puede sobrecargar la BD.
+  - **Mejor enfoque:** dimensionar pools por servicio y capacidad de la BD.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DB clients manage connections and pooling. They’re crucial for protecting the database and keeping latency predictable.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los clientes de BD gestionan conexiones y pooling. Son cruciales para proteger la base de datos y mantener la latencia predecible.
 
-### Trap questions (with answers)
-1) **Q:** Is a larger pool always better?
-   - **A:** no; it can overload the DB.
-2) **Q:** Are timeouts optional?
-   - **A:** no; they prevent resource exhaustion.
-3) **Q:** Can clients hide slow queries?
-   - **A:** no; they can increase queueing instead.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Un pool más grande siempre es mejor?
+   - **R:** no; puede sobrecargar la BD.
+2) **P:** ¿Los timeouts son opcionales?
+   - **R:** no; previenen el agotamiento de recursos.
+3) **P:** ¿Los clientes pueden ocultar consultas lentas?
+   - **R:** no; pueden aumentar el encolamiento en su lugar.
 
-### Quick self-check (5 items)
-- [ ] I can define DB client basics.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can describe a monitoring signal.
-- [ ] I can compare with proxies.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir los fundamentos de clientes de BD.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo describir una señal de monitoreo.
+- [ ] Puedo comparar con proxies.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Networking basics](../operations/networking-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Connection pooling](connection-pooling.md)
 
-### Compare with
-- [Database proxies](../operations/database-proxies.md) — managed pooling vs client pooling.
+### Comparar con
+- [Database proxies](../operations/database-proxies.md) — pooling gestionado vs pooling del cliente.

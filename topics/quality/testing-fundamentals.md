@@ -1,6 +1,6 @@
 ---
 id: testing-fundamentals
-title: "Testing Fundamentals"
+title: "Fundamentos de Pruebas"
 type: concept
 status: learning
 importance: 90
@@ -12,133 +12,133 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Testing Fundamentals
+# Fundamentos de Pruebas
 
 ## TL;DR (BLUF)
-- Testing validates that software behaves correctly under various conditions, catching bugs before production.
-- Use automated tests for fast feedback and manual testing for exploratory scenarios.
-- Key trade-off: time spent writing tests vs. risk of shipping defects.
+- Las pruebas validan que el software se comporta correctamente bajo diversas condiciones, detectando errores antes de producción.
+- Usa pruebas automatizadas para retroalimentación rápida y pruebas manuales para escenarios exploratorios.
+- Trade-off clave: tiempo invertido escribiendo pruebas vs. riesgo de entregar defectos.
 
-## Definition
-**What it is:** The practice of executing code under controlled conditions to verify it behaves as expected and to identify defects before they reach users.  
-**Key terms:** test case, assertion, test fixture, test double (mock/stub/fake), code under test (CUT), system under test (SUT), regression testing, happy path, edge case.
+## Definición
+**Qué es:** La práctica de ejecutar código bajo condiciones controladas para verificar que se comporta según lo esperado e identificar defectos antes de que lleguen a los usuarios.  
+**Términos clave:** caso de prueba, aserción, fixture de prueba, doble de prueba (mock/stub/fake), código bajo prueba (CUT), sistema bajo prueba (SUT), pruebas de regresión, camino feliz, caso extremo.
 
-## Why it matters
-- **Prevents defects:** Catches bugs before they reach production (10-100x cheaper than fixing in production).
-- **Enables refactoring:** Tests act as safety nets, allowing confident code changes.
-- **Documents behavior:** Tests serve as executable specifications of how code should work.
-- **Faster feedback:** Automated tests run in seconds/minutes vs. hours/days for manual QA.
-- **Interview relevance:** Testing strategy is fundamental for senior engineering discussions.
+## Por qué importa
+- **Previene defectos:** Detecta errores antes de que lleguen a producción (10-100x más barato que corregir en producción).
+- **Permite refactorización:** Las pruebas actúan como red de seguridad, permitiendo cambios de código con confianza.
+- **Documenta comportamiento:** Las pruebas sirven como especificaciones ejecutables de cómo debería funcionar el código.
+- **Retroalimentación más rápida:** Las pruebas automatizadas se ejecutan en segundos/minutos vs. horas/días para QA manual.
+- **Relevancia en entrevistas:** La estrategia de pruebas es fundamental para discusiones de ingeniería senior.
 
-## Scope & Non-goals
-**In scope:**
-- Test types (unit, integration, E2E, performance, etc.).
-- Test anatomy (arrange, act, assert).
-- Test doubles (mocks, stubs, fakes).
-- When to test and what to test.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Tipos de pruebas (unitarias, integración, E2E, rendimiento, etc.).
+- Anatomía de una prueba (arrange, act, assert).
+- Dobles de prueba (mocks, stubs, fakes).
+- Cuándo probar y qué probar.
 
-**Out of scope / NOT solved by this:**
-- Specific testing frameworks (pytest, Jest, JUnit—those are tools).
-- Quality assurance processes (broader than testing alone).
+**Fuera del alcance / NO resuelto por esto:**
+- Frameworks de pruebas específicos (pytest, Jest, JUnit—esas son herramientas).
+- Procesos de aseguramiento de calidad (más amplios que solo pruebas).
 
-## Mental model / Intuition
-Think of testing as **preventive medicine**:
-- **Unit tests:** Daily vitamins (cheap, frequent, preventive).
-- **Integration tests:** Regular checkups (catch issues between systems).
-- **E2E tests:** Major diagnostics (expensive, comprehensive, less frequent).
-- **Manual testing:** Specialist consultation (exploratory, creative, not routine).
+## Modelo mental / Intuición
+Piensa en las pruebas como **medicina preventiva**:
+- **Pruebas unitarias:** Vitaminas diarias (baratas, frecuentes, preventivas).
+- **Pruebas de integración:** Chequeos regulares (detectan problemas entre sistemas).
+- **Pruebas E2E:** Diagnósticos mayores (costosos, completos, menos frecuentes).
+- **Pruebas manuales:** Consulta especializada (exploratoria, creativa, no rutinaria).
 
-You don't skip vitamins because you get annual checkups. Each layer serves a purpose.
+No saltas las vitaminas porque tienes chequeos anuales. Cada capa tiene su propósito.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Code will be maintained long-term (production systems).
-- Multiple engineers work on the codebase (tests prevent regressions).
-- Refactoring is necessary (tests enable safe changes).
-- Bugs are costly (user impact, revenue loss, data corruption).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El código se mantendrá a largo plazo (sistemas de producción).
+- Múltiples ingenieros trabajan en la base de código (las pruebas previenen regresiones).
+- La refactorización es necesaria (las pruebas permiten cambios seguros).
+- Los errores son costosos (impacto al usuario, pérdida de ingresos, corrupción de datos).
 
-### Avoid it when
-- Writing throwaway code (prototypes, one-off scripts).
-- Test cost exceeds code value (weekend hackathon project).
-- Learning a new technology (experiment first, test later).
+### Evítalo cuando
+- Escribes código desechable (prototipos, scripts de un solo uso).
+- El costo de las pruebas excede el valor del código (proyecto de hackathon de fin de semana).
+- Aprendes una nueva tecnología (experimenta primero, prueba después).
 
-## How I would use it (practical)
-- **Context:** Building a Go API endpoint for user registration.
-- **Steps:**
-  1. **Unit test:** Validate business logic in isolation.
-     - Test: valid email formats accepted, invalid rejected.
-     - Test: password hashing works correctly.
-     - Test: duplicate email returns proper error.
-  2. **Integration test:** Test with real database.
-     - Test: user record inserted correctly.
-     - Test: transaction rolls back on error.
-  3. **E2E test:** Test full flow via [HTTP](../operations/http.md).
-     - Test: POST /register → 201 response → user can login.
-  4. **Edge cases:** Empty inputs, SQL injection attempts, concurrent registrations.
-- **What success looks like:** All tests pass in <10 seconds; production has zero registration bugs in first month.
+## Cómo lo usaría (práctico)
+- **Contexto:** Construyendo un endpoint de API en Go para registro de usuarios.
+- **Pasos:**
+  1. **Prueba unitaria:** Validar lógica de negocio en aislamiento.
+     - Prueba: formatos de email válidos aceptados, inválidos rechazados.
+     - Prueba: el hash de contraseña funciona correctamente.
+     - Prueba: email duplicado retorna error apropiado.
+  2. **Prueba de integración:** Probar con base de datos real.
+     - Prueba: registro de usuario insertado correctamente.
+     - Prueba: la transacción hace rollback en error.
+  3. **Prueba E2E:** Probar flujo completo vía [HTTP](../operations/http.md).
+     - Prueba: POST /register → respuesta 201 → el usuario puede iniciar sesión.
+  4. **Casos extremos:** Entradas vacías, intentos de inyección SQL, registros concurrentes.
+- **Cómo se ve el éxito:** Todas las pruebas pasan en <10 segundos; producción tiene cero errores de registro en el primer mes.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Catches bugs early (cheaper to fix).
-  - Enables confident refactoring.
-  - Documents expected behavior.
-  - Faster than manual testing.
-- **Cons / Risks:**
-  - Upfront time cost (writing tests).
-  - Maintenance burden (tests need updates when code changes).
-  - False confidence (bad tests pass but code is broken).
+- **Ventajas:**
+  - Detecta errores temprano (más barato de corregir).
+  - Permite refactorización con confianza.
+  - Documenta comportamiento esperado.
+  - Más rápido que pruebas manuales.
+- **Desventajas / Riesgos:**
+  - Costo de tiempo inicial (escribir pruebas).
+  - Carga de mantenimiento (las pruebas necesitan actualizaciones cuando el código cambia).
+  - Falsa confianza (pruebas malas pasan pero el código está roto).
 
-### Alternatives
-- **Manual testing only:** Slow, expensive, misses edge cases, not repeatable.
-- **No testing ("hope it works"):** Fast initially but high production defect rate.
-- **Testing in production:** Some scenarios require it (observability, canary deploys), but shouldn't be the primary strategy.
+### Alternativas
+- **Solo pruebas manuales:** Lento, costoso, pierde casos extremos, no repetible.
+- **Sin pruebas ("esperar que funcione"):** Rápido inicialmente pero alta tasa de defectos en producción.
+- **Probar en producción:** Algunos escenarios lo requieren (observabilidad, despliegues canario), pero no debería ser la estrategia principal.
 
-### How to choose
-- **Production systems:** Automated testing (unit + integration + critical E2E).
-- **Prototypes:** Minimal or no testing (validate concept first).
-- **Critical systems:** Extensive testing (financial, healthcare, safety-critical).
+### Cómo elegir
+- **Sistemas de producción:** Pruebas automatizadas (unitarias + integración + E2E críticas).
+- **Prototipos:** Pruebas mínimas o sin pruebas (validar concepto primero).
+- **Sistemas críticos:** Pruebas extensivas (financiero, salud, seguridad crítica).
 
-## Failure modes & Pitfalls
-- **Testing the wrong thing:** Testing implementation details instead of behavior (tests break on refactoring).
-- **Flaky tests:** Tests that randomly fail due to timing, race conditions, environmental issues (erodes trust).
-- **No assertions:** Tests that execute code but don't verify outcomes ("smoke tests" that don't catch bugs).
-- **Too many mocks:** Over-mocking hides integration bugs (code passes tests but fails in production).
-- **Ignoring edge cases:** Testing only happy paths (bugs hide in error conditions, boundary values).
+## Modos de fallo y trampas
+- **Probar lo incorrecto:** Probar detalles de implementación en lugar de comportamiento (las pruebas se rompen al refactorizar).
+- **Pruebas inestables:** Pruebas que fallan aleatoriamente por timing, condiciones de carrera, problemas del entorno (erosiona la confianza).
+- **Sin aserciones:** Pruebas que ejecutan código pero no verifican resultados ("pruebas de humo" que no detectan errores).
+- **Demasiados mocks:** Sobre-simular oculta errores de integración (el código pasa pruebas pero falla en producción).
+- **Ignorar casos extremos:** Probar solo caminos felices (los errores se esconden en condiciones de error, valores límite).
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Test pass rate (should be >99%).
-  - Test execution time (unit tests <10s, integration <5min).
-  - Test flakiness rate (% of random failures; aim for <1%).
-  - Code coverage (% of code executed by tests).
-- **Logs:** Track test failures by category (unit vs integration vs E2E).
-- **Traces:** N/A for testing itself.
-- **Alerts:** Test suite duration spike, flakiness increase, coverage drop.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tasa de aprobación de pruebas (debería ser >99%).
+  - Tiempo de ejecución de pruebas (unitarias <10s, integración <5min).
+  - Tasa de inestabilidad de pruebas (% de fallos aleatorios; apuntar a <1%).
+  - Cobertura de código (% de código ejecutado por pruebas).
+- **Logs:** Rastrear fallos de pruebas por categoría (unitarias vs integración vs E2E).
+- **Trazas:** N/A para las pruebas en sí.
+- **Alertas:** Pico en duración de suite de pruebas, aumento de inestabilidad, caída de cobertura.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Write tests as you code (TDD or test-soon-after).
-  - [ ] Follow AAA pattern: Arrange (setup), Act (execute), Assert (verify).
-  - [ ] Test behavior, not implementation details.
-  - [ ] Use descriptive test names (what's being tested, expected outcome).
-  - [ ] Test happy path + edge cases + error conditions.
-  - [ ] Keep tests fast and deterministic (no sleeps, no random data).
-  - [ ] Run tests in CI (block merge on failures).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Escribir pruebas mientras codificas (TDD o probar poco después).
+  - [ ] Seguir patrón AAA: Arrange (preparar), Act (ejecutar), Assert (verificar).
+  - [ ] Probar comportamiento, no detalles de implementación.
+  - [ ] Usar nombres descriptivos de pruebas (qué se está probando, resultado esperado).
+  - [ ] Probar camino feliz + casos extremos + condiciones de error.
+  - [ ] Mantener pruebas rápidas y deterministas (sin sleeps, sin datos aleatorios).
+  - [ ] Ejecutar pruebas en CI (bloquear merge en fallos).
 
-- **Security / Compliance notes**
-  - Include security tests: input validation, SQL injection, XSS prevention.
-  - Test auth/authz (unauthorized access blocked, permissions enforced).
+- **Notas de seguridad / cumplimiento**
+  - Incluir pruebas de seguridad: validación de entrada, inyección SQL, prevención de XSS.
+  - Probar autenticación/autorización (acceso no autorizado bloqueado, permisos aplicados).
 
-- **Performance notes**
-  - Parallelize test execution where possible.
-  - Use test doubles to avoid slow dependencies (DB, network).
+- **Notas de rendimiento**
+  - Paralelizar ejecución de pruebas donde sea posible.
+  - Usar dobles de prueba para evitar dependencias lentas (BD, red).
 
-- **Operational notes**
-  - Fix or remove flaky tests immediately (they erode trust).
-  - Monitor test suite performance (slow tests kill productivity).
+- **Notas operacionales**
+  - Corregir o eliminar pruebas inestables inmediatamente (erosionan la confianza).
+  - Monitorear rendimiento de la suite de pruebas (pruebas lentas matan la productividad).
 
-## Mini example
+## Mini ejemplo
 ```go
 // Example: Testing user registration logic
 package user
@@ -214,68 +214,68 @@ func TestCreateUser_DuplicateEmail(t *testing.T) {
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** No tests ("we'll test it manually").
-  - **Why it's bad:** Manual testing is slow, inconsistent, and misses edge cases. Doesn't scale.
-  - **Better approach:** Automate tests for fast, repeatable validation.
+## Anti-patrones comunes
+- **Anti-patrón:** Sin pruebas ("lo probaremos manualmente").
+  - **Por qué es malo:** Las pruebas manuales son lentas, inconsistentes y pierden casos extremos. No escala.
+  - **Mejor enfoque:** Automatizar pruebas para validación rápida y repetible.
 
-- **Anti-pattern:** Testing implementation details (e.g., "function X calls function Y").
-  - **Why it's bad:** Tests break on refactoring even when behavior is correct.
-  - **Better approach:** Test public API behavior (inputs → outputs), not internal calls.
+- **Anti-patrón:** Probar detalles de implementación (ej., "la función X llama a la función Y").
+  - **Por qué es malo:** Las pruebas se rompen al refactorizar incluso cuando el comportamiento es correcto.
+  - **Mejor enfoque:** Probar comportamiento de la API pública (entradas → salidas), no llamadas internas.
 
-- **Anti-pattern:** One giant test that tests everything.
-  - **Why it's bad:** Hard to debug (which assertion failed?), hard to maintain, slow.
-  - **Better approach:** Many small, focused tests (one behavior per test).
+- **Anti-patrón:** Una prueba gigante que prueba todo.
+  - **Por qué es malo:** Difícil de depurar (¿qué aserción falló?), difícil de mantener, lento.
+  - **Mejor enfoque:** Muchas pruebas pequeñas y enfocadas (un comportamiento por prueba).
 
-- **Anti-pattern:** Tests without assertions.
-  - **Why it's bad:** Code executes but doesn't verify correctness; bugs slip through.
-  - **Better approach:** Always assert expected outcomes (return values, state changes, side effects).
+- **Anti-patrón:** Pruebas sin aserciones.
+  - **Por qué es malo:** El código se ejecuta pero no verifica corrección; los errores se filtran.
+  - **Mejor enfoque:** Siempre verificar resultados esperados (valores de retorno, cambios de estado, efectos secundarios).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Testing is how we verify software works correctly before it reaches users. We write code that exercises our production code and checks the results match expectations. There are different levels: unit tests check individual functions in isolation, integration tests verify components work together, and E2E tests validate entire user flows. Tests catch bugs early (when they're cheap to fix), enable safe refactoring (tests act as safety nets), and document expected behavior. The key is balancing test coverage with speed—write enough tests to catch critical bugs, but keep the suite fast so you get quick feedback.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+Las pruebas son cómo verificamos que el software funciona correctamente antes de que llegue a los usuarios. Escribimos código que ejercita nuestro código de producción y verifica que los resultados coincidan con las expectativas. Hay diferentes niveles: las pruebas unitarias verifican funciones individuales en aislamiento, las pruebas de integración verifican que los componentes funcionen juntos, y las pruebas E2E validan flujos completos de usuario. Las pruebas detectan errores temprano (cuando son baratos de corregir), permiten refactorización segura (las pruebas actúan como red de seguridad), y documentan comportamiento esperado. La clave es equilibrar cobertura de pruebas con velocidad—escribir suficientes pruebas para detectar errores críticos, pero mantener la suite rápida para obtener retroalimentación rápida.
 
-### Trap questions (with answers)
-1) **Q:** Why not just test in production? Users will tell us if something breaks.
-   - **A:** Testing in production means users experience bugs, which damages trust and may cause data loss or revenue impact. Fixing bugs in production is 10-100x more expensive than catching them in development. Use testing to prevent defects, not discover them in production.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Por qué no solo probar en producción? Los usuarios nos dirán si algo se rompe.
+   - **R:** Probar en producción significa que los usuarios experimentan errores, lo que daña la confianza y puede causar pérdida de datos o impacto en ingresos. Corregir errores en producción es 10-100x más costoso que detectarlos en desarrollo. Usa pruebas para prevenir defectos, no para descubrirlos en producción.
 
-2) **Q:** If we have 100% code coverage, are we bug-free?
-   - **A:** No. Coverage measures what code is executed, not what's validated. You can have 100% coverage with tests that don't assert anything. Also, coverage doesn't test edge cases, race conditions, or integration issues. Coverage is a signal of what's not tested, not a guarantee of quality.
+2) **P:** Si tenemos 100% de cobertura de código, ¿estamos libres de errores?
+   - **R:** No. La cobertura mide qué código se ejecuta, no qué se valida. Puedes tener 100% de cobertura con pruebas que no verifican nada. Además, la cobertura no prueba casos extremos, condiciones de carrera o problemas de integración. La cobertura es una señal de lo que no está probado, no una garantía de calidad.
 
-3) **Q:** Should every line of code have a test?
-   - **A:** No. Use risk-based testing. Focus on business logic, error handling, and edge cases. Simple getters/setters or trivial code may not need tests. Aim for high coverage on critical paths, not 100% coverage everywhere.
+3) **P:** ¿Cada línea de código debería tener una prueba?
+   - **R:** No. Usa pruebas basadas en riesgo. Enfócate en lógica de negocio, manejo de errores y casos extremos. Getters/setters simples o código trivial puede no necesitar pruebas. Apunta a alta cobertura en rutas críticas, no 100% de cobertura en todas partes.
 
-4) **Q:** How do you test code that calls external APIs?
-   - **A:** Use test doubles. In unit tests, mock the API to isolate your logic. In integration tests, use a fake API server or test environment. In E2E tests, use the real API (or a staging version). Each layer validates different concerns.
+4) **P:** ¿Cómo pruebas código que llama APIs externas?
+   - **R:** Usa dobles de prueba. En pruebas unitarias, simula la API para aislar tu lógica. En pruebas de integración, usa un servidor API falso o entorno de prueba. En pruebas E2E, usa la API real (o una versión de staging). Cada capa valida diferentes preocupaciones.
 
-5) **Q:** What's the difference between mocks, stubs, and fakes?
-   - **A:** 
-     - **Stub:** Returns hardcoded values (simplest, for queries).
-     - **Mock:** Records calls and verifies expectations (for behavior verification).
-     - **Fake:** Working implementation with shortcuts (e.g., in-memory DB instead of real DB).
-     - Use stubs for most cases; mocks when you need to verify interactions; fakes for complex dependencies.
+5) **P:** ¿Cuál es la diferencia entre mocks, stubs y fakes?
+   - **R:** 
+     - **Stub:** Retorna valores codificados (el más simple, para consultas).
+     - **Mock:** Registra llamadas y verifica expectativas (para verificación de comportamiento).
+     - **Fake:** Implementación funcional con atajos (ej., BD en memoria en lugar de BD real).
+     - Usa stubs para la mayoría de casos; mocks cuando necesitas verificar interacciones; fakes para dependencias complejas.
 
-### Quick self-check (5 items)
-- [ ] I can explain the purpose of testing (prevent defects, enable refactoring, document behavior).
-- [ ] I can describe the AAA pattern (Arrange, Act, Assert).
-- [ ] I can differentiate between unit, integration, and E2E tests.
-- [ ] I can explain why testing implementation details is an anti-pattern.
-- [ ] I can name at least 3 types of test doubles and when to use each.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar el propósito de las pruebas (prevenir defectos, permitir refactorización, documentar comportamiento).
+- [ ] Puedo describir el patrón AAA (Arrange, Act, Assert).
+- [ ] Puedo diferenciar entre pruebas unitarias, de integración y E2E.
+- [ ] Puedo explicar por qué probar detalles de implementación es un anti-patrón.
+- [ ] Puedo nombrar al menos 3 tipos de dobles de prueba y cuándo usar cada uno.
 
-## Links (NO duplication)
-### Prerequisites
-- [Software Quality Assurance](software-quality-assurance.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
 
-### Related topics
-- [Testing pyramid](testing-pyramid.md)
-- [Code quality](code-quality.md)
-- [Quality gates](quality-gates.md)
-- [Clean code](clean-code.md)
+### Temas relacionados
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Calidad de código](code-quality.md)
+- [Compuertas de calidad](quality-gates.md)
+- [Código limpio](clean-code.md)
 
-### Compare with
-- [Testing pyramid](testing-pyramid.md) — Testing fundamentals explain what tests are; the pyramid explains how to balance test types.
+### Comparar con
+- [Pirámide de pruebas](testing-pyramid.md) — Los fundamentos de pruebas explican qué son las pruebas; la pirámide explica cómo equilibrar tipos de pruebas.
 
-## Notes / Inbox
-- Add examples from real projects: testing Heimdall Step Functions logic, Opportunity Actions third-party API calls.
-- Consider adding section on TDD (Test-Driven Development) workflow.
-- Link to specific testing frameworks (Go: testing, testify; Python: pytest) when those topics are created.
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: probar lógica de Step Functions de Heimdall, llamadas a APIs de terceros de Opportunity Actions.
+- Considerar agregar sección sobre TDD (Desarrollo Dirigido por Pruebas) como flujo de trabajo.
+- Enlazar a frameworks de pruebas específicos (Go: testing, testify; Python: pytest) cuando esos temas sean creados.

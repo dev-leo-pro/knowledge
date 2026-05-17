@@ -1,6 +1,6 @@
 ---
 id: third-party-integration-resilience
-title: "Third-Party Integration Resilience"
+title: "Resiliencia en integraciones con terceros"
 type: skill
 status: learning
 importance: 85
@@ -12,118 +12,118 @@ created_at: 2026-01-22
 updated_at: 2026-01-22
 ---
 
-# Third-Party Integration Resilience
+# Resiliencia en integraciones con terceros
 
 ## TL;DR (BLUF)
-- Reliable third-party integrations are built from: timeouts, bounded retries with backoff+jitter, circuit breakers, and idempotency.
-- Treat transient vs permanent errors differently; route non-retryable work to DLQ / manual remediation.
-- Success is measurable: low error rate, controlled latency p99, and no retry storms.
+- Las integraciones fiables con terceros se construyen con: timeouts, reintentos acotados con backoff+jitter, circuit breakers e idempotencia.
+- Trata los errores transitorios y permanentes de forma diferente; enruta el trabajo no reintentable a DLQ / remediación manual.
+- El éxito es medible: baja tasa de errores, latencia p99 controlada y sin tormentas de reintentos.
 
-## Definition
-**What it is:** Practices and patterns to integrate with external providers while keeping your system correct and stable under provider failures.
-**Key terms:** transient errors, permanent errors, rate limit (rate limiting), timeout, retry, circuit breaker, idempotency key.
+## Definición
+**Qué es:** Prácticas y patrones para integrarse con proveedores externos manteniendo tu sistema correcto y estable ante fallos del proveedor.
+**Términos clave:** errores transitorios, errores permanentes, límite de tasa (rate limiting), timeout, reintento, circuit breaker, clave de idempotencia.
 
-## Why it matters
-- Third-party APIs are a common single point of failure.
-- “It works in dev” breaks in prod due to rate limits, partial outages, and timeouts.
+## Por qué importa
+- Las APIs de terceros son un punto único de fallo común.
+- "Funciona en dev" se rompe en producción debido a límites de tasa, interrupciones parciales y timeouts.
 
-## Scope & Non-goals
-**In scope:** outbound HTTP/service calls, inbound webhooks, and async pipelines.
-**Out of scope / NOT solved by this:** choosing providers or legal/compliance details.
+## Alcance y no-objetivos
+**Dentro del alcance:** llamadas HTTP/servicio salientes, webhooks entrantes y pipelines asíncronos.
+**Fuera del alcance / NO resuelto por esto:** elegir proveedores o detalles legales/de cumplimiento.
 
-## Mental model / Intuition
-- Assume the provider will be slow, flaky, and occasionally wrong.
-- Your job is to contain blast radius and preserve correctness.
+## Modelo mental / Intuición
+- Asume que el proveedor será lento, inestable y ocasionalmente incorrecto.
+- Tu trabajo es contener el radio de impacto y preservar la corrección.
 
-## Decision rules (When to use / When not to use)
-### Use these controls when
-- The call is on the critical path (user-facing latency).
-- The call is high volume or has rate limits.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Usa estos controles cuando
+- La llamada está en la ruta crítica (latencia visible para el usuario).
+- La llamada es de alto volumen o tiene límites de tasa.
 
-### Avoid complexity when
-- The integration is low volume, best-effort, and duplicates/loss are acceptable.
+### Evita la complejidad cuando
+- La integración es de bajo volumen, mejor esfuerzo, y los duplicados/pérdidas son aceptables.
 
-## How I would use it (practical)
-- **Context:** Integrating with a voice provider and a payments provider.
-- **Steps:**
-  1) Add strict [Timeouts](timeouts.md).
-  2) Add [Retries](retries-and-backoff.md) only for transient errors and only with a time budget.
-  3) Add [Circuit breaker](circuit-breaker.md) with half-open probing.
-  4) Use [Idempotency](idempotency.md): idempotency keys, dedup store, and unique constraints.
-  5) For async workflows, route permanent failures to [DLQ & poison messages](dlq-and-poison-messages.md).
-- **What success looks like:** provider outages degrade gracefully and do not cause [Cascading failure](cascading-failure.md).
+## Cómo lo usaría (práctico)
+- **Contexto:** Integrando con un proveedor de voz y un proveedor de pagos.
+- **Pasos:**
+  1) Agregar [Timeouts](timeouts.md) estrictos.
+  2) Agregar [Reintentos](retries-and-backoff.md) solo para errores transitorios y solo con un presupuesto de tiempo.
+  3) Agregar [Circuit breaker](circuit-breaker.md) con sondeo half-open.
+  4) Usar [Idempotencia](idempotency.md): claves de idempotencia, almacén de deduplicación y restricciones únicas.
+  5) Para flujos asíncronos, enrutar fallos permanentes a [DLQ y mensajes venenosos](dlq-and-poison-messages.md).
+- **Cómo se ve el éxito:** las interrupciones del proveedor degradan de forma elegante y no causan [Fallo en cascada](cascading-failure.md).
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** stable platform under provider incidents.
-- **Cons / Risks:** tuning overhead; more moving parts; risk of failing fast too aggressively.
+- **Ventajas:** plataforma estable ante incidentes del proveedor.
+- **Desventajas / Riesgos:** sobrecarga de ajuste; más piezas móviles; riesgo de fallar rápido demasiado agresivamente.
 
-### Alternatives
-- **Async queue decoupling:** remove provider from request path.
-- **Provider abstraction layer:** to switch providers (with its own costs).
-- **How to choose:** if provider is critical, invest in resilience + observability.
+### Alternativas
+- **Desacoplamiento con cola asíncrona:** remover al proveedor de la ruta de la solicitud.
+- **Capa de abstracción de proveedor:** para cambiar de proveedores (con sus propios costos).
+- **Cómo elegir:** si el proveedor es crítico, invierte en resiliencia + observabilidad.
 
-## Failure modes & Pitfalls
-- Retrying permanent errors (400, auth, schema) → wasted capacity.
-- No idempotency when provider times out after processing → double actions.
-- No rate limiting / [Backpressure](../system-design/backpressure.md) → self-inflicted 429 storm.
+## Modos de fallo y trampas
+- Reintentar errores permanentes (400, auth, esquema) → capacidad desperdiciada.
+- Sin idempotencia cuando el proveedor hace timeout después de procesar → acciones duplicadas.
+- Sin limitación de tasa / [Contrapresión (Backpressure)](../system-design/backpressure.md) → tormenta auto-infligida de 429.
 
-## Observability (How to detect issues)
-- **Metrics:** error rate by provider & error class, p95/p99 latency, retry counts, breaker state.
-- **Logs:** correlation id across attempts; sanitized request identifiers.
-- **Traces:** external call span with tags (provider, route, attempt).
-- **Alerts:** spike in 429/503, breaker open, latency p99 regression.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de errores por proveedor y clase de error, latencia p95/p99, conteos de reintentos, estado del breaker.
+- **Logs:** id de correlación entre intentos; identificadores de solicitud sanitizados.
+- **Trazas:** tramo de llamada externa con etiquetas (proveedor, ruta, intento).
+- **Alertas:** pico en 429/503, breaker abierto, regresión de latencia p99.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Error taxonomy: transient vs permanent
-  - [ ] Timeout per call and overall budget
-  - [ ] Retry policy with jitter and max attempts
-  - [ ] Circuit breaker thresholds
-  - [ ] Idempotency strategy
-  - [ ] Runbook for provider outage
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Taxonomía de errores: transitorios vs permanentes
+  - [ ] Timeout por llamada y presupuesto general
+  - [ ] Política de reintentos con jitter y máximo de intentos
+  - [ ] Umbrales del circuit breaker
+  - [ ] Estrategia de idempotencia
+  - [ ] Runbook para interrupciones del proveedor
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** “If it fails, retry more.”
-  - **Why it’s bad:** turns an external incident into your own outage.
-  - **Better approach:** budgeted retries + breaker + async fallback.
+## Anti-patrones comunes
+- **Anti-patrón:** "Si falla, reintenta más."
+  - **Por qué es malo:** convierte un incidente externo en tu propia interrupción.
+  - **Mejor enfoque:** reintentos con presupuesto + breaker + respaldo asíncrono.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- For third-party integrations I start with timeouts, add bounded retries with jitter for transient errors, protect with a circuit breaker for sustained failures, and ensure idempotency so retries/timeouts never duplicate side effects.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Para integraciones con terceros empiezo con timeouts, agrego reintentos acotados con jitter para errores transitorios, protejo con un circuit breaker para fallos sostenidos y aseguro idempotencia para que los reintentos/timeouts nunca dupliquen efectos secundarios.
 
-### Trap questions (with answers)
-1) **Q:** If the provider returns 500 sometimes, do you retry indefinitely?
-   - **A:** No; bounded retries within a time budget and then degrade/queue/DLQ.
-2) **Q:** A timeout means the provider didn’t process the request, right?
-   - **A:** Not necessarily; timeouts can happen after the provider processed it. That’s why idempotency matters.
-3) **Q:** Are webhooks easier because they’re inbound?
-   - **A:** Not automatically; you still need idempotency, signature verification, and DLQ/replay patterns.
+### Preguntas trampa (con respuestas)
+1) **P:** Si el proveedor devuelve 500 a veces, ¿reintentas indefinidamente?
+   - **R:** No; reintentos acotados dentro de un presupuesto de tiempo y luego degradar/encolar/DLQ.
+2) **P:** ¿Un timeout significa que el proveedor no procesó la solicitud, verdad?
+   - **R:** No necesariamente; los timeouts pueden ocurrir después de que el proveedor procesó la solicitud. Por eso la idempotencia importa.
+3) **P:** ¿Los webhooks son más fáciles porque son entrantes?
+   - **R:** No automáticamente; aún necesitas idempotencia, verificación de firma y patrones de DLQ/replay.
 
-### Quick self-check (5 items)
-- [ ] I can classify errors correctly.
-- [ ] I can design timeouts + retries with budgets.
-- [ ] I can explain circuit breaker tuning.
-- [ ] I can implement idempotency keys.
-- [ ] I can propose observability and alerts.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo clasificar errores correctamente.
+- [ ] Puedo diseñar timeouts + reintentos con presupuestos.
+- [ ] Puedo explicar el ajuste del circuit breaker.
+- [ ] Puedo implementar claves de idempotencia.
+- [ ] Puedo proponer observabilidad y alertas.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [HTTP](http.md)
-- [Idempotency](idempotency.md)
+- [Idempotencia](idempotency.md)
 
-### Related topics
-- [Retries, exponential backoff, and jitter](retries-and-backoff.md)
+### Temas relacionados
+- [Reintentos, backoff exponencial y jitter](retries-and-backoff.md)
 - [Timeouts](timeouts.md)
 - [Circuit breaker](circuit-breaker.md)
-- [DLQ & poison messages](dlq-and-poison-messages.md)
+- [DLQ y mensajes venenosos](dlq-and-poison-messages.md)
 - [Feature flags](feature-flags.md)
 
-### Compare with
-- [Event-driven architecture](../architecture/event-driven-basics.md) — async patterns reduce critical-path dependency on third parties.
+### Comparar con
+- [Arquitectura dirigida por eventos](../architecture/event-driven-basics.md) — los patrones asíncronos reducen la dependencia en la ruta crítica de terceros.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

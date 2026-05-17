@@ -1,6 +1,6 @@
 ---
 id: clean-code
-title: "Clean Code"
+title: "Código Limpio"
 type: concept
 status: learning
 importance: 85
@@ -12,132 +12,132 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Clean Code
+# Código Limpio
 
 ## TL;DR (BLUF)
-- Clean code is code that is easy to read, understand, and modify—optimized for human comprehension.
-- Use meaningful names, small functions, clear structure, and consistent style.
-- Key trade-off: time spent on clarity vs. shipping features quickly.
+- El código limpio es código que es fácil de leer, entender y modificar—optimizado para la comprensión humana.
+- Usa nombres significativos, funciones pequeñas, estructura clara y estilo consistente.
+- Trade-off clave: tiempo invertido en claridad vs. entregar funcionalidades rápidamente.
 
-## Definition
-**What it is:** Code written with clarity, simplicity, and maintainability as primary goals, following principles like meaningful naming, single responsibility, and minimal complexity.  
-**Key terms:** readability, self-documenting code, single responsibility principle (SRP), DRY (Don't Repeat Yourself), YAGNI (You Aren't Gonna Need It), code smell, refactoring.
+## Definición
+**Qué es:** Código escrito con claridad, simplicidad y mantenibilidad como objetivos principales, siguiendo principios como nombres significativos, responsabilidad única y complejidad mínima.  
+**Términos clave:** legibilidad, código auto-documentado, principio de responsabilidad única (SRP), DRY (Don't Repeat Yourself), YAGNI (You Aren't Gonna Need It), code smell, refactorización.
 
-## Why it matters
-- **Faster development:** Engineers spend 70-90% of their time reading code, not writing it. Readable code = faster iteration.
-- **Fewer bugs:** Clear code makes logic errors obvious; complex code hides bugs.
-- **Easier onboarding:** New engineers ramp up faster in clean codebases.
-- **Interview relevance:** Senior engineers must write and defend clean code under pressure (whiteboard interviews, code reviews).
+## Por qué importa
+- **Desarrollo más rápido:** Los ingenieros pasan el 70-90% de su tiempo leyendo código, no escribiéndolo. Código legible = iteración más rápida.
+- **Menos errores:** El código claro hace que los errores lógicos sean obvios; el código complejo oculta errores.
+- **Onboarding más fácil:** Los nuevos ingenieros se adaptan más rápido en bases de código limpias.
+- **Relevancia en entrevistas:** Los ingenieros senior deben escribir y defender código limpio bajo presión (entrevistas de pizarra, revisiones de código).
 
-## Scope & Non-goals
-**In scope:**
-- Naming conventions (variables, functions, classes).
-- Function and class size (single responsibility).
-- Code organization and structure.
-- Avoiding code smells (duplication, magic numbers, deep nesting).
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Convenciones de nomenclatura (variables, funciones, clases).
+- Tamaño de funciones y clases (responsabilidad única).
+- Organización y estructura del código.
+- Evitar code smells (duplicación, números mágicos, anidamiento profundo).
 
-**Out of scope / NOT solved by this:**
-- Performance optimization (sometimes conflicts with readability).
-- Architecture or system design (separate concern).
-- Specific language idioms (though clean code principles apply universally).
+**Fuera del alcance / NO resuelto por esto:**
+- Optimización de rendimiento (a veces entra en conflicto con la legibilidad).
+- Arquitectura o diseño de sistemas (preocupación separada).
+- Modismos específicos de lenguaje (aunque los principios de código limpio aplican universalmente).
 
-## Mental model / Intuition
-Think of clean code as **writing prose, not poetry**:
-- **Prose:** Clear, direct, understandable by anyone. Example: `calculateMonthlyPayment()`.
-- **Poetry:** Clever, concise, but requires interpretation. Example: `cmp()` (what's it computing?).
+## Modelo mental / Intuición
+Piensa en el código limpio como **escribir prosa, no poesía**:
+- **Prosa:** Clara, directa, comprensible por cualquiera. Ejemplo: `calculateMonthlyPayment()`.
+- **Poesía:** Ingeniosa, concisa, pero requiere interpretación. Ejemplo: `cmp()` (¿qué calcula?).
 
-Code is read far more often than written. Optimize for the reader, not the writer.
+El código se lee mucho más a menudo de lo que se escribe. Optimiza para el lector, no para el escritor.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Code will be maintained long-term (production systems).
-- Multiple engineers will work on the codebase.
-- Complexity is unavoidable (clean code makes complex logic manageable).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El código se mantendrá a largo plazo (sistemas de producción).
+- Múltiples ingenieros trabajarán en la base de código.
+- La complejidad es inevitable (el código limpio hace la lógica compleja manejable).
 
-### Avoid it when
-- Writing throwaway code (prototypes, one-off scripts).
-- Optimizing for performance (sometimes clever, hard-to-read code is necessary for hot paths; use sparingly and document).
+### Evítalo cuando
+- Escribes código desechable (prototipos, scripts de un solo uso).
+- Optimizas para rendimiento (a veces código ingenioso y difícil de leer es necesario para rutas críticas; úsalo con moderación y documenta).
 
-## How I would use it (practical)
-- **Context:** Refactoring a Go API handler that processes orders.
-- **Steps:**
-  1. **Meaningful names:** Rename `proc()` to `processOrder()`, `u` to `user`, `res` to `result`.
-  2. **Extract functions:** Break 200-line handler into smaller functions (validate, fetch, charge, notify).
-  3. **Single responsibility:** Each function does one thing (validateOrder checks inputs; chargeUser handles payment).
-  4. **Remove duplication:** Extract repeated logic into shared functions.
-  5. **Reduce nesting:** Use early returns instead of deep if-else chains.
-  6. **Add comments sparingly:** Only for "why" (not "what")—code should be self-documenting.
-- **What success looks like:** Handler is <50 lines; logic is obvious; new engineers understand it in <10 minutes.
+## Cómo lo usaría (práctico)
+- **Contexto:** Refactorizando un handler de API en Go que procesa pedidos.
+- **Pasos:**
+  1. **Nombres significativos:** Renombrar `proc()` a `processOrder()`, `u` a `user`, `res` a `result`.
+  2. **Extraer funciones:** Dividir handler de 200 líneas en funciones más pequeñas (validar, obtener, cobrar, notificar).
+  3. **Responsabilidad única:** Cada función hace una cosa (validateOrder verifica entradas; chargeUser maneja el pago).
+  4. **Eliminar duplicación:** Extraer lógica repetida en funciones compartidas.
+  5. **Reducir anidamiento:** Usar retornos tempranos en lugar de cadenas if-else profundas.
+  6. **Agregar comentarios con moderación:** Solo para "por qué" (no "qué")—el código debe ser auto-documentado.
+- **Cómo se ve el éxito:** El handler tiene <50 líneas; la lógica es obvia; nuevos ingenieros lo entienden en <10 minutos.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Faster development over time (easy to read = easy to change).
-  - Fewer bugs (clear logic makes errors obvious).
-  - Lower cognitive load (easier to reason about).
-- **Cons / Risks:**
-  - Upfront time cost (refactoring, naming, extraction).
-  - Can conflict with performance (sometimes "ugly" code is faster; use profiling to decide).
-  - Subjective (what's "clean" to one person may differ).
+- **Ventajas:**
+  - Desarrollo más rápido con el tiempo (fácil de leer = fácil de cambiar).
+  - Menos errores (lógica clara hace que los errores sean obvios).
+  - Menor carga cognitiva (más fácil de razonar).
+- **Desventajas / Riesgos:**
+  - Costo de tiempo inicial (refactorización, nomenclatura, extracción).
+  - Puede entrar en conflicto con el rendimiento (a veces código "feo" es más rápido; usa profiling para decidir).
+  - Subjetivo (lo que es "limpio" para una persona puede diferir).
 
-### Alternatives
-- **"Just make it work":** Fast initially but creates tech debt (hard to change, bug-prone).
-- **Over-engineering:** Premature abstraction (too many interfaces, layers) makes code harder to follow.
-- **Clever code:** Concise but cryptic (hard for others to understand).
+### Alternativas
+- **"Solo hazlo funcionar":** Rápido inicialmente pero crea deuda técnica (difícil de cambiar, propenso a errores).
+- **Sobre-ingeniería:** Abstracción prematura (demasiadas interfaces, capas) hace el código más difícil de seguir.
+- **Código ingenioso:** Conciso pero críptico (difícil de entender para otros).
 
-### How to choose
-- **Long-lived production system:** Invest in clean code (naming, structure, refactoring).
-- **Prototype / MVP:** Prioritize speed; clean up later if it becomes production code.
-- **Performance-critical path:** Profile first; optimize only hot paths; document why code is "ugly."
+### Cómo elegir
+- **Sistema de producción de larga vida:** Invertir en código limpio (nomenclatura, estructura, refactorización).
+- **Prototipo / MVP:** Priorizar velocidad; limpiar después si se convierte en código de producción.
+- **Ruta crítica de rendimiento:** Perfilar primero; optimizar solo rutas críticas; documentar por qué el código es "feo".
 
-## Failure modes & Pitfalls
-- **Premature abstraction:** Creating interfaces/layers before you need them (YAGNI violation).
-- **Over-commenting:** Explaining "what" instead of "why" (code should be self-documenting).
-- **Unclear names:** `data`, `temp`, `x`, `proc()` (readers must guess meaning).
-- **God functions/classes:** Single function doing everything (impossible to test or understand).
-- **Deep nesting:** 5+ levels of if-else (hard to follow logic).
+## Modos de fallo y trampas
+- **Abstracción prematura:** Crear interfaces/capas antes de necesitarlas (violación de YAGNI).
+- **Exceso de comentarios:** Explicar "qué" en lugar de "por qué" (el código debe ser auto-documentado).
+- **Nombres poco claros:** `data`, `temp`, `x`, `proc()` (los lectores deben adivinar el significado).
+- **Funciones/clases dios:** Una sola función haciendo todo (imposible de probar o entender).
+- **Anidamiento profundo:** 5+ niveles de if-else (difícil seguir la lógica).
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Cyclomatic complexity (flag functions >10).
-  - Function length (flag functions >50 lines).
-  - Nesting depth (flag >3 levels).
-  - PR review time (long reviews suggest unclear code).
-- **Logs:** N/A for clean code itself.
-- **Traces:** N/A for clean code itself.
-- **Alerts:** Complexity spikes in new code.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Complejidad ciclomática (señalar funciones >10).
+  - Longitud de función (señalar funciones >50 líneas).
+  - Profundidad de anidamiento (señalar >3 niveles).
+  - Tiempo de revisión de PR (revisiones largas sugieren código poco claro).
+- **Logs:** N/A para código limpio en sí.
+- **Trazas:** N/A para código limpio en sí.
+- **Alertas:** Picos de complejidad en código nuevo.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Use meaningful names (variables, functions, classes).
-  - [ ] Keep functions small (<50 lines, single responsibility).
-  - [ ] Avoid deep nesting (use early returns, guard clauses).
-  - [ ] Remove duplication (DRY: extract shared logic).
-  - [ ] Avoid magic numbers (use constants or enums).
-  - [ ] Comment "why," not "what" (code explains itself).
-  - [ ] Use consistent style (linters enforce this).
-  - [ ] Refactor opportunistically (when touching code for features).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Usar nombres significativos (variables, funciones, clases).
+  - [ ] Mantener funciones pequeñas (<50 líneas, responsabilidad única).
+  - [ ] Evitar anidamiento profundo (usar retornos tempranos, cláusulas de guarda).
+  - [ ] Eliminar duplicación (DRY: extraer lógica compartida).
+  - [ ] Evitar números mágicos (usar constantes o enums).
+  - [ ] Comentar "por qué", no "qué" (el código se explica solo).
+  - [ ] Usar estilo consistente (los linters lo imponen).
+  - [ ] Refactorizar oportunísticamente (al tocar código para funcionalidades).
 
-- **Security / Compliance notes**
-  - Clean code makes security reviews easier (clear logic = easier to spot vulnerabilities).
-  - Avoid clever crypto code (use libraries; clean and secure).
+- **Notas de seguridad / cumplimiento**
+  - El código limpio hace las revisiones de seguridad más fáciles (lógica clara = más fácil detectar vulnerabilidades).
+  - Evitar código criptográfico ingenioso (usar bibliotecas; limpio y seguro).
 
-- **Performance notes**
-  - Clean code is often performant (simpler logic = easier to optimize).
-  - If optimization requires "ugly" code, isolate it and document why.
+- **Notas de rendimiento**
+  - El código limpio a menudo es eficiente (lógica más simple = más fácil de optimizar).
+  - Si la optimización requiere código "feo", aislarlo y documentar por qué.
 
-- **Operational notes**
-  - Clean code reduces production incidents (clear logic = fewer bugs).
-  - Use post-mortems to identify code clarity gaps (confusing logic led to incorrect fix).
+- **Notas operacionales**
+  - El código limpio reduce incidentes en producción (lógica clara = menos errores).
+  - Usar post-mortems para identificar brechas de claridad en el código (lógica confusa llevó a corrección incorrecta).
 
-## Mini example
+## Mini ejemplo
 ```go
-// BEFORE: Unclear, complex, hard to follow
+// ANTES: Poco claro, complejo, difícil de seguir
 func p(o Order, u User) error {
     if o.T > 0 && u.ID != "" {
         if u.B >= o.T {
             if u.S == "a" {
-                // ... charge logic
+                // ... lógica de cobro
                 return nil
             } else {
                 return errors.New("inactive")
@@ -149,7 +149,7 @@ func p(o Order, u User) error {
     return errors.New("invalid")
 }
 
-// AFTER: Clear, simple, self-documenting
+// DESPUÉS: Claro, simple, auto-documentado
 func processOrder(order Order, user User) error {
     if err := validateOrder(order); err != nil {
         return fmt.Errorf("invalid order: %w", err)
@@ -177,69 +177,69 @@ func validateOrder(order Order) error {
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Abbreviating everything (`usr`, `ord`, `proc`, `res`).
-  - **Why it's bad:** Saves 2 characters but costs 10 seconds every time someone reads it. Multiply by 1000s of reads.
-  - **Better approach:** Use full words (`user`, `order`, `process`, `result`).
+## Anti-patrones comunes
+- **Anti-patrón:** Abreviar todo (`usr`, `ord`, `proc`, `res`).
+  - **Por qué es malo:** Ahorra 2 caracteres pero cuesta 10 segundos cada vez que alguien lo lee. Multiplica por miles de lecturas.
+  - **Mejor enfoque:** Usar palabras completas (`user`, `order`, `process`, `result`).
 
-- **Anti-pattern:** Functions doing multiple unrelated things.
-  - **Why it's bad:** Hard to test, understand, or reuse; violates single responsibility principle.
-  - **Better approach:** Break into focused functions (`validateOrder`, `chargeUser`, `sendNotification`).
+- **Anti-patrón:** Funciones que hacen múltiples cosas no relacionadas.
+  - **Por qué es malo:** Difícil de probar, entender o reusar; viola el principio de responsabilidad única.
+  - **Mejor enfoque:** Dividir en funciones enfocadas (`validateOrder`, `chargeUser`, `sendNotification`).
 
-- **Anti-pattern:** Magic numbers (`if status == 3`).
-  - **Why it's bad:** What does `3` mean? Reader must search codebase or docs.
-  - **Better approach:** Use constants or enums (`if status == StatusActive`).
+- **Anti-patrón:** Números mágicos (`if status == 3`).
+  - **Por qué es malo:** ¿Qué significa `3`? El lector debe buscar en la base de código o documentación.
+  - **Mejor enfoque:** Usar constantes o enums (`if status == StatusActive`).
 
-- **Anti-pattern:** Deep nesting (5+ levels of if-else).
-  - **Why it's bad:** Hard to follow logic; high cyclomatic complexity.
-  - **Better approach:** Use early returns, guard clauses, or extract functions.
+- **Anti-patrón:** Anidamiento profundo (5+ niveles de if-else).
+  - **Por qué es malo:** Difícil seguir la lógica; alta complejidad ciclomática.
+  - **Mejor enfoque:** Usar retornos tempranos, cláusulas de guarda, o extraer funciones.
 
-- **Anti-pattern:** Comments explaining "what" code does.
-  - **Why it's bad:** If code needs comments to explain "what," it's unclear. Code should be self-documenting.
-  - **Better approach:** Rename variables/functions for clarity; comment only "why" (business rules, trade-offs).
+- **Anti-patrón:** Comentarios explicando "qué" hace el código.
+  - **Por qué es malo:** Si el código necesita comentarios para explicar "qué", no es claro. El código debe ser auto-documentado.
+  - **Mejor enfoque:** Renombrar variables/funciones para claridad; comentar solo "por qué" (reglas de negocio, trade-offs).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Clean code is code optimized for human readers. It uses meaningful names so you don't have to guess what `x` or `proc()` means. It keeps functions small and focused (single responsibility). It avoids deep nesting and duplication. The goal is to make code so clear that comments are rarely needed—the code itself explains what it does. Clean code pays back long-term because engineers spend most of their time reading, not writing. The easier it is to read, the faster you can iterate.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+El código limpio es código optimizado para lectores humanos. Usa nombres significativos para que no tengas que adivinar qué significa `x` o `proc()`. Mantiene funciones pequeñas y enfocadas (responsabilidad única). Evita anidamiento profundo y duplicación. El objetivo es hacer el código tan claro que los comentarios rara vez sean necesarios—el código mismo explica lo que hace. El código limpio se paga a largo plazo porque los ingenieros pasan la mayor parte de su tiempo leyendo, no escribiendo. Cuanto más fácil es de leer, más rápido puedes iterar.
 
-### Trap questions (with answers)
-1) **Q:** Doesn't clean code take longer to write?
-   - **A:** Initially yes, but it saves time over the life of the codebase. Engineers spend 70-90% of their time reading code. Clear code = faster iteration, easier debugging, safer refactoring. The upfront cost is paid back quickly.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El código limpio no toma más tiempo de escribir?
+   - **R:** Inicialmente sí, pero ahorra tiempo durante la vida de la base de código. Los ingenieros pasan el 70-90% de su tiempo leyendo código. Código claro = iteración más rápida, depuración más fácil, refactorización más segura. El costo inicial se recupera rápidamente.
 
-2) **Q:** Is clean code just about formatting and style?
-   - **A:** No. Style (formatting, indentation) is the smallest part. Clean code is about structure (small functions, single responsibility), naming (meaningful names), and logic (avoiding complexity, duplication). Linters enforce style; clean code principles guide design.
+2) **P:** ¿El código limpio es solo sobre formato y estilo?
+   - **R:** No. El estilo (formato, indentación) es la parte más pequeña. El código limpio se trata de estructura (funciones pequeñas, responsabilidad única), nomenclatura (nombres significativos) y lógica (evitar complejidad, duplicación). Los linters imponen estilo; los principios de código limpio guían el diseño.
 
-3) **Q:** Can clean code hurt performance?
-   - **A:** Rarely. Simpler code is often faster because it's easier to optimize. If performance requires "ugly" code (e.g., manual loop unrolling), isolate it, profile to confirm it's necessary, and document why. Don't sacrifice clarity prematurely.
+3) **P:** ¿El código limpio puede perjudicar el rendimiento?
+   - **R:** Rara vez. El código más simple a menudo es más rápido porque es más fácil de optimizar. Si el rendimiento requiere código "feo" (por ejemplo, desenrollado manual de bucles), aislarlo, perfilar para confirmar que es necesario y documentar por qué. No sacrificar claridad prematuramente.
 
-4) **Q:** How do you balance clean code with deadlines?
-   - **A:** Clean code is faster long-term. For MVPs, prioritize shipping but allocate time for cleanup before it becomes production code. Use tech debt tracking to ensure cleanup happens. Don't let "we'll clean it up later" become permanent.
+4) **P:** ¿Cómo equilibras código limpio con plazos de entrega?
+   - **R:** El código limpio es más rápido a largo plazo. Para MVPs, priorizar entregar pero asignar tiempo para limpieza antes de que se convierta en código de producción. Usar seguimiento de deuda técnica para asegurar que la limpieza ocurra. No dejar que "lo limpiaremos después" se vuelva permanente.
 
-5) **Q:** What's the most important clean code principle?
-   - **A:** Meaningful names. If variables, functions, and classes have clear names, most code becomes self-documenting. Second is single responsibility—functions that do one thing are easier to understand, test, and reuse.
+5) **P:** ¿Cuál es el principio de código limpio más importante?
+   - **R:** Nombres significativos. Si variables, funciones y clases tienen nombres claros, la mayoría del código se vuelve auto-documentado. En segundo lugar está la responsabilidad única—funciones que hacen una cosa son más fáciles de entender, probar y reusar.
 
-### Quick self-check (5 items)
-- [ ] I can explain why clean code accelerates development long-term.
-- [ ] I can name at least 3 clean code principles (naming, SRP, DRY, etc.).
-- [ ] I can refactor a complex function into smaller, focused functions.
-- [ ] I can identify a code smell (deep nesting, magic numbers, unclear names) and fix it.
-- [ ] I can articulate when to prioritize performance over readability (and when not to).
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar por qué el código limpio acelera el desarrollo a largo plazo.
+- [ ] Puedo nombrar al menos 3 principios de código limpio (nomenclatura, SRP, DRY, etc.).
+- [ ] Puedo refactorizar una función compleja en funciones más pequeñas y enfocadas.
+- [ ] Puedo identificar un code smell (anidamiento profundo, números mágicos, nombres poco claros) y corregirlo.
+- [ ] Puedo articular cuándo priorizar rendimiento sobre legibilidad (y cuándo no).
 
-## Links (NO duplication)
-### Prerequisites
-- [Code quality](code-quality.md)
-- [Software Quality Assurance](software-quality-assurance.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Calidad de código](code-quality.md)
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
 
-### Related topics
-- [Testing pyramid](testing-pyramid.md)
-- [Quality gates](quality-gates.md)
-- [SOLID principles](solid-principles.md)
-- [Refactoring techniques](refactoring-techniques.md)
+### Temas relacionados
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Compuertas de calidad](quality-gates.md)
+- [Principios SOLID](solid-principles.md)
+- [Técnicas de refactorización](refactoring-techniques.md)
 
-### Compare with
-- [Code quality](code-quality.md) — Code quality measures structure and correctness; clean code optimizes for readability.
+### Comparar con
+- [Calidad de código](code-quality.md) — La calidad de código mide estructura y corrección; el código limpio optimiza para legibilidad.
 
-## Notes / Inbox
-- Add examples from real projects: refactoring Heimdall handlers, simplifying Opportunity Actions logic.
-- Consider adding section on clean code for specific languages (Go idioms, Python idioms).
-- Reference "Clean Code" by Robert C. Martin (Uncle Bob) for deeper reading (external link in future versions).
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: refactorizar handlers de Heimdall, simplificar lógica de Opportunity Actions.
+- Considerar agregar sección sobre código limpio para lenguajes específicos (modismos de Go, modismos de Python).
+- Referenciar "Clean Code" de Robert C. Martin (Uncle Bob) para lectura más profunda (enlace externo en versiones futuras).

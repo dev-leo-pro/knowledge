@@ -1,6 +1,6 @@
 ---
 id: sql-foundations
-title: "SQL Foundations"
+title: "Fundamentos de SQL"
 type: concept
 status: learning
 importance: 60
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# SQL Foundations
+# Fundamentos de SQL
 
 ## TL;DR (BLUF)
-- SQL is the declarative language for querying relational databases.
-- Use it to filter, join, and aggregate structured data.
-- Trade-off: complex queries require indexing and planning awareness.
+- SQL es el lenguaje declarativo para consultar bases de datos relacionales.
+- Úsalo para filtrar, unir y agregar datos estructurados.
+- Trade-off: consultas complejas requieren conciencia de indexación y planificación.
 
-## Definition
-**What it is:** A declarative language for relational data definition and querying.
-**Key terms:** SELECT, JOIN, WHERE, GROUP BY, ORDER BY.
+## Definición
+**Qué es:** Un lenguaje declarativo para definición y consulta de datos relacionales.
+**Términos clave:** SELECT, JOIN, WHERE, GROUP BY, ORDER BY.
 
-## Why it matters
-- It’s the baseline for most relational databases and interviews.
-- Poor SQL understanding leads to incorrect results and slow queries.
+## Por qué importa
+- Es la base para la mayoría de bases de datos relacionales y entrevistas.
+- Un mal entendimiento de SQL lleva a resultados incorrectos y consultas lentas.
 
-## Scope & Non-goals
-**In scope:** core SQL query concepts.
-**Out of scope / NOT solved by this:** advanced vendor-specific SQL features.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos fundamentales de consultas SQL.
+**Fuera del alcance / NO resuelto por esto:** funcionalidades SQL avanzadas específicas de cada proveedor.
 
-## Mental model / Intuition
-- Describe what you want; the database decides how to get it.
+## Modelo mental / Intuición
+- Describe lo que quieres; la base de datos decide cómo obtenerlo.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data is relational and needs flexible querying.
-### Avoid it when
-- Access patterns are fixed and key-based (NoSQL may fit better).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los datos son relacionales y necesitan consultas flexibles.
+### Evítalo cuando
+- Los patrones de acceso son fijos y basados en clave (NoSQL puede encajar mejor).
 
-## How I would use it (practical)
-- **Context:** Reporting on user activity.
-- **Steps:** write SELECT with WHERE → add JOINs → aggregate with GROUP BY.
-- **What success looks like:** correct results with stable performance.
+## Cómo lo usaría (práctico)
+- **Contexto:** Reportes sobre actividad de usuarios.
+- **Pasos:** escribir SELECT con WHERE → agregar JOINs → agregar con GROUP BY.
+- **Cómo se ve el éxito:** resultados correctos con rendimiento estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** expressive querying.
-- **Cons / Risks:** easy to write slow queries without indexes.
-### Alternatives
-- **NoSQL key-value access:** faster for fixed access patterns.
-- **How to choose:** use SQL when flexibility is needed.
+- **Ventajas:** consultas expresivas.
+- **Desventajas / Riesgos:** fácil escribir consultas lentas sin índices.
+### Alternativas
+- **Acceso clave-valor NoSQL:** más rápido para patrones de acceso fijos.
+- **Cómo elegir:** usa SQL cuando se necesita flexibilidad.
 
-## Failure modes & Pitfalls
-- Implicit cross joins from missing predicates.
-- Filtering after aggregation incorrectly.
+## Modos de fallo y trampas
+- Cross joins implícitos por predicados faltantes.
+- Filtrar después de la agregación incorrectamente.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency, rows scanned.
-- **Logs:** slow query logs.
-- **Alerts:** latency spikes on reporting queries.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas, filas escaneadas.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** picos de latencia en consultas de reportes.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Validate result counts
-  - [ ] Check indexes for critical predicates
+  - [ ] Validar conteos de resultados
+  - [ ] Verificar índices para predicados críticos
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** SELECT * on large tables.
-  - **Why it’s bad:** unnecessary I/O and memory.
-  - **Better approach:** select only needed columns.
+## Anti-patrones comunes
+- **Anti-patrón:** SELECT * en tablas grandes.
+  - **Por qué es malo:** E/S y memoria innecesarias.
+  - **Mejor enfoque:** seleccionar solo las columnas necesarias.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- SQL lets you declare what data you want from relational tables. It’s powerful and flexible, but you must understand joins and filters to keep it correct and fast.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- SQL te permite declarar qué datos quieres de tablas relacionales. Es potente y flexible, pero debes entender joins y filtros para mantenerlo correcto y rápido.
 
-### Trap questions (with answers)
-1) **Q:** Does SQL guarantee performance?
-   - **A:** no; performance depends on indexes and data volume.
-2) **Q:** Is SQL only for relational databases?
-   - **A:** mostly, though some systems provide SQL-like layers.
-3) **Q:** Are JOINs always slow?
-   - **A:** no; with good indexes they can be fast.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿SQL garantiza rendimiento?
+   - **R:** no; el rendimiento depende de índices y volumen de datos.
+2) **P:** ¿SQL es solo para bases de datos relacionales?
+   - **R:** mayormente, aunque algunos sistemas proporcionan capas tipo SQL.
+3) **P:** ¿Los JOINs siempre son lentos?
+   - **R:** no; con buenos índices pueden ser rápidos.
 
-### Quick self-check (5 items)
-- [ ] I can define SQL.
-- [ ] I can describe JOIN/WHERE/GROUP BY.
-- [ ] I can name a trade-off.
-- [ ] I can explain a pitfall.
-- [ ] I can describe a performance signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir SQL.
+- [ ] Puedo describir JOIN/WHERE/GROUP BY.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo explicar una trampa.
+- [ ] Puedo describir una señal de rendimiento.
 
-## Links (NO duplication)
-### Prerequisites
-- [Relational model basics](relational-model-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos del modelo relacional](relational-model-basics.md)
 
-### Related topics
+### Temas relacionados
 - [SQL joins (inner/left)](sql-joins.md)
 
-### Compare with
-- [NoSQL access patterns](nosql-access-patterns.md) — fixed access vs declarative queries.
+### Comparar con
+- [Patrones de acceso NoSQL](nosql-access-patterns.md) — acceso fijo vs consultas declarativas.

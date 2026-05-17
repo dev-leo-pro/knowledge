@@ -1,6 +1,6 @@
 ---
 id: postgresql-stats-and-analyze
-title: "PostgreSQL Statistics & ANALYZE"
+title: "Estadísticas y ANALYZE de PostgreSQL"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# PostgreSQL Statistics & ANALYZE
+# Estadísticas y ANALYZE de PostgreSQL
 
 ## TL;DR (BLUF)
-- The planner relies on table statistics to estimate costs and choose plans.
-- Use ANALYZE to keep stats fresh after big data changes.
-- Trade-off: collecting stats adds overhead.
+- El planificador depende de estadísticas de tabla para estimar costos y elegir planes.
+- Usa ANALYZE para mantener las estadísticas actualizadas después de grandes cambios de datos.
+- Trade-off: recolectar estadísticas agrega sobrecarga.
 
-## Definition
-**What it is:** Statistics about data distribution used by the planner, updated by ANALYZE.
-**Key terms:** statistics, ANALYZE, histograms.
+## Definición
+**Qué es:** Estadísticas sobre la distribución de datos usadas por el planificador, actualizadas por ANALYZE.
+**Términos clave:** estadísticas, ANALYZE, histogramas.
 
-## Why it matters
-- Stale stats lead to bad plans and slow queries.
-- Good stats improve index selection and join order.
+## Por qué importa
+- Estadísticas obsoletas llevan a malos planes y consultas lentas.
+- Buenas estadísticas mejoran la selección de índices y el orden de joins.
 
-## Scope & Non-goals
-**In scope:** stats freshness and its impact on planning.
-**Out of scope / NOT solved by this:** query rewrite best practices.
+## Alcance y no-objetivos
+**Dentro del alcance:** frescura de estadísticas y su impacto en la planificación.
+**Fuera del alcance / NO resuelto por esto:** mejores prácticas de reescritura de consultas.
 
-## Mental model / Intuition
-- Think of stats as the planner’s map of your data.
+## Modelo mental / Intuición
+- Piensa en las estadísticas como el mapa del planificador de tus datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You load or delete large amounts of data.
-### Avoid it when
-- You can rely on autovacuum/analyze for small changes.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Cargas o eliminas grandes cantidades de datos.
+### Evítalo cuando
+- Puedes confiar en autovacuum/analyze para cambios pequeños.
 
-## How I would use it (practical)
-- **Context:** Bulk load followed by slow queries.
-- **Steps:** run ANALYZE → re-check EXPLAIN → monitor plan changes.
-- **What success looks like:** planner chooses efficient scans.
+## Cómo lo usaría (práctico)
+- **Contexto:** Carga masiva seguida de consultas lentas.
+- **Pasos:** ejecutar ANALYZE → re-verificar EXPLAIN → monitorear cambios de plan.
+- **Cómo se ve el éxito:** el planificador elige escaneos eficientes.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better plans and performance.
-- **Cons / Risks:** overhead during stats collection.
-### Alternatives
-- **Autovacuum analyze:** automatic stats updates.
-- **How to choose:** manual ANALYZE after large data shifts.
+- **Ventajas:** mejores planes y rendimiento.
+- **Desventajas / Riesgos:** sobrecarga durante la recolección de estadísticas.
+### Alternativas
+- **Autovacuum analyze:** actualizaciones automáticas de estadísticas.
+- **Cómo elegir:** ANALYZE manual después de grandes cambios de datos.
 
-## Failure modes & Pitfalls
-- Assuming stats are updated immediately after bulk loads.
-- Misreading planner estimates without checking stats.
+## Modos de fallo y trampas
+- Asumir que las estadísticas se actualizan inmediatamente después de cargas masivas.
+- Malinterpretar estimaciones del planificador sin verificar estadísticas.
 
-## Observability (How to detect issues)
-- **Metrics:** plan changes, query latency after bulk loads.
-- **Logs:** autovacuum/analyze logs.
-- **Alerts:** latency spikes after large data changes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** cambios de plan, latencia de consultas después de cargas masivas.
+- **Logs:** logs de autovacuum/analyze.
+- **Alertas:** picos de latencia después de grandes cambios de datos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Run ANALYZE after bulk changes
-  - [ ] Monitor plan stability
+  - [ ] Ejecutar ANALYZE después de cambios masivos
+  - [ ] Monitorear estabilidad de planes
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Ignoring stats after large deletes.
-  - **Why it’s bad:** planner chooses poor plans.
-  - **Better approach:** analyze after major data shifts.
+## Anti-patrones comunes
+- **Anti-patrón:** Ignorar estadísticas después de grandes eliminaciones.
+  - **Por qué es malo:** el planificador elige planes pobres.
+  - **Mejor enfoque:** analizar después de cambios importantes de datos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- PostgreSQL uses statistics to decide how to run queries. After big data changes, run ANALYZE so the planner has accurate info; otherwise, it may pick bad plans.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- PostgreSQL usa estadísticas para decidir cómo ejecutar consultas. Después de grandes cambios de datos, ejecuta ANALYZE para que el planificador tenga información precisa; de lo contrario, puede elegir malos planes.
 
-### Trap questions (with answers)
-1) **Q:** Does ANALYZE rewrite data on disk?
-   - **A:** no; it only updates statistics.
-2) **Q:** Are stats always perfectly accurate?
-   - **A:** no; they’re estimates.
-3) **Q:** Is autovacuum enough after a bulk load?
-   - **A:** not always; manual ANALYZE can help.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿ANALYZE reescribe datos en disco?
+   - **R:** no; solo actualiza estadísticas.
+2) **P:** ¿Las estadísticas siempre son perfectamente precisas?
+   - **R:** no; son estimaciones.
+3) **P:** ¿Es suficiente autovacuum después de una carga masiva?
+   - **R:** no siempre; ANALYZE manual puede ayudar.
 
-### Quick self-check (5 items)
-- [ ] I can explain why stats matter.
-- [ ] I can name when to run ANALYZE.
-- [ ] I can describe a trade-off.
-- [ ] I can identify a failure mode.
-- [ ] I can relate stats to query planning.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar por qué las estadísticas importan.
+- [ ] Puedo decir cuándo ejecutar ANALYZE.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo identificar un modo de fallo.
+- [ ] Puedo relacionar las estadísticas con la planificación de consultas.
 
-## Links (NO duplication)
-### Prerequisites
-- [Query planning](query-planning.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Planificación de consultas](query-planning.md)
 - [EXPLAIN](explain.md)
 
-### Related topics
-- [Selectivity](selectivity.md)
+### Temas relacionados
+- [Selectividad](selectivity.md)
 
-### Compare with
-- [Database statistics](database-statistics.md)
+### Comparar con
+- [Estadísticas de base de datos](database-statistics.md)

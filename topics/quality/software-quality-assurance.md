@@ -1,6 +1,6 @@
 ---
 id: software-quality-assurance
-title: "Software Quality Assurance (SQA)"
+title: "Aseguramiento de Calidad de Software (SQA)"
 type: concept
 status: learning
 importance: 90
@@ -12,124 +12,124 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Software Quality Assurance (SQA)
+# Aseguramiento de Calidad de Software (SQA)
 
 ## TL;DR (BLUF)
-- Software Quality Assurance is a systematic process to ensure software meets functional requirements and quality standards throughout development and operation.
-- Use multiple quality dimensions: code quality, testing, operational quality, architecture, and process.
-- Key trade-off: quality investment upfront vs. cost of failures later.
+- El Aseguramiento de Calidad de Software es un proceso sistemático para asegurar que el software cumpla con los requisitos funcionales y estándares de calidad durante todo el desarrollo y operación.
+- Usa múltiples dimensiones de calidad: calidad de código, pruebas, calidad operacional, arquitectura y proceso.
+- Trade-off clave: inversión en calidad por adelantado vs. costo de fallos después.
 
-## Definition
-**What it is:** A systematic set of practices, processes, and tools to prevent defects, ensure correctness, and maintain reliability throughout the software development lifecycle.  
-**Key terms:** quality gates, defect prevention, test coverage, static analysis, [Service Level Indicator (SLI)](../operations/service-level-indicator.md), [Service Level Objective (SLO)](../operations/service-level-objective.md), runbook, definition of done.
+## Definición
+**Qué es:** Un conjunto sistemático de prácticas, procesos y herramientas para prevenir defectos, asegurar corrección y mantener confiabilidad a lo largo del ciclo de vida del desarrollo de software.  
+**Términos clave:** compuertas de calidad, prevención de defectos, cobertura de pruebas, análisis estático, [Indicador de Nivel de Servicio (SLI)](../operations/service-level-indicator.md), [Objetivo de Nivel de Servicio (SLO)](../operations/service-level-objective.md), runbook, definición de terminado.
 
-## Why it matters
-- **Prevents production incidents:** Catching defects early is 10-100x cheaper than fixing them in production.
-- **Enables fast delivery:** High quality reduces rework, making teams faster over time.
-- **Builds trust:** Reliable systems allow engineers to move confidently and users to depend on the product.
-- **Interview relevance:** Senior engineers must articulate quality strategies and trade-offs.
+## Por qué importa
+- **Previene incidentes en producción:** Detectar defectos temprano es 10-100x más barato que corregirlos en producción.
+- **Permite entrega rápida:** La alta calidad reduce el retrabajo, haciendo a los equipos más rápidos con el tiempo.
+- **Construye confianza:** Los sistemas confiables permiten a los ingenieros moverse con confianza y a los usuarios depender del producto.
+- **Relevancia en entrevistas:** Los ingenieros senior deben articular estrategias de calidad y trade-offs.
 
-## Scope & Non-goals
-**In scope:**
-- Multi-dimensional quality: code, tests, operations, architecture, process.
-- Preventive practices (gates, reviews, automation).
-- Measurable quality signals ([Service Level Indicators (SLIs)](../operations/service-level-indicator.md), [Error budgets](../operations/error-budgets.md), metrics).
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Calidad multidimensional: código, pruebas, operaciones, arquitectura, proceso.
+- Prácticas preventivas (compuertas, revisiones, automatización).
+- Señales de calidad medibles ([Indicadores de Nivel de Servicio (SLIs)](../operations/service-level-indicator.md), [Presupuestos de error](../operations/error-budgets.md), métricas).
 
-**Out of scope / NOT solved by this:**
-- Product-market fit or feature prioritization (quality ≠ "right features").
-- Zero defects (impossible; manage acceptable failure rates with [Service Level Objectives (SLOs)](../operations/service-level-objective.md)).
+**Fuera del alcance / NO resuelto por esto:**
+- Product-market fit o priorización de funcionalidades (calidad ≠ "funcionalidades correctas").
+- Cero defectos (imposible; gestionar tasas de fallo aceptables con [Objetivos de Nivel de Servicio (SLOs)](../operations/service-level-objective.md)).
 
-## Mental model / Intuition
-Think of quality as **defense in depth**:
-- **Layer 1 (Prevention):** Code reviews, linters, type systems.
-- **Layer 2 (Detection):** Unit/integration/E2E tests catch issues before deploy.
-- **Layer 3 (Mitigation):** Feature flags, canary deploys, circuit breakers limit blast radius.
-- **Layer 4 (Response):** Observability, alerts, runbooks enable fast recovery.
+## Modelo mental / Intuición
+Piensa en la calidad como **defensa en profundidad**:
+- **Capa 1 (Prevención):** Revisiones de código, linters, sistemas de tipos.
+- **Capa 2 (Detección):** Pruebas unitarias/integración/E2E detectan problemas antes del despliegue.
+- **Capa 3 (Mitigación):** Feature flags, despliegues canario, circuit breakers limitan el radio de impacto.
+- **Capa 4 (Respuesta):** Observabilidad, alertas, runbooks permiten recuperación rápida.
 
-No single layer is perfect; quality comes from the combination.
+Ninguna capa individual es perfecta; la calidad viene de la combinación.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Building systems where failures have real cost (user impact, data loss, revenue).
-- Working in teams (quality practices enable collaboration and trust).
-- Operating long-lived systems (technical debt compounds without quality investment).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Construyes sistemas donde los fallos tienen un costo real (impacto al usuario, pérdida de datos, ingresos).
+- Trabajas en equipos (las prácticas de calidad permiten colaboración y confianza).
+- Operas sistemas de larga vida (la deuda técnica se acumula sin inversión en calidad).
 
-### Avoid it when
-- Prototyping throwaway code for learning/validation (quality is overkill for experiments).
-- Quality investment exceeds the value of the system (don't over-engineer a weekend project).
+### Evítalo cuando
+- Prototipar código desechable para aprendizaje/validación (la calidad es excesiva para experimentos).
+- La inversión en calidad excede el valor del sistema (no sobre-ingenierizar un proyecto de fin de semana).
 
-## How I would use it (practical)
-- **Context:** Building a new API service in a team environment.
-- **Steps:**
-  1. Define quality gates: linters pass, tests >80% coverage, PR review required, CI green.
-  2. Implement testing pyramid: many unit tests, fewer integration tests, critical E2E tests.
-  3. Add observability: structured logs, metrics (latency p95/p99, error rate), alerts on SLO violations.
-  4. Establish runbooks for common failure modes (DB timeout, rate limit exceeded).
-  5. Use canary deploys: 5% traffic for 10 minutes before full rollout.
-- **What success looks like:** Zero user-facing incidents in first month; P95 latency <200ms; error rate <0.1%.
+## Cómo lo usaría (práctico)
+- **Contexto:** Construyendo un nuevo servicio API en un entorno de equipo.
+- **Pasos:**
+  1. Definir compuertas de calidad: linters pasan, pruebas >80% cobertura, revisión de PR requerida, CI verde.
+  2. Implementar pirámide de pruebas: muchas pruebas unitarias, menos pruebas de integración, pruebas E2E críticas.
+  3. Agregar observabilidad: logs estructurados, métricas (latencia p95/p99, tasa de error), alertas en violaciones de SLO.
+  4. Establecer runbooks para modos de fallo comunes (timeout de BD, límite de tasa excedido).
+  5. Usar despliegues canario: 5% del tráfico por 10 minutos antes del despliegue completo.
+- **Cómo se ve el éxito:** Cero incidentes visibles para el usuario en el primer mes; latencia P95 <200ms; tasa de error <0.1%.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Reduces production incidents and their cost.
-  - Increases team velocity over time (less rework, safer refactoring).
-  - Builds confidence to move fast.
-- **Cons / Risks:**
-  - Upfront cost: writing tests, code reviews, CI setup takes time.
-  - Can slow initial delivery if over-applied (100% coverage on throwaway code).
-  - Requires discipline and culture shift (not just tools).
+- **Ventajas:**
+  - Reduce incidentes en producción y su costo.
+  - Aumenta la velocidad del equipo con el tiempo (menos retrabajo, refactorización más segura).
+  - Construye confianza para moverse rápido.
+- **Desventajas / Riesgos:**
+  - Costo inicial: escribir pruebas, revisiones de código, configuración de CI toma tiempo.
+  - Puede ralentizar la entrega inicial si se aplica en exceso (100% de cobertura en código desechable).
+  - Requiere disciplina y cambio cultural (no solo herramientas).
 
-### Alternatives
-- **"Ship fast, fix bugs later":** Works for early MVPs but creates tech debt that compounds.
-- **Manual QA only:** Doesn't scale; slow and misses edge cases.
-- **Rely on monitoring alone:** You find defects in production instead of preventing them.
+### Alternativas
+- **"Entregar rápido, corregir errores después":** Funciona para MVPs tempranos pero crea deuda técnica que se acumula.
+- **Solo QA manual:** No escala; lento y pierde casos extremos.
+- **Depender solo del monitoreo:** Encuentras defectos en producción en lugar de prevenirlos.
 
-### How to choose
-- **High stakes + long-lived system:** Invest in full SQA.
-- **Early MVP / prototype:** Lightweight quality (basic tests + monitoring).
-- **Team size matters:** Larger teams need stronger quality gates (more coordination risk).
+### Cómo elegir
+- **Alto riesgo + sistema de larga vida:** Invertir en SQA completo.
+- **MVP temprano / prototipo:** Calidad ligera (pruebas básicas + monitoreo).
+- **El tamaño del equipo importa:** Equipos más grandes necesitan compuertas de calidad más fuertes (más riesgo de coordinación).
 
-## Failure modes & Pitfalls
-- **Vanity metrics:** 90% test coverage means nothing if tests don't assert behavior or cover failure modes.
-- **Too many gates:** Overly strict CI that blocks every small change kills velocity.
-- **No ownership:** Quality is "QA team's job" instead of everyone's responsibility.
-- **Testing the wrong thing:** E2E tests that are flaky and slow instead of fast, reliable unit tests.
-- **Ignoring operational quality:** Perfect code that crashes under load or has no observability.
+## Modos de fallo y trampas
+- **Métricas vanidosas:** 90% de cobertura de pruebas no significa nada si las pruebas no verifican comportamiento o cubren modos de fallo.
+- **Demasiadas compuertas:** CI demasiado estricto que bloquea cada cambio pequeño mata la velocidad.
+- **Sin responsabilidad:** La calidad es "trabajo del equipo de QA" en lugar de responsabilidad de todos.
+- **Probar lo incorrecto:** Pruebas E2E que son inestables y lentas en lugar de pruebas unitarias rápidas y confiables.
+- **Ignorar calidad operacional:** Código perfecto que se cae bajo carga o no tiene observabilidad.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Lead time for changes (how long from commit to production).
-  - Deployment frequency (higher is better with quality gates).
-  - Change failure rate (% of deploys causing incidents).
-  - Mean time to recovery (MTTR).
-- **Logs:** Track defect sources (caught in CI, staging, production?).
-- **Traces:** N/A for SQA itself (but critical for operational quality).
-- **Alerts:** CI failures, test coverage drops below threshold, change failure rate spike.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tiempo de entrega de cambios (cuánto tiempo de commit a producción).
+  - Frecuencia de despliegue (mayor es mejor con compuertas de calidad).
+  - Tasa de fallo de cambios (% de despliegues que causan incidentes).
+  - Tiempo medio de recuperación (MTTR).
+- **Logs:** Rastrear fuentes de defectos (¿detectado en CI, staging, producción?).
+- **Trazas:** N/A para SQA en sí (pero crítico para calidad operacional).
+- **Alertas:** Fallos de CI, caída de cobertura de pruebas por debajo del umbral, pico en tasa de fallo de cambios.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Define "definition of done" (what quality means for your team).
-  - [ ] Set up CI with quality gates (linters, tests, security scans).
-  - [ ] Implement testing pyramid (many unit, fewer integration, critical E2E).
-  - [ ] Add observability to production systems (logs, metrics, traces).
-  - [ ] Establish [Service Level Indicators (SLIs)](../operations/service-level-indicator.md), [Service Level Objectives (SLOs)](../operations/service-level-objective.md), and [Error budgets](../operations/error-budgets.md).
-  - [ ] Create runbooks for top 3 failure modes.
-  - [ ] Require code reviews with checklist.
-  - [ ] Use canary or blue/green deploys for risk mitigation.
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Definir "definición de terminado" (qué significa calidad para tu equipo).
+  - [ ] Configurar CI con compuertas de calidad (linters, pruebas, escaneos de seguridad).
+  - [ ] Implementar pirámide de pruebas (muchas unitarias, menos integración, E2E críticas).
+  - [ ] Agregar observabilidad a sistemas de producción (logs, métricas, trazas).
+  - [ ] Establecer [Indicadores de Nivel de Servicio (SLIs)](../operations/service-level-indicator.md), [Objetivos de Nivel de Servicio (SLOs)](../operations/service-level-objective.md) y [Presupuestos de error](../operations/error-budgets.md).
+  - [ ] Crear runbooks para los 3 principales modos de fallo.
+  - [ ] Requerir revisiones de código con lista de verificación.
+  - [ ] Usar despliegues canario o blue/green para mitigación de riesgo.
 
-- **Security / Compliance notes**
-  - Include security scans in CI (SAST, dependency checks).
-  - Track security defects separately (critical fixes don't wait for sprints).
+- **Notas de seguridad / cumplimiento**
+  - Incluir escaneos de seguridad en CI (SAST, verificación de dependencias).
+  - Rastrear defectos de seguridad por separado (correcciones críticas no esperan sprints).
 
-- **Performance notes**
-  - Add performance tests for critical paths (load testing under expected + peak traffic).
-  - Monitor P95/P99 latency, not just averages.
+- **Notas de rendimiento**
+  - Agregar pruebas de rendimiento para rutas críticas (pruebas de carga bajo tráfico esperado + pico).
+  - Monitorear latencia P95/P99, no solo promedios.
 
-- **Operational notes**
-  - Quality doesn't end at deploy: monitor, alert, and iterate based on production behavior.
-  - Blameless post-mortems after incidents improve the system.
+- **Notas operacionales**
+  - La calidad no termina en el despliegue: monitorear, alertar e iterar basándose en el comportamiento de producción.
+  - Post-mortems sin culpa después de incidentes mejoran el sistema.
 
-## Mini example
+## Mini ejemplo
 ```yaml
 # Example CI quality gate (.github/workflows/quality.yml)
 name: Quality Gates
@@ -154,62 +154,62 @@ jobs:
         run: gosec ./...
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** "We'll add tests later" (they never get added; technical debt grows).
-  - **Why it's bad:** Refactoring becomes risky; defects slip into production.
-  - **Better approach:** Write tests as you code (TDD or test-soon-after-development).
+## Anti-patrones comunes
+- **Anti-patrón:** "Agregaremos pruebas después" (nunca se agregan; la deuda técnica crece).
+  - **Por qué es malo:** La refactorización se vuelve riesgosa; los defectos se filtran a producción.
+  - **Mejor enfoque:** Escribir pruebas mientras codificas (TDD o probar poco después del desarrollo).
 
-- **Anti-pattern:** 100% code coverage mandate.
-  - **Why it's bad:** Encourages meaningless tests that don't validate behavior.
-  - **Better approach:** Focus coverage on critical paths and failure modes; accept lower coverage on simple getters/setters.
+- **Anti-patrón:** Mandato de 100% de cobertura de código.
+  - **Por qué es malo:** Incentiva pruebas sin sentido que no validan comportamiento.
+  - **Mejor enfoque:** Enfocar cobertura en rutas críticas y modos de fallo; aceptar menor cobertura en getters/setters simples.
 
-- **Anti-pattern:** No quality gates in CI ("trust developers to run tests locally").
-  - **Why it's bad:** Humans forget; broken code reaches main branch.
-  - **Better approach:** Automate gates in CI (linting, tests, security scans) that block merge.
+- **Anti-patrón:** Sin compuertas de calidad en CI ("confiar en que los desarrolladores ejecuten pruebas localmente").
+  - **Por qué es malo:** Los humanos olvidan; código roto llega a la rama main.
+  - **Mejor enfoque:** Automatizar compuertas en CI (linting, pruebas, escaneos de seguridad) que bloqueen el merge.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Software Quality Assurance is a multi-layered approach to prevent defects and ensure reliability. It combines code quality (reviews, linters, tests), operational quality (observability, SLOs, runbooks), and process discipline (CI gates, canary deploys). The goal isn't zero defects—it's to catch issues early and limit blast radius when failures occur. Quality is an investment: it costs time upfront but pays back in faster delivery and fewer production incidents.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+El Aseguramiento de Calidad de Software es un enfoque multicapa para prevenir defectos y asegurar confiabilidad. Combina calidad de código (revisiones, linters, pruebas), calidad operacional (observabilidad, SLOs, runbooks) y disciplina de proceso (compuertas de CI, despliegues canario). El objetivo no es cero defectos—es detectar problemas temprano y limitar el radio de impacto cuando ocurren fallos. La calidad es una inversión: cuesta tiempo por adelantado pero se paga en entrega más rápida y menos incidentes en producción.
 
-### Trap questions (with answers)
-1) **Q:** Doesn't high quality slow down delivery?
-   - **A:** Initially yes, but quality accelerates delivery over time. Without tests and reviews, teams accumulate technical debt that requires constant firefighting and risky changes. Quality enables safe refactoring and confident iteration.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La alta calidad no ralentiza la entrega?
+   - **R:** Inicialmente sí, pero la calidad acelera la entrega con el tiempo. Sin pruebas y revisiones, los equipos acumulan deuda técnica que requiere apagar incendios constantemente y cambios riesgosos. La calidad permite refactorización segura e iteración con confianza.
 
-2) **Q:** If we have 90% test coverage, is our quality high?
-   - **A:** Not necessarily. Coverage is a signal of what's *not* tested, but doesn't measure test quality. You can have 90% coverage with tests that don't assert behavior or cover failure modes. Focus on testing critical paths and edge cases, not hitting a coverage number.
+2) **P:** Si tenemos 90% de cobertura de pruebas, ¿nuestra calidad es alta?
+   - **R:** No necesariamente. La cobertura es una señal de lo que *no* está probado, pero no mide la calidad de las pruebas. Puedes tener 90% de cobertura con pruebas que no verifican comportamiento o cubren modos de fallo. Enfocarse en probar rutas críticas y casos extremos, no en alcanzar un número de cobertura.
 
-3) **Q:** Should we fix all bugs before shipping?
-  - **A:** No. Use risk-based prioritization: critical bugs (data loss, security) block releases; minor bugs (cosmetic issues) can ship with known trade-offs. Define your quality bar with SLOs—don't aim for zero defects, aim for acceptable failure rates.
+3) **P:** ¿Deberíamos corregir todos los errores antes de entregar?
+  - **R:** No. Usar priorización basada en riesgo: errores críticos (pérdida de datos, seguridad) bloquean lanzamientos; errores menores (problemas cosméticos) pueden entregarse con trade-offs conocidos. Definir tu estándar de calidad con SLOs—no apuntar a cero defectos, apuntar a tasas de fallo aceptables.
 
-4) **Q:** Who owns quality—developers or QA?
-   - **A:** Everyone. Developers write tests and own code quality; QA (if present) designs test strategies and catches gaps. Quality is a team responsibility, not a handoff.
+4) **P:** ¿Quién es responsable de la calidad—los desarrolladores o QA?
+   - **R:** Todos. Los desarrolladores escriben pruebas y son responsables de la calidad del código; QA (si existe) diseña estrategias de pruebas y detecta brechas. La calidad es responsabilidad del equipo, no una transferencia.
 
-5) **Q:** How do you balance speed and quality?
-   - **A:** Use risk-based trade-offs. For prototypes, lower quality is fine (no tests, minimal reviews). For production systems, invest in quality gates but keep them lean (fast tests, clear review checklists). Use feature flags and canary deploys to ship fast with limited blast radius.
+5) **P:** ¿Cómo equilibras velocidad y calidad?
+   - **R:** Usar trade-offs basados en riesgo. Para prototipos, menor calidad está bien (sin pruebas, revisiones mínimas). Para sistemas de producción, invertir en compuertas de calidad pero mantenerlas ágiles (pruebas rápidas, listas de verificación claras para revisiones). Usar feature flags y despliegues canario para entregar rápido con radio de impacto limitado.
 
-### Quick self-check (5 items)
-- [ ] I can define quality assurance across multiple dimensions (code, tests, operations, process).
-- [ ] I can explain why quality accelerates delivery long-term despite upfront cost.
-- [ ] I can name at least 3 quality gates and their purpose.
-- [ ] I can articulate the difference between test coverage as a metric vs. quality.
-- [ ] I can describe a failure mode (e.g., flaky tests, no observability) and how to prevent it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir aseguramiento de calidad en múltiples dimensiones (código, pruebas, operaciones, proceso).
+- [ ] Puedo explicar por qué la calidad acelera la entrega a largo plazo a pesar del costo inicial.
+- [ ] Puedo nombrar al menos 3 compuertas de calidad y su propósito.
+- [ ] Puedo articular la diferencia entre cobertura de pruebas como métrica vs. calidad.
+- [ ] Puedo describir un modo de fallo (ej., pruebas inestables, sin observabilidad) y cómo prevenirlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Reliability basics](../operations/reliability-basics.md)
-- [Observability basics](../operations/observability-basics.md)
-- [Testing fundamentals](testing-fundamentals.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de confiabilidad](../operations/reliability-basics.md)
+- [Fundamentos de observabilidad](../operations/observability-basics.md)
+- [Fundamentos de pruebas](testing-fundamentals.md)
 
-### Related topics
-- [Testing pyramid](testing-pyramid.md)
-- [Code quality](code-quality.md)
-- [Quality gates](quality-gates.md)
-- [Clean code](clean-code.md)
-- [Incident management basics](../operations/incident-management-basics.md)
+### Temas relacionados
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Calidad de código](code-quality.md)
+- [Compuertas de calidad](quality-gates.md)
+- [Código limpio](clean-code.md)
+- [Fundamentos de gestión de incidentes](../operations/incident-management-basics.md)
 
-### Compare with
-- [Reliability basics](../operations/reliability-basics.md) — Reliability is the outcome; SQA is the process to achieve it.
+### Comparar con
+- [Fundamentos de confiabilidad](../operations/reliability-basics.md) — La confiabilidad es el resultado; SQA es el proceso para lograrlo.
 
-## Notes / Inbox
-- Consider adding examples from real incidents (leads leak, Heimdall failover loop) to illustrate quality gaps.
-- Link to DORA metrics (lead time, deployment frequency, change failure rate, MTTR) when that topic is created.
+## Notas / Bandeja de entrada (opcional)
+- Considerar agregar ejemplos de incidentes reales (fuga de leads, bucle de failover de Heimdall) para ilustrar brechas de calidad.
+- Enlazar a métricas DORA (tiempo de entrega, frecuencia de despliegue, tasa de fallo de cambios, MTTR) cuando ese tema sea creado.

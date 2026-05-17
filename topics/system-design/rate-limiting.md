@@ -12,169 +12,169 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Rate Limiting
+# Limitación de Tasa (Rate Limiting)
 
 ## TL;DR (BLUF)
-- Controls the rate of requests per client/user/IP/endpoint to prevent abuse and overload.
-- Use it for public APIs, cost control, and protecting shared resources.
-- Trade-off: legitimate users may be throttled during bursts.
+- Controla la tasa de peticiones por cliente/usuario/IP/endpoint para prevenir abuso y sobrecarga.
+- Úsalo para APIs públicas, control de costos y protección de recursos compartidos.
+- Trade-off: usuarios legítimos pueden ser limitados durante ráfagas.
 
-## Definition
-**What it is:** A control mechanism that limits the number of requests a client can make within a time window (e.g., 100 requests per minute), rejecting excess requests with 429 (Too Many Requests).
+## Definición
+**Qué es:** Un mecanismo de control que limita el número de peticiones que un cliente puede hacer dentro de una ventana de tiempo (ej., 100 peticiones por minuto), rechazando peticiones excesivas con 429 (Too Many Requests).
 
-**Key terms:** quota, throttling, token bucket, leaky bucket, sliding window, fixed window, rate limit, backpressure.
+**Términos clave:** cuota, throttling, token bucket, leaky bucket, ventana deslizante, ventana fija, límite de tasa, contrapresión.
 
-## Why it matters
-- Protects systems from abuse (DDoS, scrapers, runaway scripts).
-- Ensures fair resource allocation across users/tenants.
-- Controls infrastructure costs (API calls, DB queries, third-party fees).
-- Complements [Backpressure](backpressure.md) and [Load shedding](../operations/load-shedding.md).
+## Por qué importa
+- Protege sistemas de abuso (DDoS, scrapers, scripts descontrolados).
+- Asegura asignación justa de recursos entre usuarios/tenants.
+- Controla costos de infraestructura (llamadas API, consultas de BD, tarifas de terceros).
+- Complementa [Contrapresión](backpressure.md) y [Descarte de carga](../operations/load-shedding.md).
 
-## Scope & Non-goals
-**In scope:** per-user, per-IP, per-API-key, per-endpoint quotas; algorithms (token bucket, leaky bucket, sliding window).
+## Alcance y no-objetivos
+**Dentro del alcance:** cuotas por usuario, por IP, por API-key, por endpoint; algoritmos (token bucket, leaky bucket, ventana deslizante).
 
-**Out of scope / NOT solved by this:**
-- Protecting against *already accepted* slow requests (use [Timeout](../operations/timeouts.md))
-- Internal service-to-service rate limiting (use [Bulkhead](../operations/bulkheads.md) or [Adaptive concurrency](../operations/adaptive-concurrency.md))
-- Application-level logic errors (use circuit breakers and retries)
+**Fuera del alcance / NO resuelto por esto:**
+- Proteger contra peticiones lentas *ya aceptadas* (usar [Timeout](../operations/timeouts.md))
+- Limitación de tasa interna servicio-a-servicio (usar [Bulkhead](../operations/bulkheads.md) o [Concurrencia adaptativa](../operations/adaptive-concurrency.md))
+- Errores de lógica a nivel de aplicación (usar circuit breakers y reintentos)
 
-## Mental model / Intuition
-- Like a nightclub bouncer: only X people per hour. If the quota is full, you wait or get rejected.
-- In APIs: each client has a "token budget" that refills over time. Requests consume tokens.
+## Modelo mental / Intuición
+- Como un portero de discoteca: solo X personas por hora. Si la cuota está llena, esperas o eres rechazado.
+- En APIs: cada cliente tiene un "presupuesto de tokens" que se rellena con el tiempo. Las peticiones consumen tokens.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have a public API or multi-tenant system.
-- You need to prevent abuse, scraping, or runaway automation.
-- Infrastructure costs scale with usage (pay-per-request third parties, cloud APIs).
-- You want to enforce SLA tiers (free: 100 req/min, premium: 10k req/min).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tengas una API pública o sistema multi-tenant.
+- Necesites prevenir abuso, scraping o automatización descontrolada.
+- Los costos de infraestructura escalen con el uso (terceros de pago por petición, APIs cloud).
+- Quieras imponer niveles de SLA (gratuito: 100 req/min, premium: 10k req/min).
 
-### Avoid it when
-- The system is private/internal with trusted clients (adds overhead).
-- You can scale infinitely without cost concerns (rare).
-- You already have sufficient [Backpressure](backpressure.md) and [Load shedding](../operations/load-shedding.md).
+### Evítalo cuando
+- El sistema sea privado/interno con clientes confiables (agrega sobrecarga).
+- Puedas escalar infinitamente sin preocupaciones de costo (raro).
+- Ya tengas suficiente [Contrapresión](backpressure.md) y [Descarte de carga](../operations/load-shedding.md).
 
-## How I would use it (practical)
-- **Context:** A SaaS API with free and premium users.
-- **Steps:**
-  1) Choose algorithm: **token bucket** (allows short bursts) or **sliding window** (strict fairness).
-  2) Define limits per tier:
-     - Free: 100 requests/minute
-     - Premium: 10,000 requests/minute
-  3) Implement at [API Gateway](api-gateway.md) or application layer (Redis-based).
-  4) Return `429 Too Many Requests` with headers:
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API SaaS con usuarios gratuitos y premium.
+- **Pasos:**
+  1) Elegir algoritmo: **token bucket** (permite ráfagas cortas) o **ventana deslizante** (equidad estricta).
+  2) Definir límites por nivel:
+     - Gratuito: 100 peticiones/minuto
+     - Premium: 10,000 peticiones/minuto
+  3) Implementar en [API Gateway](api-gateway.md) o capa de aplicación (basado en Redis).
+  4) Devolver `429 Too Many Requests` con headers:
      ```
      X-RateLimit-Limit: 100
      X-RateLimit-Remaining: 0
      X-RateLimit-Reset: 1643728800
      Retry-After: 60
      ```
-  5) Monitor: rejected requests, burst patterns, user complaints.
-  6) Adjust limits based on real usage and SLO budgets.
+  5) Monitorear: peticiones rechazadas, patrones de ráfagas, quejas de usuarios.
+  6) Ajustar límites basándose en uso real y presupuestos de SLO.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Legitimate burst traffic throttled | Use token bucket (allows bursts); provide "burst allowance" |
-| Per-user tracking overhead | Use efficient data structures (Redis sorted sets, sliding window counters) |
-| Coordination in distributed systems | Use centralized rate limiter (Redis) or accept eventual consistency |
-| False positives (shared IPs, NAT) | Rate-limit by API key/user ID instead of IP |
-| Clients don't handle 429 gracefully | Return clear error messages + `Retry-After` header; document retry policy |
+| Tráfico legítimo en ráfagas limitado | Usar token bucket (permite ráfagas); proporcionar "asignación de ráfaga" |
+| Sobrecarga de rastreo por usuario | Usar estructuras de datos eficientes (sorted sets de Redis, contadores de ventana deslizante) |
+| Coordinación en sistemas distribuidos | Usar limitador centralizado (Redis) o aceptar consistencia eventual |
+| Falsos positivos (IPs compartidas, NAT) | Limitar por API key/ID de usuario en vez de IP |
+| Clientes no manejan 429 elegantemente | Devolver mensajes de error claros + header `Retry-After`; documentar política de reintento |
 
-## Failure modes / Edge cases
-1. **Thundering herd after rate limit resets:** All clients retry at the same time when window resets.
-   - *Mitigation:* Use sliding window or add jitter to client retries.
-2. **Distributed rate limiting drift:** Multiple gateway instances have inconsistent counters.
-   - *Mitigation:* Centralize state in Redis/Memcached with atomic operations.
-3. **Bypass via IP rotation:** Attackers rotate IPs to evade limits.
-   - *Mitigation:* Rate-limit by API key or user ID; add CAPTCHA for suspicious patterns.
-4. **Rate limiter becomes bottleneck:** Redis/centralized store saturates.
-   - *Mitigation:* Use local approximation (per-instance limits) or consistent hashing.
-5. **Legitimate users punished during incidents:** High error rates consume quota.
-   - *Mitigation:* Only count successful requests; exclude 5xx errors from quota.
+## Modos de fallo / Casos límite
+1. **Estampida después del reset del límite:** Todos los clientes reintentan al mismo tiempo cuando la ventana se resetea.
+   - *Mitigación:* Usar ventana deslizante o agregar jitter a reintentos del cliente.
+2. **Desvío de limitación distribuida:** Múltiples instancias del gateway tienen contadores inconsistentes.
+   - *Mitigación:* Centralizar estado en Redis/Memcached con operaciones atómicas.
+3. **Bypass vía rotación de IP:** Atacantes rotan IPs para evadir límites.
+   - *Mitigación:* Limitar por API key o ID de usuario; agregar CAPTCHA para patrones sospechosos.
+4. **El limitador se convierte en cuello de botella:** Redis/almacén centralizado se satura.
+   - *Mitigación:* Usar aproximación local (límites por instancia) o hashing consistente.
+5. **Usuarios legítimos castigados durante incidentes:** Altas tasas de error consumen cuota.
+   - *Mitigación:* Solo contar peticiones exitosas; excluir errores 5xx de la cuota.
 
-## Alternatives
-- **[Backpressure](backpressure.md):** Push back on upstream when downstream is saturated.
-- **[Load shedding](../operations/load-shedding.md):** Drop requests based on system load, not per-user quotas.
-- **[Circuit Breaker](../operations/circuit-breaker.md):** Fails fast when dependency is down (client-side).
-- **Queue-based admission control:** Accept all requests into a queue, process at fixed rate.
+## Alternativas
+- **[Contrapresión](backpressure.md):** Empujar hacia atrás upstream cuando downstream está saturado.
+- **[Descarte de carga](../operations/load-shedding.md):** Descartar peticiones basándose en carga del sistema, no cuotas por usuario.
+- **[Circuit Breaker](../operations/circuit-breaker.md):** Falla rápido cuando la dependencia está caída (lado cliente).
+- **Control de admisión basado en cola:** Aceptar todas las peticiones en una cola, procesar a tasa fija.
 
-## Algorithms
-### 1. Fixed Window
-- Simple counter reset every N seconds.
-- **Problem:** Burst at window boundary (100 req at 0:59, 100 at 1:00 = 200 req in 1 sec).
+## Algoritmos
+### 1. Ventana Fija
+- Contador simple que se resetea cada N segundos.
+- **Problema:** Ráfaga en límite de ventana (100 req a 0:59, 100 a 1:00 = 200 req en 1 seg).
 
-### 2. Sliding Window
-- Weighted count of requests in rolling time window.
-- **Pros:** Smoother enforcement.
-- **Cons:** More complex to implement.
+### 2. Ventana Deslizante
+- Conteo ponderado de peticiones en ventana de tiempo rodante.
+- **Pros:** Cumplimiento más suave.
+- **Contras:** Más complejo de implementar.
 
 ### 3. Token Bucket
-- Tokens refill at constant rate; requests consume tokens; allows bursts.
-- **Pros:** Flexible, handles bursts gracefully.
-- **Cons:** Slightly more state to track.
+- Los tokens se rellenan a tasa constante; las peticiones consumen tokens; permite ráfagas.
+- **Pros:** Flexible, maneja ráfagas elegantemente.
+- **Contras:** Ligeramente más estado para rastrear.
 
 ### 4. Leaky Bucket
-- Requests enter queue; processed at fixed rate.
-- **Pros:** Smooth output rate.
-- **Cons:** Can delay requests (not always desirable for APIs).
+- Las peticiones entran en cola; procesadas a tasa fija.
+- **Pros:** Tasa de salida suave.
+- **Contras:** Puede retrasar peticiones (no siempre deseable para APIs).
 
-**Recommendation:** Use **token bucket** for APIs (allows bursts) or **sliding window** for strict fairness.
+**Recomendación:** Usar **token bucket** para APIs (permite ráfagas) o **ventana deslizante** para equidad estricta.
 
-## Combinations
-Rate Limiting is **almost always used with:**
-- **[API Gateway](api-gateway.md):** Centralized enforcement at the edge.
-- **[Timeout](../operations/timeouts.md):** Prevents slow requests from holding resources.
-- **[Bulkhead](../operations/bulkheads.md):** Isolates impact of one client's traffic.
-- **[Observability](../operations/observability-basics.md):** Track 429 rates, top offenders, burst patterns.
-- **[Graceful Degradation](../operations/graceful-degradation.md):** Return cached/partial results instead of hard rejection.
+## Combinaciones
+La Limitación de Tasa **casi siempre se usa con:**
+- **[API Gateway](api-gateway.md):** Cumplimiento centralizado en el borde.
+- **[Timeout](../operations/timeouts.md):** Previene que peticiones lentas retengan recursos.
+- **[Bulkhead](../operations/bulkheads.md):** Aísla el impacto del tráfico de un cliente.
+- **[Observabilidad](../operations/observability-basics.md):** Rastrear tasas de 429, principales infractores, patrones de ráfagas.
+- **[Degradación Elegante](../operations/graceful-degradation.md):** Devolver resultados cacheados/parciales en vez de rechazo duro.
 
-**Typical combination:**
-- **Public API scenario:** API Gateway + Rate Limiting + Timeout + Retry (client-side with backoff) + Circuit Breaker + Observability
+**Combinación típica:**
+- **Escenario de API pública:** API Gateway + Limitación de Tasa + Timeout + Reintento (lado cliente con backoff) + Circuit Breaker + Observabilidad
 
-## Prerequisites
-- Understanding of [HTTP status codes](../operations/http.md) (429, 503).
-- Familiarity with [API design](api-design-basics.md) and [Backpressure](backpressure.md).
-- Basic distributed systems knowledge (state sharing, consistency).
+## Prerrequisitos
+- Comprensión de [códigos de estado HTTP](../operations/http.md) (429, 503).
+- Familiaridad con [diseño de API](api-design-basics.md) y [Contrapresión](backpressure.md).
+- Conocimiento básico de sistemas distribuidos (compartición de estado, consistencia).
 
-## Related topics
-- [API Gateway](api-gateway.md): Where rate limiting is typically enforced.
-- [Backpressure](backpressure.md): System-level flow control.
-- [Load shedding](../operations/load-shedding.md): Drop requests based on system load.
-- [Bulkhead](../operations/bulkheads.md): Resource isolation.
-- [Observability](../operations/observability-basics.md): Monitor throttling metrics.
+## Temas relacionados
+- [API Gateway](api-gateway.md): Donde la limitación de tasa se aplica típicamente.
+- [Contrapresión](backpressure.md): Control de flujo a nivel de sistema.
+- [Descarte de carga](../operations/load-shedding.md): Descartar peticiones basándose en carga del sistema.
+- [Bulkhead](../operations/bulkheads.md): Aislamiento de recursos.
+- [Observabilidad](../operations/observability-basics.md): Monitorear métricas de throttling.
 
-## Real-world examples
-1. **GitHub API:** 5,000 requests/hour for authenticated users, 60 for unauthenticated.
-2. **Stripe:** Rate limits by API key with sliding window; returns `Retry-After` header.
-3. **Twitter API:** Tiered limits (free, basic, enterprise) with 15-minute windows.
-4. **AWS API Gateway:** Built-in throttling (10,000 req/sec default, configurable).
+## Ejemplos del mundo real
+1. **API de GitHub:** 5,000 peticiones/hora para usuarios autenticados, 60 para no autenticados.
+2. **Stripe:** Limita tasa por API key con ventana deslizante; devuelve header `Retry-After`.
+3. **API de Twitter:** Límites escalonados (gratuito, básico, enterprise) con ventanas de 15 minutos.
+4. **AWS API Gateway:** Throttling integrado (10,000 req/seg por defecto, configurable).
 
-## Checklist (self-test)
-- [ ] I can explain the difference between fixed window, sliding window, and token bucket.
-- [ ] I know when to rate-limit by IP vs API key vs user ID.
-- [ ] I understand how to handle 429 responses in clients (exponential backoff).
-- [ ] I can design rate limits for multi-tier SaaS (free/premium).
-- [ ] I can monitor rate limiting effectiveness (rejection rate, false positives).
+## Checklist (auto-evaluación)
+- [ ] Puedo explicar la diferencia entre ventana fija, ventana deslizante y token bucket.
+- [ ] Sé cuándo limitar por IP vs API key vs ID de usuario.
+- [ ] Entiendo cómo manejar respuestas 429 en clientes (backoff exponencial).
+- [ ] Puedo diseñar límites de tasa para SaaS multi-nivel (gratuito/premium).
+- [ ] Puedo monitorear la efectividad de la limitación (tasa de rechazo, falsos positivos).
 
-## Reminders / Key takeaways
-- Rate limiting is **preventive**: stops abuse before it overloads the system.
-- Always return `Retry-After` header to help clients behave correctly.
-- Use token bucket for APIs (allows short bursts), sliding window for strict fairness.
-- Combine with [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md), and [Observability](../operations/observability-basics.md).
+## Recordatorios / Puntos clave
+- La limitación de tasa es **preventiva**: detiene el abuso antes de que sobrecargue el sistema.
+- Siempre devolver header `Retry-After` para ayudar a los clientes a comportarse correctamente.
+- Usar token bucket para APIs (permite ráfagas cortas), ventana deslizante para equidad estricta.
+- Combinar con [Timeout](../operations/timeouts.md), [Circuit Breaker](../operations/circuit-breaker.md) y [Observabilidad](../operations/observability-basics.md).
 
-## Trap questions (with answers)
-### Q1: Should I rate-limit by IP address or API key?
-**A:** **Depends on use case**. For public APIs, use **API key** (more precise, avoids NAT/shared IP issues). For unauthenticated endpoints (login, signup), use **IP address** to prevent brute force. For sophisticated setups, combine both: per-user quotas + per-IP caps.
+## Preguntas trampa (con respuestas)
+### P1: ¿Debo limitar por dirección IP o API key?
+**R:** **Depende del caso de uso**. Para APIs públicas, usar **API key** (más preciso, evita problemas de NAT/IP compartida). Para endpoints no autenticados (login, registro), usar **dirección IP** para prevenir fuerza bruta. Para configuraciones sofisticadas, combinar ambos: cuotas por usuario + topes por IP.
 
-### Q2: What's the difference between rate limiting and backpressure?
-**A:** **Rate limiting** is **proactive**: rejects excess requests at the edge based on quotas. **[Backpressure](backpressure.md)** is **reactive**: slows down producers when consumers are saturated. Rate limiting protects from abuse; backpressure protects from overload. Use both: rate limiting at API Gateway, backpressure internally.
+### P2: ¿Cuál es la diferencia entre limitación de tasa y contrapresión?
+**R:** La **limitación de tasa** es **proactiva**: rechaza peticiones excesivas en el borde basándose en cuotas. La **[Contrapresión](backpressure.md)** es **reactiva**: ralentiza productores cuando los consumidores están saturados. La limitación protege del abuso; la contrapresión protege de la sobrecarga. Usar ambas: limitación de tasa en API Gateway, contrapresión internamente.
 
-### Q3: If I return 429, should the client retry immediately?
-**A:** **No**. Clients should implement **exponential backoff** and respect the `Retry-After` header. Immediate retries cause thundering herd and worsen the situation. Recommended: wait `Retry-After` seconds + jitter. See [Retries and backoff](../operations/retries-and-backoff.md).
+### P3: Si devuelvo 429, ¿el cliente debe reintentar inmediatamente?
+**R:** **No**. Los clientes deben implementar **backoff exponencial** y respetar el header `Retry-After`. Los reintentos inmediatos causan estampidas y empeoran la situación. Recomendado: esperar `Retry-After` segundos + jitter. Ver [Reintentos y backoff](../operations/retries-and-backoff.md).
 
-### Q4: Can rate limiting prevent DDoS attacks?
-**A:** **Partially**. Rate limiting mitigates application-layer DDoS (HTTP floods) by capping per-IP/per-user requests. However, it doesn't protect against **network-layer DDoS** (SYN floods, UDP amplification). For full protection, combine with: L4 load balancer, CDN (Cloudflare, AWS Shield), WAF.
+### P4: ¿La limitación de tasa puede prevenir ataques DDoS?
+**R:** **Parcialmente**. La limitación mitiga DDoS de capa de aplicación (inundaciones HTTP) limitando peticiones por IP/por usuario. Sin embargo, no protege contra **DDoS de capa de red** (inundaciones SYN, amplificación UDP). Para protección completa, combinar con: balanceador L4, CDN (Cloudflare, AWS Shield), WAF.
 
-### Q5: Should I count failed requests (4xx, 5xx) against the quota?
-**A:** **Depends**. For **4xx (client errors)**, yes—prevents attackers from probing without penalty. For **5xx (server errors)**, **no**—don't punish users for your failures. Exception: 429 itself should not consume quota (allows graceful retry).
+### P5: ¿Debo contar peticiones fallidas (4xx, 5xx) contra la cuota?
+**R:** **Depende**. Para **4xx (errores del cliente)**, sí — previene que atacantes sondeen sin penalización. Para **5xx (errores del servidor)**, **no** — no castigar usuarios por tus fallos. Excepción: el propio 429 no debe consumir cuota (permite reintento elegante).

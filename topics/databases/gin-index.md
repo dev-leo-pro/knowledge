@@ -12,108 +12,108 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# GIN index (PostgreSQL)
+# Índice GIN (PostgreSQL)
 
 ## TL;DR (BLUF)
-- GIN is an inverted index optimized for searching inside collections (arrays/JSONB).
-- Use it when you query JSONB keys/paths or array contents.
-- Trade-off: higher write and maintenance cost; operators must match the index.
+- GIN es un índice invertido optimizado para buscar dentro de colecciones (arrays/JSONB).
+- Úsalo cuando consultes claves/rutas JSONB o contenido de arrays.
+- Trade-off: mayor costo de escritura y mantenimiento; los operadores deben coincidir con el índice.
 
-## Definition
-**What it is:** A Generalized Inverted Index that maps elements to rows, enabling fast containment and membership queries.
-**Key terms:** inverted index, operators, JSONB, array containment.
+## Definición
+**Qué es:** Un Índice Invertido Generalizado que mapea elementos a filas, permitiendo consultas rápidas de contención y membresía.
+**Términos clave:** índice invertido, operadores, JSONB, contención de arrays.
 
-## Why it matters
-- It unlocks efficient queries over internal content where B-Tree is ineffective.
-- It’s the standard index choice for JSONB containment queries.
+## Por qué importa
+- Desbloquea consultas eficientes sobre contenido interno donde B-Tree es inefectivo.
+- Es la elección de índice estándar para consultas de contención JSONB.
 
-## Scope & Non-goals
-**In scope:** containment/membership queries on JSONB and arrays.
-**Out of scope / NOT solved by this:** scalar equality/range queries and poor data modeling.
+## Alcance y no-objetivos
+**Dentro del alcance:** consultas de contención/membresía en JSONB y arrays.
+**Fuera del alcance / NO resuelto por esto:** consultas de igualdad/rango escalares y mal modelado de datos.
 
-## Mental model / Intuition
-- Imagine a tag-to-document map: each element points to all rows containing it.
-- Great for “contains X” queries; not ideal for simple equality on scalar columns.
+## Modelo mental / Intuición
+- Imagina un mapa de etiqueta-a-documento: cada elemento apunta a todas las filas que lo contienen.
+- Genial para consultas "contiene X"; no ideal para igualdad simple en columnas escalares.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You query JSONB by keys/paths with operators that GIN supports.
-- Your access pattern is “contains X inside the structure.”
-### Avoid it when
-- You rarely query internal content.
-- Your workload is extremely write-heavy and index cost is too high.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Consultes JSONB por claves/rutas con operadores que GIN soporta.
+- Tu patrón de acceso sea "contiene X dentro de la estructura".
+### Evítalo cuando
+- Raramente consultes contenido interno.
+- Tu carga de trabajo sea extremadamente intensiva en escrituras y el costo del índice sea demasiado alto.
 
-## How I would use it (practical)
-- **Context:** A table with JSONB attributes queried by key/value.
-- **Steps:** identify JSONB access patterns → create GIN index → validate with EXPLAIN → monitor write impact.
-- **What success looks like:** faster JSONB queries without unacceptable write degradation.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una tabla con atributos JSONB consultados por clave/valor.
+- **Pasos:** identificar patrones de acceso JSONB → crear índice GIN → validar con EXPLAIN → monitorear impacto en escrituras.
+- **Cómo se ve el éxito:** consultas JSONB más rápidas sin degradación inaceptable de escrituras.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** fast internal searches for JSONB/arrays.
-- **Cons / Risks:** write amplification, maintenance cost, operator sensitivity.
-### Alternatives
-- **B-Tree:** best for equality/range on scalar columns.
-- **GiST:** useful for other data types (e.g., geospatial).
-- **How to choose:** pick GIN for containment queries; otherwise consider B-Tree/GiST.
+- **Pros:** búsquedas internas rápidas para JSONB/arrays.
+- **Contras / Riesgos:** amplificación de escritura, costo de mantenimiento, sensibilidad a operadores.
+### Alternativas
+- **B-Tree:** mejor para igualdad/rango en columnas escalares.
+- **GiST:** útil para otros tipos de datos (ej., geoespaciales).
+- **Cómo elegir:** elige GIN para consultas de contención; de lo contrario considera B-Tree/GiST.
 
-## Failure modes & Pitfalls
-- Index not used due to operator mismatch.
-- Significant write slowdown from heavy updates.
-- Index bloat from frequent modifications.
+## Modos de fallo y errores comunes
+- Índice no usado debido a desajuste de operadores.
+- Ralentización significativa de escrituras por actualizaciones intensivas.
+- Inflación del índice por modificaciones frecuentes.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency for JSONB filters, write latency, index size growth.
-- **Logs:** slow query logs for JSONB operators.
-- **Traces:** DB spans showing JSONB queries as hotspots.
-- **Alerts:** sustained write latency increase after index creation.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas para filtros JSONB, latencia de escritura, crecimiento del tamaño del índice.
+- **Logs:** logs de consultas lentas para operadores JSONB.
+- **Trazas:** spans de BD mostrando consultas JSONB como puntos calientes.
+- **Alertas:** aumento sostenido de latencia de escritura después de la creación del índice.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-   - [ ] Confirm JSONB access patterns and operators
-   - [ ] Create GIN index and validate with EXPLAIN
-   - [ ] Measure write impact
-- **Performance notes**
-   - Limit JSONB size and avoid unnecessary updates.
+   - [ ] Confirmar patrones de acceso JSONB y operadores
+   - [ ] Crear índice GIN y validar con EXPLAIN
+   - [ ] Medir impacto en escrituras
+- **Notas de rendimiento**
+   - Limitar tamaño de JSONB y evitar actualizaciones innecesarias.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Creating GIN “just in case.”
-   - **Why it’s bad:** write overhead without query benefit.
-   - **Better approach:** add it only for proven access patterns.
-- **Anti-pattern:** Using JSONB for everything and relying on GIN to fix it.
-   - **Why it’s bad:** it masks poor modeling and hurts writes.
-   - **Better approach:** model stable fields as columns and use JSONB for truly variable data.
+## Anti-patrones comunes
+- **Anti-patrón:** Crear GIN "por si acaso".
+   - **Por qué es malo:** sobrecarga de escritura sin beneficio en consultas.
+   - **Mejor enfoque:** agregar solo para patrones de acceso probados.
+- **Anti-patrón:** Usar JSONB para todo y depender de GIN para arreglarlo.
+   - **Por qué es malo:** enmascara mal modelado y perjudica las escrituras.
+   - **Mejor enfoque:** modelar campos estables como columnas y usar JSONB para datos realmente variables.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- GIN is an inverted index in PostgreSQL that’s great for searching inside JSONB or arrays. It’s fast for containment queries but more expensive on writes and only helps when operators match the index.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- GIN es un índice invertido en PostgreSQL que es genial para buscar dentro de JSONB o arrays. Es rápido para consultas de contención pero más costoso en escrituras y solo ayuda cuando los operadores coinciden con el índice.
 
-### Trap questions (with answers)
-1) **Q:** Is GIN always better than B-Tree?
-    - **A:** no; it depends on access type. B-Tree is ideal for equality/ranges on scalar values.
-2) **Q:** If I have GIN, do I no longer need to model?
-    - **A:** false; indexes help, but they don’t fix a poor model/queries.
-3) **Q:** Does a GIN not affect writes?
-    - **A:** it does affect writes: INSERT/UPDATE must update index structures.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿GIN siempre es mejor que B-Tree?
+    - **R:** No; depende del tipo de acceso. B-Tree es ideal para igualdad/rangos en valores escalares.
+2) **P:** ¿Si tengo GIN, ya no necesito modelar?
+    - **R:** Falso; los índices ayudan, pero no arreglan un modelo/consultas pobres.
+3) **P:** ¿GIN no afecta las escrituras?
+    - **R:** Sí las afecta: INSERT/UPDATE deben actualizar las estructuras del índice.
 
-### Quick self-check (5 items)
-- [ ] I can define GIN precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete usage example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir GIN con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de uso.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Índice](index.md)
 - [JSONB](jsonb.md)
 - [PostgreSQL](postgresql.md)
 
-### Related topics
-- [B-Tree index](btree-index.md)
+### Temas relacionados
+- [Índice B-Tree](btree-index.md)
 - [GiST](gist-index.md)
-- [Selectivity](selectivity.md)
+- [Selectividad](selectivity.md)
 - [EXPLAIN](explain.md)

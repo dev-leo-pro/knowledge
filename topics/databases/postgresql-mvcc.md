@@ -15,93 +15,93 @@ updated_at: 2026-01-19
 # PostgreSQL MVCC
 
 ## TL;DR (BLUF)
-- MVCC lets readers and writers proceed without blocking by using row versions.
-- Use it to understand isolation, vacuum, and bloat behavior.
-- Trade-off: old row versions accumulate and must be vacuumed.
+- MVCC permite que lectores y escritores procedan sin bloquearse usando versiones de filas.
+- Úsalo para entender el aislamiento, vacuum y comportamiento de bloat.
+- Trade-off: las versiones antiguas de filas se acumulan y deben ser limpiadas con vacuum.
 
-## Definition
-**What it is:** Multi-Version Concurrency Control stores multiple row versions to provide snapshot reads.
-**Key terms:** row versions, snapshots, visibility.
+## Definición
+**Qué es:** Control de Concurrencia Multi-Versión almacena múltiples versiones de filas para proporcionar lecturas por snapshot.
+**Términos clave:** versiones de fila, snapshots, visibilidad.
 
-## Why it matters
-- It explains why reads don’t block writes (and vice versa) in PostgreSQL.
-- It also explains bloat and the need for vacuum.
+## Por qué importa
+- Explica por qué las lecturas no bloquean las escrituras (y viceversa) en PostgreSQL.
+- También explica el bloat y la necesidad de vacuum.
 
-## Scope & Non-goals
-**In scope:** MVCC basics, visibility, impact on storage.
-**Out of scope / NOT solved by this:** distributed concurrency across nodes.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de MVCC, visibilidad, impacto en almacenamiento.
+**Fuera del alcance / NO resuelto por esto:** concurrencia distribuida entre nodos.
 
-## Mental model / Intuition
-- Think of each update as writing a new version while old versions stay until vacuumed.
+## Modelo mental / Intuición
+- Piensa en cada actualización como escribir una nueva versión mientras las versiones antiguas permanecen hasta ser limpiadas con vacuum.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need to reason about isolation and performance under concurrency.
-### Avoid it when
-- You’re trying to reason about locking alone (MVCC still matters).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas razonar sobre aislamiento y rendimiento bajo concurrencia.
+### Evítalo cuando
+- Intentas razonar solo sobre bloqueos (MVCC aún importa).
 
-## How I would use it (practical)
-- **Context:** Investigating table bloat and slow updates.
-- **Steps:** verify MVCC behavior → check dead tuples → tune autovacuum.
-- **What success looks like:** stable table size and predictable query latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Investigando bloat de tabla y actualizaciones lentas.
+- **Pasos:** verificar comportamiento de MVCC → comprobar tuplas muertas → ajustar autovacuum.
+- **Cómo se ve el éxito:** tamaño de tabla estable y latencia de consultas predecible.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** high read/write concurrency.
-- **Cons / Risks:** bloat and maintenance overhead.
-### Alternatives
-- **Lock-based concurrency only:** simpler but more blocking.
-- **How to choose:** MVCC is core to Postgres; focus on tuning vacuum.
+- **Ventajas:** alta concurrencia de lectura/escritura.
+- **Desventajas / Riesgos:** bloat y sobrecarga de mantenimiento.
+### Alternativas
+- **Solo concurrencia basada en bloqueos:** más simple pero más bloqueante.
+- **Cómo elegir:** MVCC es central en Postgres; enfócate en ajustar vacuum.
 
-## Failure modes & Pitfalls
-- Long-running transactions preventing cleanup.
-- Misinterpreting visibility leading to “missing” updates.
+## Modos de fallo y trampas
+- Transacciones de larga duración previniendo la limpieza.
+- Mala interpretación de la visibilidad llevando a actualizaciones "faltantes".
 
-## Observability (How to detect issues)
-- **Metrics:** dead tuples, table size growth.
-- **Logs:** autovacuum activity.
-- **Alerts:** rising bloat or vacuum lag.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tuplas muertas, crecimiento del tamaño de tabla.
+- **Logs:** actividad de autovacuum.
+- **Alertas:** bloat en aumento o retraso de vacuum.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Monitor long-running transactions
-  - [ ] Monitor dead tuples
+  - [ ] Monitorear transacciones de larga duración
+  - [ ] Monitorear tuplas muertas
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Allowing long transactions to run indefinitely.
-  - **Why it’s bad:** vacuum can’t clean up old versions.
-  - **Better approach:** keep transactions short.
+## Anti-patrones comunes
+- **Anti-patrón:** Permitir que transacciones largas se ejecuten indefinidamente.
+  - **Por qué es malo:** vacuum no puede limpiar versiones antiguas.
+  - **Mejor enfoque:** mantener las transacciones cortas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- MVCC in Postgres means each update creates a new row version. Readers see a snapshot without blocking writers, but old versions must be cleaned up by vacuum to avoid bloat.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- MVCC en Postgres significa que cada actualización crea una nueva versión de fila. Los lectores ven un snapshot sin bloquear a los escritores, pero las versiones antiguas deben ser limpiadas por vacuum para evitar bloat.
 
-### Trap questions (with answers)
-1) **Q:** Does MVCC eliminate all locks?
-   - **A:** no; locks still exist for certain operations.
-2) **Q:** Are old row versions deleted immediately?
-   - **A:** no; vacuum removes them later.
-3) **Q:** Do long transactions affect MVCC cleanup?
-   - **A:** yes; they prevent old versions from being removed.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿MVCC elimina todos los bloqueos?
+   - **R:** no; los bloqueos aún existen para ciertas operaciones.
+2) **P:** ¿Las versiones antiguas de filas se eliminan inmediatamente?
+   - **R:** no; vacuum las elimina después.
+3) **P:** ¿Las transacciones largas afectan la limpieza de MVCC?
+   - **R:** sí; previenen que las versiones antiguas sean eliminadas.
 
-### Quick self-check (5 items)
-- [ ] I can define MVCC.
-- [ ] I can explain why vacuum is needed.
-- [ ] I can name a failure mode.
-- [ ] I can describe a signal.
-- [ ] I can relate MVCC to isolation.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir MVCC.
+- [ ] Puedo explicar por qué vacuum es necesario.
+- [ ] Puedo nombrar un modo de fallo.
+- [ ] Puedo describir una señal.
+- [ ] Puedo relacionar MVCC con el aislamiento.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](transactions.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Transacciones](transactions.md)
 
-### Related topics
-- [Locks](locks.md)
-- [PostgreSQL bloat](postgresql-bloat.md)
-- [Vacuum and autovacuum](postgresql-vacuum-autovacuum.md)
+### Temas relacionados
+- [Bloqueos](locks.md)
+- [Bloat en PostgreSQL](postgresql-bloat.md)
+- [Vacuum y autovacuum](postgresql-vacuum-autovacuum.md)
 
-### Compare with
-- [Lock-based concurrency control](lock-based-concurrency-control.md)
+### Comparar con
+- [Control de concurrencia basado en bloqueos](lock-based-concurrency-control.md)

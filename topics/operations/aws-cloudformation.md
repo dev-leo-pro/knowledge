@@ -1,6 +1,6 @@
 ---
 id: aws-cloudformation
-title: "AWS CloudFormation (Detailed)"
+title: "AWS CloudFormation (Detallado)"
 type: tool
 status: learning
 importance: 80
@@ -12,46 +12,46 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# AWS CloudFormation (Detailed)
+# AWS CloudFormation (Detallado)
 
 ## TL;DR (BLUF)
-- CloudFormation is AWS's native Infrastructure as Code (IaC) service for provisioning and managing AWS resources using declarative templates (JSON/YAML).
-- Use for AWS-only infrastructure, deep AWS integration, and managed state.
-- Key trade-off: AWS-specific convenience and free managed state vs. vendor lock-in.
+- CloudFormation es el servicio nativo de Infraestructura como Código (IaC) de AWS para aprovisionar y gestionar recursos AWS usando plantillas declarativas (JSON/YAML).
+- Usar para infraestructura exclusivamente AWS, integración profunda con AWS y estado gestionado.
+- Trade-off clave: conveniencia específica de AWS y estado gestionado gratuito vs. dependencia del proveedor.
 
-## Definition
-**What it is:** AWS's native IaC service that uses declarative templates (JSON or YAML) to provision and manage AWS resources as a single unit called a "stack."  
-**Key terms:** stack, template, resource, parameter, output, drift detection, change set, nested stacks, StackSets (multi-account/region), rollback, AWS-managed state.
+## Definición
+**Qué es:** El servicio nativo de IaC de AWS que usa plantillas declarativas (JSON o YAML) para aprovisionar y gestionar recursos AWS como una unidad única llamada "stack".  
+**Términos clave:** stack, plantilla, recurso, parámetro, output, detección de drift, change set, stacks anidados, StackSets (multi-cuenta/región), rollback, estado gestionado por AWS.
 
-## Why it matters
-- **AWS-native:** Deep integration with AWS services (native support for all AWS resources).
-- **Managed state:** AWS manages state for you (no state file to secure or share).
-- **Free:** No additional cost (pay only for AWS resources created).
-- **Declarative:** Define desired state; CloudFormation handles provisioning.
-- **Rollback:** Automatic rollback on failure (stack creation fails → deletes all resources).
-- **Interview relevance:** Standard IaC for AWS-centric architectures.
+## Por qué importa
+- **Nativo de AWS:** Integración profunda con servicios AWS (soporte nativo para todos los recursos AWS).
+- **Estado gestionado:** AWS gestiona el estado por ti (sin archivos de estado que asegurar o compartir).
+- **Gratuito:** Sin coste adicional (solo pagas por los recursos AWS creados).
+- **Declarativo:** Define el estado deseado; CloudFormation se encarga del aprovisionamiento.
+- **Rollback:** Rollback automático ante fallos (si la creación del stack falla, elimina todos los recursos).
+- **Relevancia en entrevistas:** IaC estándar para arquitecturas centradas en AWS.
 
-## Scope & Non-goals
-**In scope:**
-- CloudFormation core concepts (stacks, templates, resources, parameters).
-- When to use CloudFormation vs. alternatives.
-- Drift detection and change sets.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Conceptos core de CloudFormation (stacks, plantillas, recursos, parámetros).
+- Cuándo usar CloudFormation vs. alternativas.
+- Detección de drift y change sets.
 
-**Out of scope / NOT solved by this:**
-- Multi-cloud (CloudFormation is AWS-only; use Terraform for multi-cloud).
-- Advanced features (custom resources, macros, AWS CDK).
-- Specific resource syntax (refer to AWS docs for each resource type).
+**Fuera del alcance / NO resuelto por esto:**
+- Multi-cloud (CloudFormation es solo AWS; usar Terraform para multi-cloud).
+- Funcionalidades avanzadas (recursos personalizados, macros, AWS CDK).
+- Sintaxis específica de recursos (consultar la documentación de AWS para cada tipo de recurso).
 
-## Mental model / Intuition
-Think of CloudFormation as a **construction blueprint for AWS**:
-- You write a blueprint (YAML template) describing desired infrastructure: "I want 1 VPC, 2 subnets, 1 EC2 instance, 1 RDS database."
-- CloudFormation reads the blueprint and creates a "stack" (group of resources).
-- It provisions resources in the correct order (VPC first, then subnets, then instances).
-- If anything fails, CloudFormation automatically deletes everything (rollback).
-- AWS tracks the stack state internally (you don't manage state files).
+## Modelo mental / Intuición
+Piensa en CloudFormation como un **plano de construcción para AWS**:
+- Escribes un plano (plantilla YAML) describiendo la infraestructura deseada: "Quiero 1 VPC, 2 subnets, 1 instancia EC2, 1 base de datos RDS."
+- CloudFormation lee el plano y crea un "stack" (grupo de recursos).
+- Aprovisiona recursos en el orden correcto (primero VPC, luego subnets, luego instancias).
+- Si algo falla, CloudFormation elimina automáticamente todo (rollback).
+- AWS rastrea el estado del stack internamente (no gestionas archivos de estado).
 
 ```yaml
-# Blueprint (YAML template)
+# Plano (plantilla YAML)
 Resources:
   MyInstance:
     Type: AWS::EC2::Instance
@@ -60,24 +60,24 @@ Resources:
       InstanceType: t2.micro
 ```
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- AWS-only infrastructure (no multi-cloud needs).
-- Want managed state (no S3 buckets or locking to configure).
-- Need deep AWS integration (native support for all AWS services).
-- Free IaC tool is important (CloudFormation is free).
-- Want automatic rollback (stack creation fails → all resources deleted).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Infraestructura solo AWS (sin necesidades multi-cloud).
+- Quieres estado gestionado (sin buckets S3 ni bloqueo que configurar).
+- Necesitas integración profunda con AWS (soporte nativo para todos los servicios AWS).
+- Una herramienta IaC gratuita es importante (CloudFormation es gratuito).
+- Quieres rollback automático (si la creación del stack falla, todos los recursos se eliminan).
 
-### Avoid it when
-- Multi-cloud or vendor neutrality needed (use Terraform).
-- Prefer programming languages over YAML (use AWS CDK or Pulumi).
-- Need advanced abstractions (CDK provides higher-level constructs).
-- Template size limits are restrictive (51,200 bytes for YAML; use nested stacks or Terraform).
+### Evítalo cuando
+- Se necesita multi-cloud o neutralidad de proveedor (usar Terraform).
+- Prefieres lenguajes de programación sobre YAML (usar AWS CDK o Pulumi).
+- Necesitas abstracciones avanzadas (CDK proporciona constructos de nivel superior).
+- Los límites de tamaño de plantilla son restrictivos (51,200 bytes para YAML; usar stacks anidados o Terraform).
 
-## How I would use it (practical)
-- **Context:** Provisioning AWS infrastructure for a web app (VPC, EC2, RDS).
-- **Steps:**
-  1. **Write CloudFormation template:**
+## Cómo lo usaría (práctico)
+- **Contexto:** Aprovisionando infraestructura AWS para una aplicación web (VPC, EC2, RDS).
+- **Pasos:**
+  1. **Escribir plantilla CloudFormation:**
      ```yaml
      # app-stack.yaml
      AWSTemplateFormatVersion: '2010-09-09'
@@ -115,111 +115,111 @@ Resources:
          Value: !Ref WebServer
          Description: EC2 instance ID
      ```
-  2. **Create stack:**
+  2. **Crear stack:**
      ```bash
      aws cloudformation create-stack \
        --stack-name my-app-stack \
        --template-body file://app-stack.yaml \
        --parameters ParameterKey=DBPassword,ParameterValue=secret123
      ```
-  3. **Monitor stack creation:**
+  3. **Monitorear creación del stack:**
      ```bash
      aws cloudformation describe-stacks --stack-name my-app-stack
      # Status: CREATE_IN_PROGRESS → CREATE_COMPLETE
      ```
-  4. **Update stack:**
-     - Edit template (e.g., change instance type to `t2.small`).
-     - Create change set (preview changes):
+  4. **Actualizar stack:**
+     - Editar plantilla (ej., cambiar tipo de instancia a `t2.small`).
+     - Crear change set (previsualizar cambios):
        ```bash
        aws cloudformation create-change-set \
          --stack-name my-app-stack \
          --change-set-name update-instance-type \
          --template-body file://app-stack.yaml
        ```
-     - Review change set, then execute:
+     - Revisar change set, luego ejecutar:
        ```bash
        aws cloudformation execute-change-set \
          --change-set-name update-instance-type \
          --stack-name my-app-stack
        ```
-  5. **Delete stack:**
+  5. **Eliminar stack:**
      ```bash
      aws cloudformation delete-stack --stack-name my-app-stack
-     # Deletes all resources (EC2, RDS, etc.)
+     # Elimina todos los recursos (EC2, RDS, etc.)
      ```
-- **What success looks like:** Reproducible infrastructure; automatic rollback on failure; no state files to manage.
+- **Cómo se ve el éxito:** Infraestructura reproducible; rollback automático ante fallos; sin archivos de estado que gestionar.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - AWS-native (supports all AWS services immediately).
-  - Managed state (no S3 buckets, no locking configuration).
-  - Free (no additional cost beyond AWS resources).
-  - Automatic rollback (stack creation fails → all resources deleted).
-  - Drift detection (detect manual changes via AWS console).
-  - Change sets (preview changes before apply).
-- **Cons / Risks:**
-  - AWS-only (vendor lock-in; can't manage GCP or Azure).
-  - Verbose YAML/JSON (less expressive than Terraform HCL or CDK).
-  - Template size limits (51,200 bytes; large infra requires nested stacks).
-  - No modules (reusability harder than Terraform modules).
-  - Slower updates (AWS adds new services to CloudFormation with delay).
+- **Ventajas:**
+  - Nativo de AWS (soporta todos los servicios AWS inmediatamente).
+  - Estado gestionado (sin buckets S3, sin configuración de bloqueo).
+  - Gratuito (sin coste adicional más allá de los recursos AWS).
+  - Rollback automático (si la creación del stack falla, todos los recursos se eliminan).
+  - Detección de drift (detectar cambios manuales via consola AWS).
+  - Change sets (previsualizar cambios antes de aplicar).
+- **Desventajas / Riesgos:**
+  - Solo AWS (dependencia del proveedor; no puede gestionar GCP o Azure).
+  - YAML/JSON verboso (menos expresivo que Terraform HCL o CDK).
+  - Límites de tamaño de plantilla (51,200 bytes; infraestructura grande requiere stacks anidados).
+  - Sin módulos (reutilización más difícil que los módulos de Terraform).
+  - Actualizaciones más lentas (AWS añade nuevos servicios a CloudFormation con retraso).
 
-### Alternatives
-- **[Terraform](terraform.md):** Multi-cloud; HCL syntax; requires state management (but more flexible).
-- **AWS CDK:** Uses programming languages (TypeScript, Python); generates CloudFormation (but adds abstraction layer).
-- **Pulumi:** Multi-cloud; uses programming languages; more expressive (but requires state management).
-- **Ansible:** Configuration management; can provision infrastructure (but less declarative).
+### Alternativas
+- **[Terraform](terraform.md):** Multi-cloud; sintaxis HCL; requiere gestión de estado (pero más flexible).
+- **AWS CDK:** Usa lenguajes de programación (TypeScript, Python); genera CloudFormation (pero añade capa de abstracción).
+- **Pulumi:** Multi-cloud; usa lenguajes de programación; más expresivo (pero requiere gestión de estado).
+- **Ansible:** Gestión de configuración; puede aprovisionar infraestructura (pero menos declarativo).
 
-### How to choose
-- **AWS-only, free, managed state:** CloudFormation.
-- **Multi-cloud or vendor neutrality:** Terraform.
-- **Programming language preference (AWS-only):** AWS CDK.
-- **Programming language preference (multi-cloud):** Pulumi.
+### Cómo elegir
+- **Solo AWS, gratuito, estado gestionado:** CloudFormation.
+- **Multi-cloud o neutralidad de proveedor:** Terraform.
+- **Preferencia por lenguaje de programación (solo AWS):** AWS CDK.
+- **Preferencia por lenguaje de programación (multi-cloud):** Pulumi.
 
-## Failure modes & Pitfalls
-- **Rollback on failure:** Stack creation fails (e.g., invalid AMI); CloudFormation deletes all resources (can lose progress).
-- **Circular dependencies:** Resource A depends on B, B depends on A; stack creation fails.
-- **Manual changes (drift):** Someone edits resource in console; CloudFormation doesn't know; next update may revert change.
-- **DeletionPolicy not set:** Delete stack; RDS database deleted (data loss).
-- **No parameter validation:** Pass invalid parameter (e.g., wrong instance type); stack creation fails.
-- **Update requires replacement:** Change instance type; CloudFormation deletes old instance, creates new one (downtime).
+## Modos de fallo y trampas
+- **Rollback ante fallo:** La creación del stack falla (ej., AMI inválida); CloudFormation elimina todos los recursos (puede perder progreso).
+- **Dependencias circulares:** El recurso A depende de B, B depende de A; la creación del stack falla.
+- **Cambios manuales (drift):** Alguien edita un recurso en la consola; CloudFormation no lo sabe; la próxima actualización puede revertir el cambio.
+- **DeletionPolicy no configurada:** Eliminar stack; base de datos RDS eliminada (pérdida de datos).
+- **Sin validación de parámetros:** Pasar parámetro inválido (ej., tipo de instancia incorrecto); la creación del stack falla.
+- **Actualización requiere reemplazo:** Cambiar tipo de instancia; CloudFormation elimina la instancia antigua, crea una nueva (tiempo de inactividad).
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Stack creation success rate (% of stacks that complete successfully).
-  - Stack update duration (slow updates indicate complex dependencies).
-  - Drift detection frequency (how often resources deviate from template).
-- **Logs:** CloudFormation events (resource creation, update, deletion events).
-- **Alerts:** Stack creation failed, drift detected, stack update stuck (ROLLBACK_IN_PROGRESS).
-- **Drift detection:** Run `detect-drift` regularly (CI job); alert if drift found (manual changes).
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tasa de éxito de creación de stacks (% de stacks que se completan con éxito).
+  - Duración de actualización de stacks (actualizaciones lentas indican dependencias complejas).
+  - Frecuencia de detección de drift (con qué frecuencia los recursos se desvían de la plantilla).
+- **Logs:** Eventos de CloudFormation (eventos de creación, actualización, eliminación de recursos).
+- **Alertas:** Creación de stack fallida, drift detectado, actualización de stack atascada (ROLLBACK_IN_PROGRESS).
+- **Detección de drift:** Ejecutar `detect-drift` regularmente (job de CI); alertar si se encuentra drift (cambios manuales).
 
-## Implementation notes
+## Notas de implementación
 - **Checklist**
-  - [ ] Use parameters for environment-specific values (instance type, DB password).
-  - [ ] Set DeletionPolicy for critical resources (RDS, S3; prevent accidental deletion).
-  - [ ] Use change sets for updates (preview changes before executing).
-  - [ ] Enable termination protection for prod stacks (prevent accidental deletion).
-  - [ ] Tag all resources (cost allocation, environment tracking).
-  - [ ] Use outputs for inter-stack references (export VPC ID, import in another stack).
-  - [ ] Schedule drift detection (daily CI job; alert on drift).
+  - [ ] Usar parámetros para valores específicos del entorno (tipo de instancia, contraseña de DB).
+  - [ ] Configurar DeletionPolicy para recursos críticos (RDS, S3; prevenir eliminación accidental).
+  - [ ] Usar change sets para actualizaciones (previsualizar cambios antes de ejecutar).
+  - [ ] Habilitar protección de terminación para stacks de producción (prevenir eliminación accidental).
+  - [ ] Etiquetar todos los recursos (asignación de costes, seguimiento de entorno).
+  - [ ] Usar outputs para referencias entre stacks (exportar VPC ID, importar en otro stack).
+  - [ ] Programar detección de drift (job diario de CI; alertar ante drift).
 
-- **Security / Compliance notes**
-  - Use IAM roles for CloudFormation (least-privilege; only necessary permissions).
-  - Never hardcode secrets in templates (use Secrets Manager or Parameter Store).
-  - Enable stack policy (prevent accidental updates/deletions of critical resources).
-  - Audit stack changes (CloudTrail logs all CloudFormation API calls).
+- **Notas de seguridad / cumplimiento**
+  - Usar roles IAM para CloudFormation (mínimo privilegio; solo permisos necesarios).
+  - Nunca codificar secretos en las plantillas (usar Secrets Manager o Parameter Store).
+  - Habilitar política de stack (prevenir actualizaciones/eliminaciones accidentales de recursos críticos).
+  - Auditar cambios de stack (CloudTrail registra todas las llamadas API de CloudFormation).
 
-- **Performance notes**
-  - Use nested stacks for large infrastructures (avoid template size limits).
-  - Parallelize resource creation (CloudFormation does this automatically).
+- **Notas de rendimiento**
+  - Usar stacks anidados para infraestructuras grandes (evitar límites de tamaño de plantilla).
+  - Paralelizar creación de recursos (CloudFormation hace esto automáticamente).
 
-- **Operational notes**
-  - Document stack dependencies (VPC stack before app stack).
-  - Use StackSets for multi-account/multi-region deployments.
-  - Test templates in dev environment before prod.
+- **Notas operativas**
+  - Documentar dependencias de stacks (stack de VPC antes del stack de aplicación).
+  - Usar StackSets para despliegues multi-cuenta/multi-región.
+  - Probar plantillas en entorno de desarrollo antes de producción.
 
-## Mini example (CloudFormation template)
+## Mini ejemplo (plantilla CloudFormation)
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Simple web app infrastructure
@@ -313,69 +313,69 @@ Outputs:
 # aws cloudformation delete-stack --stack-name dev-app-stack
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Hardcoding secrets in template.
-  - **Why it's bad:** Secrets visible in CloudFormation console and API calls; security risk.
-  - **Better approach:** Use Secrets Manager or Parameter Store; reference via `{{resolve:secretsmanager:...}}`.
+## Anti-patrones comunes
+- **Anti-patrón:** Codificar secretos en la plantilla.
+  - **Por qué es malo:** Los secretos son visibles en la consola de CloudFormation y las llamadas API; riesgo de seguridad.
+  - **Mejor enfoque:** Usar Secrets Manager o Parameter Store; referenciar via `{{resolve:secretsmanager:...}}`.
 
-- **Anti-pattern:** No DeletionPolicy for critical resources.
-  - **Why it's bad:** Delete stack → RDS database deleted → data loss.
-  - **Better approach:** Set `DeletionPolicy: Snapshot` for RDS, `DeletionPolicy: Retain` for S3.
+- **Anti-patrón:** Sin DeletionPolicy para recursos críticos.
+  - **Por qué es malo:** Eliminar stack -> base de datos RDS eliminada -> pérdida de datos.
+  - **Mejor enfoque:** Configurar `DeletionPolicy: Snapshot` para RDS, `DeletionPolicy: Retain` para S3.
 
-- **Anti-pattern:** No change sets for updates.
-  - **Why it's bad:** Unexpected changes (instance replaced instead of updated).
-  - **Better approach:** Always create change set; review; then execute.
+- **Anti-patrón:** Sin change sets para actualizaciones.
+  - **Por qué es malo:** Cambios inesperados (instancia reemplazada en lugar de actualizada).
+  - **Mejor enfoque:** Siempre crear change set; revisar; luego ejecutar.
 
-- **Anti-pattern:** Monolithic template (all resources in one template).
-  - **Why it's bad:** Hard to maintain; template size limits; team conflicts.
-  - **Better approach:** Use nested stacks or separate stacks per layer (VPC stack, app stack, database stack).
+- **Anti-patrón:** Plantilla monolítica (todos los recursos en una plantilla).
+  - **Por qué es malo:** Difícil de mantener; límites de tamaño de plantilla; conflictos de equipo.
+  - **Mejor enfoque:** Usar stacks anidados o stacks separados por capa (stack de VPC, stack de app, stack de base de datos).
 
-- **Anti-pattern:** No termination protection for prod stacks.
-  - **Why it's bad:** Accidental `delete-stack` deletes entire production infrastructure.
-  - **Better approach:** Enable termination protection; require manual disable before deletion.
+- **Anti-patrón:** Sin protección de terminación para stacks de producción.
+  - **Por qué es malo:** Un `delete-stack` accidental elimina toda la infraestructura de producción.
+  - **Mejor enfoque:** Habilitar protección de terminación; requerir deshabilitación manual antes de la eliminación.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-CloudFormation is AWS's Infrastructure as Code service. You write a YAML or JSON template describing AWS resources (EC2, RDS, VPC, etc.), and CloudFormation provisions them as a "stack." The workflow is: (1) write template, (2) create stack (CloudFormation provisions resources in correct order), (3) update stack (CloudFormation calculates diff and updates only what changed), (4) delete stack (CloudFormation deletes all resources). The key benefit is that AWS manages state for you—no state files to secure or share, unlike Terraform. CloudFormation also has automatic rollback: if stack creation fails, it deletes all resources automatically. The main downside is vendor lock-in (AWS-only; can't manage GCP or Azure) and verbose YAML syntax (less expressive than Terraform HCL or AWS CDK).
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+CloudFormation es el servicio de Infraestructura como Código de AWS. Escribes una plantilla YAML o JSON describiendo recursos AWS (EC2, RDS, VPC, etc.), y CloudFormation los aprovisiona como un "stack". El flujo de trabajo es: (1) escribir plantilla, (2) crear stack (CloudFormation aprovisiona recursos en el orden correcto), (3) actualizar stack (CloudFormation calcula el diff y actualiza solo lo que cambió), (4) eliminar stack (CloudFormation elimina todos los recursos). El beneficio clave es que AWS gestiona el estado por ti — sin archivos de estado que asegurar o compartir, a diferencia de Terraform. CloudFormation también tiene rollback automático: si la creación del stack falla, elimina todos los recursos automáticamente. La principal desventaja es la dependencia del proveedor (solo AWS; no puede gestionar GCP o Azure) y la sintaxis YAML verbosa (menos expresiva que Terraform HCL o AWS CDK).
 
-### Trap questions (with answers)
-1) **Q:** How does CloudFormation manage state?
-   - **A:** CloudFormation manages state internally in AWS. You don't manage state files (unlike Terraform). AWS tracks the stack's resources, their IDs, and dependencies. You can view stack state via AWS console or `describe-stacks` API. This simplifies collaboration (no S3 buckets or locking) but locks you into AWS.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cómo gestiona CloudFormation el estado?
+   - **R:** CloudFormation gestiona el estado internamente en AWS. No gestionas archivos de estado (a diferencia de Terraform). AWS rastrea los recursos del stack, sus IDs y dependencias. Puedes ver el estado del stack via la consola AWS o la API `describe-stacks`. Esto simplifica la colaboración (sin buckets S3 ni bloqueo) pero te ata a AWS.
 
-2) **Q:** What is a change set, and why is it important?
-   - **A:** A change set is a preview of what CloudFormation will change when you update a stack. It shows which resources will be created, updated, or deleted. It's critical because some updates replace resources (e.g., changing instance type deletes old instance, creates new one—downtime). Always review change sets before executing to avoid surprises.
+2) **P:** ¿Qué es un change set y por qué es importante?
+   - **R:** Un change set es una previsualización de lo que CloudFormation cambiará cuando actualices un stack. Muestra qué recursos se crearán, actualizarán o eliminarán. Es crítico porque algunas actualizaciones reemplazan recursos (ej., cambiar tipo de instancia elimina la instancia antigua, crea una nueva — tiempo de inactividad). Siempre revisa los change sets antes de ejecutar para evitar sorpresas.
 
-3) **Q:** What happens if a resource creation fails during stack creation?
-   - **A:** CloudFormation automatically rolls back: deletes all resources created so far and sets stack status to `ROLLBACK_COMPLETE`. This prevents partial stacks (half-created infrastructure). You can disable rollback (`--disable-rollback`) for debugging, but this leaves orphaned resources. Better: fix the issue and retry.
+3) **P:** ¿Qué pasa si falla la creación de un recurso durante la creación del stack?
+   - **R:** CloudFormation hace rollback automáticamente: elimina todos los recursos creados hasta el momento y establece el estado del stack como `ROLLBACK_COMPLETE`. Esto previene stacks parciales (infraestructura a medio crear). Puedes deshabilitar el rollback (`--disable-rollback`) para depuración, pero esto deja recursos huérfanos. Mejor: corregir el problema y reintentar.
 
-4) **Q:** How do you prevent accidental deletion of critical resources?
-   - **A:** Use two mechanisms: (1) Set `DeletionPolicy: Retain` or `DeletionPolicy: Snapshot` on critical resources (RDS, S3); when stack is deleted, resource is retained or snapshotted. (2) Enable termination protection on the stack; must manually disable before deletion.
+4) **P:** ¿Cómo prevenir la eliminación accidental de recursos críticos?
+   - **R:** Usar dos mecanismos: (1) Configurar `DeletionPolicy: Retain` o `DeletionPolicy: Snapshot` en recursos críticos (RDS, S3); cuando se elimina el stack, el recurso se retiene o se crea snapshot. (2) Habilitar protección de terminación en el stack; debe deshabilitarse manualmente antes de la eliminación.
 
-5) **Q:** What's the difference between CloudFormation and Terraform?
-   - **A:** 
-     - **CloudFormation:** AWS-only; JSON/YAML; AWS-managed state; free; automatic rollback.
-     - **Terraform:** Multi-cloud; HCL; self-managed state (S3 + DynamoDB); open-source; no automatic rollback.
-     - Choose CloudFormation for AWS-only with managed state; choose Terraform for multi-cloud or vendor neutrality.
+5) **P:** ¿Cuál es la diferencia entre CloudFormation y Terraform?
+   - **R:** 
+     - **CloudFormation:** Solo AWS; JSON/YAML; estado gestionado por AWS; gratuito; rollback automático.
+     - **Terraform:** Multi-cloud; HCL; estado autogestionado (S3 + DynamoDB); código abierto; sin rollback automático.
+     - Elegir CloudFormation para solo AWS con estado gestionado; elegir Terraform para multi-cloud o neutralidad de proveedor.
 
-### Quick self-check (5 items)
-- [ ] I can explain how CloudFormation manages state (AWS-managed, no state files).
-- [ ] I can describe the role of change sets (preview updates before executing).
-- [ ] I can articulate when to use CloudFormation vs. Terraform.
-- [ ] I can explain DeletionPolicy and termination protection.
-- [ ] I can identify failure modes (rollback on error, drift from manual changes).
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar cómo CloudFormation gestiona el estado (gestionado por AWS, sin archivos de estado).
+- [ ] Puedo describir el rol de los change sets (previsualizar actualizaciones antes de ejecutar).
+- [ ] Puedo articular cuándo usar CloudFormation vs. Terraform.
+- [ ] Puedo explicar DeletionPolicy y protección de terminación.
+- [ ] Puedo identificar modos de fallo (rollback ante error, drift por cambios manuales).
 
-## Links (NO duplication)
-### Prerequisites
-- [Infrastructure as Code basics](infrastructure-as-code.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de Infraestructura como Código](infrastructure-as-code.md)
 
-### Related topics
+### Temas relacionados
 - [Terraform](terraform.md)
-- [CI/CD basics](../quality/ci-cd-basics.md)
+- [Fundamentos de CI/CD](../quality/ci-cd-basics.md)
 
-### Compare with
-- [Terraform](terraform.md) — Terraform is multi-cloud; CloudFormation is AWS-only.
+### Comparar con
+- [Terraform](terraform.md) — Terraform es multi-cloud; CloudFormation es solo AWS.
 
-## Notes / Inbox
-- Add examples from real projects: CloudFormation templates for Heimdall AWS infrastructure.
-- Consider adding section on nested stacks and StackSets.
-- Link to AWS CDK when created (higher-level abstraction over CloudFormation).
+## Notas / Bandeja de entrada
+- Añadir ejemplos de proyectos reales: plantillas CloudFormation para infraestructura AWS de Heimdall.
+- Considerar añadir sección sobre stacks anidados y StackSets.
+- Enlazar a AWS CDK cuando se cree (abstracción de nivel superior sobre CloudFormation).

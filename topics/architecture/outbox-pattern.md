@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Outbox Pattern
+# Patrón Outbox
 
 ## TL;DR (BLUF)
-- The outbox pattern writes events to a table in the same transaction as business data.
-- Use it to ensure reliable event publication.
-- Trade-off: extra storage and processing complexity.
+- El patrón outbox escribe eventos en una tabla dentro de la misma transacción que los datos de negocio.
+- Úsalo para garantizar la publicación fiable de eventos.
+- Trade-off: almacenamiento extra y complejidad de procesamiento.
 
-## Definition
-**What it is:** A transactional pattern that persists events in an outbox table and later publishes them.
-**Key terms:** outbox table, CDC, idempotency.
+## Definición
+**Qué es:** Un patrón transaccional que persiste eventos en una tabla outbox y luego los publica posteriormente.
+**Términos clave:** tabla outbox, CDC, idempotencia.
 
-## Why it matters
-- It prevents lost events when transactions commit but publish fails.
-- It enables reliable event-driven workflows.
+## Por qué importa
+- Previene la pérdida de eventos cuando las transacciones se confirman pero la publicación falla.
+- Permite flujos de trabajo dirigidos por eventos fiables.
 
-## Scope & Non-goals
-**In scope:** reliable event publishing from a DB.
-**Out of scope / NOT solved by this:** exactly-once delivery.
+## Alcance y no-objetivos
+**Dentro del alcance:** publicación fiable de eventos desde una BD.
+**Fuera del alcance / NO resuelto por esto:** entrega exactamente-una-vez.
 
-## Mental model / Intuition
-- Write your intent to the database first, then publish safely.
+## Modelo mental / Intuición
+- Escribe tu intención en la base de datos primero, luego publica de forma segura.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need transactional consistency between DB writes and events.
-### Avoid it when
-- You can tolerate occasional missed events.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites consistencia transaccional entre escrituras de BD y eventos.
+### Evítalo cuando
+- Puedas tolerar eventos perdidos ocasionalmente.
 
-## How I would use it (practical)
-- **Context:** Order created event.
-- **Steps:** write order + outbox row → CDC/worker publishes → mark as sent.
-- **What success looks like:** no lost events under failures.
+## Cómo lo usaría (práctico)
+- **Contexto:** Evento de orden creada.
+- **Pasos:** escribir orden + fila outbox → CDC/worker publica → marcar como enviado.
+- **Cómo se ve el éxito:** sin eventos perdidos bajo fallos.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** reliable event publishing.
-- **Cons / Risks:** extra processing and storage.
-### Alternatives
-- **Dual writes:** simpler but risky.
-- **How to choose:** use outbox when reliability is required.
+- **Pros:** publicación fiable de eventos.
+- **Contras / Riesgos:** procesamiento y almacenamiento extra.
+### Alternativas
+- **Escrituras duales:** más simple pero arriesgado.
+- **Cómo elegir:** usa outbox cuando se requiera fiabilidad.
 
-## Failure modes & Pitfalls
-- Outbox table growth without cleanup.
+## Modos de fallo y errores comunes
+- Crecimiento de la tabla outbox sin limpieza.
 
-## Observability (How to detect issues)
-- **Metrics:** outbox lag, publish error rate.
-- **Logs:** publish failures.
-- **Alerts:** growing outbox backlog.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** lag del outbox, tasa de errores de publicación.
+- **Logs:** fallos de publicación.
+- **Alertas:** backlog creciente del outbox.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Write outbox in same transaction
-  - [ ] Publish with retries and idempotency
+  - [ ] Escribir outbox en la misma transacción
+  - [ ] Publicar con reintentos e idempotencia
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Publishing directly before commit.
-  - **Why it’s bad:** lost events on rollback.
-  - **Better approach:** use an outbox table.
+## Anti-patrones comunes
+- **Anti-patrón:** Publicar directamente antes del commit.
+  - **Por qué es malo:** eventos perdidos en rollback.
+  - **Mejor enfoque:** usar una tabla outbox.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- The outbox pattern writes events to a DB table in the same transaction as your data, then publishes them asynchronously. This avoids losing events if publishing fails.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El patrón outbox escribe eventos en una tabla de BD en la misma transacción que tus datos, luego los publica asíncronamente. Esto evita perder eventos si la publicación falla.
 
-### Trap questions (with answers)
-1) **Q:** Does outbox guarantee exactly-once delivery?
-   - **A:** no; you still need idempotent consumers.
-2) **Q:** Can you skip cleanup?
-   - **A:** no; outbox tables can grow indefinitely.
-3) **Q:** Is outbox only for Kafka?
-   - **A:** no; it works with any event transport.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El outbox garantiza entrega exactamente-una-vez?
+   - **R:** No; aún necesitas consumidores idempotentes.
+2) **P:** ¿Puedes omitir la limpieza?
+   - **R:** No; las tablas outbox pueden crecer indefinidamente.
+3) **P:** ¿El outbox es solo para Kafka?
+   - **R:** No; funciona con cualquier transporte de eventos.
 
-### Quick self-check (5 items)
-- [ ] I can define the outbox pattern.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a failure mode.
-- [ ] I can explain how CDC helps.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el patrón outbox.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un modo de fallo.
+- [ ] Puedo explicar cómo ayuda CDC.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](../databases/transactions.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Transacciones](../databases/transactions.md)
 
-### Related topics
+### Temas relacionados
 - [Change Data Capture (CDC)](../databases/change-data-capture.md)
 
-### Compare with
-- [Dual-write pattern](dual-write-pattern.md)
+### Comparar con
+- [Patrón de escritura dual](dual-write-pattern.md)

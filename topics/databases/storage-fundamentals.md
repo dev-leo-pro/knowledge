@@ -1,6 +1,6 @@
 ---
 id: storage-fundamentals
-title: "Storage Fundamentals"
+title: "Fundamentos de almacenamiento"
 type: concept
 status: learning
 importance: 40
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Storage Fundamentals
+# Fundamentos de almacenamiento
 
 ## TL;DR (BLUF)
-- Storage fundamentals cover I/O, latency, and space trade-offs.
-- Use them to reason about database performance and maintenance.
-- Trade-off: higher performance often costs more.
+- Los fundamentos de almacenamiento cubren E/S, latencia y trade-offs de espacio.
+- Úsalos para razonar sobre rendimiento y mantenimiento de bases de datos.
+- Trade-off: mayor rendimiento a menudo cuesta más.
 
-## Definition
-**What it is:** Basic concepts of disk/SSD storage, I/O patterns, and latency.
-**Key terms:** I/O, throughput, latency, fragmentation.
+## Definición
+**Qué es:** Conceptos básicos de almacenamiento en disco/SSD, patrones de E/S y latencia.
+**Términos clave:** E/S, throughput, latencia, fragmentación.
 
-## Why it matters
-- Storage behavior directly affects DB performance.
-- Maintenance tasks like compaction and vacuum depend on storage.
+## Por qué importa
+- El comportamiento del almacenamiento afecta directamente el rendimiento de la BD.
+- Las tareas de mantenimiento como compactación y vacuum dependen del almacenamiento.
 
-## Scope & Non-goals
-**In scope:** storage performance basics.
-**Out of scope / NOT solved by this:** hardware procurement.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de rendimiento de almacenamiento.
+**Fuera del alcance / NO resuelto por esto:** adquisición de hardware.
 
-## Mental model / Intuition
-- Storage is the slowest part of the stack; plan around it.
+## Modelo mental / Intuición
+- El almacenamiento es la parte más lenta del stack; planifica alrededor de ello.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You diagnose latency spikes or bloat issues.
-### Avoid it when
-- Performance issues are clearly CPU-bound.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Diagnosticas picos de latencia o problemas de bloat.
+### Evítalo cuando
+- Los problemas de rendimiento son claramente limitados por CPU.
 
-## How I would use it (practical)
-- **Context:** Slow queries after data growth.
-- **Steps:** check I/O metrics → review storage type → adjust maintenance.
-- **What success looks like:** stable I/O and latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consultas lentas después de crecimiento de datos.
+- **Pasos:** verificar métricas de E/S → revisar tipo de almacenamiento → ajustar mantenimiento.
+- **Cómo se ve el éxito:** E/S y latencia estables.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better performance with faster storage.
-- **Cons / Risks:** higher cost.
-### Alternatives
-- **Caching:** reduce storage I/O.
-- **How to choose:** optimize I/O when storage is the bottleneck.
+- **Ventajas:** mejor rendimiento con almacenamiento más rápido.
+- **Desventajas / Riesgos:** mayor costo.
+### Alternativas
+- **Caché:** reducir E/S de almacenamiento.
+- **Cómo elegir:** optimiza E/S cuando el almacenamiento es el cuello de botella.
 
-## Failure modes & Pitfalls
-- Ignoring I/O saturation signals.
+## Modos de fallo y trampas
+- Ignorar señales de saturación de E/S.
 
-## Observability (How to detect issues)
-- **Metrics:** disk I/O, queue depth, latency.
-- **Logs:** storage errors.
-- **Alerts:** sustained I/O saturation.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** E/S de disco, profundidad de cola, latencia.
+- **Logs:** errores de almacenamiento.
+- **Alertas:** saturación de E/S sostenida.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Monitor I/O and latency
-  - [ ] Plan maintenance around I/O limits
+  - [ ] Monitorear E/S y latencia
+  - [ ] Planificar mantenimiento alrededor de los límites de E/S
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Running compaction during peak traffic.
-  - **Why it’s bad:** I/O saturation.
-  - **Better approach:** schedule maintenance windows.
+## Anti-patrones comunes
+- **Anti-patrón:** Ejecutar compactación durante tráfico pico.
+  - **Por qué es malo:** saturación de E/S.
+  - **Mejor enfoque:** programar ventanas de mantenimiento.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Storage fundamentals explain why databases slow down: I/O latency and throughput are limiting factors. Understanding them helps plan indexes and maintenance.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los fundamentos de almacenamiento explican por qué las bases de datos se ralentizan: la latencia y el throughput de E/S son factores limitantes. Entenderlos ayuda a planificar índices y mantenimiento.
 
-### Trap questions (with answers)
-1) **Q:** Is CPU always the bottleneck?
-   - **A:** no; storage I/O often is.
-2) **Q:** Does SSD remove the need for indexes?
-   - **A:** no; indexes still reduce I/O.
-3) **Q:** Can storage issues appear only at scale?
-   - **A:** yes; I/O saturation is common at scale.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La CPU siempre es el cuello de botella?
+   - **R:** no; la E/S de almacenamiento frecuentemente lo es.
+2) **P:** ¿El SSD elimina la necesidad de índices?
+   - **R:** no; los índices aún reducen la E/S.
+3) **P:** ¿Los problemas de almacenamiento pueden aparecer solo a escala?
+   - **R:** sí; la saturación de E/S es común a escala.
 
-### Quick self-check (5 items)
-- [ ] I can define storage fundamentals.
-- [ ] I can name key metrics.
-- [ ] I can describe a trade-off.
-- [ ] I can explain a pitfall.
-- [ ] I can link storage to DB performance.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir fundamentos de almacenamiento.
+- [ ] Puedo nombrar métricas clave.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo explicar una trampa.
+- [ ] Puedo vincular almacenamiento con rendimiento de BD.
 
-## Links (NO duplication)
-### Prerequisites
-- [Performance basics](../system-design/performance-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
 
-### Related topics
-- [Storage compaction](storage-compaction.md)
+### Temas relacionados
+- [Compactación de almacenamiento](storage-compaction.md)
 
-### Compare with
-- [Caching fundamentals](../system-design/caching-fundamentals.md) — memory vs storage.
+### Comparar con
+- [Fundamentos de caché](../system-design/caching-fundamentals.md) — memoria vs almacenamiento.

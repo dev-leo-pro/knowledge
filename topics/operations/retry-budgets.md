@@ -1,6 +1,6 @@
 ---
 id: retry-budgets
-title: "Retry Budgets"
+title: "Presupuestos de reintento"
 type: concept
 status: learning
 importance: 70
@@ -12,125 +12,125 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Retry Budgets
+# Presupuestos de reintento
 
 ## TL;DR (BLUF)
-- A retry budget caps how much additional load retries are allowed to introduce.
-- Use it to prevent retry storms and protect downstream capacity.
-- Trade-off: fewer retries can reduce success rate during transient failures.
+- Un presupuesto de reintento limita cuánta carga adicional se permite introducir por reintentos.
+- Úsalo para prevenir tormentas de reintentos y proteger la capacidad descendente.
+- Trade-off: menos reintentos pueden reducir la tasa de éxito durante fallos transitorios.
 
-## Definition
-**What it is:** A policy that limits retry volume by allocating a bounded “budget” (percentage or fixed rate) relative to successful requests over a time window.  
-**Key terms:** retry ratio, budget window, success rate, retry storm, load amplification.
+## Definición
+**Qué es:** Una política que limita el volumen de reintentos asignando un "presupuesto" acotado (porcentaje o tasa fija) relativo a las solicitudes exitosas durante una ventana de tiempo.  
+**Términos clave:** ratio de reintentos, ventana de presupuesto, tasa de éxito, tormenta de reintentos, amplificación de carga.
 
-## Why it matters
-- Retries are extra load; without a budget they can amplify failures and trigger [Cascading failure](cascading-failure.md).
-- Budgets force you to balance recovery with system stability.
+## Por qué importa
+- Los reintentos son carga extra; sin un presupuesto pueden amplificar fallos y provocar [Fallo en cascada](cascading-failure.md).
+- Los presupuestos te obligan a equilibrar la recuperación con la estabilidad del sistema.
 
-## Scope & Non-goals
-**In scope:** client-side retry limits for HTTP calls, queues, and consumers.  
-**Out of scope / NOT solved by this:** determining retryable errors (see [Retries, exponential backoff, and jitter](retries-and-backoff.md)) or overload protection alone (see [Backpressure](../system-design/backpressure.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** límites de reintentos del lado del cliente para llamadas HTTP, colas y consumidores.  
+**Fuera del alcance / NO resuelto por esto:** determinar errores reintentables (ver [Reintentos, backoff exponencial y jitter](retries-and-backoff.md)) o protección contra sobrecarga por sí sola (ver [Contrapresión (Backpressure)](../system-design/backpressure.md)).
 
-## Mental model / Intuition
-- “You can only spend a small percentage of your success capacity on retries.”
+## Modelo mental / Intuición
+- "Solo puedes gastar un pequeño porcentaje de tu capacidad de éxito en reintentos."
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- A dependency is shared across many clients or tenants.
-- You see retry spikes or high tail latency during partial outages.
-- You need guardrails to keep retries from amplifying load.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Una dependencia es compartida entre muchos clientes o tenants.
+- Ves picos de reintentos o alta latencia de cola durante interrupciones parciales.
+- Necesitas barreras para evitar que los reintentos amplifiquen la carga.
 
-### Avoid it when
-- The system is small and retries are rare (still keep a cap).
-- You already enforce strict concurrency limits and do not retry (rare).
+### Evítalo cuando
+- El sistema es pequeño y los reintentos son raros (aún mantén un límite).
+- Ya aplicas límites estrictos de concurrencia y no reintentas (raro).
 
-## How I would use it (practical)
-- **Context:** A service calls a payment provider with intermittent timeouts.
-- **Steps:**
-  1) Use a local token bucket: for every 10 successful requests, earn 1 retry token.
-  2) If a request fails, spend 1 token to retry; if no tokens, fail fast.
-  3) Combine with per-attempt timeouts and exponential backoff.
-- **What success looks like:** retries help transient errors without saturating the dependency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un servicio llama a un proveedor de pagos con timeouts intermitentes.
+- **Pasos:**
+  1) Usar un token bucket local: por cada 10 solicitudes exitosas, ganar 1 token de reintento.
+  2) Si una solicitud falla, gastar 1 token para reintentar; si no hay tokens, fallar rápido.
+  3) Combinar con timeouts por intento y backoff exponencial.
+- **Cómo se ve el éxito:** los reintentos ayudan con errores transitorios sin saturar la dependencia.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** prevents retry storms, improves system stability.
-- **Cons / Risks:** lower success rate under short transient errors if budget is too strict.
-### Alternatives
-- **Circuit breaker:** stop calls during sustained failure.
-- **Backpressure / load shedding:** reduce upstream load instead of retrying.
-- **How to choose:** use budgets when retries are needed but must be bounded; use breakers when dependency is unhealthy.
+- **Ventajas:** previene tormentas de reintentos, mejora la estabilidad del sistema.
+- **Desventajas / Riesgos:** menor tasa de éxito bajo errores transitorios cortos si el presupuesto es muy estricto.
+### Alternativas
+- **Circuit breaker:** detener llamadas durante fallos sostenidos.
+- **Contrapresión / descarte de carga:** reducir la carga ascendente en lugar de reintentar.
+- **Cómo elegir:** usa presupuestos cuando los reintentos son necesarios pero deben estar acotados; usa breakers cuando la dependencia no está sana.
 
-## Failure modes & Pitfalls
-- Budget too high → retries still overwhelm dependencies.
-- Budget too low → unnecessary failures during transient issues.
-- Ignoring per-tenant limits → one tenant burns the budget.
+## Modos de fallo y trampas
+- Presupuesto muy alto → los reintentos aún abruman las dependencias.
+- Presupuesto muy bajo → fallos innecesarios durante problemas transitorios.
+- Ignorar límites por tenant → un tenant quema el presupuesto.
 
-## Observability (How to detect issues)
-- **Metrics:** retry rate, retry budget usage %, success-after-retry %, p95/p99 latency.
-- **Logs:** budget decision (allowed/denied), current budget usage.
-- **Traces:** tag retries with budget state.
-- **Alerts:** budget saturation + error spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de reintentos, % de uso del presupuesto de reintento, % de éxito-después-de-reintento, latencia p95/p99.
+- **Logs:** decisión de presupuesto (permitido/denegado), uso actual del presupuesto.
+- **Trazas:** etiquetar reintentos con estado del presupuesto.
+- **Alertas:** saturación del presupuesto + picos de errores.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define a time window (e.g., 1 minute)
-  - [ ] Define a budget (e.g., retries ≤ 10% of successes)
-  - [ ] Enforce budget before retrying
-  - [ ] Add per-tenant caps if multi-tenant
-- **Security / Compliance notes**
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir una ventana de tiempo (por ejemplo, 1 minuto)
+  - [ ] Definir un presupuesto (por ejemplo, reintentos <= 10% de éxitos)
+  - [ ] Aplicar presupuesto antes de reintentar
+  - [ ] Agregar límites por tenant si es multi-tenant
+- **Notas de seguridad / cumplimiento**
   - N/A
-- **Performance notes**
-  - Keep budget checks low-latency and local if possible
-- **Operational notes**
-  - Tune budgets based on SLOs and incident history
+- **Notas de rendimiento**
+  - Mantener las verificaciones de presupuesto de baja latencia y locales si es posible
+- **Notas operacionales**
+  - Ajustar presupuestos basándose en SLOs e historial de incidentes
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 retry_tokens += floor(successes / 10)
 if retry_tokens > 0: retry_tokens -= 1; retry
 else: fail_fast
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Retries are free, just do more.”
-  - **Why it’s bad:** retries add load and can cause outages.
-  - **Better approach:** use a budget and backoff.
+## Anti-patrones comunes
+- **Anti-patrón:** "Los reintentos son gratis, solo haz más."
+  - **Por qué es malo:** los reintentos agregan carga y pueden causar interrupciones.
+  - **Mejor enfoque:** usa un presupuesto y backoff.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- A retry budget is a cap on retries relative to successful traffic, so retries help recovery without overwhelming dependencies.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Un presupuesto de reintento es un límite sobre los reintentos relativo al tráfico exitoso, para que los reintentos ayuden a la recuperación sin abrumar las dependencias.
 
-### Trap questions (with answers)
-1) **Q:** Are retry budgets only for HTTP clients?
-   - **A:** No. They apply to queues and consumers too, anywhere retries add load.
-2) **Q:** Does a retry budget replace timeouts?
-   - **A:** No. Timeouts bound each attempt; budgets bound total retry load.
-3) **Q:** Should budgets be global or per-tenant?
-   - **A:** Often per-tenant or per-route to prevent one tenant from exhausting the budget.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los presupuestos de reintento son solo para clientes HTTP?
+   - **R:** No. Se aplican a colas y consumidores también, en cualquier lugar donde los reintentos agregan carga.
+2) **P:** ¿Un presupuesto de reintento reemplaza los timeouts?
+   - **R:** No. Los timeouts acotan cada intento; los presupuestos acotan la carga total de reintentos.
+3) **P:** ¿Los presupuestos deberían ser globales o por tenant?
+   - **R:** A menudo por tenant o por ruta para evitar que un tenant agote el presupuesto.
 
-### Quick self-check (5 items)
-- [ ] I can define retry budgets precisely.
-- [ ] I can state when to use them and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir presupuestos de reintento con precisión.
+- [ ] Puedo indicar cuándo usarlos y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Timeouts](timeouts.md)
-- [Retries, exponential backoff, and jitter](retries-and-backoff.md)
+- [Reintentos, backoff exponencial y jitter](retries-and-backoff.md)
 
-### Related topics
+### Temas relacionados
 - [Circuit breaker](circuit-breaker.md)
-- [Backpressure](../system-design/backpressure.md)
-- [Load shedding](load-shedding.md)
-- [Cascading failure](cascading-failure.md)
-- [Request hedging](request-hedging.md)
+- [Contrapresión (Backpressure)](../system-design/backpressure.md)
+- [Descarte de carga](load-shedding.md)
+- [Fallo en cascada](cascading-failure.md)
+- [Cobertura de solicitudes](request-hedging.md)
 
-### Compare with
-- [Circuit breaker](circuit-breaker.md) — breaker stops calling; retry budgets still allow limited retries.
-- [Backpressure](../system-design/backpressure.md) — backpressure limits load; budgets limit retry load.
+### Comparar con
+- [Circuit breaker](circuit-breaker.md) — el breaker deja de llamar; los presupuestos de reintento aún permiten reintentos limitados.
+- [Contrapresión (Backpressure)](../system-design/backpressure.md) — la contrapresión limita la carga; los presupuestos limitan la carga de reintentos.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

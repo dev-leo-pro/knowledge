@@ -1,6 +1,6 @@
 ---
 id: slow-query-diagnosis
-title: "Slow Query Diagnosis"
+title: "Diagnóstico de consultas lentas"
 type: skill
 status: learning
 importance: 55
@@ -12,97 +12,97 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Slow Query Diagnosis
+# Diagnóstico de consultas lentas
 
 ## TL;DR (BLUF)
-- Diagnose slow queries by combining EXPLAIN, statistics, and workload context.
-- Use a repeatable checklist to avoid guesswork.
-- Trade-off: deep analysis takes time; quick fixes may be wrong.
+- Diagnostica consultas lentas combinando EXPLAIN, estadísticas y contexto de carga de trabajo.
+- Usa un checklist repetible para evitar adivinanzas.
+- Trade-off: el análisis profundo toma tiempo; las correcciones rápidas pueden ser incorrectas.
 
-## Definition
-**What it is:** A systematic process for identifying and fixing slow database queries.
-**Key terms:** EXPLAIN, selectivity, indexes, statistics.
+## Definición
+**Qué es:** Un proceso sistemático para identificar y corregir consultas de base de datos lentas.
+**Términos clave:** EXPLAIN, selectividad, índices, estadísticas.
 
-## Why it matters
-- Slow queries dominate latency and cost.
-- Incorrect fixes can worsen writes or other queries.
+## Por qué importa
+- Las consultas lentas dominan la latencia y el costo.
+- Correcciones incorrectas pueden empeorar escrituras u otras consultas.
 
-## Scope & Non-goals
-**In scope:** diagnosis workflow for common slow-query causes.
-**Out of scope / NOT solved by this:** database-wide capacity planning.
+## Alcance y no-objetivos
+**Dentro del alcance:** flujo de trabajo de diagnóstico para causas comunes de consultas lentas.
+**Fuera del alcance / NO resuelto por esto:** planificación de capacidad a nivel de base de datos.
 
-## Mental model / Intuition
-- Treat slow queries as a symptom; find the root cause before changing indexes.
+## Modelo mental / Intuición
+- Trata las consultas lentas como un síntoma; encuentra la causa raíz antes de cambiar índices.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- p95 latency spikes or SLAs are missed.
-### Avoid it when
-- You haven’t verified the query is the bottleneck.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La latencia p95 tiene picos o se incumplen SLAs.
+### Evítalo cuando
+- No has verificado que la consulta es el cuello de botella.
 
-## How I would use it (practical)
-- **Context:** A endpoint with high latency.
-- **Steps:** capture query → run EXPLAIN → check scans/selectivity → validate indexes → measure impact.
-- **What success looks like:** latency reduced without regressions.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un endpoint con alta latencia.
+- **Pasos:** capturar consulta → ejecutar EXPLAIN → verificar escaneos/selectividad → validar índices → medir impacto.
+- **Cómo se ve el éxito:** latencia reducida sin regresiones.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** targeted fixes with measurable impact.
-- **Cons / Risks:** time-consuming and requires expertise.
-### Alternatives
-- **Caching:** sometimes faster than deep query changes.
-- **How to choose:** diagnose first; only cache if query is stable and safe.
+- **Ventajas:** correcciones dirigidas con impacto medible.
+- **Desventajas / Riesgos:** consume tiempo y requiere experiencia.
+### Alternativas
+- **Caché:** a veces más rápido que cambios profundos de consultas.
+- **Cómo elegir:** diagnostica primero; solo usa caché si la consulta es estable y segura.
 
-## Failure modes & Pitfalls
-- Adding indexes without validating plans.
-- Ignoring data distribution changes.
+## Modos de fallo y trampas
+- Agregar índices sin validar planes.
+- Ignorar cambios en la distribución de datos.
 
-## Observability (How to detect issues)
-- **Metrics:** slow query count, p95 latency, CPU and I/O.
-- **Logs:** slow query logs.
-- **Alerts:** sustained slow query spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** conteo de consultas lentas, latencia p95, CPU y E/S.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** picos sostenidos de consultas lentas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify slow queries
-  - [ ] Run EXPLAIN
-  - [ ] Validate selectivity
-  - [ ] Measure before/after
+  - [ ] Identificar consultas lentas
+  - [ ] Ejecutar EXPLAIN
+  - [ ] Validar selectividad
+  - [ ] Medir antes/después
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Adding indexes without understanding the query.
-  - **Why it’s bad:** can worsen writes and not help reads.
-  - **Better approach:** analyze plan and selectivity first.
+## Anti-patrones comunes
+- **Anti-patrón:** Agregar índices sin entender la consulta.
+  - **Por qué es malo:** puede empeorar escrituras y no ayudar lecturas.
+  - **Mejor enfoque:** analizar plan y selectividad primero.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Slow query diagnosis is a disciplined process: capture the query, inspect the plan, check selectivity, adjust indexes, and measure results. It avoids guesswork.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El diagnóstico de consultas lentas es un proceso disciplinado: captura la consulta, inspecciona el plan, verifica selectividad, ajusta índices y mide resultados. Evita las adivinanzas.
 
-### Trap questions (with answers)
-1) **Q:** Does an index always fix a slow query?
-   - **A:** no; it depends on selectivity and query shape.
-2) **Q:** Is EXPLAIN enough by itself?
-   - **A:** no; you also need data distribution and workload context.
-3) **Q:** Should you always cache instead?
-   - **A:** no; caching can hide underlying issues.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Un índice siempre arregla una consulta lenta?
+   - **R:** no; depende de la selectividad y la forma de la consulta.
+2) **P:** ¿EXPLAIN es suficiente por sí solo?
+   - **R:** no; también necesitas distribución de datos y contexto de carga de trabajo.
+3) **P:** ¿Siempre deberías usar caché en su lugar?
+   - **R:** no; el caché puede ocultar problemas subyacentes.
 
-### Quick self-check (5 items)
-- [ ] I can describe a diagnosis workflow.
-- [ ] I can explain why selectivity matters.
-- [ ] I can name a pitfall.
-- [ ] I can describe a success metric.
-- [ ] I can list tools used.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo describir un flujo de trabajo de diagnóstico.
+- [ ] Puedo explicar por qué la selectividad importa.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo describir una métrica de éxito.
+- [ ] Puedo listar las herramientas utilizadas.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [EXPLAIN](explain.md)
-- [Selectivity](selectivity.md)
+- [Selectividad](selectivity.md)
 
-### Related topics
-- [Index](index.md)
+### Temas relacionados
+- [Índice](index.md)
 
-### Compare with
-- [Caching strategy](../system-design/caching-strategy.md)
+### Comparar con
+- [Estrategia de caché](../system-design/caching-strategy.md)

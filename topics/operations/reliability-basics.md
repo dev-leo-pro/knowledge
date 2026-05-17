@@ -1,6 +1,6 @@
 ---
 id: reliability-basics
-title: "Reliability Basics"
+title: "Fundamentos de fiabilidad"
 type: concept
 status: learning
 importance: 40
@@ -12,97 +12,97 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Reliability Basics
+# Fundamentos de fiabilidad
 
 ## TL;DR (BLUF)
-- Reliability is about consistent, predictable system behavior.
-- Use [Service Level Indicators (SLIs)](service-level-indicator.md) and [Service Level Objectives (SLOs)](service-level-objective.md) to measure and manage reliability.
-- Trade-off: higher reliability often costs more.
+- La fiabilidad trata sobre un comportamiento consistente y predecible del sistema.
+- Usa [Indicadores de nivel de servicio (SLIs)](service-level-indicator.md) y [Objetivos de nivel de servicio (SLOs)](service-level-objective.md) para medir y gestionar la fiabilidad.
+- Trade-off: mayor fiabilidad generalmente cuesta más.
 
-## Definition
-**What it is:** The likelihood a system performs correctly over time.
-**Key terms:** [Service Level Indicator (SLI)](service-level-indicator.md), [Service Level Objective (SLO)](service-level-objective.md), [Error budgets](error-budgets.md).
+## Definición
+**Qué es:** La probabilidad de que un sistema funcione correctamente a lo largo del tiempo.
+**Términos clave:** [Indicador de nivel de servicio (SLI)](service-level-indicator.md), [Objetivo de nivel de servicio (SLO)](service-level-objective.md), [Presupuestos de error](error-budgets.md).
 
-## Why it matters
-- Reliability affects user trust and business outcomes.
+## Por qué importa
+- La fiabilidad afecta la confianza del usuario y los resultados del negocio.
 
-## Scope & Non-goals
-**In scope:** correctness-over-time concepts and SLO framing.
-**Out of scope / NOT solved by this:** availability-only targets.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos de corrección-en-el-tiempo y marco de SLO.
+**Fuera del alcance / NO resuelto por esto:** objetivos de solo disponibilidad.
 
-## Mental model / Intuition
-- Reliability is consistency over time, not perfection.
+## Modelo mental / Intuición
+- La fiabilidad es consistencia a lo largo del tiempo, no perfección.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You set uptime or latency targets.
-### Avoid it when
-- The system is non-critical and experimental.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Estableces objetivos de tiempo de actividad o latencia.
+### Evítalo cuando
+- El sistema no es crítico y es experimental.
 
-## How I would use it (practical)
-- **Context:** API uptime goals.
-- **Steps:** define SLO → monitor → act on [Error budgets](error-budgets.md).
-- **What success looks like:** stable uptime and clear trade-offs.
+## Cómo lo usaría (práctico)
+- **Contexto:** Objetivos de tiempo de actividad de API.
+- **Pasos:** definir SLO → monitorear → actuar sobre [Presupuestos de error](error-budgets.md).
+- **Cómo se ve el éxito:** tiempo de actividad estable y trade-offs claros.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** predictable behavior.
-- **Cons / Risks:** higher cost and slower change cadence.
-### Alternatives
-- **Best-effort reliability:** for non-critical services.
-- **How to choose:** match reliability targets to business impact.
+- **Ventajas:** comportamiento predecible.
+- **Desventajas / Riesgos:** mayor costo y cadencia de cambio más lenta.
+### Alternativas
+- **Fiabilidad de mejor esfuerzo:** para servicios no críticos.
+- **Cómo elegir:** ajusta los objetivos de fiabilidad al impacto del negocio.
 
-## Failure modes & Pitfalls
-- Setting unrealistic SLOs.
+## Modos de fallo y trampas
+- Establecer SLOs poco realistas.
 
-## Observability (How to detect issues)
-- **Metrics:** error rate, latency p95.
-- **Logs:** error logs.
-- **Alerts:** SLO burn.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de errores, latencia p95.
+- **Logs:** logs de errores.
+- **Alertas:** quema de SLO.
 
-## Implementation notes (if applicable)
-- **Checklist**
-   - [ ] Define [Service Level Indicators (SLIs)](service-level-indicator.md)
-   - [ ] Set [Service Level Objectives (SLOs)](service-level-objective.md)
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+   - [ ] Definir [Indicadores de nivel de servicio (SLIs)](service-level-indicator.md)
+   - [ ] Establecer [Objetivos de nivel de servicio (SLOs)](service-level-objective.md)
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Chasing 100% uptime.
-  - **Why it’s bad:** impractical and expensive.
-  - **Better approach:** set realistic SLOs.
+## Anti-patrones comunes
+- **Anti-patrón:** Perseguir 100% de tiempo de actividad.
+  - **Por qué es malo:** impráctico y costoso.
+  - **Mejor enfoque:** establecer SLOs realistas.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Reliability is the ability of a system to behave correctly over time. Use SLIs/SLOs and [Error budgets](error-budgets.md) to manage it.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La fiabilidad es la capacidad de un sistema de comportarse correctamente a lo largo del tiempo. Usa SLIs/SLOs y [Presupuestos de error](error-budgets.md) para gestionarla.
 
-### Trap questions (with answers)
-1) **Q:** Is 100% uptime achievable?
-   - **A:** no; it’s impractical.
-2) **Q:** Are SLOs only for ops teams?
-   - **A:** no; they guide engineering trade-offs.
-3) **Q:** Does reliability mean zero errors?
-   - **A:** no; it’s about acceptable error rates.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es alcanzable el 100% de tiempo de actividad?
+   - **R:** no; es impráctico.
+2) **P:** ¿Son los SLOs solo para equipos de operaciones?
+   - **R:** no; guían los trade-offs de ingeniería.
+3) **P:** ¿Significa la fiabilidad cero errores?
+   - **R:** no; se trata de tasas de error aceptables.
 
-### Quick self-check (5 items)
-- [ ] I can define reliability.
-- [ ] I can explain SLIs/SLOs.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain [Error budgets](error-budgets.md).
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir fiabilidad.
+- [ ] Puedo explicar SLIs/SLOs.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar [Presupuestos de error](error-budgets.md).
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [Networking basics](networking-basics.md)
-- [Availability basics](availability-basics.md)
-- [Service Level Indicator (SLI)](service-level-indicator.md)
-- [Service Level Objective (SLO)](service-level-objective.md)
-- [Service Level Agreement (SLA)](service-level-agreement.md)
-- [Error budgets](error-budgets.md)
+### Temas relacionados
+- [Fundamentos de redes](networking-basics.md)
+- [Fundamentos de disponibilidad](availability-basics.md)
+- [Indicador de nivel de servicio (SLI)](service-level-indicator.md)
+- [Objetivo de nivel de servicio (SLO)](service-level-objective.md)
+- [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md)
+- [Presupuestos de error](error-budgets.md)
 
-### Compare with
-- [Availability basics](availability-basics.md)
+### Comparar con
+- [Fundamentos de disponibilidad](availability-basics.md)

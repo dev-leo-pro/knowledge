@@ -1,6 +1,6 @@
 ---
 id: data-modeling-basics
-title: "Data Modeling Basics"
+title: "Fundamentos de Modelado de Datos"
 type: concept
 status: learning
 importance: 40
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Data Modeling Basics
+# Fundamentos de Modelado de Datos
 
 ## TL;DR (BLUF)
-- Data modeling defines how data is structured and related.
-- Use it to align storage with access patterns and correctness.
-- Trade-off: more structure can reduce flexibility.
+- El modelado de datos define cómo se estructuran y relacionan los datos.
+- Úsalo para alinear el almacenamiento con los patrones de acceso y la corrección.
+- Trade-off: más estructura puede reducir la flexibilidad.
 
-## Definition
-**What it is:** The process of structuring entities, attributes, and relationships.
-**Key terms:** entity, relationship, schema.
+## Definición
+**Qué es:** El proceso de estructurar entidades, atributos y relaciones.
+**Términos clave:** entidad, relación, esquema.
 
-## Why it matters
-- Good models reduce bugs and improve query performance.
-- Bad models cause duplication and costly migrations.
+## Por qué importa
+- Buenos modelos reducen bugs y mejoran el rendimiento de consultas.
+- Malos modelos causan duplicación y migraciones costosas.
 
-## Scope & Non-goals
-**In scope:** entities, relationships, and key choices.
-**Out of scope / NOT solved by this:** normalization/denormalization tactics and performance tuning.
+## Alcance y no-objetivos
+**Dentro del alcance:** entidades, relaciones y elecciones de claves.
+**Fuera del alcance / NO resuelto por esto:** tácticas de normalización/desnormalización y ajuste de rendimiento.
 
-## Mental model / Intuition
-- Modeling is choosing the shape of your data before storing it.
+## Modelo mental / Intuición
+- Modelar es elegir la forma de tus datos antes de almacenarlos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You’re designing new tables or collections.
-### Avoid it when
-- Data is transient and disposable (rare).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Estás diseñando nuevas tablas o colecciones.
+### Evítalo cuando
+- Los datos son transitorios y desechables (raro).
 
-## How I would use it (practical)
-- **Context:** New feature storing user preferences.
-- **Steps:** identify entities → choose keys → decide normalization.
-- **What success looks like:** consistent data and clear queries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Nueva funcionalidad que almacena preferencias de usuario.
+- **Pasos:** identificar entidades → elegir claves → decidir normalización.
+- **Cómo se ve el éxito:** datos consistentes y consultas claras.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clarity and correctness.
-- **Cons / Risks:** schema changes can be costly.
-### Alternatives
-- **Schema-less storage:** faster iteration but riskier.
-- **How to choose:** model upfront when correctness matters.
+- **Ventajas:** claridad y corrección.
+- **Desventajas / Riesgos:** los cambios de esquema pueden ser costosos.
+### Alternativas
+- **Almacenamiento sin esquema:** iteración más rápida pero más arriesgado.
+- **Cómo elegir:** modelar de antemano cuando la corrección importa.
 
-## Failure modes & Pitfalls
-- Over-modeling for unproven requirements.
+## Modos de fallo y trampas
+- Sobre-modelar para requisitos no probados.
 
-## Observability (How to detect issues)
-- **Metrics:** migration frequency, query complexity.
-- **Logs:** migration errors.
-- **Alerts:** repeated schema rollbacks.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** frecuencia de migraciones, complejidad de consultas.
+- **Logs:** errores de migración.
+- **Alertas:** rollbacks de esquema repetidos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define entities and keys
-  - [ ] Decide normalization level
+  - [ ] Definir entidades y claves
+  - [ ] Decidir nivel de normalización
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Designing tables around UI views only.
-  - **Why it’s bad:** data model becomes fragile.
-  - **Better approach:** model around business entities and access patterns.
+## Anti-patrones comunes
+- **Anti-patrón:** Diseñar tablas solo alrededor de vistas de UI.
+  - **Por qué es malo:** el modelo de datos se vuelve frágil.
+  - **Mejor enfoque:** modelar alrededor de entidades de negocio y patrones de acceso.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Data modeling is deciding how to structure data so it’s consistent and easy to query. It balances correctness, performance, and flexibility.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El modelado de datos es decidir cómo estructurar los datos para que sean consistentes y fáciles de consultar. Equilibra corrección, rendimiento y flexibilidad.
 
-### Trap questions (with answers)
-1) **Q:** Is schema design optional in NoSQL?
-   - **A:** no; you still model for access patterns.
-2) **Q:** Should you model only for current queries?
-   - **A:** mostly, but keep future changes in mind.
-3) **Q:** Is denormalization always bad?
-   - **A:** no; it’s a performance trade-off.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El diseño de esquema es opcional en NoSQL?
+   - **R:** no; aún modelas para patrones de acceso.
+2) **P:** ¿Deberías modelar solo para consultas actuales?
+   - **R:** principalmente, pero ten en cuenta cambios futuros.
+3) **P:** ¿La desnormalización siempre es mala?
+   - **R:** no; es un trade-off de rendimiento.
 
-### Quick self-check (5 items)
-- [ ] I can define data modeling.
-- [ ] I can state a trade-off.
-- [ ] I can name a pitfall.
-- [ ] I can describe a modeling step.
-- [ ] I can compare normalization vs denormalization.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir modelado de datos.
+- [ ] Puedo mencionar un trade-off.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo describir un paso de modelado.
+- [ ] Puedo comparar normalización vs desnormalización.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Requirements basics](../system-design/requirements-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Normalization](normalization.md)
 - [Relational model basics](relational-model-basics.md)
 
-### Compare with
-- [NoSQL access patterns](nosql-access-patterns.md) — modeling for queries vs relations.
+### Comparar con
+- [NoSQL access patterns](nosql-access-patterns.md) — modelar para consultas vs relaciones.

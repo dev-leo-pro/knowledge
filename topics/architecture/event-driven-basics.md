@@ -1,6 +1,6 @@
 ---
 id: event-driven-basics
-title: "Event-Driven Architecture"
+title: "Arquitectura Dirigida por Eventos"
 type: concept
 status: learning
 importance: 60
@@ -12,122 +12,122 @@ created_at: 2026-01-19
 updated_at: 2026-01-21
 ---
 
-# Event-Driven Architecture
+# Arquitectura Dirigida por Eventos
 
 ## TL;DR (BLUF)
-- Event-driven architecture (EDA) publishes events and lets consumers react asynchronously.
-- Use it to decouple services and scale workflows independently.
-- Trade-off: eventual consistency, ordering/idempotency complexity, and harder debugging.
+- La arquitectura dirigida por eventos (EDA) publica eventos y deja que los consumidores reaccionen de forma asíncrona.
+- Úsala para desacoplar servicios y escalar flujos de trabajo independientemente.
+- Trade-off: consistencia eventual, complejidad de ordenamiento/idempotencia y depuración más difícil.
 
-## Definition
-**What it is:** An architecture where producers emit immutable events to a broker and consumers react asynchronously, often building their own local state or projections.
-**Key terms:** event, producer, consumer, broker, topic/queue, event contract, idempotency.
+## Definición
+**Qué es:** Una arquitectura donde los productores emiten eventos inmutables a un broker y los consumidores reaccionan de forma asíncrona, a menudo construyendo su propio estado local o proyecciones.
+**Términos clave:** evento, productor, consumidor, broker, topic/cola, contrato de evento, idempotencia.
 
-## Why it matters
-- It reduces coupling, enabling independent deploys and scalable fan-out.
-- It shifts correctness challenges to ordering, duplication, and eventual consistency.
+## Por qué importa
+- Reduce el acoplamiento, permitiendo despliegues independientes y fan-out escalable.
+- Traslada los desafíos de corrección al ordenamiento, duplicación y consistencia eventual.
 
-## Scope & Non-goals
-**In scope:** event flows, contracts, reliability guarantees, and operational trade-offs.
-**Out of scope / NOT solved by this:** broker internals, stream processing algorithms, or exact-once guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** flujos de eventos, contratos, garantías de confiabilidad y trade-offs operacionales.
+**Fuera del alcance / NO resuelto por esto:** internos del broker, algoritmos de procesamiento de streams o garantías de exactamente-una-vez.
 
-## Mental model / Intuition
-- Think of a newsroom: publishers announce facts, subscribers decide what to do.
-- Events are facts about state changes; consumers derive their own view from them.
+## Modelo mental / Intuición
+- Piensa en una redacción periodística: los editores anuncian hechos, los suscriptores deciden qué hacer.
+- Los eventos son hechos sobre cambios de estado; los consumidores derivan su propia vista a partir de ellos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need asynchronous workflows with independent scaling.
-- Multiple downstream systems should react to the same change.
-- You can tolerate eventual consistency and design for idempotency.
-### Avoid it when
-- You need strict, immediate consistency across services.
-- The workflow is simple and synchronous calls suffice.
-- Your team lacks operational maturity for distributed debugging.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas flujos de trabajo asíncronos con escalado independiente.
+- Múltiples sistemas downstream deben reaccionar al mismo cambio.
+- Puedes tolerar consistencia eventual y diseñar para idempotencia.
+### Evítalo cuando
+- Necesitas consistencia estricta e inmediata entre servicios.
+- El flujo de trabajo es simple y las llamadas síncronas son suficientes.
+- Tu equipo carece de madurez operacional para depuración distribuida.
 
-## How I would use it (practical)
-- **Context:** An order triggers fulfillment, email, analytics, and fraud checks.
-- **Steps:**
-   1) Define an event contract (versioned schema).
-   2) Publish `OrderCreated` to a broker.
-   3) Consumers handle the event idempotently and store their own state.
-   4) Add retries and a dead-letter queue for poison messages.
-- **What success looks like:** independent scaling, no tight coupling, and clear operational visibility.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un pedido dispara cumplimiento, email, analítica y verificaciones de fraude.
+- **Pasos:**
+   1) Definir un contrato de evento (esquema versionado).
+   2) Publicar `OrderCreated` a un broker.
+   3) Los consumidores manejan el evento de forma idempotente y almacenan su propio estado.
+   4) Añadir reintentos y una cola de mensajes muertos para mensajes envenenados.
+- **Cómo se ve el éxito:** escalado independiente, sin acoplamiento fuerte y visibilidad operacional clara.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** loose coupling, scalable fan-out, better resilience to downstream failures.
-- **Cons / Risks:** eventual consistency, ordering issues, and complex failure handling.
-### Alternatives
-- **[Request-response architecture](request-response.md):** simpler semantics for tight, synchronous workflows.
-- **[Batch ETL](../operations/batch-etl.md):** better for periodic, large-scale data movement.
-- **How to choose:** use EDA when you need async reactions and decoupled evolution.
+- **Ventajas:** acoplamiento débil, fan-out escalable, mejor resiliencia ante fallos downstream.
+- **Desventajas / Riesgos:** consistencia eventual, problemas de ordenamiento y manejo complejo de fallos.
+### Alternativas
+- **[Arquitectura request-response](request-response.md):** semántica más simple para flujos de trabajo síncronos y estrechos.
+- **[ETL por lotes](../operations/batch-etl.md):** mejor para movimiento de datos periódico y a gran escala.
+- **Cómo elegir:** usa EDA cuando necesites reacciones asíncronas y evolución desacoplada.
 
-## Failure modes & Pitfalls
-- Duplicate events and out-of-order processing without idempotency.
-- Schema drift between producers and consumers.
-- Poison messages causing infinite retry loops.
-- Silent backlogs due to under-provisioned consumers.
+## Modos de fallo y trampas
+- Eventos duplicados y procesamiento fuera de orden sin idempotencia.
+- Deriva de esquema entre productores y consumidores.
+- Mensajes envenenados causando bucles de reintento infinitos.
+- Acumulaciones silenciosas por consumidores sub-aprovisionados.
 
-## Observability (How to detect issues)
-- **Metrics:** consumer lag, throughput, retry rate, DLQ depth, processing latency.
-- **Logs:** event ID, correlation ID, schema version, failure reason.
-- **Traces:** producer → broker → consumer spans with timing gaps.
-- **Alerts:** sustained lag growth, DLQ spikes, or high retry rates.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** retraso del consumidor, throughput, tasa de reintentos, profundidad de DLQ, latencia de procesamiento.
+- **Logs:** ID de evento, ID de correlación, versión del esquema, razón del fallo.
+- **Trazas:** spans de productor → broker → consumidor con brechas de tiempo.
+- **Alertas:** crecimiento sostenido del retraso, picos en DLQ o altas tasas de reintentos.
 
-## Implementation notes (if applicable)
-- **Checklist**
-   - [ ] Define versioned event contracts
-   - [ ] Make consumers idempotent
-   - [ ] Use correlation IDs for tracing
-   - [ ] Plan for retries and dead-letter queues
-- **Security / Compliance notes**
-   - Avoid putting sensitive data in events unless required and protected.
-- **Performance notes**
-   - Prefer small, immutable events; avoid large payloads.
-- **Operational notes**
-   - Monitor lag per consumer group and set SLOs.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+   - [ ] Definir contratos de eventos versionados
+   - [ ] Hacer los consumidores idempotentes
+   - [ ] Usar IDs de correlación para trazas
+   - [ ] Planificar reintentos y colas de mensajes muertos
+- **Notas de seguridad / cumplimiento**
+   - Evitar poner datos sensibles en eventos a menos que sea necesario y estén protegidos.
+- **Notas de rendimiento**
+   - Preferir eventos pequeños e inmutables; evitar payloads grandes.
+- **Notas operacionales**
+   - Monitorear retraso por grupo de consumidores y establecer SLOs.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using events as RPC.
-   - **Why it’s bad:** adds latency and weakens consistency guarantees.
-   - **Better approach:** use [Request-response architecture](request-response.md) for tight loops.
-- **Anti-pattern:** Emitting internal DB rows as events without a contract.
-   - **Why it’s bad:** brittle consumers and accidental coupling.
-   - **Better approach:** publish explicit domain events with a stable schema.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar eventos como RPC.
+   - **Por qué es malo:** añade latencia y debilita las garantías de consistencia.
+   - **Mejor enfoque:** usar [Arquitectura request-response](request-response.md) para bucles estrechos.
+- **Anti-patrón:** Emitir filas internas de BD como eventos sin contrato.
+   - **Por qué es malo:** consumidores frágiles y acoplamiento accidental.
+   - **Mejor enfoque:** publicar eventos de dominio explícitos con un esquema estable.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Event-driven architecture publishes facts about changes as events, and independent consumers react asynchronously. It scales fan-out and reduces coupling, but it requires idempotency, ordering strategies, and strong observability.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La arquitectura dirigida por eventos publica hechos sobre cambios como eventos, y consumidores independientes reaccionan de forma asíncrona. Escala el fan-out y reduce el acoplamiento, pero requiere idempotencia, estrategias de ordenamiento y observabilidad fuerte.
 
-### Trap questions (with answers)
-1) **Q:** Are events globally ordered?
-   - **A:** Usually no; ordering is typically per partition or per key.
-2) **Q:** Does event-driven architecture guarantee exactly-once processing?
-   - **A:** No; at-least-once is common, so consumers must be idempotent.
-3) **Q:** Is EDA the same as event sourcing?
-   - **A:** No; EDA is communication style, event sourcing is a persistence pattern.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los eventos tienen orden global?
+   - **R:** Normalmente no; el ordenamiento es típicamente por partición o por clave.
+2) **P:** ¿La arquitectura dirigida por eventos garantiza procesamiento exactamente-una-vez?
+   - **R:** No; al-menos-una-vez es lo común, así que los consumidores deben ser idempotentes.
+3) **P:** ¿EDA es lo mismo que event sourcing?
+   - **R:** No; EDA es un estilo de comunicación, event sourcing es un patrón de persistencia.
 
-### Quick self-check (5 items)
-- [x] I can define event-driven architecture.
-- [x] I can state when to use it.
-- [x] I can name a trade-off.
-- [x] I can describe a pitfall.
-- [x] I can explain observability signals.
+### Auto-verificación rápida (5 ítems)
+- [x] Puedo definir arquitectura dirigida por eventos.
+- [x] Puedo indicar cuándo usarla.
+- [x] Puedo nombrar un trade-off.
+- [x] Puedo describir una trampa.
+- [x] Puedo explicar las señales de observabilidad.
 
-## Links (NO duplication)
-### Prerequisites
-- [Messaging basics](messaging-basics.md)
-- [Distributed systems basics](../system-design/distributed-systems-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de mensajería](messaging-basics.md)
+- [Fundamentos de sistemas distribuidos](../system-design/distributed-systems-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Kafka](kafka.md)
-- [Outbox pattern](outbox-pattern.md)
-- [Dual-write pattern](dual-write-pattern.md)
+- [Patrón Outbox](outbox-pattern.md)
+- [Patrón Dual-write](dual-write-pattern.md)
 - [Change Data Capture (CDC)](../databases/change-data-capture.md)
 
-### Compare with
-- [Request-response architecture](request-response.md) — synchronous coupling vs async reactions.
+### Comparar con
+- [Arquitectura request-response](request-response.md) -- acoplamiento síncrono vs reacciones asíncronas.

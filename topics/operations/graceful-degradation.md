@@ -12,192 +12,192 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Graceful Degradation
+# Degradación Elegante
 
 ## TL;DR (BLUF)
-- Return partial or cached responses when non-critical services fail instead of complete failure.
-- Use it to improve availability and user experience during partial outages.
-- Trade-off: users get incomplete data; adds complexity to decide what's "critical."
+- Devolver respuestas parciales o cacheadas cuando servicios no críticos fallan en vez de fallo completo.
+- Úsala para mejorar la disponibilidad y la experiencia de usuario durante caídas parciales.
+- Trade-off: los usuarios obtienen datos incompletos; agrega complejidad para decidir qué es "crítico".
 
-## Definition
-**What it is:** A resilience pattern where a system continues to function in a limited capacity when dependencies fail, by returning cached data, omitting non-critical features, or using fallback values.
+## Definición
+**Qué es:** Un patrón de resiliencia donde un sistema continúa funcionando con capacidad limitada cuando las dependencias fallan, devolviendo datos cacheados, omitiendo funcionalidades no críticas o usando valores de respaldo.
 
-**Key terms:** partial response, fallback, degraded mode, stale cache, feature toggles, eventual consistency, availability over completeness.
+**Términos clave:** respuesta parcial, fallback, modo degradado, caché obsoleto, feature toggles, consistencia eventual, disponibilidad sobre completitud.
 
-## Why it matters
-- Improves perceived availability: "something works" is better than "nothing works."
-- Reduces blast radius of downstream failures.
-- Enhances user experience during incidents (show order history even if recommendations fail).
-- Complements [Circuit Breaker](circuit-breaker.md) and [Timeout](timeouts.md).
+## Por qué importa
+- Mejora la disponibilidad percibida: "algo funciona" es mejor que "nada funciona".
+- Reduce el radio de explosión de fallos downstream.
+- Mejora la experiencia de usuario durante incidentes (mostrar historial de pedidos aunque las recomendaciones fallen).
+- Complementa [Circuit Breaker](circuit-breaker.md) y [Timeout](timeouts.md).
 
-## Scope & Non-goals
-**In scope:** partial responses, fallback logic, cached data, feature flags, static defaults.
+## Alcance y no-objetivos
+**Dentro del alcance:** respuestas parciales, lógica de fallback, datos cacheados, feature flags, valores estáticos por defecto.
 
-**Out of scope / NOT solved by this:**
-- Preventing failures (use [Circuit Breaker](circuit-breaker.md), [Retry](retries-and-backoff.md))
-- Strong consistency (eventual consistency only)
-- Business transactions (use [Saga](../architecture/saga-pattern.md))
+**Fuera del alcance / NO resuelto por esto:**
+- Prevenir fallos (usar [Circuit Breaker](circuit-breaker.md), [Reintentos](retries-and-backoff.md))
+- Consistencia fuerte (solo consistencia eventual)
+- Transacciones de negocio (usar [Saga](../architecture/saga-pattern.md))
 
-## Mental model / Intuition
-- Like a restaurant: if out of dessert, still serve main course (don't close the restaurant).
-- In APIs: if recommendations service is down, show product page without recommendations.
+## Modelo mental / Intuición
+- Como un restaurante: si no hay postre, igual sirve el plato principal (no cierres el restaurante).
+- En APIs: si el servicio de recomendaciones está caído, muestra la página del producto sin recomendaciones.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Failures in non-critical features shouldn't block critical paths (checkout can work without recommendations).
-- Cached/stale data is acceptable for some use cases (news feed, product catalogs).
-- User experience benefits from partial functionality (show 80% of data vs error page).
-- Third-party integrations are unreliable.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los fallos en funcionalidades no críticas no deban bloquear rutas críticas (el checkout puede funcionar sin recomendaciones).
+- Los datos cacheados/obsoletos sean aceptables para algunos casos de uso (feed de noticias, catálogos de productos).
+- La experiencia de usuario se beneficie de funcionalidad parcial (mostrar 80% de los datos vs página de error).
+- Las integraciones con terceros sean poco fiables.
 
-### Avoid it when
-- All dependencies are critical (payment processing, auth).
-- Stale data is dangerous (financial data, real-time pricing).
-- Users expect complete, consistent responses (banking, healthcare).
-- Complexity of fallback logic outweighs benefits.
+### Evítalo cuando
+- Todas las dependencias sean críticas (procesamiento de pagos, autenticación).
+- Los datos obsoletos sean peligrosos (datos financieros, precios en tiempo real).
+- Los usuarios esperen respuestas completas y consistentes (banca, salud).
+- La complejidad de la lógica de fallback supere los beneficios.
 
-## How I would use it (practical)
-- **Context:** E-commerce product page needs: product details (critical), reviews (important), recommendations (nice-to-have).
-- **Steps:**
-  1) Classify dependencies:
-     - **Critical:** product-service (without it, no page).
-     - **Important:** review-service (degrade: show "Reviews unavailable").
-     - **Optional:** recommendation-service (omit silently).
-  2) Implement with [Timeout](timeouts.md) + fallback:
+## Cómo lo usaría (práctico)
+- **Contexto:** Página de producto de e-commerce necesita: detalles del producto (crítico), reseñas (importante), recomendaciones (nice-to-have).
+- **Pasos:**
+  1) Clasificar dependencias:
+     - **Crítico:** product-service (sin él, no hay página).
+     - **Importante:** review-service (degradar: mostrar "Reseñas no disponibles").
+     - **Opcional:** recommendation-service (omitir silenciosamente).
+  2) Implementar con [Timeout](timeouts.md) + fallback:
      ```go
-     product := fetchProduct(ctx, productID) // Critical: fail if this fails
+     product := fetchProduct(ctx, productID) // Crítico: fallar si esto falla
      
      reviews, err := fetchReviews(ctx, productID)
      if err != nil {
-         reviews = cachedReviews(productID) // Fallback: use cache
+         reviews = cachedReviews(productID) // Fallback: usar caché
      }
      
      recommendations, err := fetchRecommendations(ctx, productID)
      if err != nil {
-         recommendations = nil // Degrade: omit recommendations
+         recommendations = nil // Degradar: omitir recomendaciones
      }
      
      return ProductPage{
          Product: product,
          Reviews: reviews,
          Recommendations: recommendations,
-         Degraded: recommendations == nil, // Signal to UI
+         Degraded: recommendations == nil, // Señal para la UI
      }
      ```
-  3) UI handles `Degraded` flag: hide recommendations section or show "Recommendations temporarily unavailable."
-  4) Cache aggressively for non-critical data (TTL: 1-24 hours).
-  5) Monitor: degradation frequency, cache hit rate, user impact.
+  3) La UI maneja el flag `Degraded`: ocultar sección de recomendaciones o mostrar "Recomendaciones temporalmente no disponibles".
+  4) Cachear agresivamente datos no críticos (TTL: 1-24 horas).
+  5) Monitorear: frecuencia de degradación, tasa de aciertos de caché, impacto al usuario.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Users get incomplete data | Clearly communicate degradation in UI ("Some features unavailable") |
-| Stale cache can mislead users | Set appropriate TTLs; show "last updated" timestamp |
-| Complexity deciding what's critical | Document criticality tiers; use feature flags for experimentation |
-| Silent failures (logs ignored) | Alert on degradation rate; track SLO impact |
-| Cached data privacy concerns | Respect user permissions; encrypt cached data |
+| Los usuarios obtienen datos incompletos | Comunicar claramente la degradación en la UI ("Algunas funcionalidades no disponibles") |
+| El caché obsoleto puede confundir usuarios | Establecer TTLs apropiados; mostrar timestamp de "última actualización" |
+| Complejidad decidiendo qué es crítico | Documentar niveles de criticidad; usar feature flags para experimentación |
+| Fallos silenciosos (logs ignorados) | Alertar sobre tasa de degradación; rastrear impacto en SLO |
+| Preocupaciones de privacidad de datos cacheados | Respetar permisos de usuario; cifrar datos cacheados |
 
-## Failure modes / Edge cases
-1. **Over-degradation:** Too many features degraded; user experience unacceptable.
-   - *Mitigation:* Define minimum viable response; fail fast if too degraded.
-2. **Stale cache poisoning:** Cached bad data served for hours.
-   - *Mitigation:* Validate cached data before serving; short TTLs for critical data.
-3. **Cascade of degradations:** Multiple services degrade simultaneously.
-   - *Mitigation:* Monitor overall degradation; alert when multiple services affected.
-4. **Users unaware of degradation:** Silent omissions confuse users.
-   - *Mitigation:* Show banners ("Some features limited due to maintenance").
-5. **Feature flag drift:** Degradation mode stays enabled after incident.
-   - *Mitigation:* Automate feature flag expiry; post-incident review.
+## Modos de fallo / Casos límite
+1. **Sobre-degradación:** Demasiadas funcionalidades degradadas; experiencia de usuario inaceptable.
+   - *Mitigación:* Definir respuesta mínima viable; fallar rápido si hay demasiada degradación.
+2. **Envenenamiento de caché obsoleto:** Datos malos cacheados servidos por horas.
+   - *Mitigación:* Validar datos cacheados antes de servir; TTLs cortos para datos críticos.
+3. **Cascada de degradaciones:** Múltiples servicios se degradan simultáneamente.
+   - *Mitigación:* Monitorear degradación general; alertar cuando múltiples servicios estén afectados.
+4. **Usuarios no conscientes de la degradación:** Omisiones silenciosas confunden a los usuarios.
+   - *Mitigación:* Mostrar banners ("Algunas funcionalidades limitadas por mantenimiento").
+5. **Desvío de feature flags:** El modo de degradación permanece habilitado después del incidente.
+   - *Mitigación:* Automatizar expiración de feature flags; revisión post-incidente.
 
-## Alternatives
-- **Fail fast (503):** Return error immediately; simpler but worse UX.
-- **[Circuit Breaker](circuit-breaker.md):** Prevents cascading failures; complements degradation.
-- **[Retry](retries-and-backoff.md):** Attempt recovery; use before degradation.
-- **Queue-based processing:** Accept request, process later (async).
+## Alternativas
+- **Fallar rápido (503):** Devolver error inmediatamente; más simple pero peor UX.
+- **[Circuit Breaker](circuit-breaker.md):** Previene fallos en cascada; complementa la degradación.
+- **[Reintentos](retries-and-backoff.md):** Intentar recuperación; usar antes de la degradación.
+- **Procesamiento basado en colas:** Aceptar petición, procesar después (asíncrono).
 
-## Implementation patterns
-### 1. Static fallback
-- Return hardcoded default: empty list, placeholder image, default config.
-- **Use:** non-critical features (recommendations, ads).
+## Patrones de implementación
+### 1. Fallback estático
+- Devolver valor por defecto hardcodeado: lista vacía, imagen placeholder, configuración por defecto.
+- **Uso:** funcionalidades no críticas (recomendaciones, anuncios).
 
-### 2. Cached response
-- Serve stale data from cache (Redis, CDN).
-- **Use:** content that changes infrequently (product catalogs, news).
+### 2. Respuesta cacheada
+- Servir datos obsoletos del caché (Redis, CDN).
+- **Uso:** contenido que cambia infrecuentemente (catálogos de productos, noticias).
 
-### 3. Partial response
-- Return subset of data (omit failed sections).
-- **Use:** composite pages (dashboard, aggregated views).
+### 3. Respuesta parcial
+- Devolver subconjunto de datos (omitir secciones fallidas).
+- **Uso:** páginas compuestas (dashboard, vistas agregadas).
 
 ### 4. Feature flag
-- Disable feature entirely during incidents.
-- **Use:** experimental features, non-essential functionality.
+- Deshabilitar funcionalidad completamente durante incidentes.
+- **Uso:** funcionalidades experimentales, funcionalidad no esencial.
 
-### 5. User notification
-- Show banner: "Search temporarily unavailable."
-- **Use:** when degradation significantly impacts UX.
+### 5. Notificación al usuario
+- Mostrar banner: "Búsqueda temporalmente no disponible".
+- **Uso:** cuando la degradación impacta significativamente la UX.
 
-## Combinations
-Graceful Degradation is **almost always used with:**
-- **[Timeout](timeouts.md):** Detect failure quickly.
-- **[Circuit Breaker](circuit-breaker.md):** Fail fast when dependency is unhealthy.
-- **[Caching](../system-design/caching-fundamentals.md):** Serve stale data as fallback.
-- **[Observability](observability-basics.md):** Track degradation rate, impact on SLO.
-- **[API Composition](../architecture/api-composition.md):** Handle partial failures in aggregation.
+## Combinaciones
+La Degradación Elegante **casi siempre se usa con:**
+- **[Timeout](timeouts.md):** Detectar fallo rápidamente.
+- **[Circuit Breaker](circuit-breaker.md):** Fallar rápido cuando la dependencia está enferma.
+- **[Caché](../system-design/caching-fundamentals.md):** Servir datos obsoletos como fallback.
+- **[Observabilidad](observability-basics.md):** Rastrear tasa de degradación, impacto en SLO.
+- **[Composición de API](../architecture/api-composition.md):** Manejar fallos parciales en agregación.
 
-**Typical combination:**
-- **Resilient service scenario:** Timeout + Circuit Breaker + Graceful Degradation + Caching + Observability
+**Combinación típica:**
+- **Escenario de servicio resiliente:** Timeout + Circuit Breaker + Degradación Elegante + Caché + Observabilidad
 
-## Prerequisites
-- Understanding of [Caching fundamentals](../system-design/caching-fundamentals.md).
-- Familiarity with [Circuit Breaker](circuit-breaker.md) and [Timeout](timeouts.md).
-- Knowledge of [Observability](observability-basics.md) (monitoring degradation).
+## Prerrequisitos
+- Comprensión de [Fundamentos de caché](../system-design/caching-fundamentals.md).
+- Familiaridad con [Circuit Breaker](circuit-breaker.md) y [Timeout](timeouts.md).
+- Conocimiento de [Observabilidad](observability-basics.md) (monitorear degradación).
 
-## Related topics
-- [Circuit Breaker](circuit-breaker.md): Fails fast when dependency is down.
-- [Timeout](timeouts.md): Detects slow dependencies.
-- [Caching strategy](../system-design/caching-strategy.md): Fallback data source.
-- [API Composition](../architecture/api-composition.md): Aggregate with partial failures.
-- [Observability](observability-basics.md): Monitor degradation metrics.
+## Temas relacionados
+- [Circuit Breaker](circuit-breaker.md): Falla rápido cuando la dependencia está caída.
+- [Timeout](timeouts.md): Detecta dependencias lentas.
+- [Estrategia de caché](../system-design/caching-strategy.md): Fuente de datos de respaldo.
+- [Composición de API](../architecture/api-composition.md): Agregar con fallos parciales.
+- [Observabilidad](observability-basics.md): Monitorear métricas de degradación.
 
-## Real-world examples
-1. **Netflix:** If personalization service fails, show generic recommendations.
-2. **Amazon:** Product page loads without reviews if review service is down.
-3. **Twitter:** Timeline loads even if trending topics fail.
-4. **Spotify:** App works offline with cached playlists (extreme degradation).
+## Ejemplos del mundo real
+1. **Netflix:** Si el servicio de personalización falla, muestra recomendaciones genéricas.
+2. **Amazon:** La página de producto carga sin reseñas si el servicio de reseñas está caído.
+3. **Twitter:** El timeline carga incluso si los temas trending fallan.
+4. **Spotify:** La app funciona offline con playlists cacheadas (degradación extrema).
 
-## Checklist (self-test)
-- [ ] I can classify dependencies as critical/important/optional.
-- [ ] I know how to implement fallback logic (cache, static defaults, omission).
-- [ ] I understand when to show partial data vs fail completely.
-- [ ] I can monitor degradation frequency and user impact.
-- [ ] I can communicate degradation clearly to users.
+## Checklist (auto-evaluación)
+- [ ] Puedo clasificar dependencias como críticas/importantes/opcionales.
+- [ ] Sé cómo implementar lógica de fallback (caché, valores estáticos por defecto, omisión).
+- [ ] Entiendo cuándo mostrar datos parciales vs fallar completamente.
+- [ ] Puedo monitorear frecuencia de degradación e impacto al usuario.
+- [ ] Puedo comunicar la degradación claramente a los usuarios.
 
-## Reminders / Key takeaways
-- **Availability > Completeness** for non-critical features.
-- Always classify dependencies: critical, important, optional.
-- Cache aggressively for non-critical data.
-- Clearly communicate degradation to users (UI banners, response flags).
-- Monitor degradation rate and impact on [SLO](service-level-objective.md).
+## Recordatorios / Puntos clave
+- **Disponibilidad > Completitud** para funcionalidades no críticas.
+- Siempre clasificar dependencias: crítica, importante, opcional.
+- Cachear agresivamente datos no críticos.
+- Comunicar claramente la degradación a los usuarios (banners de UI, flags de respuesta).
+- Monitorear tasa de degradación e impacto en [SLO](service-level-objective.md).
 
-## Trap questions (with answers)
-### Q1: Should I always degrade instead of returning an error?
-**A:** **No**. Only degrade **non-critical features**. For critical paths (auth, payment, order creation), **fail fast with clear error**. Degradation is for improving UX when partial functionality is acceptable. Don't degrade safety-critical systems (healthcare, aviation).
+## Preguntas trampa (con respuestas)
+### P1: ¿Debo siempre degradar en vez de devolver un error?
+**R:** **No**. Solo degradar **funcionalidades no críticas**. Para rutas críticas (auth, pago, creación de orden), **fallar rápido con error claro**. La degradación es para mejorar la UX cuando la funcionalidad parcial es aceptable. No degradar sistemas de seguridad crítica (salud, aviación).
 
-### Q2: How long can I serve stale cached data?
-**A:** **Depends on use case**. For product catalogs, 1-24 hours is fine. For stock prices, 1 minute may be too long. Set TTL based on **data sensitivity** and **user expectations**. Always show "last updated" timestamp for stale data.
+### P2: ¿Cuánto tiempo puedo servir datos cacheados obsoletos?
+**R:** **Depende del caso de uso**. Para catálogos de productos, 1-24 horas está bien. Para precios de acciones, 1 minuto puede ser demasiado. Establecer TTL basado en **sensibilidad de datos** y **expectativas del usuario**. Siempre mostrar timestamp de "última actualización" para datos obsoletos.
 
-### Q3: What's the difference between graceful degradation and circuit breaker?
-**A:** **[Circuit Breaker](circuit-breaker.md)** **detects failure** and fails fast to prevent cascades. **Graceful Degradation** **handles failure** by returning partial/cached data. Use both: circuit breaker opens → graceful degradation returns fallback. Circuit breaker is a **failure detector**; degradation is a **failure handler**.
+### P3: ¿Cuál es la diferencia entre degradación elegante y circuit breaker?
+**R:** **[Circuit Breaker](circuit-breaker.md)** **detecta el fallo** y falla rápido para prevenir cascadas. **La Degradación Elegante** **maneja el fallo** devolviendo datos parciales/cacheados. Usar ambos: circuit breaker se abre → degradación elegante devuelve fallback. Circuit breaker es un **detector de fallos**; degradación es un **manejador de fallos**.
 
-### Q4: Should I alert on every degradation?
-**A:** **No, but track metrics**. Alert when:
-1. Degradation rate exceeds threshold (e.g., >10% of requests).
-2. Critical services degrade (not just optional features).
-3. Multiple services degrade simultaneously.
-Track all degradations in dashboards for post-incident analysis. See [Observability](observability-basics.md).
+### P4: ¿Debo alertar en cada degradación?
+**R:** **No, pero rastrear métricas**. Alertar cuando:
+1. La tasa de degradación exceda el umbral (ej., >10% de peticiones).
+2. Servicios críticos se degraden (no solo funcionalidades opcionales).
+3. Múltiples servicios se degraden simultáneamente.
+Rastrear todas las degradaciones en dashboards para análisis post-incidente. Ver [Observabilidad](observability-basics.md).
 
-### Q5: Can I use graceful degradation for write operations (POST, PUT)?
-**A:** **Rarely**. Degradation is primarily for **reads**. For writes, you usually can't "partially" create an order or "cache" a payment. Instead:
-- Queue write for later processing (async).
-- Return 503 with `Retry-After` header.
-- Use [Saga pattern](../architecture/saga-pattern.md) for distributed transactions.
-Exception: Non-critical writes (analytics, logs) can be dropped during incidents.
+### P5: ¿Puedo usar degradación elegante para operaciones de escritura (POST, PUT)?
+**R:** **Raramente**. La degradación es principalmente para **lecturas**. Para escrituras, generalmente no puedes "parcialmente" crear una orden o "cachear" un pago. En su lugar:
+- Encolar escritura para procesamiento posterior (asíncrono).
+- Devolver 503 con header `Retry-After`.
+- Usar [patrón Saga](../architecture/saga-pattern.md) para transacciones distribuidas.
+Excepción: Escrituras no críticas (analítica, logs) pueden descartarse durante incidentes.

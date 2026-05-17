@@ -1,6 +1,6 @@
 ---
 id: load-shedding
-title: "Load Shedding"
+title: "Descarte de carga (Load Shedding)"
 type: pattern
 status: learning
 importance: 70
@@ -12,128 +12,128 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Load Shedding
+# Descarte de carga (Load Shedding)
 
 ## TL;DR (BLUF)
-- Load shedding intentionally rejects or degrades work when demand exceeds safe capacity.
-- Use it to protect latency SLOs and avoid [Cascading failure](cascading-failure.md).
-- Trade-off: you drop or degrade requests to keep the system stable.
+- El descarte de carga rechaza o degrada trabajo intencionalmente cuando la demanda excede la capacidad segura.
+- Úsalo para proteger los SLOs de latencia y evitar [Fallo en cascada](cascading-failure.md).
+- Trade-off: se descartan o degradan solicitudes para mantener el sistema estable.
 
-## Definition
-**What it is:** A resilience pattern that actively drops, rejects, or degrades requests under overload to keep the system within safe operating limits.  
-**Key terms:** admission control, rejection, graceful degradation, prioritization, overload.
+## Definición
+**Qué es:** Un patrón de resiliencia que activamente descarta, rechaza o degrada solicitudes bajo sobrecarga para mantener el sistema dentro de límites operativos seguros.  
+**Términos clave:** control de admisión, rechazo, degradación elegante, priorización, sobrecarga.
 
-## Why it matters
-- Prevents tail-latency spikes and resource exhaustion during traffic surges.
-- Creates predictable, controlled failure instead of slow meltdown.
+## Por qué importa
+- Previene picos de latencia en la cola y agotamiento de recursos durante oleadas de tráfico.
+- Crea fallos predecibles y controlados en lugar de un colapso lento.
 
-## Scope & Non-goals
-**In scope:** explicit rejection policies, priority tiers, and degrade paths during overload.  
-**Out of scope / NOT solved by this:** long-term capacity shortages (see [Capacity planning](capacity-planning.md)) or correctness under duplicates (see [Idempotency](idempotency.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** políticas explícitas de rechazo, niveles de prioridad y rutas de degradación durante sobrecarga.  
+**Fuera del alcance / NO resuelto por esto:** escasez de capacidad a largo plazo (ver [Planificación de capacidad](capacity-planning.md)) o corrección bajo duplicados (ver [Idempotencia](idempotency.md)).
 
-## Mental model / Intuition
-- Like a nightclub: if it’s full, you stop letting people in instead of letting everyone crowd inside.
+## Modelo mental / Intuición
+- Como una discoteca: si está llena, dejas de dejar entrar gente en lugar de dejar que todos se amontonen dentro.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Demand spikes are short-lived or unpredictable.
-- Latency SLOs are critical and you must protect downstream capacity.
-- You can degrade or drop lower-priority work safely.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los picos de demanda son de corta duración o impredecibles.
+- Los SLOs de latencia son críticos y debes proteger la capacidad descendente.
+- Puedes degradar o descartar trabajo de menor prioridad de forma segura.
 
-### Avoid it when
-- You must process every request and can tolerate delays (prefer async queueing).
-- Overload is constant and sustained (prefer scaling and capacity fixes).
+### Evítalo cuando
+- Debes procesar cada solicitud y puedes tolerar retrasos (prefiere colas asíncronas).
+- La sobrecarga es constante y sostenida (prefiere escalado y correcciones de capacidad).
 
-## How I would use it (practical)
-- **Context:** A public API sees flash traffic during a marketing campaign.
-- **Steps:**
-  1) Define overload thresholds (CPU, queue depth, DB pool saturation).
-  2) Add admission control with 429/503 and `Retry-After`.
-  3) Prefer shedding low-priority or non-critical endpoints.
-  4) Provide a degraded response where possible.
-- **What success looks like:** p95 latency stays within SLO while rejection rate is bounded and transparent.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API pública ve tráfico repentino durante una campaña de marketing.
+- **Pasos:**
+  1) Definir umbrales de sobrecarga (CPU, profundidad de cola, saturación del pool de BD).
+  2) Agregar control de admisión con 429/503 y `Retry-After`.
+  3) Preferir descartar endpoints de baja prioridad o no críticos.
+  4) Proporcionar una respuesta degradada donde sea posible.
+- **Cómo se ve el éxito:** la latencia p95 se mantiene dentro del SLO mientras la tasa de rechazo está acotada y es transparente.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** stability, controlled latency, predictable failure.
-- **Cons / Risks:** user-visible errors, fairness concerns, and tuning complexity.
-### Alternatives
-- **Backpressure:** slow or queue instead of rejecting work.
-- **Scale out:** add capacity if demand is consistently high.
-- **How to choose:** if you can’t safely queue and must protect latency, prefer shedding.
+- **Ventajas:** estabilidad, latencia controlada, fallo predecible.
+- **Desventajas / Riesgos:** errores visibles para el usuario, preocupaciones de equidad y complejidad de ajuste.
+### Alternativas
+- **Contrapresión (Backpressure):** ralentizar o encolar en lugar de rechazar trabajo.
+- **Escalar horizontalmente:** agregar capacidad si la demanda es consistentemente alta.
+- **Cómo elegir:** si no puedes encolar de forma segura y debes proteger la latencia, prefiere el descarte.
 
-## Failure modes & Pitfalls
-- Shedding too late → tail latency still explodes.
-- Shedding too aggressively → avoidable revenue or UX loss.
-- No prioritization → critical requests dropped with non-critical ones.
-- Retrying from clients without budgets → self-inflicted thundering herd.
+## Modos de fallo y trampas
+- Descartar demasiado tarde → la latencia de cola aún explota.
+- Descartar demasiado agresivamente → pérdida evitable de ingresos o UX.
+- Sin priorización → solicitudes críticas descartadas junto con las no críticas.
+- Reintentos desde clientes sin presupuestos → estampida auto-infligida.
 
-## Observability (How to detect issues)
-- **Metrics:** rejection rate, p95/p99 latency, saturation (CPU, pool usage), queue depth.
-- **Logs:** admission-control decisions (threshold, reason, endpoint, tier).
-- **Traces:** identify where requests are rejected or degraded.
-- **Alerts:** sustained reject rate + saturation beyond thresholds.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de rechazo, latencia p95/p99, saturación (CPU, uso de pool), profundidad de cola.
+- **Logs:** decisiones de control de admisión (umbral, razón, endpoint, nivel).
+- **Trazas:** identificar dónde las solicitudes son rechazadas o degradadas.
+- **Alertas:** tasa de rechazo sostenida + saturación más allá de umbrales.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define overload thresholds and signals
-  - [ ] Implement tiered policies (critical vs non-critical)
-  - [ ] Add clear client error responses and `Retry-After`
-  - [ ] Ensure retries are bounded and do not amplify load
-- **Security / Compliance notes**
-  - Avoid leaking restricted data in degraded responses
-- **Performance notes**
-  - Prefer fast-fail over long queues when latency is the priority
-- **Operational notes**
-  - Document reject reasons and runbooks
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir umbrales y señales de sobrecarga
+  - [ ] Implementar políticas escalonadas (críticas vs no críticas)
+  - [ ] Agregar respuestas de error claras al cliente y `Retry-After`
+  - [ ] Asegurar que los reintentos estén acotados y no amplifiquen la carga
+- **Notas de seguridad / cumplimiento**
+  - Evitar filtrar datos restringidos en respuestas degradadas
+- **Notas de rendimiento**
+  - Preferir fallo rápido sobre colas largas cuando la latencia es la prioridad
+- **Notas operacionales**
+  - Documentar razones de rechazo y runbooks
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 if cpu > 85% or db_pool_saturation > 90%:
   reject non-critical requests with 503 + Retry-After
   serve cached/degraded response for read-only endpoints
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Just add a bigger queue.”
-  - **Why it’s bad:** it hides overload and pushes failures to the tail.
-  - **Better approach:** shed or degrade low-priority work quickly.
+## Anti-patrones comunes
+- **Anti-patrón:** "Simplemente agrega una cola más grande."
+  - **Por qué es malo:** oculta la sobrecarga y empuja los fallos a la cola.
+  - **Mejor enfoque:** descarta o degrada trabajo de baja prioridad rápidamente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Load shedding is deliberate rejection or degradation when the system is overloaded, so it stays stable and protects latency SLOs.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- El descarte de carga es el rechazo o degradación deliberada cuando el sistema está sobrecargado, para que se mantenga estable y proteja los SLOs de latencia.
 
-### Trap questions (with answers)
-1) **Q:** Is load shedding the same as backpressure?
-   - **A:** No. Backpressure slows/queues producers; load shedding drops or degrades requests.
-2) **Q:** Should you always shed at the edge?
-   - **A:** Not only at the edge; internal services may also need local shedding to protect shared pools.
-3) **Q:** Does load shedding replace scaling?
-   - **A:** No. It handles bursts; sustained demand still requires capacity changes.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es lo mismo el descarte de carga que la contrapresión?
+   - **R:** No. La contrapresión ralentiza/encola a los productores; el descarte de carga descarta o degrada solicitudes.
+2) **P:** ¿Deberías siempre descartar en el borde?
+   - **R:** No solo en el borde; los servicios internos también pueden necesitar descarte local para proteger pools compartidos.
+3) **P:** ¿El descarte de carga reemplaza el escalado?
+   - **R:** No. Maneja ráfagas; la demanda sostenida aún requiere cambios de capacidad.
 
-### Quick self-check (5 items)
-- [ ] I can define load shedding precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir el descarte de carga con precisión.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](../system-design/distributed-systems-basics.md)
-- [Performance basics](../system-design/performance-basics.md)
-- [Observability basics](observability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de sistemas distribuidos](../system-design/distributed-systems-basics.md)
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
+- [Fundamentos de observabilidad](observability-basics.md)
 
-### Related topics
-- [Backpressure](../system-design/backpressure.md)
+### Temas relacionados
+- [Contrapresión (Backpressure)](../system-design/backpressure.md)
 - [Circuit breaker](circuit-breaker.md)
 - [Bulkheads](bulkheads.md)
-- (TODO) Rate limiting
-- (TODO) Graceful degradation
+- (TODO) Limitación de tasa
+- (TODO) Degradación elegante
 
-### Compare with
-- [Backpressure](../system-design/backpressure.md) — backpressure slows/queues; load shedding rejects/degrades.
-- [Circuit breaker](circuit-breaker.md) — breaker blocks calls to unhealthy dependencies; shedding protects overall capacity.
+### Comparar con
+- [Contrapresión (Backpressure)](../system-design/backpressure.md) — la contrapresión ralentiza/encola; el descarte de carga rechaza/degrada.
+- [Circuit breaker](circuit-breaker.md) — el breaker bloquea llamadas a dependencias no saludables; el descarte protege la capacidad general.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

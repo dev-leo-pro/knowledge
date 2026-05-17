@@ -1,6 +1,6 @@
 ---
 id: domain-driven-design
-title: "Domain-Driven Design (DDD)"
+title: "Diseño Orientado al Dominio (DDD)"
 type: concept
 status: learning
 importance: 60
@@ -12,120 +12,120 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# Domain-Driven Design (DDD)
+# Diseño Orientado al Dominio (DDD)
 
 ## TL;DR (BLUF)
-- DDD aligns software with the business domain by modeling core concepts explicitly.
-- Use it for complex domains with long-lived systems and many rules.
-- Trade-off: higher upfront modeling effort and ongoing discipline.
+- DDD alinea el software con el dominio de negocio modelando conceptos centrales explícitamente.
+- Úsalo para dominios complejos con sistemas de larga vida y muchas reglas.
+- Trade-off: mayor esfuerzo de modelado inicial y disciplina continua.
 
-## Definition
-**What it is:** A design approach that centers the domain model and a shared language between engineers and domain experts, ensuring code mirrors business concepts.  
-**Key terms:** domain model, ubiquitous language, bounded context, aggregate, entity, value object, repository.
+## Definición
+**Qué es:** Un enfoque de diseño que centra el modelo de dominio y un lenguaje compartido entre ingenieros y expertos de dominio, asegurando que el código refleje los conceptos de negocio.
+**Términos clave:** modelo de dominio, lenguaje ubicuo, contexto acotado, agregado, entidad, objeto de valor, repositorio.
 
-## Why it matters
-- It reduces semantic drift between business needs and the codebase.
-- It improves modularity by carving the domain into clear boundaries.
+## Por qué importa
+- Reduce la deriva semántica entre las necesidades del negocio y el código.
+- Mejora la modularidad al dividir el dominio en fronteras claras.
 
-## Scope & Non-goals
-**In scope:** modeling domain concepts, defining boundaries, and enforcing invariants.  
-**Out of scope / NOT solved by this:** team organization, microservice adoption, or infrastructure choices.
+## Alcance y no-objetivos
+**Dentro del alcance:** modelar conceptos de dominio, definir fronteras y aplicar invariantes.
+**Fuera del alcance / NO resuelto por esto:** organización de equipos, adopción de microservicios o elecciones de infraestructura.
 
-## Mental model / Intuition
-- Think of the model as the “source of truth” for how the business works.
-- The ubiquitous language becomes the contract between people and code.
+## Modelo mental / Intuición
+- Piensa en el modelo como la "fuente de verdad" de cómo funciona el negocio.
+- El lenguaje ubicuo se convierte en el contrato entre las personas y el código.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- The domain is complex with many rules and edge cases.
-- The system is long-lived and needs to evolve safely.
-- Multiple teams need alignment on core business concepts.
-### Avoid it when
-- The domain is simple CRUD with little business logic.
-- Speed-to-market is the only priority and the system is short-lived.
-- There is no access to domain experts or shared language.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El dominio es complejo con muchas reglas y casos límite.
+- El sistema es de larga vida y necesita evolucionar de forma segura.
+- Múltiples equipos necesitan alineación en conceptos centrales del negocio.
+### Evítalo cuando
+- El dominio es CRUD simple con poca lógica de negocio.
+- La velocidad de salida al mercado es la única prioridad y el sistema es de corta vida.
+- No hay acceso a expertos de dominio o lenguaje compartido.
 
-## How I would use it (practical)
-- **Context:** A payments platform with complex rules and compliance requirements.
-- **Steps:**
-  1) Run domain discovery with experts to define the ubiquitous language.
-  2) Identify bounded contexts and define their APIs.
-  3) Model aggregates and invariants within each context.
-  4) Keep integrations explicit via events or APIs.
-- **What success looks like:** consistent terminology, fewer logic bugs, and clear ownership of domain rules.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una plataforma de pagos con reglas complejas y requisitos de cumplimiento.
+- **Pasos:**
+  1) Ejecutar descubrimiento de dominio con expertos para definir el lenguaje ubicuo.
+  2) Identificar contextos acotados y definir sus APIs.
+  3) Modelar agregados e invariantes dentro de cada contexto.
+  4) Mantener las integraciones explícitas vía eventos o APIs.
+- **Cómo se ve el éxito:** terminología consistente, menos bugs de lógica y propiedad clara de las reglas de dominio.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clearer business alignment, better modularity, safer evolution.
-- **Cons / Risks:** higher upfront effort, modeling paralysis, and drift if discipline fades.
-### Alternatives
-- **Transaction script / CRUD-first design:** faster for simple domains, but less expressive.
-- **[Data modeling basics](../databases/data-modeling-basics.md):** focuses on schemas rather than behavior.
-- **How to choose:** apply DDD when domain complexity and longevity justify the investment.
+- **Ventajas:** mejor alineación con el negocio, mejor modularidad, evolución más segura.
+- **Desventajas / Riesgos:** mayor esfuerzo inicial, parálisis de modelado y deriva si la disciplina decae.
+### Alternativas
+- **Script de transacción / diseño CRUD-first:** más rápido para dominios simples, pero menos expresivo.
+- **[Fundamentos de modelado de datos](../databases/data-modeling-basics.md):** se enfoca en esquemas en lugar de comportamiento.
+- **Cómo elegir:** aplica DDD cuando la complejidad del dominio y la longevidad justifican la inversión.
 
-## Failure modes & Pitfalls
-- Ubiquitous language not adopted, leading to fragmented terms.
-- Overly large bounded contexts creating a “distributed monolith.”
-- Anemic domain models where behavior is pushed into services.
+## Modos de fallo y trampas
+- Lenguaje ubicuo no adoptado, llevando a términos fragmentados.
+- Contextos acotados excesivamente grandes creando un "monolito distribuido".
+- Modelos de dominio anémicos donde el comportamiento se empuja a los servicios.
 
-## Observability (How to detect issues)
-- **Metrics:** frequency of invariant violations, change lead time for domain rules.
-- **Logs:** domain events or audit logs indicating rule enforcement failures.
-- **Traces:** cross-context flows showing excessive coupling.
-- **Alerts:** spikes in validation errors or rule override rates.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** frecuencia de violaciones de invariantes, tiempo de entrega de cambios para reglas de dominio.
+- **Logs:** eventos de dominio o logs de auditoría indicando fallos en la aplicación de reglas.
+- **Trazas:** flujos entre contextos mostrando acoplamiento excesivo.
+- **Alertas:** picos en errores de validación o tasas de anulación de reglas.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define bounded contexts and ownership
-  - [ ] Document ubiquitous language
-  - [ ] Capture invariants in aggregates
-- **Security / Compliance notes**
-  - Ensure domain rules enforce compliance constraints.
-- **Performance notes**
-  - Keep aggregate boundaries small to reduce contention.
-- **Operational notes**
-  - Review model changes with domain experts regularly.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir contextos acotados y propiedad
+  - [ ] Documentar lenguaje ubicuo
+  - [ ] Capturar invariantes en agregados
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que las reglas de dominio apliquen restricciones de cumplimiento.
+- **Notas de rendimiento**
+  - Mantener las fronteras de agregados pequeñas para reducir la contención.
+- **Notas operacionales**
+  - Revisar cambios del modelo con expertos de dominio regularmente.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** One global domain model shared across all contexts.
-  - **Why it’s bad:** increases coupling and slows evolution.
-  - **Better approach:** bounded contexts with explicit integration contracts.
+## Anti-patrones comunes
+- **Anti-patrón:** Un modelo de dominio global compartido entre todos los contextos.
+  - **Por qué es malo:** aumenta el acoplamiento y ralentiza la evolución.
+  - **Mejor enfoque:** contextos acotados con contratos de integración explícitos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- DDD is about building software that mirrors the business domain, using a shared language and clear boundaries so rules live in the right place.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- DDD se trata de construir software que refleja el dominio de negocio, usando un lenguaje compartido y fronteras claras para que las reglas vivan en el lugar correcto.
 
-### Trap questions (with answers)
-1) **Q:** Is DDD only for microservices?
-   - **A:** No; it’s a design approach that applies to any architecture.
-2) **Q:** Does DDD mean modeling everything in the business?
-   - **A:** No; focus on the core domain and avoid over-modeling.
-3) **Q:** Are bounded contexts just team boundaries?
-   - **A:** Not necessarily; they’re conceptual boundaries that may influence team structure.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿DDD es solo para microservicios?
+   - **R:** No; es un enfoque de diseño que aplica a cualquier arquitectura.
+2) **P:** ¿DDD significa modelar todo en el negocio?
+   - **R:** No; enfócate en el dominio central y evita sobre-modelar.
+3) **P:** ¿Los contextos acotados son solo fronteras de equipo?
+   - **R:** No necesariamente; son fronteras conceptuales que pueden influir en la estructura del equipo.
 
-### Quick self-check (5 items)
-- [ ] I can define DDD precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir DDD con precisión en 2-3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Data modeling basics](../databases/data-modeling-basics.md)
-- [Requirements basics](../system-design/requirements-basics.md)
-- (TODO) Bounded contexts
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de modelado de datos](../databases/data-modeling-basics.md)
+- [Fundamentos de requisitos](../system-design/requirements-basics.md)
+- (TODO) Contextos acotados
 
-### Related topics
-- [Event-driven architecture](event-driven-basics.md)
+### Temas relacionados
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
 - [Event sourcing](event-sourcing.md)
 - [CQRS](cqrs.md)
 
-### Compare with
-- [Data modeling basics](../databases/data-modeling-basics.md) — DDD models behavior and invariants, not just schema.
+### Comparar con
+- [Fundamentos de modelado de datos](../databases/data-modeling-basics.md) -- DDD modela comportamiento e invariantes, no solo esquema.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

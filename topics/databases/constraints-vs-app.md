@@ -1,6 +1,6 @@
 ---
 id: constraints-vs-app
-title: "Constraints vs App-Level Enforcement"
+title: "Restricciones vs Validación a Nivel de Aplicación"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Constraints vs App-Level Enforcement
+# Restricciones vs Validación a Nivel de Aplicación
 
 ## TL;DR (BLUF)
-- DB constraints enforce rules at the storage layer; app logic enforces them in code.
-- Use constraints for core invariants and app logic for complex or cross-system rules.
-- Trade-off: constraints protect integrity but can add write complexity.
+- Las restricciones de BD imponen reglas en la capa de almacenamiento; la lógica de aplicación las impone en código.
+- Usa restricciones para invariantes fundamentales y lógica de aplicación para reglas complejas o entre sistemas.
+- Trade-off: las restricciones protegen la integridad pero pueden añadir complejidad de escritura.
 
-## Definition
-**What it is:** A comparison between database constraints (FK, unique, check) and application-level validation.
-**Key terms:** constraints, invariants, validation.
+## Definición
+**Qué es:** Una comparación entre restricciones de base de datos (FK, unique, check) y validación a nivel de aplicación.
+**Términos clave:** restricciones, invariantes, validación.
 
-## Why it matters
-- Choosing the wrong layer leads to data inconsistency or reduced flexibility.
-- Constraints are the last line of defense for core invariants.
+## Por qué importa
+- Elegir la capa incorrecta lleva a inconsistencia de datos o flexibilidad reducida.
+- Las restricciones son la última línea de defensa para invariantes fundamentales.
 
-## Scope & Non-goals
-**In scope:** deciding what belongs in the DB vs application.
-**Out of scope / NOT solved by this:** cross-service guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** decidir qué pertenece a la BD vs la aplicación.
+**Fuera del alcance / NO resuelto por esto:** garantías entre servicios.
 
-## Mental model / Intuition
-- Constraints are guardrails at the data store; app logic is business rules.
+## Modelo mental / Intuición
+- Las restricciones son guardarraíles en el almacén de datos; la lógica de aplicación son reglas de negocio.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- The rule is fundamental and must always hold.
-- You want guarantees even if other systems write data.
-### Avoid it when
-- The rule requires external context or cross-system checks.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La regla es fundamental y debe cumplirse siempre.
+- Quieres garantías incluso si otros sistemas escriben datos.
+### Evítalo cuando
+- La regla requiere contexto externo o verificaciones entre sistemas.
 
-## How I would use it (practical)
-- **Context:** Unique email per user.
-- **Steps:** enforce unique constraint → handle conflicts in app.
-- **What success looks like:** no duplicates even under race conditions.
+## Cómo lo usaría (práctico)
+- **Contexto:** Email único por usuario.
+- **Pasos:** aplicar restricción unique → manejar conflictos en la app.
+- **Cómo se ve el éxito:** sin duplicados incluso bajo condiciones de carrera.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong data integrity.
-- **Cons / Risks:** stricter writes, migrations may be harder.
-### Alternatives
-- **App-only validation:** flexible but weaker guarantees.
-- **How to choose:** use DB constraints for core invariants, app for contextual rules.
+- **Ventajas:** integridad de datos fuerte.
+- **Desventajas / Riesgos:** escrituras más estrictas, migraciones pueden ser más difíciles.
+### Alternativas
+- **Validación solo en app:** flexible pero con garantías más débiles.
+- **Cómo elegir:** usar restricciones de BD para invariantes fundamentales, app para reglas contextuales.
 
-## Failure modes & Pitfalls
-- Relying only on app checks and getting race-condition duplicates.
+## Modos de fallo y trampas
+- Depender solo de verificaciones en la app y obtener duplicados por condiciones de carrera.
 
-## Observability (How to detect issues)
-- **Metrics:** constraint violation rate.
-- **Logs:** constraint errors.
-- **Alerts:** spikes in constraint violations.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de violaciones de restricciones.
+- **Logs:** errores de restricciones.
+- **Alertas:** picos en violaciones de restricciones.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify invariants
-  - [ ] Add constraints for core invariants
-  - [ ] Handle constraint errors in app
+  - [ ] Identificar invariantes
+  - [ ] Agregar restricciones para invariantes fundamentales
+  - [ ] Manejar errores de restricciones en la app
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Skipping constraints to move faster.
-  - **Why it’s bad:** data corruption over time.
-  - **Better approach:** enforce minimal core constraints.
+## Anti-patrones comunes
+- **Anti-patrón:** Omitir restricciones para avanzar más rápido.
+  - **Por qué es malo:** corrupción de datos con el tiempo.
+  - **Mejor enfoque:** aplicar restricciones mínimas fundamentales.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Constraints enforce core data rules at the database layer, while app logic handles business rules. Use constraints for invariants you never want violated.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las restricciones imponen reglas fundamentales de datos en la capa de base de datos, mientras que la lógica de aplicación maneja reglas de negocio. Usa restricciones para invariantes que nunca quieres que se violen.
 
-### Trap questions (with answers)
-1) **Q:** Can app-level checks replace DB constraints?
-   - **A:** not reliably; race conditions can bypass them.
-2) **Q:** Are constraints always worth it?
-   - **A:** for core invariants, yes; for complex rules, app logic fits better.
-3) **Q:** Do constraints slow every write?
-   - **A:** they add overhead, but usually worth it for integrity.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las verificaciones a nivel de app pueden reemplazar las restricciones de BD?
+   - **R:** no de forma confiable; las condiciones de carrera pueden eludirlas.
+2) **P:** ¿Las restricciones siempre valen la pena?
+   - **R:** para invariantes fundamentales, sí; para reglas complejas, la lógica de app se ajusta mejor.
+3) **P:** ¿Las restricciones ralentizan cada escritura?
+   - **R:** añaden sobrecarga, pero generalmente vale la pena por la integridad.
 
-### Quick self-check (5 items)
-- [ ] I can state when to use constraints.
-- [ ] I can describe a race-condition example.
-- [ ] I can name a trade-off.
-- [ ] I can explain app-level enforcement use cases.
-- [ ] I can explain a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo indicar cuándo usar restricciones.
+- [ ] Puedo describir un ejemplo de condición de carrera.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo explicar casos de uso de validación a nivel de app.
+- [ ] Puedo explicar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Data integrity basics](data-integrity-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Transactions](transactions.md)
 
-### Compare with
+### Comparar con
 - [API validation](../system-design/api-validation.md)

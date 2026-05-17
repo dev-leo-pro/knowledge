@@ -1,6 +1,6 @@
 ---
 id: redis-persistence
-title: "Redis persistence (RDB/AOF)"
+title: "Persistencia de Redis (RDB/AOF)"
 type: concept
 status: learning
 importance: 55
@@ -12,105 +12,105 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Redis persistence (RDB/AOF)
+# Persistencia de Redis (RDB/AOF)
 
 ## TL;DR (BLUF)
-- Redis persistence controls how in-memory data is written to disk.
-- RDB snapshots are compact but can lose recent writes; AOF is more durable but heavier.
-- Trade-off: durability vs performance and operational overhead.
+- La persistencia de Redis controla cómo los datos en memoria se escriben a disco.
+- Los snapshots RDB son compactos pero pueden perder escrituras recientes; AOF es más duradero pero más pesado.
+- Trade-off: durabilidad vs rendimiento y sobrecarga operativa.
 
-## Definition
-**What it is:** The mechanisms Redis uses to persist data: RDB (periodic snapshots) and AOF (append-only log of writes).  
-**Key terms:** RDB snapshot, AOF, fsync, rewrite, durability window.
+## Definición
+**Qué es:** Los mecanismos que Redis usa para persistir datos: RDB (snapshots periódicos) y AOF (log de solo-adición de escrituras).
+**Términos clave:** snapshot RDB, AOF, fsync, reescritura, ventana de durabilidad.
 
-## Why it matters
-- It determines how much data you can lose on crash.
-- Poor settings can cause latency spikes or long restarts.
+## Por qué importa
+- Determina cuántos datos puedes perder en un fallo.
+- Malas configuraciones pueden causar picos de latencia o reinicios largos.
 
-## Scope & Non-goals
-**In scope:** snapshot vs log persistence, recovery behavior, durability windows.  
-**Out of scope / NOT solved by this:** full transactional durability or multi-node consistency guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** persistencia por snapshot vs log, comportamiento de recuperación, ventanas de durabilidad.
+**Fuera del alcance / NO resuelto por esto:** durabilidad transaccional completa o garantías de consistencia multi-nodo.
 
-## Mental model / Intuition
-- RDB is a periodic photo; AOF is a diary of every change.
+## Modelo mental / Intuición
+- RDB es una foto periódica; AOF es un diario de cada cambio.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You want Redis data to survive restarts.
-- You can tune durability vs performance based on workload.
-### Avoid it when
-- Redis is purely ephemeral and can be rebuilt quickly.
-- You require zero data loss (Redis is not designed for that).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Quieres que los datos de Redis sobrevivan a reinicios.
+- Puedes ajustar durabilidad vs rendimiento según la carga de trabajo.
+### Evítalo cuando
+- Redis es puramente efímero y puede reconstruirse rápidamente.
+- Requieres cero pérdida de datos (Redis no está diseñado para eso).
 
-## How I would use it (practical)
-- **Context:** Cache with partial durability for sessions.
-- **Steps:** enable AOF with `everysec` → add periodic RDB snapshots → test recovery time.
-- **What success looks like:** acceptable data loss window and stable latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Caché con durabilidad parcial para sesiones.
+- **Pasos:** habilitar AOF con `everysec` → agregar snapshots RDB periódicos → probar tiempo de recuperación.
+- **Cómo se ve el éxito:** ventana de pérdida de datos aceptable y latencia estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** data survives restarts; flexibility in durability.
-- **Cons / Risks:** extra disk I/O, slower writes, long rewrite pauses.
-### Alternatives
-- **Use Redis as cache only:** accept data loss.
-- **Use a durable DB:** when durability requirements are strict.
-- **How to choose:** if losing some recent writes is acceptable, tune AOF + RDB; otherwise keep Redis as a cache.
+- **Ventajas:** los datos sobreviven a reinicios; flexibilidad en durabilidad.
+- **Desventajas / Riesgos:** E/S de disco extra, escrituras más lentas, pausas largas de reescritura.
+### Alternativas
+- **Usar Redis solo como caché:** aceptar pérdida de datos.
+- **Usar una BD duradero:** cuando los requisitos de durabilidad son estrictos.
+- **Cómo elegir:** si perder algunas escrituras recientes es aceptable, ajusta AOF + RDB; de lo contrario mantén Redis como caché.
 
-## Failure modes & Pitfalls
-- AOF rewrite causing latency spikes or disk pressure.
-- RDB snapshot intervals that allow too much data loss.
-- Restart time dominated by huge AOF files.
+## Modos de fallo y trampas
+- Reescritura de AOF causando picos de latencia o presión de disco.
+- Intervalos de snapshot RDB que permiten demasiada pérdida de datos.
+- Tiempo de reinicio dominado por archivos AOF enormes.
 
-## Observability (How to detect issues)
-- **Metrics:** persistence latency, fsync duration, AOF size, last save time.
-- **Logs:** background save errors, AOF rewrite failures.
-- **Alerts:** repeated background save failures or long fsync times.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de persistencia, duración de fsync, tamaño de AOF, última hora de guardado.
+- **Logs:** errores de guardado en segundo plano, fallos de reescritura de AOF.
+- **Alertas:** fallos de guardado repetidos o tiempos de fsync largos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Pick AOF fsync policy (`always`, `everysec`, or `no`).
-  - [ ] Configure RDB snapshot intervals for recovery goals.
-  - [ ] Monitor AOF growth and rewrite success.
-  - [ ] Test restart and recovery time regularly.
+  - [ ] Elegir política de fsync de AOF (`always`, `everysec` o `no`).
+  - [ ] Configurar intervalos de snapshot RDB para objetivos de recuperación.
+  - [ ] Monitorear crecimiento de AOF y éxito de reescritura.
+  - [ ] Probar tiempo de reinicio y recuperación regularmente.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Enabling AOF `always` on latency-sensitive workloads.
-  - **Why it’s bad:** synchronous fsync can spike latency.
-  - **Better approach:** use `everysec` or cache-only mode.
+## Anti-patrones comunes
+- **Anti-patrón:** Habilitar AOF `always` en cargas de trabajo sensibles a latencia.
+  - **Por qué es malo:** fsync síncrono puede disparar la latencia.
+  - **Mejor enfoque:** usar `everysec` o modo solo-caché.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Redis persistence can snapshot memory (RDB) or log every write (AOF). RDB is faster but loses more data; AOF is more durable but heavier.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La persistencia de Redis puede hacer snapshot de memoria (RDB) o registrar cada escritura (AOF). RDB es más rápido pero pierde más datos; AOF es más duradero pero más pesado.
 
-### Trap questions (with answers)
-1) **Q:** Does AOF guarantee zero data loss?
-   - **A:** no; `everysec` can lose up to one second of data, and crashes can lose more.
-2) **Q:** Is RDB enough for strict durability?
-   - **A:** no; snapshots are periodic and can lose recent writes.
-3) **Q:** Can persistence settings affect latency?
-   - **A:** yes; fsync and rewrite operations can introduce spikes.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿AOF garantiza cero pérdida de datos?
+   - **R:** no; `everysec` puede perder hasta un segundo de datos, y los fallos pueden perder más.
+2) **P:** ¿Es RDB suficiente para durabilidad estricta?
+   - **R:** no; los snapshots son periódicos y pueden perder escrituras recientes.
+3) **P:** ¿La configuración de persistencia puede afectar la latencia?
+   - **R:** sí; las operaciones de fsync y reescritura pueden introducir picos.
 
-### Quick self-check (5 items)
-- [ ] I can explain RDB vs AOF.
-- [ ] I can choose a fsync policy.
-- [ ] I can describe the data loss window.
-- [ ] I can name a persistence failure mode.
-- [ ] I can monitor persistence health.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar RDB vs AOF.
+- [ ] Puedo elegir una política de fsync.
+- [ ] Puedo describir la ventana de pérdida de datos.
+- [ ] Puedo nombrar un modo de fallo de persistencia.
+- [ ] Puedo monitorear la salud de la persistencia.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Redis](redis.md)
-- [Storage fundamentals](storage-fundamentals.md)
+- [Fundamentos de almacenamiento](storage-fundamentals.md)
 
-### Related topics
-- [Redis eviction policies](redis-eviction-policies.md)
-- [Redis scaling (scale up and out)](redis-scaling.md)
+### Temas relacionados
+- [Políticas de desalojo de Redis](redis-eviction-policies.md)
+- [Escalado de Redis (vertical y horizontal)](redis-scaling.md)
 
-### Compare with
-- [PostgreSQL](postgresql.md) — full durable RDBMS vs optional Redis persistence.
+### Comparar con
+- [PostgreSQL](postgresql.md) — RDBMS duradero completo vs persistencia opcional de Redis.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

@@ -1,6 +1,6 @@
 ---
 id: terraform
-title: "Terraform (Detailed)"
+title: "Terraform (Detallado)"
 type: tool
 status: learning
 importance: 85
@@ -12,43 +12,43 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Terraform (Detailed)
+# Terraform (Detallado)
 
 ## TL;DR (BLUF)
-- Terraform is a declarative Infrastructure as Code (IaC) tool for managing cloud resources across multiple providers (AWS, GCP, Azure).
-- Use for reproducible infrastructure, version-controlled configs, and multi-cloud deployments.
-- Key trade-off: powerful abstraction and multi-cloud support vs. state management complexity.
+- Terraform es una herramienta declarativa de Infraestructura como Código (IaC) para gestionar recursos en la nube a través de múltiples proveedores (AWS, GCP, Azure).
+- Úsala para infraestructura reproducible, configuraciones controladas por versión y despliegues multi-nube.
+- Trade-off clave: potente abstracción y soporte multi-nube vs. complejidad de gestión de estado.
 
-## Definition
-**What it is:** An open-source IaC tool by HashiCorp that uses declarative configuration (HCL—HashiCorp Configuration Language) to provision and manage infrastructure across cloud providers.  
-**Key terms:** HCL (HashiCorp Configuration Language), provider, resource, module, state file, plan/apply/destroy, remote state, workspaces, drift detection.
+## Definición
+**Qué es:** Una herramienta IaC de código abierto de HashiCorp que usa configuración declarativa (HCL -- HashiCorp Configuration Language) para aprovisionar y gestionar infraestructura a través de proveedores de nube.  
+**Términos clave:** HCL (HashiCorp Configuration Language), provider, resource, module, archivo de estado, plan/apply/destroy, estado remoto, workspaces, detección de deriva.
 
-## Why it matters
-- **Multi-cloud:** Single tool for AWS, GCP, Azure, Kubernetes, etc. (1,000+ providers).
-- **Declarative:** Define desired state; Terraform figures out how to achieve it.
-- **Reproducible:** Same config produces identical infrastructure (no manual clicks).
-- **Version-controlled:** Track infrastructure changes in Git (code review, rollback).
-- **Collaboration:** Remote state enables team collaboration (locking, shared state).
-- **Interview relevance:** Standard IaC tool in cloud infrastructure discussions.
+## Por qué importa
+- **Multi-nube:** Una sola herramienta para AWS, GCP, Azure, Kubernetes, etc. (1,000+ proveedores).
+- **Declarativo:** Define el estado deseado; Terraform determina cómo alcanzarlo.
+- **Reproducible:** La misma configuración produce infraestructura idéntica (sin clics manuales).
+- **Controlado por versión:** Rastrea cambios de infraestructura en Git (revisión de código, reversión).
+- **Colaboración:** El estado remoto permite la colaboración en equipo (bloqueo, estado compartido).
+- **Relevancia en entrevistas:** Herramienta IaC estándar en discusiones de infraestructura en la nube.
 
-## Scope & Non-goals
-**In scope:**
-- Terraform core concepts (providers, resources, modules, state).
-- Workflow (init → plan → apply → destroy).
-- When to use Terraform vs. alternatives.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Conceptos principales de Terraform (providers, resources, modules, state).
+- Flujo de trabajo (init → plan → apply → destroy).
+- Cuándo usar Terraform vs. alternativas.
 
-**Out of scope / NOT solved by this:**
-- Provider-specific details (AWS specifics belong in AWS docs).
-- Advanced features (custom providers, Sentinel policies).
-- Terraform Cloud/Enterprise features.
+**Fuera del alcance / NO resuelto por esto:**
+- Detalles específicos del proveedor (las especificaciones de AWS pertenecen a la documentación de AWS).
+- Funcionalidades avanzadas (providers personalizados, políticas Sentinel).
+- Funcionalidades de Terraform Cloud/Enterprise.
 
-## Mental model / Intuition
-Think of Terraform as a **blueprint for your infrastructure**:
-- You write a blueprint (HCL config) describing desired state: "I want 3 EC2 instances, 1 RDS database."
-- Terraform reads the blueprint and compares it to current state (state file).
-- It calculates a plan: "Create 2 EC2 instances (1 already exists), create RDS."
-- You approve, and Terraform executes the plan (API calls to cloud provider).
-- State file is updated to match reality.
+## Modelo mental / Intuición
+Piensa en Terraform como un **plano para tu infraestructura**:
+- Escribes un plano (configuración HCL) describiendo el estado deseado: "Quiero 3 instancias EC2, 1 base de datos RDS."
+- Terraform lee el plano y lo compara con el estado actual (archivo de estado).
+- Calcula un plan: "Crear 2 instancias EC2 (1 ya existe), crear RDS."
+- Apruebas, y Terraform ejecuta el plan (llamadas API al proveedor de nube).
+- El archivo de estado se actualiza para coincidir con la realidad.
 
 ```hcl
 # Blueprint (HCL)
@@ -59,24 +59,24 @@ resource "aws_instance" "web" {
 }
 ```
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Managing cloud infrastructure (AWS, GCP, Azure).
-- Need multi-cloud support (avoid vendor lock-in).
-- Want version-controlled infrastructure (Git workflow).
-- Collaborating with team (remote state, locking).
-- Need reproducible environments (dev/staging/prod identical).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Gestionas infraestructura en la nube (AWS, GCP, Azure).
+- Necesitas soporte multi-nube (evitar dependencia del proveedor).
+- Quieres infraestructura controlada por versión (flujo de trabajo Git).
+- Colaboras con un equipo (estado remoto, bloqueo).
+- Necesitas entornos reproducibles (dev/staging/prod idénticos).
 
-### Avoid it when
-- Provider-native tool is simpler (e.g., AWS CDK for AWS-only, simpler abstractions).
-- Configuration management needed (use Ansible; Terraform is for provisioning, not config).
-- Immutable infrastructure with container orchestration (Kubernetes YAML may be simpler).
-- Small, static infrastructure (manual management acceptable).
+### Evítalo cuando
+- La herramienta nativa del proveedor es más simple (por ejemplo, AWS CDK solo para AWS, abstracciones más simples).
+- Se necesita gestión de configuración (usar Ansible; Terraform es para aprovisionamiento, no configuración).
+- Infraestructura inmutable con orquestación de contenedores (el YAML de Kubernetes puede ser más simple).
+- Infraestructura pequeña y estática (la gestión manual es aceptable).
 
-## How I would use it (practical)
-- **Context:** Provisioning AWS infrastructure for a web app (EC2, RDS, ALB).
-- **Steps:**
-  1. **Write Terraform config:**
+## Cómo lo usaría (práctico)
+- **Contexto:** Aprovisionar infraestructura AWS para una app web (EC2, RDS, ALB).
+- **Pasos:**
+  1. **Escribir configuración Terraform:**
      ```hcl
      # main.tf
      terraform {
@@ -108,105 +108,105 @@ resource "aws_instance" "web" {
        password          = var.db_password  # From variables
      }
      ```
-  2. **Initialize Terraform:**
+  2. **Inicializar Terraform:**
      ```bash
      terraform init  # Downloads AWS provider plugin
      ```
-  3. **Plan changes:**
+  3. **Planificar cambios:**
      ```bash
      terraform plan  # Shows what will be created
      # Output:
      # + aws_instance.web
      # + aws_db_instance.db
      ```
-  4. **Apply changes:**
+  4. **Aplicar cambios:**
      ```bash
      terraform apply  # Creates resources
      # Prompts for confirmation; type "yes"
      ```
-  5. **State file created:**
-     - `terraform.tfstate` tracks created resources.
-     - Use remote state (S3 + DynamoDB) for teams.
-  6. **Make changes:**
-     - Edit `main.tf` (e.g., change instance type to `t2.small`).
-     - Run `terraform plan` → shows diff.
-     - Run `terraform apply` → updates instance.
-  7. **Destroy when done:**
+  5. **Archivo de estado creado:**
+     - `terraform.tfstate` rastrea los recursos creados.
+     - Usa estado remoto (S3 + DynamoDB) para equipos.
+  6. **Hacer cambios:**
+     - Editar `main.tf` (por ejemplo, cambiar tipo de instancia a `t2.small`).
+     - Ejecutar `terraform plan` → muestra diferencias.
+     - Ejecutar `terraform apply` → actualiza la instancia.
+  7. **Destruir cuando termines:**
      ```bash
      terraform destroy  # Deletes all resources
      ```
-- **What success looks like:** Reproducible infrastructure; changes tracked in Git; team uses shared state.
+- **Cómo se ve el éxito:** Infraestructura reproducible; cambios rastreados en Git; el equipo usa estado compartido.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Multi-cloud (AWS, GCP, Azure, Kubernetes, etc.).
-  - Declarative (simple syntax; focus on desired state).
-  - Large ecosystem (modules, providers, community).
-  - State management (knows current vs. desired state).
-  - Version-controlled (Git workflow for infrastructure).
-- **Cons / Risks:**
-  - State file complexity (must manage, secure, share state).
-  - No built-in secrets management (passwords in plaintext; use Vault).
-  - Drift detection (manual; must run plan to detect changes).
-  - Locking required for teams (prevent concurrent applies).
-  - Refactoring is hard (renaming resources requires state manipulation).
+- **Ventajas:**
+  - Multi-nube (AWS, GCP, Azure, Kubernetes, etc.).
+  - Declarativo (sintaxis simple; enfoque en estado deseado).
+  - Gran ecosistema (módulos, providers, comunidad).
+  - Gestión de estado (conoce el estado actual vs deseado).
+  - Controlado por versión (flujo de trabajo Git para infraestructura).
+- **Desventajas / Riesgos:**
+  - Complejidad del archivo de estado (debe gestionarse, asegurarse y compartirse).
+  - Sin gestión de secretos integrada (contraseñas en texto plano; usa Vault).
+  - Detección de deriva (manual; debe ejecutar plan para detectar cambios).
+  - Bloqueo requerido para equipos (prevenir applies concurrentes).
+  - Refactorizar es difícil (renombrar recursos requiere manipulación de estado).
 
-### Alternatives
-- **[AWS CloudFormation](aws-cloudformation.md):** AWS-native; deeper AWS integration; free (but AWS-only).
-- **Pulumi:** Uses real programming languages (Python, Go); more expressive (but less mature).
-- **AWS CDK:** AWS-native; uses TypeScript/Python; generates CloudFormation (but AWS-only).
-- **Ansible:** Configuration management; can provision infrastructure (but less declarative).
+### Alternativas
+- **[AWS CloudFormation](aws-cloudformation.md):** Nativo de AWS; integración más profunda con AWS; gratuito (pero solo AWS).
+- **Pulumi:** Usa lenguajes de programación reales (Python, Go); más expresivo (pero menos maduro).
+- **AWS CDK:** Nativo de AWS; usa TypeScript/Python; genera CloudFormation (pero solo AWS).
+- **Ansible:** Gestión de configuración; puede aprovisionar infraestructura (pero menos declarativo).
 
-### How to choose
-- **Multi-cloud:** Terraform.
-- **AWS-only, deep integration:** CloudFormation or CDK.
-- **Programming language preference:** Pulumi or CDK.
-- **Configuration management:** Ansible.
+### Cómo elegir
+- **Multi-nube:** Terraform.
+- **Solo AWS, integración profunda:** CloudFormation o CDK.
+- **Preferencia de lenguaje de programación:** Pulumi o CDK.
+- **Gestión de configuración:** Ansible.
 
-## Failure modes & Pitfalls
-- **State file loss:** State file deleted; Terraform doesn't know what it created (orphaned resources).
-- **State file corruption:** Concurrent applies without locking; state file conflicts.
-- **Secrets in plaintext:** Passwords in `.tf` files or state file; committed to Git (security risk).
-- **Drift (manual changes):** Someone edits resource in AWS console; Terraform doesn't know; next apply reverts change.
-- **Dependency issues:** Resource A depends on B, but not declared; Terraform creates in wrong order (fails).
-- **No rollback:** Terraform has no native rollback; must revert Git commit and re-apply.
+## Modos de fallo y trampas
+- **Pérdida del archivo de estado:** Se elimina el archivo de estado; Terraform no sabe qué creó (recursos huérfanos).
+- **Corrupción del archivo de estado:** Applies concurrentes sin bloqueo; conflictos en el archivo de estado.
+- **Secretos en texto plano:** Contraseñas en archivos `.tf` o archivo de estado; commiteados a Git (riesgo de seguridad).
+- **Deriva (cambios manuales):** Alguien edita un recurso en la consola de AWS; Terraform no lo sabe; el próximo apply revierte el cambio.
+- **Problemas de dependencia:** El recurso A depende de B, pero no se declara; Terraform crea en orden incorrecto (falla).
+- **Sin reversión:** Terraform no tiene reversión nativa; debe revertir el commit de Git y re-aplicar.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Terraform run success rate (% of applies that succeed).
-  - Drift detection frequency (how often resources deviate from state).
-  - Apply duration (slow applies indicate complex dependencies).
-- **Logs:** Terraform logs (DEBUG mode for troubleshooting).
-- **Alerts:** State file lock held for >30 minutes (stuck apply), drift detected, apply failed.
-- **Drift detection:** Run `terraform plan` regularly (CI job); alert if changes detected (indicates manual edits).
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tasa de éxito de ejecuciones de Terraform (% de applies exitosos).
+  - Frecuencia de detección de deriva (qué tan seguido los recursos se desvían del estado).
+  - Duración del apply (applies lentos indican dependencias complejas).
+- **Logs:** Logs de Terraform (modo DEBUG para solución de problemas).
+- **Alertas:** Bloqueo del archivo de estado retenido por >30 minutos (apply atascado), deriva detectada, apply fallido.
+- **Detección de deriva:** Ejecutar `terraform plan` regularmente (trabajo CI); alertar si se detectan cambios (indica ediciones manuales).
 
-## Implementation notes
-- **Checklist**
-  - [ ] Use remote state (S3 + DynamoDB for locking).
-  - [ ] Never commit state file to Git (add `*.tfstate` to `.gitignore`).
-  - [ ] Use variables for secrets (pass via env vars or Vault).
-  - [ ] Organize code (modules for reusable components).
-  - [ ] Use workspaces for environments (dev/staging/prod).
-  - [ ] Enable state locking (DynamoDB table for concurrent protection).
-  - [ ] Run `terraform plan` before every apply (review changes).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Usar estado remoto (S3 + DynamoDB para bloqueo).
+  - [ ] Nunca commitear archivo de estado a Git (agregar `*.tfstate` a `.gitignore`).
+  - [ ] Usar variables para secretos (pasar via variables de entorno o Vault).
+  - [ ] Organizar código (módulos para componentes reutilizables).
+  - [ ] Usar workspaces para entornos (dev/staging/prod).
+  - [ ] Habilitar bloqueo de estado (tabla DynamoDB para protección concurrente).
+  - [ ] Ejecutar `terraform plan` antes de cada apply (revisar cambios).
 
-- **Security / Compliance notes**
-  - Store state file securely (S3 with encryption, restricted access).
-  - Never commit secrets to Git (use environment variables or Vault).
-  - Use least-privilege IAM roles (Terraform needs only necessary permissions).
-  - Audit Terraform applies (track who applied what, when).
+- **Notas de seguridad / cumplimiento**
+  - Almacenar archivo de estado de forma segura (S3 con cifrado, acceso restringido).
+  - Nunca commitear secretos a Git (usar variables de entorno o Vault).
+  - Usar roles IAM de privilegio mínimo (Terraform necesita solo los permisos necesarios).
+  - Auditar applies de Terraform (rastrear quién aplicó qué, cuándo).
 
-- **Performance notes**
-  - Parallelize resource creation (Terraform does this automatically; use `-parallelism` to limit).
-  - Use targeted applies for large infrastructures (`terraform apply -target=resource`).
+- **Notas de rendimiento**
+  - Paralelizar creación de recursos (Terraform lo hace automáticamente; usar `-parallelism` para limitar).
+  - Usar applies dirigidos para infraestructuras grandes (`terraform apply -target=resource`).
 
-- **Operational notes**
-  - Document state file location (team must know where state is stored).
-  - Schedule drift detection (daily CI job runs `terraform plan`).
-  - Plan for state migration (if changing backend or splitting monolith).
+- **Notas operacionales**
+  - Documentar ubicación del archivo de estado (el equipo debe saber dónde se almacena el estado).
+  - Programar detección de deriva (trabajo CI diario ejecuta `terraform plan`).
+  - Planificar para migración de estado (si se cambia el backend o se divide un monolito).
 
-## Mini example (Terraform workflow)
+## Mini ejemplo (flujo de trabajo Terraform)
 ```hcl
 # main.tf
 terraform {
@@ -260,7 +260,7 @@ output "instance_ids" {
 # 5. terraform destroy       # Clean up
 ```
 
-**Example output:**
+**Ejemplo de salida:**
 ```bash
 $ terraform plan
 Terraform will perform the following actions:
@@ -290,69 +290,69 @@ Outputs:
 instance_ids = ["i-abc123", "i-def456"]
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Committing state file to Git.
-  - **Why it's bad:** State contains sensitive data (resource IDs, IPs); merge conflicts break state.
-  - **Better approach:** Use remote state (S3 backend); add `*.tfstate` to `.gitignore`.
+## Anti-patrones comunes
+- **Anti-patrón:** Commitear archivo de estado a Git.
+  - **Por qué es malo:** El estado contiene datos sensibles (IDs de recursos, IPs); los conflictos de merge rompen el estado.
+  - **Mejor enfoque:** Usar estado remoto (backend S3); agregar `*.tfstate` a `.gitignore`.
 
-- **Anti-pattern:** No state locking (multiple applies at once).
-  - **Why it's bad:** Concurrent applies corrupt state file; resources created twice.
-  - **Better approach:** Enable locking (DynamoDB table for S3 backend).
+- **Anti-patrón:** Sin bloqueo de estado (múltiples applies a la vez).
+  - **Por qué es malo:** Applies concurrentes corrompen el archivo de estado; recursos creados dos veces.
+  - **Mejor enfoque:** Habilitar bloqueo (tabla DynamoDB para backend S3).
 
-- **Anti-pattern:** Hardcoding secrets in `.tf` files.
-  - **Why it's bad:** Secrets committed to Git; state file contains plaintext passwords.
-  - **Better approach:** Use variables with env vars (`TF_VAR_db_password`) or Vault integration.
+- **Anti-patrón:** Codificar secretos en archivos `.tf`.
+  - **Por qué es malo:** Secretos commiteados a Git; archivo de estado contiene contraseñas en texto plano.
+  - **Mejor enfoque:** Usar variables con variables de entorno (`TF_VAR_db_password`) o integración con Vault.
 
-- **Anti-pattern:** Monolithic config (all resources in one file).
-  - **Why it's bad:** Hard to read; slow applies; team conflicts on same file.
-  - **Better approach:** Use modules (separate VPC, compute, database into modules).
+- **Anti-patrón:** Configuración monolítica (todos los recursos en un archivo).
+  - **Por qué es malo:** Difícil de leer; applies lentos; conflictos del equipo en el mismo archivo.
+  - **Mejor enfoque:** Usar módulos (separar VPC, cómputo, base de datos en módulos).
 
-- **Anti-pattern:** Not running `terraform plan` before apply.
-  - **Why it's bad:** Unexpected changes (destroy resources accidentally).
-  - **Better approach:** Always plan first; review changes; then apply.
+- **Anti-patrón:** No ejecutar `terraform plan` antes de apply.
+  - **Por qué es malo:** Cambios inesperados (destruir recursos accidentalmente).
+  - **Mejor enfoque:** Siempre planificar primero; revisar cambios; luego aplicar.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Terraform is an Infrastructure as Code tool that lets you define cloud resources in a configuration file using HCL (HashiCorp Configuration Language). You write code like "I want 3 EC2 instances and 1 RDS database," and Terraform makes API calls to AWS to create them. The workflow is: (1) write config, (2) `terraform init` to download provider plugins, (3) `terraform plan` to preview changes, (4) `terraform apply` to create resources. Terraform tracks what it created in a "state file," so it knows current vs. desired state. If you later change the config (e.g., increase instances to 5), Terraform calculates the diff and updates only what changed. The main benefits are multi-cloud support (works with AWS, GCP, Azure), version control (track infrastructure changes in Git), and reproducibility (same config = identical infrastructure). The downsides are state file management (must secure and share state) and no native secrets handling.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+Terraform es una herramienta de Infraestructura como Código que te permite definir recursos en la nube en un archivo de configuración usando HCL (HashiCorp Configuration Language). Escribes código como "Quiero 3 instancias EC2 y 1 base de datos RDS," y Terraform hace llamadas API a AWS para crearlos. El flujo de trabajo es: (1) escribir configuración, (2) `terraform init` para descargar plugins del provider, (3) `terraform plan` para previsualizar cambios, (4) `terraform apply` para crear recursos. Terraform rastrea lo que creó en un "archivo de estado," para saber el estado actual vs deseado. Si luego cambias la configuración (por ejemplo, aumentar instancias a 5), Terraform calcula la diferencia y actualiza solo lo que cambió. Los principales beneficios son soporte multi-nube (funciona con AWS, GCP, Azure), control de versión (rastrear cambios de infraestructura en Git) y reproducibilidad (misma configuración = infraestructura idéntica). Las desventajas son gestión del archivo de estado (debe asegurarse y compartirse) y sin manejo nativo de secretos.
 
-### Trap questions (with answers)
-1) **Q:** What is the Terraform state file, and why is it important?
-   - **A:** The state file (`terraform.tfstate`) is a JSON file that maps Terraform config to real-world resources. It stores resource IDs, attributes, and dependencies. It's critical because Terraform uses it to know what currently exists, so it can calculate diffs (what to create/update/delete). Without state, Terraform can't manage infrastructure. Best practice: use remote state (S3) and enable locking (DynamoDB) to prevent conflicts.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Qué es el archivo de estado de Terraform y por qué es importante?
+   - **R:** El archivo de estado (`terraform.tfstate`) es un archivo JSON que mapea la configuración de Terraform a recursos del mundo real. Almacena IDs de recursos, atributos y dependencias. Es crítico porque Terraform lo usa para saber qué existe actualmente, así puede calcular diferencias (qué crear/actualizar/eliminar). Sin estado, Terraform no puede gestionar infraestructura. Mejor práctica: usar estado remoto (S3) y habilitar bloqueo (DynamoDB) para prevenir conflictos.
 
-2) **Q:** How does Terraform handle dependencies between resources?
-   - **A:** Terraform builds a dependency graph. You can declare explicit dependencies (`depends_on`), but Terraform also infers implicit dependencies (e.g., security group ID referenced in instance config). It creates resources in correct order (security group first, then instance). If creation fails, Terraform stops and leaves partial state (you can retry or destroy).
+2) **P:** ¿Cómo maneja Terraform las dependencias entre recursos?
+   - **R:** Terraform construye un grafo de dependencias. Puedes declarar dependencias explícitas (`depends_on`), pero Terraform también infiere dependencias implícitas (por ejemplo, ID de grupo de seguridad referenciado en configuración de instancia). Crea recursos en el orden correcto (grupo de seguridad primero, luego instancia). Si la creación falla, Terraform se detiene y deja estado parcial (puedes reintentar o destruir).
 
-3) **Q:** What happens if someone manually changes a resource in the AWS console?
-   - **A:** Terraform doesn't know about the change (state file is stale). This is called "drift." Next time you run `terraform plan`, Terraform detects the difference (actual state vs. config) and proposes reverting the manual change. To detect drift regularly, run `terraform plan` in CI (e.g., nightly job) and alert if changes detected.
+3) **P:** ¿Qué pasa si alguien cambia manualmente un recurso en la consola de AWS?
+   - **R:** Terraform no sabe del cambio (el archivo de estado está obsoleto). Esto se llama "deriva." La próxima vez que ejecutes `terraform plan`, Terraform detecta la diferencia (estado real vs configuración) y propone revertir el cambio manual. Para detectar deriva regularmente, ejecuta `terraform plan` en CI (por ejemplo, trabajo nocturno) y alerta si se detectan cambios.
 
-4) **Q:** How do you manage secrets in Terraform?
-   - **A:** Don't hardcode secrets in `.tf` files (they'd be in Git and state file). Instead: (1) use variables and pass secrets via environment variables (`TF_VAR_db_password=secret terraform apply`), (2) integrate with HashiCorp Vault or AWS Secrets Manager, (3) use sensitive=true for variables (hides output), (4) encrypt state file (S3 backend with encryption).
+4) **P:** ¿Cómo gestionas secretos en Terraform?
+   - **R:** No codifiques secretos en archivos `.tf` (estarían en Git y el archivo de estado). En su lugar: (1) usa variables y pasa secretos via variables de entorno (`TF_VAR_db_password=secret terraform apply`), (2) integra con HashiCorp Vault o AWS Secrets Manager, (3) usa sensitive=true para variables (oculta la salida), (4) cifra el archivo de estado (backend S3 con cifrado).
 
-5) **Q:** What's the difference between Terraform and CloudFormation?
-   - **A:** 
-     - **Terraform:** Multi-cloud (AWS, GCP, Azure); HCL syntax; open-source; requires state management.
-     - **CloudFormation:** AWS-only; JSON/YAML; free; AWS-managed state (no state file to manage).
-     - Choose Terraform for multi-cloud or vendor neutrality; choose CloudFormation for AWS-only with deeper AWS integration.
+5) **P:** ¿Cuál es la diferencia entre Terraform y CloudFormation?
+   - **R:** 
+     - **Terraform:** Multi-nube (AWS, GCP, Azure); sintaxis HCL; código abierto; requiere gestión de estado.
+     - **CloudFormation:** Solo AWS; JSON/YAML; gratuito; estado gestionado por AWS (sin archivo de estado que gestionar).
+     - Elige Terraform para multi-nube o neutralidad de proveedor; elige CloudFormation para solo AWS con integración más profunda.
 
-### Quick self-check (5 items)
-- [ ] I can explain the Terraform workflow (init → plan → apply → destroy).
-- [ ] I can describe the role of the state file.
-- [ ] I can articulate when to use Terraform vs. CloudFormation.
-- [ ] I can explain how to manage secrets securely in Terraform.
-- [ ] I can identify drift and how to detect it.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo explicar el flujo de trabajo de Terraform (init → plan → apply → destroy).
+- [ ] Puedo describir el rol del archivo de estado.
+- [ ] Puedo articular cuándo usar Terraform vs. CloudFormation.
+- [ ] Puedo explicar cómo gestionar secretos de forma segura en Terraform.
+- [ ] Puedo identificar la deriva y cómo detectarla.
 
-## Links (NO duplication)
-### Prerequisites
-- [Infrastructure as Code basics](infrastructure-as-code.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de Infraestructura como Código](infrastructure-as-code.md)
 
-### Related topics
+### Temas relacionados
 - [AWS CloudFormation](aws-cloudformation.md)
-- [CI/CD basics](../quality/ci-cd-basics.md)
+- [Fundamentos de CI/CD](../quality/ci-cd-basics.md)
 
-### Compare with
-- [AWS CloudFormation](aws-cloudformation.md) — CloudFormation is AWS-only; Terraform is multi-cloud.
+### Comparar con
+- [AWS CloudFormation](aws-cloudformation.md) — CloudFormation es solo AWS; Terraform es multi-nube.
 
-## Notes / Inbox
-- Add examples from real projects: Terraform modules for Heimdall infrastructure.
-- Consider adding section on Terraform workspaces (dev/staging/prod).
-- Link to Terraform modules best practices when created.
+## Notas / Bandeja de entrada
+- Agregar ejemplos de proyectos reales: módulos de Terraform para infraestructura de Heimdall.
+- Considerar agregar sección sobre workspaces de Terraform (dev/staging/prod).
+- Vincular a mejores prácticas de módulos de Terraform cuando se creen.

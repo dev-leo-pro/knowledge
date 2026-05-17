@@ -1,35 +1,35 @@
 ---
-title: RED/USE Dashboards
+title: Dashboards RED/USE
 ---
 
-# RED/USE Dashboards
+# Dashboards RED/USE
 
-## Definition
-RED and USE are monitoring methodologies for building dashboards that focus on key metrics: Requests, Errors, Duration (RED) and Utilization, Saturation, Errors (USE).
+## Definición
+RED y USE son metodologías de monitoreo para construir dashboards que se enfocan en métricas clave: Requests, Errors, Duration (RED) y Utilization, Saturation, Errors (USE).
 
-## Why it matters
-They provide a standardized way to monitor system health and performance, helping teams quickly identify bottlenecks and issues.
+## Por qué importa
+Proporcionan una forma estandarizada de monitorear la salud y el rendimiento del sistema, ayudando a los equipos a identificar rápidamente cuellos de botella y problemas.
 
-## When to use / when not to use
-Use for SRE, DevOps, and operations teams to monitor services and infrastructure. Not needed for very simple systems.
+## Cuándo usar / cuándo no usar
+Úsalo para equipos de SRE, DevOps y operaciones para monitorear servicios e infraestructura. No es necesario para sistemas muy simples.
 
 ## Trade-offs
-- + Standardized, actionable metrics
-- + Helps prioritize alerts and troubleshooting
-- - May not capture all business-specific signals
-- - Can be overwhelming if not tailored to context
+- + Métricas estandarizadas y accionables
+- + Ayuda a priorizar alertas y solución de problemas
+- - Puede no capturar todas las señales específicas del negocio
+- - Puede ser abrumador si no se adapta al contexto
 
-## Prerequisites
-- [Observability basics](../operations/observability-basics.md)
+## Prerequisitos
+- [Fundamentos de observabilidad](../operations/observability-basics.md)
 
-## Related topics
+## Temas relacionados
 - [Datadog APM](datadog-apm.md)
 - [SLI/SLO](../operations/service-level-indicator.md)
 
-## Trap questions
-1. What does RED stand for?
+## Preguntas trampa
+1. ¿Qué significa RED?
    - Requests, Errors, Duration.
-2. What does USE stand for?
+2. ¿Qué significa USE?
    - Utilization, Saturation, Errors.
-3. What is a common pitfall with RED/USE dashboards?
-   - Focusing only on technical metrics and missing business impact.
+3. ¿Cuál es un error común con los dashboards RED/USE?
+   - Enfocarse solo en métricas técnicas y perder el impacto de negocio.

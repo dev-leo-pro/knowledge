@@ -1,6 +1,6 @@
 ---
 id: operational-planning
-title: "Operational Planning"
+title: "Planificación operacional"
 type: skill
 status: learning
 importance: 40
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Operational Planning
+# Planificación operacional
 
 ## TL;DR (BLUF)
-- Operational planning defines how and when to run maintenance safely.
-- Use it to reduce user impact and coordinate changes.
-- Trade-off: more process overhead.
+- La planificación operacional define cómo y cuándo ejecutar mantenimiento de forma segura.
+- Úsala para reducir el impacto en los usuarios y coordinar cambios.
+- Trade-off: mayor sobrecarga de procesos.
 
-## Definition
-**What it is:** Planning tasks like maintenance, backups, and upgrades.
-**Key terms:** runbook, window, risk assessment.
+## Definición
+**Qué es:** Planificar tareas como mantenimiento, respaldos y actualizaciones.
+**Términos clave:** runbook, ventana, evaluación de riesgos.
 
-## Why it matters
-- It prevents outages and confusion.
-- Poor planning causes downtime and data loss.
+## Por qué importa
+- Previene interrupciones y confusión.
+- Una mala planificación causa tiempo de inactividad y pérdida de datos.
 
-## Scope & Non-goals
-**In scope:** maintenance planning and coordination.
-**Out of scope / NOT solved by this:** automated remediation.
+## Alcance y no-objetivos
+**Dentro del alcance:** planificación y coordinación de mantenimiento.
+**Fuera del alcance / NO resuelto por esto:** remediación automatizada.
 
-## Mental model / Intuition
-- Plan before you change production.
+## Modelo mental / Intuición
+- Planifica antes de cambiar producción.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Changes impact production systems.
-### Avoid it when
-- The change is reversible and low-risk.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los cambios impactan sistemas en producción.
+### Evítalo cuando
+- El cambio es reversible y de bajo riesgo.
 
-## How I would use it (practical)
-- **Context:** Database maintenance.
-- **Steps:** assess risk → schedule window → communicate → execute.
-- **What success looks like:** predictable outcomes and minimal impact.
+## Cómo lo usaría (práctico)
+- **Contexto:** Mantenimiento de base de datos.
+- **Pasos:** evaluar riesgo → programar ventana → comunicar → ejecutar.
+- **Cómo se ve el éxito:** resultados predecibles e impacto mínimo.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** reduced risk.
-- **Cons / Risks:** slower execution.
-### Alternatives
-- **Ad-hoc changes:** faster but riskier.
-- **How to choose:** plan for high-impact changes.
+- **Ventajas:** riesgo reducido.
+- **Desventajas / Riesgos:** ejecución más lenta.
+### Alternativas
+- **Cambios ad-hoc:** más rápidos pero más riesgosos.
+- **Cómo elegir:** planifica para cambios de alto impacto.
 
-## Failure modes & Pitfalls
-- Skipping stakeholder communication.
+## Modos de fallo y trampas
+- Omitir la comunicación con los interesados.
 
-## Observability (How to detect issues)
-- **Metrics:** change success rate.
-- **Logs:** change failures.
-- **Alerts:** rollback events.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de éxito de cambios.
+- **Logs:** fallos de cambios.
+- **Alertas:** eventos de reversión.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Assess risk
-  - [ ] Notify stakeholders
-  - [ ] Validate post-change
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Evaluar riesgo
+  - [ ] Notificar a interesados
+  - [ ] Validar después del cambio
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Running changes without a rollback plan.
-  - **Why it’s bad:** extended outages.
-  - **Better approach:** define rollback steps.
+## Anti-patrones comunes
+- **Anti-patrón:** Ejecutar cambios sin un plan de reversión.
+  - **Por qué es malo:** interrupciones prolongadas.
+  - **Mejor enfoque:** definir pasos de reversión.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Operational planning is about safely scheduling and executing production changes. It reduces risk and ensures teams are aligned.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La planificación operacional trata sobre programar y ejecutar cambios en producción de forma segura. Reduce el riesgo y asegura que los equipos estén alineados.
 
-### Trap questions (with answers)
-1) **Q:** Is planning always necessary?
-   - **A:** for high-impact changes, yes.
-2) **Q:** Can you skip communication?
-   - **A:** no; stakeholders must be informed.
-3) **Q:** Does planning slow delivery?
-   - **A:** it adds steps but reduces risk.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es siempre necesaria la planificación?
+   - **R:** para cambios de alto impacto, sí.
+2) **P:** ¿Puedes omitir la comunicación?
+   - **R:** no; los interesados deben ser informados.
+3) **P:** ¿La planificación ralentiza la entrega?
+   - **R:** agrega pasos pero reduce el riesgo.
 
-### Quick self-check (5 items)
-- [ ] I can define operational planning.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a success signal.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir planificación operacional.
+- [ ] Puedo indicar cuándo usarla.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar una señal de éxito.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [Maintenance windows](maintenance-windows.md)
+### Temas relacionados
+- [Ventanas de mantenimiento](maintenance-windows.md)
 
-### Compare with
-- [Incident management basics](incident-management-basics.md)
+### Comparar con
+- [Fundamentos de gestión de incidentes](incident-management-basics.md)

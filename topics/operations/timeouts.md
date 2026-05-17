@@ -1,6 +1,6 @@
 ---
 id: timeouts
-title: "Timeouts and Time Budgets"
+title: "Timeouts y presupuestos de tiempo"
 type: concept
 status: learning
 importance: 85
@@ -12,110 +12,110 @@ created_at: 2026-01-22
 updated_at: 2026-01-22
 ---
 
-# Timeouts and Time Budgets
+# Timeouts y presupuestos de tiempo
 
 ## TL;DR (BLUF)
-- Timeouts prevent stuck work and limit blast radius.
-- Use a **time budget** for the whole operation and allocate per hop.
-- Retries without timeouts are a common production killer.
+- Los timeouts previenen trabajo atascado y limitan el radio de impacto.
+- Usa un **presupuesto de tiempo** para toda la operación y asígnalo por salto.
+- Reintentos sin timeouts son un asesino común en producción.
 
-## Definition
-**What it is:** A maximum time allowed for an operation (request, DB call, message processing) before it is canceled/failed.
-**Key terms:** timeout, deadline (deadline), time budget, cancellation.
+## Definición
+**Qué es:** Un tiempo máximo permitido para una operación (solicitud, llamada a BD, procesamiento de mensajes) antes de que sea cancelada/fallida.
+**Términos clave:** timeout, deadline, presupuesto de tiempo, cancelación.
 
-## Why it matters
-- Without timeouts, latency and resource usage grow unbounded under failure.
-- Timeouts enable predictable tail latency and prevent [Cascading failure](cascading-failure.md).
+## Por qué importa
+- Sin timeouts, la latencia y el uso de recursos crecen sin límite ante fallos.
+- Los timeouts permiten latencia de cola predecible y previenen [Fallo en cascada](cascading-failure.md).
 
-## Scope & Non-goals
-**In scope:** timeouts for HTTP calls, DB calls, message processing.
-**Out of scope / NOT solved by this:** correctness under retries (see [Idempotency](idempotency.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** timeouts para llamadas HTTP, llamadas a BD, procesamiento de mensajes.
+**Fuera del alcance / NO resuelto por esto:** corrección bajo reintentos (ver [Idempotencia](idempotency.md)).
 
-## Mental model / Intuition
-- Every request has a “stopwatch”. If it runs out, you must stop work and free resources.
+## Modelo mental / Intuición
+- Cada solicitud tiene un "cronómetro". Si se agota, debes detener el trabajo y liberar recursos.
 
-## Decision rules (When to use / When not to use)
-### Use timeouts when
-- Any operation crosses a network boundary.
-- Work uses shared resources (threads, DB connections, queue workers).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Usa timeouts cuando
+- Cualquier operación cruza un límite de red.
+- El trabajo usa recursos compartidos (hilos, conexiones de BD, workers de cola).
 
-### Avoid overly aggressive timeouts when
-- You would create false failures for known-long operations; prefer async processing.
+### Evita timeouts excesivamente agresivos cuando
+- Crearías fallos falsos para operaciones conocidas como largas; prefiere procesamiento asíncrono.
 
-## How I would use it (practical)
-- **Context:** API call triggers 2 downstream services + DB write.
-- **Steps:**
-  1) Define end-to-end SLO budget (e.g., 800ms).
-  2) Allocate per hop (e.g., 150ms + 150ms + 200ms + overhead).
-  3) Ensure retries fit in remaining budget.
-- **What success looks like:** bounded p99 and no stuck worker pools.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una llamada API activa 2 servicios descendentes + escritura en BD.
+- **Pasos:**
+  1) Definir presupuesto SLO de extremo a extremo (por ejemplo, 800ms).
+  2) Asignar por salto (por ejemplo, 150ms + 150ms + 200ms + sobrecarga).
+  3) Asegurar que los reintentos quepan en el presupuesto restante.
+- **Cómo se ve el éxito:** p99 acotado y sin pools de workers atascados.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** bounded tail latency, predictable capacity.
-- **Cons / Risks:** false timeouts cause retries and load; tuning is required.
+- **Ventajas:** latencia de cola acotada, capacidad predecible.
+- **Desventajas / Riesgos:** timeouts falsos causan reintentos y carga; se requiere ajuste.
 
-### Alternatives
-- **Async with queue:** move long work off the request path.
-- **Graceful degradation:** return partial results or “try again later”.
-- **How to choose:** if user waits, keep budgets tight; if not, use async.
+### Alternativas
+- **Asíncrono con cola:** mover trabajo largo fuera de la ruta de la solicitud.
+- **Degradación elegante:** devolver resultados parciales o "intenta de nuevo más tarde".
+- **Cómo elegir:** si el usuario espera, mantén los presupuestos ajustados; si no, usa asíncrono.
 
-## Failure modes & Pitfalls
-- No timeout at all (default infinite).
-- Same timeout for all calls (ignores dependencies).
-- Timeouts without cancellation propagation → wasted work continues.
+## Modos de fallo y trampas
+- Sin timeout en absoluto (infinito por defecto).
+- Mismo timeout para todas las llamadas (ignora dependencias).
+- Timeouts sin propagación de cancelación → trabajo desperdiciado continúa.
 
-## Observability (How to detect issues)
-- **Metrics:** timeout rate, latency percentiles, pool saturation, retries triggered by timeouts.
-- **Logs:** “deadline exceeded” with remaining budget and dependency.
-- **Traces:** show where time is spent before timeout.
-- **Alerts:** sustained timeout-rate increase + saturation.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de timeout, percentiles de latencia, saturación de pool, reintentos provocados por timeouts.
+- **Logs:** "deadline exceeded" con presupuesto restante y dependencia.
+- **Trazas:** mostrar dónde se gasta el tiempo antes del timeout.
+- **Alertas:** aumento sostenido de tasa de timeout + saturación.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define end-to-end time budget
-  - [ ] Set per-hop timeouts
-  - [ ] Propagate cancellation/deadlines across calls
-  - [ ] Ensure retries fit within budget
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir presupuesto de tiempo de extremo a extremo
+  - [ ] Establecer timeouts por salto
+  - [ ] Propagar cancelación/deadlines entre llamadas
+  - [ ] Asegurar que los reintentos quepan dentro del presupuesto
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Increase timeouts to “fix” failures.
-  - **Why it’s bad:** hides overload and makes incidents worse.
-  - **Better approach:** add [Backpressure](../system-design/backpressure.md), retries with budgets, and breakers.
+## Anti-patrones comunes
+- **Anti-patrón:** Aumentar timeouts para "arreglar" fallos.
+  - **Por qué es malo:** oculta la sobrecarga y empeora los incidentes.
+  - **Mejor enfoque:** agregar [Contrapresión (Backpressure)](../system-design/backpressure.md), reintentos con presupuestos y breakers.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Timeouts are a protective boundary: they stop stuck work, limit [Cascading failure](cascading-failure.md), and force you to allocate an explicit latency budget.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los timeouts son un límite protector: detienen trabajo atascado, limitan el [Fallo en cascada](cascading-failure.md) y te obligan a asignar un presupuesto de latencia explícito.
 
-### Trap questions (with answers)
-1) **Q:** If you add retries, should you increase timeouts?
-   - **A:** Not automatically; retries must fit a budget, otherwise you increase tail latency and load.
-2) **Q:** Are timeouts only for HTTP?
-   - **A:** No; DB calls, queue processing, and any resource-bounded operation needs them.
-3) **Q:** Is a timeout enough without cancellation?
-   - **A:** No; if work continues after timeout, you still burn resources and can duplicate side effects.
+### Preguntas trampa (con respuestas)
+1) **P:** Si agregas reintentos, ¿deberías aumentar los timeouts?
+   - **R:** No automáticamente; los reintentos deben caber en un presupuesto, de lo contrario aumentas la latencia de cola y la carga.
+2) **P:** ¿Los timeouts son solo para HTTP?
+   - **R:** No; las llamadas a BD, procesamiento de colas y cualquier operación con recursos acotados los necesitan.
+3) **P:** ¿Es suficiente un timeout sin cancelación?
+   - **R:** No; si el trabajo continúa después del timeout, aún quemas recursos y puedes duplicar efectos secundarios.
 
-### Quick self-check (5 items)
-- [ ] I can explain why timeouts prevent [Cascading failure](cascading-failure.md).
-- [ ] I can define a time budget and allocate it.
-- [ ] I can connect timeouts with retries.
-- [ ] I can propose metrics for timeouts.
-- [ ] I can describe cancellation propagation.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo explicar por qué los timeouts previenen el [Fallo en cascada](cascading-failure.md).
+- [ ] Puedo definir un presupuesto de tiempo y asignarlo.
+- [ ] Puedo conectar timeouts con reintentos.
+- [ ] Puedo proponer métricas para timeouts.
+- [ ] Puedo describir la propagación de cancelación.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](../system-design/distributed-systems-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de sistemas distribuidos](../system-design/distributed-systems-basics.md)
 
-### Related topics
-- [Retries, exponential backoff, and jitter](retries-and-backoff.md)
+### Temas relacionados
+- [Reintentos, backoff exponencial y jitter](retries-and-backoff.md)
 - [Circuit breaker](circuit-breaker.md)
 - [HTTP](http.md)
 
-### Compare with
-- [Retries, exponential backoff, and jitter](retries-and-backoff.md) — retries increase time; budgets constrain retries.
+### Comparar con
+- [Reintentos, backoff exponencial y jitter](retries-and-backoff.md) — los reintentos aumentan el tiempo; los presupuestos limitan los reintentos.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

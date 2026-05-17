@@ -15,92 +15,92 @@ updated_at: 2026-01-19
 # SQLite
 
 ## TL;DR (BLUF)
-- Embedded SQL database stored in a single file.
-- Use it for local apps, testing, and small to medium datasets.
-- Trade-off: limited concurrency and scaling compared to client-server DBs.
+- Base de datos SQL embebida almacenada en un solo archivo.
+- Úsala para aplicaciones locales, pruebas y conjuntos de datos pequeños a medianos.
+- Trade-off: concurrencia y escalado limitados comparado con BDs cliente-servidor.
 
-## Definition
-**What it is:** A lightweight, serverless relational database library that stores data in a file.
-**Key terms:** embedded database, file-based, ACID.
+## Definición
+**Qué es:** Una biblioteca de base de datos relacional ligera, sin servidor, que almacena datos en un archivo.
+**Términos clave:** base de datos embebida, basada en archivo, ACID.
 
-## Why it matters
-- It’s ubiquitous for local storage and testing.
-- It provides SQL without operational overhead.
+## Por qué importa
+- Es ubicua para almacenamiento local y pruebas.
+- Proporciona SQL sin sobrecarga operativa.
 
-## Scope & Non-goals
-**In scope:** local storage, low-ops SQL, single-node apps.
-**Out of scope / NOT solved by this:** high-concurrency multi-node workloads.
+## Alcance y no-objetivos
+**Dentro del alcance:** almacenamiento local, SQL de bajo mantenimiento, aplicaciones de un solo nodo.
+**Fuera del alcance / NO resuelto por esto:** cargas de trabajo multi-nodo de alta concurrencia.
 
-## Mental model / Intuition
-- Think of SQLite as a database you ship inside your app.
+## Modelo mental / Intuición
+- Piensa en SQLite como una base de datos que envías dentro de tu aplicación.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need simple SQL with minimal ops.
-- You have low to moderate concurrency.
-### Avoid it when
-- You need high write concurrency or horizontal scaling.
-- You need advanced DB features from a server.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas SQL simple con operaciones mínimas.
+- Tienes concurrencia baja a moderada.
+### Evítalo cuando
+- Necesitas alta concurrencia de escritura o escalado horizontal.
+- Necesitas funcionalidades avanzadas de BD de un servidor.
 
-## How I would use it (practical)
-- **Context:** Local desktop app or integration tests.
-- **Steps:** define schema → use transactions → backup the file.
-- **What success looks like:** reliable local persistence with minimal setup.
+## Cómo lo usaría (práctico)
+- **Contexto:** Aplicación de escritorio local o pruebas de integración.
+- **Pasos:** definir esquema → usar transacciones → hacer backup del archivo.
+- **Cómo se ve el éxito:** persistencia local confiable con configuración mínima.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** zero-ops, fast for local use.
-- **Cons / Risks:** limited concurrency and scaling.
-### Alternatives
-- **PostgreSQL:** for server-based multi-user workloads.
-- **How to choose:** choose SQLite for embedded/local needs; switch to PostgreSQL when you need concurrency and scale.
+- **Ventajas:** cero operaciones, rápido para uso local.
+- **Desventajas / Riesgos:** concurrencia y escalado limitados.
+### Alternativas
+- **PostgreSQL:** para cargas de trabajo multi-usuario basadas en servidor.
+- **Cómo elegir:** elige SQLite para necesidades embebidas/locales; cambia a PostgreSQL cuando necesites concurrencia y escala.
 
-## Failure modes & Pitfalls
-- Write contention under concurrent workloads.
-- File corruption without proper backups.
+## Modos de fallo y trampas
+- Contención de escritura bajo cargas de trabajo concurrentes.
+- Corrupción del archivo sin backups apropiados.
 
-## Observability (How to detect issues)
-- **Metrics:** write latency, lock contention.
-- **Logs:** application logs for DB errors.
-- **Alerts:** frequent write lock errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de escritura, contención de bloqueos.
+- **Logs:** logs de aplicación para errores de BD.
+- **Alertas:** errores frecuentes de bloqueo de escritura.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Use transactions
-  - [ ] Backup the database file
+  - [ ] Usar transacciones
+  - [ ] Hacer backup del archivo de base de datos
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using SQLite for high-concurrency server workloads.
-  - **Why it’s bad:** lock contention and latency spikes.
-  - **Better approach:** use a client-server DB like [PostgreSQL](postgresql.md).
+## Anti-patrones comunes
+- **Anti-patrón:** Usar SQLite para cargas de trabajo de servidor de alta concurrencia.
+  - **Por qué es malo:** contención de bloqueos y picos de latencia.
+  - **Mejor enfoque:** usar una BD cliente-servidor como [PostgreSQL](postgresql.md).
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- SQLite is an embedded SQL database in a single file. It’s great for local apps and tests, but it doesn’t handle high concurrency like server databases.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- SQLite es una base de datos SQL embebida en un solo archivo. Es genial para aplicaciones locales y pruebas, pero no maneja alta concurrencia como las bases de datos de servidor.
 
-### Trap questions (with answers)
-1) **Q:** Is SQLite a server you connect to?
-   - **A:** no; it’s embedded in the application.
-2) **Q:** Can SQLite handle huge multi-tenant workloads?
-   - **A:** not well; concurrency and scaling are limited.
-3) **Q:** Does SQLite support transactions?
-   - **A:** yes; it supports ACID transactions.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿SQLite es un servidor al que te conectas?
+   - **R:** no; está embebida en la aplicación.
+2) **P:** ¿SQLite puede manejar enormes cargas de trabajo multi-tenant?
+   - **R:** no bien; la concurrencia y el escalado son limitados.
+3) **P:** ¿SQLite soporta transacciones?
+   - **R:** sí; soporta transacciones ACID.
 
-### Quick self-check (5 items)
-- [ ] I can define SQLite precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete use case.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir SQLite con precisión.
+- [ ] Puedo decir cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un caso de uso concreto.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [SQL foundations](sql-foundations.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de SQL](sql-foundations.md)
 
-### Related topics
+### Temas relacionados
 - [PostgreSQL](postgresql.md)
-### Compare with
-- [PostgreSQL](postgresql.md) — client-server vs embedded.
+### Comparar con
+- [PostgreSQL](postgresql.md) — cliente-servidor vs embebido.

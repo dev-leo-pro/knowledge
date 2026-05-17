@@ -1,6 +1,6 @@
 ---
 id: quality-gates
-title: "Quality Gates (CI/CD)"
+title: "Compuertas de Calidad (CI/CD)"
 type: pattern
 status: learning
 importance: 80
@@ -12,136 +12,136 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Quality Gates (CI/CD)
+# Compuertas de Calidad (CI/CD)
 
 ## TL;DR (BLUF)
-- Quality gates are automated checks in CI/CD pipelines that prevent low-quality code from reaching production.
-- Use gates for linting, testing, security scans, and coverage thresholds.
-- Key trade-off: preventing defects vs. pipeline speed and developer friction.
+- Las compuertas de calidad son verificaciones automatizadas en pipelines de CI/CD que previenen que código de baja calidad llegue a producción.
+- Usa compuertas para linting, pruebas, escaneos de seguridad y umbrales de cobertura.
+- Trade-off clave: prevenir defectos vs. velocidad del pipeline y fricción del desarrollador.
 
-## Definition
-**What it is:** Automated checkpoints in a CI/CD pipeline that validate code quality, security, and correctness before allowing code to merge or deploy.  
-**Key terms:** CI (Continuous Integration), CD (Continuous Deployment/Delivery), linter, static analysis, coverage threshold, security scan (SAST/DAST), smoke test.
+## Definición
+**Qué es:** Puntos de verificación automatizados en un pipeline de CI/CD que validan la calidad, seguridad y corrección del código antes de permitir que se fusione o despliegue.  
+**Términos clave:** CI (Integración Continua), CD (Despliegue/Entrega Continua), linter, análisis estático, umbral de cobertura, escaneo de seguridad (SAST/DAST), prueba de humo.
 
-## Why it matters
-- **Prevents defects:** Catches issues before they reach production (bugs, security vulnerabilities, style violations).
-- **Enforces standards:** Ensures all code meets minimum quality bar without relying on human memory.
-- **Enables fast delivery:** Teams ship confidently because gates catch regressions automatically.
-- **Interview relevance:** CI/CD and quality automation are standard topics in system design and DevOps discussions.
+## Por qué importa
+- **Previene defectos:** Detecta problemas antes de que lleguen a producción (errores, vulnerabilidades de seguridad, violaciones de estilo).
+- **Impone estándares:** Asegura que todo el código cumpla un estándar mínimo de calidad sin depender de la memoria humana.
+- **Permite entrega rápida:** Los equipos entregan con confianza porque las compuertas detectan regresiones automáticamente.
+- **Relevancia en entrevistas:** CI/CD y automatización de calidad son temas estándar en discusiones de diseño de sistemas y DevOps.
 
-## Scope & Non-goals
-**In scope:**
-- Pre-merge gates (linting, unit tests, coverage).
-- Pre-deploy gates (integration tests, security scans, smoke tests).
-- Post-deploy gates (canary metrics, smoke tests in production).
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Compuertas pre-merge (linting, pruebas unitarias, cobertura).
+- Compuertas pre-despliegue (pruebas de integración, escaneos de seguridad, pruebas de humo).
+- Compuertas post-despliegue (métricas canario, pruebas de humo en producción).
 
-**Out of scope / NOT solved by this:**
-- Manual QA or exploratory testing (complements gates).
-- Product quality (gates validate technical quality, not feature correctness).
+**Fuera del alcance / NO resuelto por esto:**
+- QA manual o pruebas exploratorias (complementa las compuertas).
+- Calidad del producto (las compuertas validan calidad técnica, no corrección de funcionalidades).
 
-## Mental model / Intuition
-Think of quality gates as **airport security checkpoints**:
-- You can't board the plane (deploy to production) without passing security (gates).
-- Multiple layers: ID check (linting), baggage scan (tests), body scan (security scans).
-- If you fail a check, you can't proceed until you fix it.
+## Modelo mental / Intuición
+Piensa en las compuertas de calidad como **controles de seguridad del aeropuerto**:
+- No puedes abordar el avión (desplegar a producción) sin pasar seguridad (compuertas).
+- Múltiples capas: verificación de identidad (linting), escaneo de equipaje (pruebas), escaneo corporal (escaneos de seguridad).
+- Si fallas una verificación, no puedes continuar hasta que lo corrijas.
 
-Without gates, defective code slips through and causes production incidents.
+Sin compuertas, el código defectuoso se filtra y causa incidentes en producción.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Building production systems where defects have real cost.
-- Working in teams (gates enforce shared standards).
-- Deploying frequently (gates enable safe, fast releases).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Construyes sistemas de producción donde los defectos tienen un costo real.
+- Trabajas en equipos (las compuertas imponen estándares compartidos).
+- Despliegas frecuentemente (las compuertas permiten lanzamientos rápidos y seguros).
 
-### Avoid it when
-- Prototyping throwaway code (gates add friction for no value).
-- Gates are too slow (>30 minutes for CI kills productivity; optimize or relax gates).
+### Evítalo cuando
+- Prototipar código desechable (las compuertas agregan fricción sin valor).
+- Las compuertas son demasiado lentas (>30 minutos para CI mata la productividad; optimizar o relajar compuertas).
 
-## How I would use it (practical)
-- **Context:** Building a Go API service deployed via GitHub Actions.
-- **Steps:**
-  1. **Pre-commit hooks (local):**
-     - Run linter (`golangci-lint`) and formatters (`gofmt`).
-     - Block commit if linting fails (catches issues before PR).
-  2. **Pre-merge gates (CI on PR):**
+## Cómo lo usaría (práctico)
+- **Contexto:** Construyendo un servicio API en Go desplegado via GitHub Actions.
+- **Pasos:**
+  1. **Hooks pre-commit (local):**
+     - Ejecutar linter (`golangci-lint`) y formateadores (`gofmt`).
+     - Bloquear commit si el linting falla (detecta problemas antes del PR).
+  2. **Compuertas pre-merge (CI en PR):**
      - Linting: `golangci-lint run --timeout 5m`
-     - Unit tests: `go test ./... -race -coverprofile=coverage.out`
-     - Coverage check: Fail if coverage <80%.
-     - Security scan: `gosec ./...` (catch SQL injection, unsafe code).
-     - Static analysis: `go vet`, `staticcheck`.
-  3. **Pre-deploy gates (CI on main branch):**
-     - Integration tests: Run against Docker containers (PostgreSQL, Redis).
-     - Smoke tests: Deploy to staging, run critical API calls.
-     - Container security scan: `trivy` on Docker images.
-  4. **Post-deploy gates (production):**
-     - Canary deploy: 5% traffic for 10 minutes.
-     - Monitor error rate and P95 latency.
-     - Auto-rollback if error rate >0.5%.
-- **What success looks like:** CI completes in <10 minutes; zero production incidents from preventable defects; PR merge blocked on test failures.
+     - Pruebas unitarias: `go test ./... -race -coverprofile=coverage.out`
+     - Verificación de cobertura: Fallar si cobertura <80%.
+     - Escaneo de seguridad: `gosec ./...` (detectar inyección SQL, código inseguro).
+     - Análisis estático: `go vet`, `staticcheck`.
+  3. **Compuertas pre-despliegue (CI en rama main):**
+     - Pruebas de integración: Ejecutar contra contenedores Docker (PostgreSQL, Redis).
+     - Pruebas de humo: Desplegar a staging, ejecutar llamadas API críticas.
+     - Escaneo de seguridad de contenedores: `trivy` en imágenes Docker.
+  4. **Compuertas post-despliegue (producción):**
+     - Despliegue canario: 5% del tráfico por 10 minutos.
+     - Monitorear tasa de error y latencia P95.
+     - Auto-rollback si tasa de error >0.5%.
+- **Cómo se ve el éxito:** CI se completa en <10 minutos; cero incidentes en producción por defectos prevenibles; merge de PR bloqueado por fallos de pruebas.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Prevents defects from reaching production.
-  - Automates enforcement (no reliance on human memory).
-  - Builds confidence to move fast.
-- **Cons / Risks:**
-  - Slow gates kill productivity (developers wait for CI).
-  - Overly strict gates create friction (minor style violations block PRs).
-  - False positives (flaky tests, overly aggressive security scans) erode trust.
+- **Ventajas:**
+  - Previene que defectos lleguen a producción.
+  - Automatiza la imposición (sin depender de memoria humana).
+  - Construye confianza para moverse rápido.
+- **Desventajas / Riesgos:**
+  - Compuertas lentas matan la productividad (los desarrolladores esperan por CI).
+  - Compuertas demasiado estrictas crean fricción (violaciones menores de estilo bloquean PRs).
+  - Falsos positivos (pruebas inestables, escaneos de seguridad demasiado agresivos) erosionan la confianza.
 
-### Alternatives
-- **Manual code review only:** Catches some issues but misses what tools automate (unused variables, security risks).
-- **No gates ("trust developers"):** Fast initially but defects slip through; production incidents increase.
-- **Post-deploy gates only:** Ship fast but catch defects in production instead of CI (higher blast radius).
+### Alternativas
+- **Solo revisión manual de código:** Detecta algunos problemas pero pierde lo que las herramientas automatizan (variables no usadas, riesgos de seguridad).
+- **Sin compuertas ("confiar en los desarrolladores"):** Rápido inicialmente pero los defectos se filtran; los incidentes en producción aumentan.
+- **Solo compuertas post-despliegue:** Entregar rápido pero detectar defectos en producción en lugar de CI (mayor radio de impacto).
 
-### How to choose
-- **High-stakes production system:** Use full gates (linting, tests, security, canary deploys).
-- **Internal tools / prototypes:** Lightweight gates (basic linting, no coverage mandates).
-- **Balance speed:** Keep gates fast (<10 minutes for PR CI); run slower tests (E2E, load tests) on main branch or nightly.
+### Cómo elegir
+- **Sistema de producción de alto riesgo:** Usar compuertas completas (linting, pruebas, seguridad, despliegues canario).
+- **Herramientas internas / prototipos:** Compuertas ligeras (linting básico, sin mandatos de cobertura).
+- **Equilibrar velocidad:** Mantener compuertas rápidas (<10 minutos para CI de PR); ejecutar pruebas más lentas (E2E, pruebas de carga) en rama main o nightly.
 
-## Failure modes & Pitfalls
-- **Slow gates:** CI takes 30+ minutes; developers context-switch and lose productivity.
-- **Flaky tests:** Random failures erode trust; developers bypass gates or re-run until they pass.
-- **Overly strict rules:** Minor style violations block PRs; kills velocity and morale.
-- **Security theater:** Scanning for vulnerabilities but not fixing them (alerts ignored).
-- **No incremental gates:** Running all tests on every commit; should run unit tests on PR, integration tests on main.
+## Modos de fallo y trampas
+- **Compuertas lentas:** CI toma 30+ minutos; los desarrolladores cambian de contexto y pierden productividad.
+- **Pruebas inestables:** Fallos aleatorios erosionan la confianza; los desarrolladores evitan compuertas o re-ejecutan hasta que pasen.
+- **Reglas demasiado estrictas:** Violaciones menores de estilo bloquean PRs; mata velocidad y moral.
+- **Teatro de seguridad:** Escanear vulnerabilidades pero no corregirlas (alertas ignoradas).
+- **Sin compuertas incrementales:** Ejecutar todas las pruebas en cada commit; se debería ejecutar pruebas unitarias en PR, pruebas de integración en main.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - CI duration (per pipeline stage; flag >10 minutes for PRs).
-  - Gate pass rate (% of builds passing first try; aim for >95%).
-  - Flakiness rate (% of tests failing randomly; aim for <1%).
-  - Blocked PRs (how many PRs waiting on CI; flag >5).
-- **Logs:** Track gate failures by type (linting vs tests vs security).
-- **Traces:** N/A for gates themselves.
-- **Alerts:** CI duration spike, flakiness rate increase, security scan failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Duración de CI (por etapa del pipeline; señalar >10 minutos para PRs).
+  - Tasa de aprobación de compuertas (% de compilaciones que pasan al primer intento; apuntar a >95%).
+  - Tasa de inestabilidad (% de pruebas que fallan aleatoriamente; apuntar a <1%).
+  - PRs bloqueados (cuántos PRs esperando por CI; señalar >5).
+- **Logs:** Rastrear fallos de compuertas por tipo (linting vs pruebas vs seguridad).
+- **Trazas:** N/A para las compuertas en sí.
+- **Alertas:** Pico en duración de CI, aumento en tasa de inestabilidad, fallos de escaneo de seguridad.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Set up CI pipeline (GitHub Actions, Jenkins, GitLab CI).
-  - [ ] Add linting gate (fail on violations).
-  - [ ] Add unit test gate (fail on test failures or coverage drop).
-  - [ ] Add security scan (SAST for code, DAST for APIs, container scan for images).
-  - [ ] Add integration test gate on main branch (not on every PR to save time).
-  - [ ] Implement canary deploys with auto-rollback.
-  - [ ] Monitor gate metrics (duration, pass rate, flakiness).
-  - [ ] Quarantine or fix flaky tests immediately.
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Configurar pipeline de CI (GitHub Actions, Jenkins, GitLab CI).
+  - [ ] Agregar compuerta de linting (fallar en violaciones).
+  - [ ] Agregar compuerta de pruebas unitarias (fallar en fallos de pruebas o caída de cobertura).
+  - [ ] Agregar escaneo de seguridad (SAST para código, DAST para APIs, escaneo de contenedores para imágenes).
+  - [ ] Agregar compuerta de pruebas de integración en rama main (no en cada PR para ahorrar tiempo).
+  - [ ] Implementar despliegues canario con auto-rollback.
+  - [ ] Monitorear métricas de compuertas (duración, tasa de aprobación, inestabilidad).
+  - [ ] Poner en cuarentena o corregir pruebas inestables inmediatamente.
 
-- **Security / Compliance notes**
-  - Include SAST (static analysis), DAST (dynamic testing), and dependency scans (Snyk, Dependabot).
-  - Block deploys on critical vulnerabilities (don't just warn).
+- **Notas de seguridad / cumplimiento**
+  - Incluir SAST (análisis estático), DAST (pruebas dinámicas) y escaneos de dependencias (Snyk, Dependabot).
+  - Bloquear despliegues en vulnerabilidades críticas (no solo advertir).
 
-- **Performance notes**
-  - Parallelize test execution to speed up CI.
-  - Use caching for dependencies (Go modules, npm packages).
-  - Run expensive tests (E2E, load tests) on main branch or nightly, not every PR.
+- **Notas de rendimiento**
+  - Paralelizar ejecución de pruebas para acelerar CI.
+  - Usar caché para dependencias (módulos Go, paquetes npm).
+  - Ejecutar pruebas costosas (E2E, pruebas de carga) en rama main o nightly, no en cada PR.
 
-- **Operational notes**
-  - Gates are not "set and forget": monitor false positives and adjust thresholds.
-  - Fast feedback is critical: optimize slow gates or run them less frequently.
+- **Notas operacionales**
+  - Las compuertas no son "configurar y olvidar": monitorear falsos positivos y ajustar umbrales.
+  - La retroalimentación rápida es crítica: optimizar compuertas lentas o ejecutarlas con menos frecuencia.
 
-## Mini example
+## Mini ejemplo
 ```yaml
 # GitHub Actions quality gates example
 name: Quality Gates
@@ -207,63 +207,63 @@ jobs:
         run: go test ./integration/... -tags=integration
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** No gates ("we'll catch bugs in code review").
-  - **Why it's bad:** Humans are inconsistent; tools never forget.
-  - **Better approach:** Automate what can be automated (linting, tests, security scans); reserve human review for design and logic.
+## Anti-patrones comunes
+- **Anti-patrón:** Sin compuertas ("detectaremos errores en la revisión de código").
+  - **Por qué es malo:** Los humanos son inconsistentes; las herramientas nunca olvidan.
+  - **Mejor enfoque:** Automatizar lo que se pueda automatizar (linting, pruebas, escaneos de seguridad); reservar la revisión humana para diseño y lógica.
 
-- **Anti-pattern:** Gates that take >30 minutes.
-  - **Why it's bad:** Developers lose context, productivity drops, frustration increases.
-  - **Better approach:** Parallelize tests, use caching, run expensive tests less frequently (main branch only or nightly).
+- **Anti-patrón:** Compuertas que toman >30 minutos.
+  - **Por qué es malo:** Los desarrolladores pierden contexto, la productividad cae, la frustración aumenta.
+  - **Mejor enfoque:** Paralelizar pruebas, usar caché, ejecutar pruebas costosas con menos frecuencia (solo rama main o nightly).
 
-- **Anti-pattern:** Ignoring flaky tests ("just re-run CI").
-  - **Why it's bad:** Erodes trust in gates; developers bypass or ignore failures.
-  - **Better approach:** Quarantine flaky tests immediately; fix root cause (race conditions, timeouts) or delete.
+- **Anti-patrón:** Ignorar pruebas inestables ("solo re-ejecuta CI").
+  - **Por qué es malo:** Erosiona la confianza en las compuertas; los desarrolladores evitan o ignoran fallos.
+  - **Mejor enfoque:** Poner en cuarentena pruebas inestables inmediatamente; corregir causa raíz (condiciones de carrera, tiempos de espera) o eliminar.
 
-- **Anti-pattern:** Too many gates on every PR.
-  - **Why it's bad:** Slows feedback loops; kills productivity.
-  - **Better approach:** Tier gates—fast gates on PRs (lint, unit tests), slower gates on main (integration, E2E, load tests).
+- **Anti-patrón:** Demasiadas compuertas en cada PR.
+  - **Por qué es malo:** Ralentiza los ciclos de retroalimentación; mata la productividad.
+  - **Mejor enfoque:** Escalonar compuertas—compuertas rápidas en PRs (lint, pruebas unitarias), compuertas más lentas en main (integración, E2E, pruebas de carga).
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Quality gates are automated checks in CI/CD that prevent bad code from reaching production. They run at different stages: linting and unit tests on every PR, integration tests on the main branch, and canary deploys in production. The goal is to catch defects early and enforce quality standards automatically. Gates must be fast (sub-10 minutes for PRs) and reliable (no flaky tests) or they kill productivity. You tier gates based on cost—run cheap, fast tests on every change; run expensive, slow tests less frequently.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+Las compuertas de calidad son verificaciones automatizadas en CI/CD que previenen que código malo llegue a producción. Se ejecutan en diferentes etapas: linting y pruebas unitarias en cada PR, pruebas de integración en la rama main, y despliegues canario en producción. El objetivo es detectar defectos temprano e imponer estándares de calidad automáticamente. Las compuertas deben ser rápidas (menos de 10 minutos para PRs) y confiables (sin pruebas inestables) o matan la productividad. Escalonas compuertas basándote en el costo—ejecutar pruebas baratas y rápidas en cada cambio; ejecutar pruebas costosas y lentas con menos frecuencia.
 
-### Trap questions (with answers)
-1) **Q:** Don't quality gates slow down delivery?
-   - **A:** Only if implemented poorly. Fast gates (<10 minutes) actually accelerate delivery by catching defects before they reach production, reducing rework and incident response time. Slow or flaky gates do hurt productivity—optimize or tier them.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Las compuertas de calidad no ralentizan la entrega?
+   - **R:** Solo si se implementan mal. Compuertas rápidas (<10 minutos) realmente aceleran la entrega al detectar defectos antes de que lleguen a producción, reduciendo retrabajo y tiempo de respuesta a incidentes. Las compuertas lentas o inestables sí perjudican la productividad—optimizar o escalonar.
 
-2) **Q:** What's the most important quality gate?
-   - **A:** No single gate is most important. Use layers: linting catches style/correctness issues, tests catch logic bugs, security scans catch vulnerabilities. Each gate prevents different failure modes. If forced to choose, tests are highest impact (catch most bugs).
+2) **P:** ¿Cuál es la compuerta de calidad más importante?
+   - **R:** No hay una sola compuerta más importante. Usa capas: el linting detecta problemas de estilo/corrección, las pruebas detectan errores de lógica, los escaneos de seguridad detectan vulnerabilidades. Cada compuerta previene diferentes modos de fallo. Si me obligan a elegir, las pruebas tienen mayor impacto (detectan la mayoría de los errores).
 
-3) **Q:** Should gates be 100% strict (never allow exceptions)?
-   - **A:** No. Use risk-based exceptions: security vulnerabilities should always block, but minor linting violations might be acceptable in emergencies. Track exceptions and fix them later. Don't make gates so strict they encourage bypassing.
+3) **P:** ¿Las compuertas deberían ser 100% estrictas (nunca permitir excepciones)?
+   - **R:** No. Usa excepciones basadas en riesgo: las vulnerabilidades de seguridad siempre deberían bloquear, pero violaciones menores de linting podrían ser aceptables en emergencias. Registrar excepciones y corregirlas después. No hacer las compuertas tan estrictas que incentiven evadirlas.
 
-4) **Q:** How do you handle flaky tests in gates?
-   - **A:** Quarantine immediately (skip them or move to a separate suite). Flaky tests erode trust—developers will bypass gates or ignore failures. Fix root cause (race conditions, environmental dependencies) or delete. Never tolerate flakiness.
+4) **P:** ¿Cómo manejas pruebas inestables en las compuertas?
+   - **R:** Poner en cuarentena inmediatamente (omitirlas o moverlas a una suite separada). Las pruebas inestables erosionan la confianza—los desarrolladores evitarán las compuertas o ignorarán fallos. Corregir la causa raíz (condiciones de carrera, dependencias del entorno) o eliminar. Nunca tolerar la inestabilidad.
 
-5) **Q:** Should you run all tests on every PR?
-   - **A:** No. Tier tests: fast unit tests on every PR (<5 minutes), integration tests on main branch (<10 minutes), E2E and load tests nightly or on releases. Running all tests on every PR makes CI too slow and kills productivity.
+5) **P:** ¿Deberías ejecutar todas las pruebas en cada PR?
+   - **R:** No. Escalonar pruebas: pruebas unitarias rápidas en cada PR (<5 minutos), pruebas de integración en rama main (<10 minutos), E2E y pruebas de carga nightly o en releases. Ejecutar todas las pruebas en cada PR hace CI demasiado lento y mata la productividad.
 
-### Quick self-check (5 items)
-- [ ] I can name at least 4 types of quality gates and their purpose.
-- [ ] I can explain the trade-off between gate strictness and developer velocity.
-- [ ] I can describe how to tier gates (PR vs main branch vs production).
-- [ ] I can articulate why flaky tests are unacceptable in gates.
-- [ ] I can give an example of when to relax a gate (risk-based exception).
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo nombrar al menos 4 tipos de compuertas de calidad y su propósito.
+- [ ] Puedo explicar el trade-off entre estrictez de compuertas y velocidad del desarrollador.
+- [ ] Puedo describir cómo escalonar compuertas (PR vs rama main vs producción).
+- [ ] Puedo articular por qué las pruebas inestables son inaceptables en las compuertas.
+- [ ] Puedo dar un ejemplo de cuándo relajar una compuerta (excepción basada en riesgo).
 
-## Links (NO duplication)
-### Prerequisites
-- [Software Quality Assurance](software-quality-assurance.md)
-- [Testing pyramid](testing-pyramid.md)
-- [CI/CD basics](ci-cd-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Fundamentos de CI/CD](ci-cd-basics.md)
 
-### Related topics
-- [Code quality](code-quality.md)
-- [Clean code](clean-code.md)
+### Temas relacionados
+- [Calidad de código](code-quality.md)
+- [Código limpio](clean-code.md)
 
-### Compare with
-- [Manual code review](../operations/operational-planning.md) — Gates automate what can be automated; reviews focus on design and logic.
+### Comparar con
+- [Revisión manual de código](../operations/operational-planning.md) — Las compuertas automatizan lo que se puede automatizar; las revisiones se enfocan en diseño y lógica.
 
-## Notes / Inbox
-- Add examples from real projects: Heimdall CI setup, Opportunity Actions security scans.
-- Consider adding section on post-deploy gates (canary deploys, feature flags, monitoring).
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: configuración de CI de Heimdall, escaneos de seguridad de Opportunity Actions.
+- Considerar agregar sección sobre compuertas post-despliegue (despliegues canario, feature flags, monitoreo).

@@ -1,6 +1,6 @@
 ---
 id: sidecar
-title: "Sidecar Pattern"
+title: "Patrón Sidecar"
 type: pattern
 status: learning
 importance: 70
@@ -12,54 +12,54 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Sidecar Pattern
+# Patrón Sidecar
 
 ## TL;DR (BLUF)
-- A helper container/process deployed alongside the main application to handle cross-cutting concerns.
-- Use it for service mesh (mTLS, retries, tracing), observability, or policy enforcement.
-- Trade-off: increased resource usage and operational complexity.
+- Un contenedor/proceso auxiliar desplegado junto a la aplicación principal para manejar preocupaciones transversales.
+- Úsalo para service mesh (mTLS, reintentos, trazado), observabilidad o aplicación de políticas.
+- Trade-off: mayor uso de recursos y complejidad operacional.
 
-## Definition
-**What it is:** A pattern where a secondary container/process runs alongside the main application container (in the same pod/VM) to handle infrastructure concerns like networking, observability, security, or configuration management.
+## Definición
+**Qué es:** Un patrón donde un contenedor/proceso secundario se ejecuta junto al contenedor de la aplicación principal (en el mismo pod/VM) para manejar preocupaciones de infraestructura como redes, observabilidad, seguridad o gestión de configuración.
 
-**Key terms:** sidecar container, service mesh, proxy, Envoy, Istio, Linkerd, ambassador, cross-cutting concerns, pod.
+**Términos clave:** contenedor sidecar, service mesh, proxy, Envoy, Istio, Linkerd, ambassador, preocupaciones transversales, pod.
 
-## Why it matters
-- Decouples infrastructure logic from application code.
-- Standardizes cross-cutting concerns (mTLS, retries, tracing) across polyglot services.
-- Enables platform teams to enforce policies without code changes.
-- Foundation for service mesh architectures.
+## Por qué importa
+- Desacopla la lógica de infraestructura del código de la aplicación.
+- Estandariza preocupaciones transversales (mTLS, reintentos, trazado) a través de servicios políglotas.
+- Permite a los equipos de plataforma aplicar políticas sin cambios de código.
+- Base para arquitecturas de service mesh.
 
-## Scope & Non-goals
-**In scope:** service mesh proxies (Envoy, Linkerd), log shippers, config watchers, secret managers, tracing agents.
+## Alcance y no-objetivos
+**Dentro del alcance:** proxies de service mesh (Envoy, Linkerd), recolectores de logs, observadores de configuración, gestores de secretos, agentes de trazado.
 
-**Out of scope / NOT solved by this:**
-- Business logic (stays in main application)
-- North-south traffic (use [API Gateway](../system-design/api-gateway.md))
-- Data storage or state management
+**Fuera del alcance / NO resuelto por esto:**
+- Lógica de negocio (permanece en la aplicación principal)
+- Tráfico norte-sur (usar [API Gateway](../system-design/api-gateway.md))
+- Almacenamiento de datos o gestión de estado
 
-## Mental model / Intuition
-- Like a personal assistant traveling with you: handles logistics (booking, navigation) so you focus on your main work.
-- In Kubernetes: main container runs app; sidecar container handles networking/observability.
+## Modelo mental / Intuición
+- Como un asistente personal que viaja contigo: maneja la logística (reservas, navegación) para que te enfoques en tu trabajo principal.
+- En Kubernetes: el contenedor principal ejecuta la app; el contenedor sidecar maneja redes/observabilidad.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need service mesh features (mTLS, retries, circuit breakers, distributed tracing).
-- You want to standardize cross-cutting concerns across polyglot services (Go, Java, Node.js).
-- Platform teams need to enforce policies (rate limiting, auth) without code changes.
-- You need log aggregation, metrics collection, or secret injection per instance.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas funcionalidades de service mesh (mTLS, reintentos, circuit breakers, trazado distribuido).
+- Quieres estandarizar preocupaciones transversales a través de servicios políglotas (Go, Java, Node.js).
+- Los equipos de plataforma necesitan aplicar políticas (limitación de tasa, auth) sin cambios de código.
+- Necesitas agregación de logs, recolección de métricas o inyección de secretos por instancia.
 
-### Avoid it when
-- You have a monolith or single service (overhead not justified).
-- Resource usage is critical (sidecar adds CPU/memory overhead).
-- Operational complexity of service mesh is too high for team maturity.
-- Simple HTTP client libraries suffice for retries/timeouts.
+### Evítalo cuando
+- Tienes un monolito o un solo servicio (la sobrecarga no se justifica).
+- El uso de recursos es crítico (el sidecar agrega sobrecarga de CPU/memoria).
+- La complejidad operacional del service mesh es muy alta para la madurez del equipo.
+- Las bibliotecas HTTP simples de cliente son suficientes para reintentos/timeouts.
 
-## How I would use it (practical)
-- **Context:** Microservices on Kubernetes needing mTLS and distributed tracing.
-- **Steps:**
-  1) Install Istio or Linkerd service mesh.
-  2) Enable sidecar injection for namespaces:
+## Cómo lo usaría (práctico)
+- **Contexto:** Microservicios en Kubernetes que necesitan mTLS y trazado distribuido.
+- **Pasos:**
+  1) Instalar service mesh Istio o Linkerd.
+  2) Habilitar inyección de sidecar para namespaces:
      ```yaml
      apiVersion: v1
      kind: Namespace
@@ -68,7 +68,7 @@ updated_at: 2026-01-26
        labels:
          istio-injection: enabled
      ```
-  3) Deploy services normally; Istio injects Envoy sidecar automatically:
+  3) Desplegar servicios normalmente; Istio inyecta el sidecar Envoy automáticamente:
      ```yaml
      apiVersion: v1
      kind: Pod
@@ -81,12 +81,12 @@ updated_at: 2026-01-26
        - name: istio-proxy  # Injected by Istio
          image: envoy
      ```
-  4) Sidecar handles:
-     - **mTLS:** Automatic TLS between services.
-     - **Retries:** Configurable retry policies.
-     - **Tracing:** Injects trace headers, sends to Jaeger/Zipkin.
-     - **Metrics:** Exports Prometheus metrics.
-  5) Configure policies via Istio CRDs (no code change):
+  4) El sidecar maneja:
+     - **mTLS:** TLS automático entre servicios.
+     - **Reintentos:** Políticas de reintento configurables.
+     - **Trazado:** Inyecta cabeceras de traza, envía a Jaeger/Zipkin.
+     - **Métricas:** Exporta métricas de Prometheus.
+  5) Configurar políticas via CRDs de Istio (sin cambios de código):
      ```yaml
      apiVersion: networking.istio.io/v1
      kind: VirtualService
@@ -97,98 +97,98 @@ updated_at: 2026-01-26
          attempts: 3
          perTryTimeout: 2s
      ```
-  6) Monitor: sidecar CPU/memory, request latency, mTLS success rate.
+  6) Monitorear: CPU/memoria del sidecar, latencia de solicitudes, tasa de éxito de mTLS.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Resource overhead (~50-200MB RAM per sidecar) | Use lightweight proxies (Linkerd2-proxy); tune resource limits |
-| Increased latency (~1-5ms per hop) | Acceptable for most use cases; measure and optimize |
-| Operational complexity (service mesh setup) | Use managed service mesh (AWS App Mesh, GCP Anthos); start small |
-| Debugging harder (traffic routed through proxy) | Use mesh observability tools (Kiali, Jaeger); enable debug logging |
-| Sidecar failures can break app | Use health checks; isolate sidecar failures (don't crash pod) |
+| Sobrecarga de recursos (~50-200MB RAM por sidecar) | Usar proxies ligeros (Linkerd2-proxy); ajustar límites de recursos |
+| Mayor latencia (~1-5ms por salto) | Aceptable para la mayoría de casos; medir y optimizar |
+| Complejidad operacional (configuración del service mesh) | Usar service mesh gestionado (AWS App Mesh, GCP Anthos); empezar pequeño |
+| Depuración más difícil (tráfico enrutado a través del proxy) | Usar herramientas de observabilidad del mesh (Kiali, Jaeger); habilitar logging de depuración |
+| Fallos del sidecar pueden romper la app | Usar health checks; aislar fallos del sidecar (no crashear el pod) |
 
-## Failure modes / Edge cases
-1. **Sidecar crashes, app loses connectivity:** Pod becomes unreachable.
-   - *Mitigation:* Set sidecar restart policy; monitor sidecar health separately.
-2. **Sidecar config drift:** Different sidecars have different policies.
-   - *Mitigation:* Centralized config (Istio control plane); GitOps for policies.
-3. **Sidecar bottleneck:** High-traffic services saturate proxy CPU.
-   - *Mitigation:* Increase sidecar resource limits; use connection pooling.
-4. **mTLS cert rotation fails:** Services can't communicate.
-   - *Mitigation:* Monitor cert expiry; automate rotation (Istio does this).
-5. **Version skew:** App updated but sidecar outdated.
-   - *Mitigation:* Automate sidecar updates with mesh upgrades.
+## Modos de fallo / Casos límite
+1. **El sidecar se cae, la app pierde conectividad:** El pod se vuelve inalcanzable.
+   - *Mitigación:* Establecer política de reinicio del sidecar; monitorear salud del sidecar por separado.
+2. **Deriva de configuración del sidecar:** Diferentes sidecars tienen diferentes políticas.
+   - *Mitigación:* Configuración centralizada (plano de control de Istio); GitOps para políticas.
+3. **Cuello de botella del sidecar:** Servicios de alto tráfico saturan CPU del proxy.
+   - *Mitigación:* Aumentar límites de recursos del sidecar; usar connection pooling.
+4. **Fallo en rotación de certificados mTLS:** Los servicios no pueden comunicarse.
+   - *Mitigación:* Monitorear expiración de certificados; automatizar rotación (Istio hace esto).
+5. **Desfase de versión:** App actualizada pero sidecar desactualizado.
+   - *Mitigación:* Automatizar actualizaciones del sidecar con actualizaciones del mesh.
 
-## Alternatives
-- **Library/SDK approach:** Embed retry, tracing in application code (e.g., resilience4j, Hystrix).
-  - *Cons:* Per-language; code changes required; inconsistent policies.
-- **[API Gateway](../system-design/api-gateway.md):** Centralized proxy for north-south traffic.
-  - *Cons:* Doesn't handle east-west (service→service).
-- **DaemonSet:** One agent per node (e.g., Fluentd).
-  - *Cons:* Not per-pod; can't handle per-service policies.
+## Alternativas
+- **Enfoque de biblioteca/SDK:** Integrar reintentos, trazado en el código de la aplicación (por ejemplo, resilience4j, Hystrix).
+  - *Desventajas:* Por lenguaje; requiere cambios de código; políticas inconsistentes.
+- **[API Gateway](../system-design/api-gateway.md):** Proxy centralizado para tráfico norte-sur.
+  - *Desventajas:* No maneja tráfico este-oeste (servicio→servicio).
+- **DaemonSet:** Un agente por nodo (por ejemplo, Fluentd).
+  - *Desventajas:* No es por pod; no puede manejar políticas por servicio.
 
-## Use cases
-1. **Service mesh proxy (Envoy, Linkerd):** mTLS, retries, load balancing, tracing.
-2. **Log shipper (Fluentd, Filebeat):** Collect logs from app container, forward to aggregator.
-3. **Secret manager (Vault Agent):** Inject secrets from Vault into app.
-4. **Config watcher:** Reload config on change without restarting app.
-5. **Metrics exporter:** Scrape app metrics, export to Prometheus.
+## Casos de uso
+1. **Proxy de service mesh (Envoy, Linkerd):** mTLS, reintentos, balanceo de carga, trazado.
+2. **Recolector de logs (Fluentd, Filebeat):** Recolectar logs del contenedor de app, enviar al agregador.
+3. **Gestor de secretos (Vault Agent):** Inyectar secretos de Vault en la app.
+4. **Observador de configuración:** Recargar configuración al cambiar sin reiniciar la app.
+5. **Exportador de métricas:** Extraer métricas de la app, exportar a Prometheus.
 
-## Combinations
-Sidecar is **almost always used with:**
-- **[Service Discovery](service-discovery.md):** Sidecar proxies use discovery to route traffic.
-- **[Observability](observability-basics.md):** Sidecars export metrics, logs, traces.
-- **[Circuit Breaker](circuit-breaker.md):** Configured in sidecar proxy.
-- **[Timeout](timeouts.md):** Enforced by sidecar.
-- **[Retry](retries-and-backoff.md):** Handled by sidecar.
+## Combinaciones
+El Sidecar **casi siempre se usa con:**
+- **[Descubrimiento de servicios](service-discovery.md):** Los proxies sidecar usan descubrimiento para enrutar tráfico.
+- **[Observabilidad](observability-basics.md):** Los sidecars exportan métricas, logs, trazas.
+- **[Circuit Breaker](circuit-breaker.md):** Configurado en el proxy sidecar.
+- **[Timeout](timeouts.md):** Aplicado por el sidecar.
+- **[Reintentos](retries-and-backoff.md):** Manejados por el sidecar.
 
-**Typical combination:**
-- **Service mesh scenario:** Sidecar (Envoy) + Service Discovery + mTLS + Timeout + Retry + Circuit Breaker + Observability
+**Combinación típica:**
+- **Escenario de service mesh:** Sidecar (Envoy) + Descubrimiento de servicios + mTLS + Timeout + Reintentos + Circuit Breaker + Observabilidad
 
-## Prerequisites
-- Understanding of [Microservices design](../architecture/microservices-design-basics.md).
-- Familiarity with containerization (Docker, Kubernetes).
-- Knowledge of [Networking basics](networking-basics.md) and proxies.
+## Prerequisitos
+- Comprensión de [Diseño de microservicios](../architecture/microservices-design-basics.md).
+- Familiaridad con contenerización (Docker, Kubernetes).
+- Conocimiento de [Fundamentos de redes](networking-basics.md) y proxies.
 
-## Related topics
-- [Service Discovery](service-discovery.md): Sidecars use discovery for routing.
-- [API Gateway](../system-design/api-gateway.md): North-south traffic (client→service).
-- [Observability](observability-basics.md): Sidecars collect telemetry.
-- [Circuit Breaker](circuit-breaker.md): Can be configured in sidecar.
-- [Microservices design](../architecture/microservices-design-basics.md): Context for sidecar pattern.
+## Temas relacionados
+- [Descubrimiento de servicios](service-discovery.md): Los sidecars usan descubrimiento para enrutamiento.
+- [API Gateway](../system-design/api-gateway.md): Tráfico norte-sur (cliente→servicio).
+- [Observabilidad](observability-basics.md): Los sidecars recolectan telemetría.
+- [Circuit Breaker](circuit-breaker.md): Se puede configurar en el sidecar.
+- [Diseño de microservicios](../architecture/microservices-design-basics.md): Contexto para el patrón sidecar.
 
-## Real-world examples
-1. **Istio + Envoy:** Industry-standard service mesh; Envoy sidecar handles mTLS, retries, tracing.
-2. **Linkerd:** Lightweight service mesh with Rust-based sidecar proxy.
-3. **AWS App Mesh:** Managed service mesh using Envoy sidecars.
-4. **Consul Connect:** Service mesh with sidecar proxies for mTLS and observability.
+## Ejemplos del mundo real
+1. **Istio + Envoy:** Service mesh estándar de la industria; el sidecar Envoy maneja mTLS, reintentos, trazado.
+2. **Linkerd:** Service mesh ligero con proxy sidecar basado en Rust.
+3. **AWS App Mesh:** Service mesh gestionado usando sidecars Envoy.
+4. **Consul Connect:** Service mesh con proxies sidecar para mTLS y observabilidad.
 
-## Checklist (self-test)
-- [ ] I understand when sidecar is better than library/SDK approach.
-- [ ] I can explain service mesh architecture (control plane + data plane).
-- [ ] I know how to configure retries, timeouts, circuit breakers in sidecar.
-- [ ] I can monitor sidecar health and resource usage.
-- [ ] I understand mTLS and how sidecars handle it.
+## Lista de verificación (auto-test)
+- [ ] Entiendo cuándo el sidecar es mejor que el enfoque de biblioteca/SDK.
+- [ ] Puedo explicar la arquitectura del service mesh (plano de control + plano de datos).
+- [ ] Sé cómo configurar reintentos, timeouts, circuit breakers en el sidecar.
+- [ ] Puedo monitorear la salud y uso de recursos del sidecar.
+- [ ] Entiendo mTLS y cómo los sidecars lo manejan.
 
-## Reminders / Key takeaways
-- Sidecar is for **cross-cutting concerns**, not business logic.
-- Common use: **service mesh** (mTLS, retries, tracing).
-- Always monitor sidecar resource usage (CPU, memory).
-- Use managed service mesh to reduce operational overhead.
+## Recordatorios / Conclusiones clave
+- El Sidecar es para **preocupaciones transversales**, no lógica de negocio.
+- Uso común: **service mesh** (mTLS, reintentos, trazado).
+- Siempre monitorea el uso de recursos del sidecar (CPU, memoria).
+- Usa service mesh gestionado para reducir la sobrecarga operacional.
 
-## Trap questions (with answers)
-### Q1: Can I use a sidecar for business logic?
-**A:** **No**. Sidecars are for **infrastructure concerns** (networking, observability, security). Business logic belongs in the main application. Mixing concerns makes sidecars application-specific and defeats the purpose of standardization.
+## Preguntas trampa (con respuestas)
+### P1: ¿Puedo usar un sidecar para lógica de negocio?
+**R:** **No**. Los sidecars son para **preocupaciones de infraestructura** (redes, observabilidad, seguridad). La lógica de negocio pertenece a la aplicación principal. Mezclar preocupaciones hace que los sidecars sean específicos de la aplicación y anula el propósito de la estandarización.
 
-### Q2: What's the difference between sidecar and DaemonSet?
-**A:** **Sidecar** runs **one per pod** (per application instance). **DaemonSet** runs **one per node** (shared by all pods on that node). Use sidecar for per-service policies (mTLS, retries); use DaemonSet for node-level agents (log collection, monitoring agents). Example: Envoy sidecar vs Fluentd DaemonSet.
+### P2: ¿Cuál es la diferencia entre sidecar y DaemonSet?
+**R:** El **Sidecar** se ejecuta **uno por pod** (por instancia de aplicación). El **DaemonSet** se ejecuta **uno por nodo** (compartido por todos los pods en ese nodo). Usa sidecar para políticas por servicio (mTLS, reintentos); usa DaemonSet para agentes a nivel de nodo (recolección de logs, agentes de monitoreo). Ejemplo: sidecar Envoy vs DaemonSet Fluentd.
 
-### Q3: Does a sidecar add latency?
-**A:** **Yes, but minimal** (~1-5ms per request). The sidecar proxy intercepts traffic, applies policies (retries, circuit breaker), and forwards. For most use cases, this overhead is acceptable compared to the benefits (mTLS, observability). Measure and optimize if latency is critical.
+### P3: ¿Un sidecar agrega latencia?
+**R:** **Sí, pero mínima** (~1-5ms por solicitud). El proxy sidecar intercepta el tráfico, aplica políticas (reintentos, circuit breaker) y reenvía. Para la mayoría de casos de uso, esta sobrecarga es aceptable comparada con los beneficios (mTLS, observabilidad). Mide y optimiza si la latencia es crítica.
 
-### Q4: Can I have multiple sidecars in one pod?
-**A:** **Yes**. Kubernetes pods can have multiple containers. Common: Envoy (service mesh) + Fluentd (logging) + Vault Agent (secrets). However, avoid overloading pods; each sidecar adds resource overhead. Keep sidecars focused on single responsibility.
+### P4: ¿Puedo tener múltiples sidecars en un pod?
+**R:** **Sí**. Los pods de Kubernetes pueden tener múltiples contenedores. Común: Envoy (service mesh) + Fluentd (logging) + Vault Agent (secretos). Sin embargo, evita sobrecargar los pods; cada sidecar agrega sobrecarga de recursos. Mantén los sidecars enfocados en una sola responsabilidad.
 
-### Q5: When should I use a service mesh vs an API Gateway?
-**A:** Use **service mesh** (sidecar-based) for **east-west traffic** (service→service within cluster): mTLS, retries, observability. Use **[API Gateway](../system-design/api-gateway.md)** for **north-south traffic** (client→service from outside): auth, rate limiting, TLS termination. Often you use **both**: API Gateway at the edge, service mesh internally.
+### P5: ¿Cuándo debería usar service mesh vs API Gateway?
+**R:** Usa **service mesh** (basado en sidecar) para **tráfico este-oeste** (servicio→servicio dentro del clúster): mTLS, reintentos, observabilidad. Usa **[API Gateway](../system-design/api-gateway.md)** para **tráfico norte-sur** (cliente→servicio desde fuera): auth, limitación de tasa, terminación TLS. A menudo usas **ambos**: API Gateway en el borde, service mesh internamente.

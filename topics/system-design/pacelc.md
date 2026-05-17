@@ -15,88 +15,88 @@ updated_at: 2026-01-19
 # PACELC
 
 ## TL;DR (BLUF)
-- PACELC extends CAP with latency trade-offs during normal operation.
-- Use it to reason about consistency vs latency even without partitions.
-- Trade-off: stronger consistency often increases latency.
+- PACELC extiende CAP con trade-offs de latencia durante operación normal.
+- Úsalo para razonar sobre consistencia vs latencia incluso sin particiones.
+- Trade-off: consistencia más fuerte frecuentemente aumenta la latencia.
 
-## Definition
-**What it is:** A model stating: if Partition (P), choose Availability (A) or Consistency (C); Else (E), choose Latency (L) or Consistency (C).
-**Key terms:** latency, consistency, partition.
+## Definición
+**Qué es:** Un modelo que establece: si hay Partición (P), elegir Disponibilidad (A) o Consistencia (C); si no (E, Else), elegir Latencia (L) o Consistencia (C).
+**Términos clave:** latencia, consistencia, partición.
 
-## Why it matters
-- It explains why systems choose between latency and consistency even when healthy.
+## Por qué importa
+- Explica por qué los sistemas eligen entre latencia y consistencia incluso cuando están sanos.
 
-## Scope & Non-goals
-**In scope:** conceptual trade-offs for distributed systems.
-**Out of scope / NOT solved by this:** formal proofs.
+## Alcance y no-objetivos
+**Dentro del alcance:** trade-offs conceptuales para sistemas distribuidos.
+**Fuera del alcance / NO resuelto por esto:** pruebas formales.
 
-## Mental model / Intuition
-- Even without partitions, you still trade latency for consistency.
+## Modelo mental / Intuición
+- Incluso sin particiones, aún intercambias latencia por consistencia.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Evaluating distributed DB consistency choices.
-### Avoid it when
-- You’re on a single-node DB.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Evalúes elecciones de consistencia de BDs distribuidas.
+### Evítalo cuando
+- Estés en una BD de un solo nodo.
 
-## How I would use it (practical)
-- **Context:** Choosing between read replicas or strong consistency.
-- **Steps:** identify latency goals → choose consistency level → document behavior.
-- **What success looks like:** predictable latency and correctness.
+## Cómo lo usaría (práctico)
+- **Contexto:** Elegir entre réplicas de lectura o consistencia fuerte.
+- **Pasos:** identificar objetivos de latencia → elegir nivel de consistencia → documentar comportamiento.
+- **Cómo se ve el éxito:** latencia y corrección predecibles.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** clearer trade-off framing.
-- **Cons / Risks:** still an abstraction.
-### Alternatives
-- **CAP theorem:** partition-only view.
-- **How to choose:** use PACELC for normal-operation trade-offs.
+- **Pros:** encuadre de trade-offs más claro.
+- **Contras / Riesgos:** sigue siendo una abstracción.
+### Alternativas
+- **Teorema CAP:** vista solo de particiones.
+- **Cómo elegir:** usa PACELC para trade-offs en operación normal.
 
-## Failure modes & Pitfalls
-- Ignoring latency costs of strong consistency.
+## Modos de fallo y errores comunes
+- Ignorar los costos de latencia de la consistencia fuerte.
 
-## Observability (How to detect issues)
-- **Metrics:** latency p95, stale read reports.
-- **Logs:** consistency errors.
-- **Alerts:** latency spikes under strong consistency.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia p95, reportes de lecturas obsoletas.
+- **Logs:** errores de consistencia.
+- **Alertas:** picos de latencia bajo consistencia fuerte.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Document latency vs consistency expectations
+  - [ ] Documentar expectativas de latencia vs consistencia
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Assuming CAP explains everything.
-  - **Why it’s bad:** ignores latency trade-offs in normal conditions.
-  - **Better approach:** use PACELC to include latency.
+## Anti-patrones comunes
+- **Anti-patrón:** Asumir que CAP explica todo.
+  - **Por qué es malo:** ignora trade-offs de latencia en condiciones normales.
+  - **Mejor enfoque:** usar PACELC para incluir latencia.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- PACELC says: under partitions, you choose availability or consistency; otherwise, you choose latency or consistency. It extends CAP with normal-operation trade-offs.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- PACELC dice: bajo particiones, eliges disponibilidad o consistencia; de lo contrario, eliges latencia o consistencia. Extiende CAP con trade-offs en operación normal.
 
-### Trap questions (with answers)
-1) **Q:** Does PACELC replace CAP?
-   - **A:** no; it extends it.
-2) **Q:** Is latency only a concern during partitions?
-   - **A:** no; it matters always.
-3) **Q:** Does PACELC guarantee correctness?
-   - **A:** no; it’s a model.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿PACELC reemplaza CAP?
+   - **R:** No; lo extiende.
+2) **P:** ¿La latencia solo es una preocupación durante particiones?
+   - **R:** No; importa siempre.
+3) **P:** ¿PACELC garantiza corrección?
+   - **R:** No; es un modelo.
 
-### Quick self-check (5 items)
-- [ ] I can define PACELC.
-- [ ] I can explain P/EL/C choices.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can relate it to CAP.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir PACELC.
+- [ ] Puedo explicar las elecciones P/EL/C.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo relacionarlo con CAP.
 
-## Links (NO duplication)
-### Prerequisites
-- [CAP theorem (practical)](cap-theorem.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Teorema CAP (práctico)](cap-theorem.md)
 
-### Related topics
-- [Consistency models](../databases/consistency-models.md)
+### Temas relacionados
+- [Modelos de consistencia](../databases/consistency-models.md)
 
-### Compare with
-- [CAP theorem (practical)](cap-theorem.md) — partitions vs latency trade-offs.
+### Comparar con
+- [Teorema CAP (práctico)](cap-theorem.md) — trade-offs de particiones vs latencia.

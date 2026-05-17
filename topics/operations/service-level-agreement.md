@@ -1,6 +1,6 @@
 ---
 id: service-level-agreement
-title: "Service Level Agreement (SLA)"
+title: "Acuerdo de nivel de servicio (SLA)"
 type: concept
 status: learning
 importance: 70
@@ -12,114 +12,114 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Service Level Agreement (SLA)
+# Acuerdo de nivel de servicio (SLA)
 
 ## TL;DR (BLUF)
-- An SLA is a contractual promise to customers about service levels.
-- Use SLAs to set external expectations and penalties.
-- Trade-off: stricter SLAs increase operational cost and risk.
+- Un SLA es una promesa contractual a los clientes sobre los niveles de servicio.
+- Usa SLAs para establecer expectativas externas y penalizaciones.
+- Trade-off: SLAs más estrictos aumentan el costo operacional y el riesgo.
 
-## Definition
-**What it is:** A contract between provider and customer defining minimum service levels, reporting, and remedies/penalties if missed.  
-**Key terms:** contract, penalty, service credits, reporting window.
+## Definición
+**Qué es:** Un contrato entre proveedor y cliente que define niveles mínimos de servicio, reportes y remedios/penalizaciones si no se cumplen.  
+**Términos clave:** contrato, penalización, créditos de servicio, ventana de reporte.
 
-## Why it matters
-- SLAs drive legal and financial obligations.
-- Misaligned SLAs can create business risk and customer churn.
+## Por qué importa
+- Los SLAs generan obligaciones legales y financieras.
+- SLAs desalineados pueden crear riesgo de negocio y pérdida de clientes.
 
-## Scope & Non-goals
-**In scope:** external commitments and remedies.  
-**Out of scope / NOT solved by this:** internal targets (see [Service Level Objective (SLO)](service-level-objective.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** compromisos externos y remedios.  
+**Fuera del alcance / NO resuelto por esto:** objetivos internos (ver [Objetivo de nivel de servicio (SLO)](service-level-objective.md)).
 
-## Mental model / Intuition
-- “What we guarantee to customers, with consequences.”
+## Modelo mental / Intuición
+- "Lo que garantizamos a los clientes, con consecuencias."
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You sell a service with explicit reliability commitments.
-- You need clear escalation and compensation rules.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Vendes un servicio con compromisos explícitos de fiabilidad.
+- Necesitas reglas claras de escalación y compensación.
 
-### Avoid it when
-- You cannot measure or report reliably.
+### Evítalo cuando
+- No puedes medir o reportar de forma confiable.
 
-## How I would use it (practical)
-- **Context:** A paid API product with enterprise customers.
-- **Steps:**
-  1) Set internal SLOs higher than the SLA.
-  2) Define reporting windows and exclusions.
-  3) Define service credits for breaches.
-- **What success looks like:** customers understand expectations; internal teams keep enough buffer.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un producto API de pago con clientes empresariales.
+- **Pasos:**
+  1) Establecer SLOs internos más altos que el SLA.
+  2) Definir ventanas de reporte y exclusiones.
+  3) Definir créditos de servicio por incumplimientos.
+- **Cómo se ve el éxito:** los clientes entienden las expectativas; los equipos internos mantienen suficiente margen.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clear customer expectations; accountability.
-- **Cons / Risks:** legal exposure, higher reliability cost.
-### Alternatives
-- **Best-effort service:** no contractual guarantees.
-- **How to choose:** if customers need guarantees, formalize an SLA.
+- **Ventajas:** expectativas claras del cliente; rendición de cuentas.
+- **Desventajas / Riesgos:** exposición legal, mayor costo de fiabilidad.
+### Alternativas
+- **Servicio de mejor esfuerzo:** sin garantías contractuales.
+- **Cómo elegir:** si los clientes necesitan garantías, formaliza un SLA.
 
-## Failure modes & Pitfalls
-- SLA tighter than internal SLO → constant breaches.
-- Vague exclusions or unclear reporting windows.
+## Modos de fallo y trampas
+- SLA más estricto que el SLO interno → incumplimientos constantes.
+- Exclusiones vagas o ventanas de reporte poco claras.
 
-## Observability (How to detect issues)
-- **Metrics:** SLA compliance %, uptime in contract window.
-- **Logs:** audit trail for outages and exclusions.
-- **Traces:** N/A
-- **Alerts:** risk of SLA breach (burn alerts).
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** % de cumplimiento del SLA, tiempo de actividad en la ventana del contrato.
+- **Logs:** registro de auditoría para interrupciones y exclusiones.
+- **Trazas:** N/A
+- **Alertas:** riesgo de incumplimiento del SLA (alertas de quema).
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define SLA scope and exclusions
-  - [ ] Align internal SLOs above SLA
-  - [ ] Define reporting windows
-  - [ ] Specify penalties/remedies
-- **Security / Compliance notes**
-  - Ensure contractual metrics are auditable
-- **Performance notes**
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir alcance del SLA y exclusiones
+  - [ ] Alinear SLOs internos por encima del SLA
+  - [ ] Definir ventanas de reporte
+  - [ ] Especificar penalizaciones/remedios
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que las métricas contractuales sean auditables
+- **Notas de rendimiento**
   - N/A
-- **Operational notes**
-  - Review SLA terms annually
+- **Notas operacionales**
+  - Revisar términos del SLA anualmente
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 SLA: 99.5% monthly availability, service credits if below
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Promise 99.99% without capacity.”
-  - **Why it’s bad:** guarantees breaches and financial risk.
-  - **Better approach:** set internal SLOs first, then set SLA.
+## Anti-patrones comunes
+- **Anti-patrón:** "Prometer 99.99% sin capacidad."
+  - **Por qué es malo:** garantiza incumplimientos y riesgo financiero.
+  - **Mejor enfoque:** establecer SLOs internos primero, luego establecer el SLA.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- An SLA is an external contractual promise with remedies if missed, and it should be looser than internal SLOs.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Un SLA es una promesa contractual externa con remedios si no se cumple, y debería ser más holgado que los SLOs internos.
 
-### Trap questions (with answers)
-1) **Q:** Are SLAs the same as SLOs?
-   - **A:** No. SLA is contractual; SLO is internal.
-2) **Q:** Should SLA and SLO be identical?
-   - **A:** No. SLOs should be tighter to provide buffer.
-3) **Q:** Do SLAs include all incidents?
-   - **A:** Not necessarily; exclusions must be explicit.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son los SLAs lo mismo que los SLOs?
+   - **R:** No. El SLA es contractual; el SLO es interno.
+2) **P:** ¿Deberían ser idénticos el SLA y el SLO?
+   - **R:** No. Los SLOs deberían ser más estrictos para proporcionar margen.
+3) **P:** ¿Los SLAs incluyen todos los incidentes?
+   - **R:** No necesariamente; las exclusiones deben ser explícitas.
 
-### Quick self-check (5 items)
-- [ ] I can define an SLA precisely.
-- [ ] I can explain how it differs from SLO.
-- [ ] I can name a trade-off.
-- [ ] I can give a concrete example.
-- [ ] I can name a pitfall.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir un SLA con precisión.
+- [ ] Puedo explicar cómo difiere del SLO.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo dar un ejemplo concreto.
+- [ ] Puedo nombrar una trampa.
 
-## Links (NO duplication)
-### Prerequisites
-- [Service Level Objective (SLO)](service-level-objective.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Objetivo de nivel de servicio (SLO)](service-level-objective.md)
 
-### Related topics
-- [Service Level Indicator (SLI)](service-level-indicator.md)
-- [Error budgets](error-budgets.md)
+### Temas relacionados
+- [Indicador de nivel de servicio (SLI)](service-level-indicator.md)
+- [Presupuestos de error](error-budgets.md)
 
-### Compare with
-- [Service Level Objective (SLO)](service-level-objective.md) — internal target vs contractual promise.
+### Comparar con
+- [Objetivo de nivel de servicio (SLO)](service-level-objective.md) — objetivo interno vs promesa contractual.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

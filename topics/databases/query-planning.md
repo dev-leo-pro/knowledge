@@ -1,6 +1,6 @@
 ---
 id: query-planning
-title: "Query Planning"
+title: "Planificación de consultas"
 type: concept
 status: learning
 importance: 60
@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Query Planning
+# Planificación de consultas
 
 ## TL;DR (BLUF)
-- The query planner chooses how to execute a query based on cost estimates.
-- Use planner tools to understand index usage and join order.
-- Trade-off: plans are estimates and can be wrong if stats are stale.
+- El planificador de consultas elige cómo ejecutar una consulta basándose en estimaciones de costo.
+- Usa herramientas del planificador para entender el uso de índices y el orden de joins.
+- Trade-off: los planes son estimaciones y pueden ser incorrectos si las estadísticas están obsoletas.
 
-## Definition
-**What it is:** The database component that decides execution strategies (scan types, join order, indexes).
-**Key terms:** cost estimate, statistics, join order, scan type.
+## Definición
+**Qué es:** El componente de la base de datos que decide las estrategias de ejecución (tipos de escaneo, orden de joins, índices).
+**Términos clave:** estimación de costo, estadísticas, orden de joins, tipo de escaneo.
 
-## Why it matters
-- Planner choices often determine query performance.
-- Wrong estimates lead to slow queries and misused indexes.
+## Por qué importa
+- Las elecciones del planificador a menudo determinan el rendimiento de consultas.
+- Estimaciones incorrectas llevan a consultas lentas e índices mal utilizados.
 
-## Scope & Non-goals
-**In scope:** planning concepts and how to validate them.
-**Out of scope / NOT solved by this:** specific optimizer algorithms per DB.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos de planificación y cómo validarlos.
+**Fuera del alcance / NO resuelto por esto:** algoritmos específicos del optimizador por BD.
 
-## Mental model / Intuition
-- Think of it as a route planner choosing the cheapest path.
+## Modelo mental / Intuición
+- Piensa en ello como un planificador de rutas eligiendo el camino más barato.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Diagnosing slow queries or adding indexes.
-### Avoid it when
-- You only need to validate runtime (use EXPLAIN ANALYZE carefully).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Diagnosticas consultas lentas o agregas índices.
+### Evítalo cuando
+- Solo necesitas validar el tiempo de ejecución (usa EXPLAIN ANALYZE con cuidado).
 
-## How I would use it (practical)
-- **Context:** Query latency spike after data growth.
-- **Steps:** run EXPLAIN → check scan types → verify join order → adjust indexes/stats.
-- **What success looks like:** planner picks efficient scans and join order.
+## Cómo lo usaría (práctico)
+- **Contexto:** Pico de latencia de consultas después de crecimiento de datos.
+- **Pasos:** ejecutar EXPLAIN → verificar tipos de escaneo → validar orden de joins → ajustar índices/estadísticas.
+- **Cómo se ve el éxito:** el planificador elige escaneos eficientes y buen orden de joins.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** visibility into performance decisions.
-- **Cons / Risks:** cost estimates can be wrong.
-### Alternatives
-- **EXPLAIN ANALYZE:** actual timings, but executes the query.
-- **How to choose:** start with EXPLAIN, validate with ANALYZE if safe.
+- **Ventajas:** visibilidad de las decisiones de rendimiento.
+- **Desventajas / Riesgos:** las estimaciones de costo pueden ser incorrectas.
+### Alternativas
+- **EXPLAIN ANALYZE:** tiempos reales, pero ejecuta la consulta.
+- **Cómo elegir:** empieza con EXPLAIN, valida con ANALYZE si es seguro.
 
-## Failure modes & Pitfalls
-- Stale statistics causing bad plans.
-- Misreading cost as actual time.
+## Modos de fallo y trampas
+- Estadísticas obsoletas causando malos planes.
+- Malinterpretar el costo como tiempo real.
 
-## Observability (How to detect issues)
-- **Metrics:** slow query frequency, plan changes over time.
-- **Logs:** slow query logs.
-- **Alerts:** sudden latency spikes after data distribution changes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** frecuencia de consultas lentas, cambios de plan a lo largo del tiempo.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** picos repentinos de latencia después de cambios en la distribución de datos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Keep stats fresh (ANALYZE)
-  - [ ] Compare estimates vs actuals
+  - [ ] Mantener estadísticas actualizadas (ANALYZE)
+  - [ ] Comparar estimaciones vs valores reales
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Adding indexes without checking plans.
-  - **Why it’s bad:** planner may ignore them.
-  - **Better approach:** validate with EXPLAIN.
+## Anti-patrones comunes
+- **Anti-patrón:** Agregar índices sin verificar planes.
+  - **Por qué es malo:** el planificador puede ignorarlos.
+  - **Mejor enfoque:** validar con EXPLAIN.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Query planning is the DB deciding the cheapest way to run a query. It uses statistics to pick indexes and join order, and you validate it with tools like EXPLAIN.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La planificación de consultas es la BD decidiendo la forma más barata de ejecutar una consulta. Usa estadísticas para elegir índices y orden de joins, y lo validas con herramientas como EXPLAIN.
 
-### Trap questions (with answers)
-1) **Q:** Is the planner always correct?
-   - **A:** no; bad stats or skew can mislead it.
-2) **Q:** Does EXPLAIN show actual runtime?
-   - **A:** no; EXPLAIN ANALYZE does.
-3) **Q:** Can indexes be ignored?
-   - **A:** yes, if the planner estimates they won’t help.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El planificador siempre es correcto?
+   - **R:** no; malas estadísticas o sesgo pueden engañarlo.
+2) **P:** ¿EXPLAIN muestra el tiempo de ejecución real?
+   - **R:** no; EXPLAIN ANALYZE sí.
+3) **P:** ¿Los índices pueden ser ignorados?
+   - **R:** sí, si el planificador estima que no ayudarán.
 
-### Quick self-check (5 items)
-- [ ] I can define query planning.
-- [ ] I can explain why stats matter.
-- [ ] I can name a failure mode.
-- [ ] I can describe a validation step.
-- [ ] I can compare EXPLAIN vs EXPLAIN ANALYZE.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir la planificación de consultas.
+- [ ] Puedo explicar por qué las estadísticas importan.
+- [ ] Puedo nombrar un modo de fallo.
+- [ ] Puedo describir un paso de validación.
+- [ ] Puedo comparar EXPLAIN vs EXPLAIN ANALYZE.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [EXPLAIN](explain.md)
 
-### Related topics
-- [Selectivity](selectivity.md)
+### Temas relacionados
+- [Selectividad](selectivity.md)
 
-### Compare with
-- [EXPLAIN](explain.md) — planner output vs execution.
+### Comparar con
+- [EXPLAIN](explain.md) — salida del planificador vs ejecución.

@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Requirements Basics
+# Fundamentos de Requisitos
 
 ## TL;DR (BLUF)
-- Requirements define what a system must do and constraints.
-- Use them to guide design and trade-offs.
-- Trade-off: too much detail can slow progress.
+- Los requisitos definen qué debe hacer un sistema y sus restricciones.
+- Úsalos para guiar el diseño y los trade-offs.
+- Trade-off: demasiado detalle puede ralentizar el progreso.
 
-## Definition
-**What it is:** The process of capturing functional and non-functional needs.
-**Key terms:** functional requirements, non-functional requirements, constraints.
+## Definición
+**Qué es:** El proceso de capturar necesidades funcionales y no funcionales.
+**Términos clave:** requisitos funcionales, requisitos no funcionales, restricciones.
 
-## Why it matters
-- Clear requirements reduce rework.
-- Ambiguity leads to wrong architecture choices.
+## Por qué importa
+- Requisitos claros reducen el retrabajo.
+- La ambigüedad lleva a elecciones de arquitectura incorrectas.
 
-## Scope & Non-goals
-**In scope:** capturing and prioritizing requirements.
-**Out of scope / NOT solved by this:** detailed product management.
+## Alcance y no-objetivos
+**Dentro del alcance:** capturar y priorizar requisitos.
+**Fuera del alcance / NO resuelto por esto:** gestión de producto detallada.
 
-## Mental model / Intuition
-- Requirements are the contract for what the system must achieve.
+## Modelo mental / Intuición
+- Los requisitos son el contrato de lo que el sistema debe lograr.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You start a new system or major change.
-### Avoid it when
-- You’re making a trivial change.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Inicies un nuevo sistema o cambio importante.
+### Evítalo cuando
+- Estés haciendo un cambio trivial.
 
-## How I would use it (practical)
-- **Context:** New data pipeline.
-- **Steps:** define goals → identify constraints → document trade-offs.
-- **What success looks like:** aligned design decisions.
+## Cómo lo usaría (práctico)
+- **Contexto:** Nuevo pipeline de datos.
+- **Pasos:** definir objetivos → identificar restricciones → documentar trade-offs.
+- **Cómo se ve el éxito:** decisiones de diseño alineadas.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** clarity.
-- **Cons / Risks:** analysis paralysis.
-### Alternatives
-- **Prototype-first:** faster learning.
-- **How to choose:** use requirements when correctness and scale matter.
+- **Pros:** claridad.
+- **Contras / Riesgos:** parálisis por análisis.
+### Alternativas
+- **Prototipo primero:** aprendizaje más rápido.
+- **Cómo elegir:** usar requisitos cuando la corrección y la escala importan.
 
-## Failure modes & Pitfalls
-- Overlooking non-functional requirements.
+## Modos de fallo y errores comunes
+- Pasar por alto requisitos no funcionales.
 
-## Observability (How to detect issues)
-- **Metrics:** scope churn, change requests.
-- **Logs:** requirement changes.
-- **Alerts:** repeated rework signals.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** rotación de alcance, solicitudes de cambio.
+- **Logs:** cambios de requisitos.
+- **Alertas:** señales de retrabajo repetido.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Capture functional needs
-  - [ ] Capture non-functional constraints
+  - [ ] Capturar necesidades funcionales
+  - [ ] Capturar restricciones no funcionales
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Designing without clarity on goals.
-  - **Why it’s bad:** wasted effort.
-  - **Better approach:** document requirements early.
+## Anti-patrones comunes
+- **Anti-patrón:** Diseñar sin claridad en los objetivos.
+  - **Por qué es malo:** esfuerzo desperdiciado.
+  - **Mejor enfoque:** documentar requisitos tempranamente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Requirements are the baseline for design: what must the system do and what constraints exist. They prevent misaligned architecture decisions.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Los requisitos son la línea base para el diseño: qué debe hacer el sistema y qué restricciones existen. Previenen decisiones de arquitectura desalineadas.
 
-### Trap questions (with answers)
-1) **Q:** Are requirements only functional?
-   - **A:** no; non-functional constraints are critical.
-2) **Q:** Are requirements fixed forever?
-   - **A:** no; they evolve but should be tracked.
-3) **Q:** Can you skip requirements for small changes?
-   - **A:** sometimes, but be explicit.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los requisitos son solo funcionales?
+   - **R:** No; las restricciones no funcionales son críticas.
+2) **P:** ¿Los requisitos son fijos para siempre?
+   - **R:** No; evolucionan pero deben rastrearse.
+3) **P:** ¿Puedes omitir requisitos para cambios pequeños?
+   - **R:** A veces, pero sé explícito.
 
-### Quick self-check (5 items)
-- [ ] I can define requirements.
-- [ ] I can name non-functional constraints.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a trade-off.
-- [ ] I can connect requirements to design.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir requisitos.
+- [ ] Puedo nombrar restricciones no funcionales.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar un trade-off.
+- [ ] Puedo conectar requisitos con diseño.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - N/A
 
-### Related topics
-- [API design basics](api-design-basics.md)
+### Temas relacionados
+- [Fundamentos de diseño de API](api-design-basics.md)
 
-### Compare with
-- [Performance basics](performance-basics.md) — constraints vs optimization.
+### Comparar con
+- [Fundamentos de rendimiento](performance-basics.md) — restricciones vs optimización.

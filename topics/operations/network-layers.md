@@ -1,6 +1,6 @@
 ---
 id: network-layers
-title: "Network Layers (OSI & TCP/IP)"
+title: "Capas de red (OSI y TCP/IP)"
 type: concept
 status: learning
 importance: 50
@@ -12,113 +12,113 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# Network Layers (OSI & TCP/IP)
+# Capas de red (OSI y TCP/IP)
 
 ## TL;DR (BLUF)
-- Network layers organize responsibilities from physical transmission to application protocols.
-- Use them to locate problems and reason about where a failure belongs.
-- Trade-off: models simplify reality and don’t map perfectly to implementations.
+- Las capas de red organizan responsabilidades desde la transmisión física hasta los protocolos de aplicación.
+- Úsalas para localizar problemas y razonar sobre dónde pertenece un fallo.
+- Trade-off: los modelos simplifican la realidad y no se mapean perfectamente a las implementaciones.
 
-## Definition
-**What it is:** Conceptual models that split networking into layers (OSI: 7 layers; TCP/IP: 4–5 layers) to define responsibilities and interfaces.  
-**Key terms:** physical, data link, network, transport, session, presentation, application.
+## Definición
+**Qué es:** Modelos conceptuales que dividen las redes en capas (OSI: 7 capas; TCP/IP: 4-5 capas) para definir responsabilidades e interfaces.  
+**Términos clave:** física, enlace de datos, red, transporte, sesión, presentación, aplicación.
 
-## Why it matters
-- It helps debug issues by narrowing the layer of failure.
-- It clarifies where protocols like [TCP](tcp.md), [UDP](udp.md), [HTTP](http.md), and [TLS](tls.md) live.
+## Por qué importa
+- Ayuda a depurar problemas al reducir la capa del fallo.
+- Clarifica dónde viven protocolos como [TCP](tcp.md), [UDP](udp.md), [HTTP](http.md) y [TLS](tls.md).
 
-## Scope & Non-goals
-**In scope:** responsibilities of each layer and protocol placement.  
-**Out of scope / NOT solved by this:** detailed protocol implementations or hardware design.
+## Alcance y no-objetivos
+**Dentro del alcance:** responsabilidades de cada capa y ubicación de protocolos.  
+**Fuera del alcance / NO resuelto por esto:** implementaciones detalladas de protocolos o diseño de hardware.
 
-## Mental model / Intuition
-- Layers are like a postal system: each layer adds its own envelope.
-- Higher layers rely on lower layers without knowing their details.
+## Modelo mental / Intuición
+- Las capas son como un sistema postal: cada capa agrega su propio sobre.
+- Las capas superiores dependen de las inferiores sin conocer sus detalles.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need to localize network problems ([DNS](dns.md) vs [TCP](tcp.md) vs routing).
-- You’re learning protocols and their responsibilities.
-### Avoid it when
-- You need exact vendor-specific implementation details.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas localizar problemas de red ([DNS](dns.md) vs [TCP](tcp.md) vs enrutamiento).
+- Estás aprendiendo protocolos y sus responsabilidades.
+### Evítalo cuando
+- Necesitas detalles de implementación específicos del proveedor.
 
-## How I would use it (practical)
-- **Context:** Users report intermittent API timeouts.
-- **Steps:**
-  1) Check application layer ([HTTP](http.md) errors).
-  2) Inspect transport layer ([TCP](tcp.md) resets, retransmits).
-  3) Verify network layer (routing, MTU).
-- **What success looks like:** clear identification of the failing layer.
+## Cómo lo usaría (práctico)
+- **Contexto:** Los usuarios reportan timeouts intermitentes de la API.
+- **Pasos:**
+  1) Verificar la capa de aplicación (errores [HTTP](http.md)).
+  2) Inspeccionar la capa de transporte (resets [TCP](tcp.md), retransmisiones).
+  3) Verificar la capa de red (enrutamiento, MTU).
+- **Cómo se ve el éxito:** identificación clara de la capa que falla.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong mental model for troubleshooting.
-- **Cons / Risks:** real systems blur boundaries (e.g., [TLS](tls.md) over [TCP](tcp.md)).
-### Alternatives
-- **TCP/IP model:** simpler layered model focused on internet protocols.
-- **How to choose:** use OSI for conceptual clarity; use TCP/IP for practical mapping.
+- **Ventajas:** modelo mental sólido para solución de problemas.
+- **Desventajas / Riesgos:** los sistemas reales difuminan los límites (por ejemplo, [TLS](tls.md) sobre [TCP](tcp.md)).
+### Alternativas
+- **Modelo TCP/IP:** modelo en capas más simple enfocado en protocolos de internet.
+- **Cómo elegir:** usa OSI para claridad conceptual; usa TCP/IP para mapeo práctico.
 
-## Failure modes & Pitfalls
-- Misattributing application issues to network layers.
-- Ignoring cross-layer interactions (e.g., [TLS](tls.md) handshake timeouts).
+## Modos de fallo y trampas
+- Atribuir erróneamente problemas de aplicación a capas de red.
+- Ignorar interacciones entre capas (por ejemplo, timeouts de handshake [TLS](tls.md)).
 
-## Observability (How to detect issues)
-- **Metrics:** [DNS](dns.md) latency, [TCP](tcp.md) retransmits, packet loss, [HTTP](http.md) error rate.
-- **Logs:** [DNS](dns.md) failures, connection resets, [TLS](tls.md) handshake errors.
-- **Traces:** identify delays at transport vs application spans.
-- **Alerts:** spikes in retransmissions or [DNS](dns.md) failure rates.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de [DNS](dns.md), retransmisiones [TCP](tcp.md), pérdida de paquetes, tasa de error [HTTP](http.md).
+- **Logs:** fallos de [DNS](dns.md), resets de conexión, errores de handshake [TLS](tls.md).
+- **Trazas:** identificar retrasos en tramos de transporte vs aplicación.
+- **Alertas:** picos en retransmisiones o tasas de fallo de [DNS](dns.md).
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Identify protocol per layer in your system
-  - [ ] Use layer-specific metrics for diagnosis
-- **Security / Compliance notes**
-  - Map [TLS](tls.md) to presentation/session responsibilities.
-- **Performance notes**
-  - Watch MTU and fragmentation at the network layer.
-- **Operational notes**
-  - Maintain runbooks by layer.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Identificar protocolo por capa en tu sistema
+  - [ ] Usar métricas específicas por capa para diagnóstico
+- **Notas de seguridad / cumplimiento**
+  - Mapear [TLS](tls.md) a responsabilidades de presentación/sesión.
+- **Notas de rendimiento**
+  - Vigilar MTU y fragmentación en la capa de red.
+- **Notas operacionales**
+  - Mantener runbooks por capa.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Treating OSI as literal implementation.
-  - **Why it’s bad:** modern stacks combine layers and add exceptions.
-  - **Better approach:** use it as a diagnostic model, not a blueprint.
+## Anti-patrones comunes
+- **Anti-patrón:** Tratar OSI como implementación literal.
+  - **Por qué es malo:** los stacks modernos combinan capas y agregan excepciones.
+  - **Mejor enfoque:** úsalo como un modelo de diagnóstico, no como un plano.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- OSI and TCP/IP models split networking into layers so we can reason about responsibilities and debug problems by layer.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los modelos OSI y TCP/IP dividen las redes en capas para que podamos razonar sobre responsabilidades y depurar problemas por capa.
 
-### Trap questions (with answers)
-1) **Q:** Is [TLS](tls.md) part of the application layer?
-   - **A:** It’s usually mapped to presentation/session in OSI, but practically lives above TCP.
-2) **Q:** Is HTTP a transport protocol?
-   - **A:** No; it’s an application-layer protocol.
-3) **Q:** Is the OSI model a strict implementation blueprint?
-   - **A:** No; it’s a conceptual model.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es [TLS](tls.md) parte de la capa de aplicación?
+   - **R:** Usualmente se mapea a presentación/sesión en OSI, pero en la práctica vive sobre TCP.
+2) **P:** ¿Es HTTP un protocolo de transporte?
+   - **R:** No; es un protocolo de capa de aplicación.
+3) **P:** ¿Es el modelo OSI un plano de implementación estricto?
+   - **R:** No; es un modelo conceptual.
 
-### Quick self-check (5 items)
-- [ ] I can name OSI layers and their responsibilities.
-- [ ] I can place [TCP](tcp.md)/[UDP](udp.md) and [HTTP](http.md) in the right layers.
-- [ ] I can explain how OSI maps to TCP/IP.
-- [ ] I can use layers to debug a problem.
-- [ ] I can name 1 pitfall of the model.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo nombrar las capas OSI y sus responsabilidades.
+- [ ] Puedo ubicar [TCP](tcp.md)/[UDP](udp.md) y [HTTP](http.md) en las capas correctas.
+- [ ] Puedo explicar cómo OSI se mapea a TCP/IP.
+- [ ] Puedo usar capas para depurar un problema.
+- [ ] Puedo nombrar 1 trampa del modelo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Networking basics](networking-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de redes](networking-basics.md)
 
-### Related topics
+### Temas relacionados
 - [TCP](tcp.md)
 - [UDP](udp.md)
 - [DNS](dns.md)
 - [HTTP](http.md)
 - [TLS](tls.md)
 
-### Compare with
-- [Networking basics](networking-basics.md) — conceptual layers vs operational concerns.
+### Comparar con
+- [Fundamentos de redes](networking-basics.md) — capas conceptuales vs preocupaciones operacionales.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

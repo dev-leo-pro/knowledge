@@ -1,6 +1,6 @@
 ---
 id: scheduled-cleanup-jobs
-title: "Scheduled Cleanup Jobs"
+title: "Trabajos de limpieza programados"
 type: pattern
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Scheduled Cleanup Jobs
+# Trabajos de limpieza programados
 
 ## TL;DR (BLUF)
-- Scheduled jobs delete or archive expired data on a fixed cadence.
-- Use them when TTL is too imprecise.
-- Trade-off: operational overhead and job failures.
+- Los trabajos programados eliminan o archivan datos expirados en una cadencia fija.
+- Úsalos cuando el TTL es demasiado impreciso.
+- Trade-off: sobrecarga operacional y fallos de trabajos.
 
-## Definition
-**What it is:** A periodic process that deletes or archives expired records.
-**Key terms:** cron, batch job, retention.
+## Definición
+**Qué es:** Un proceso periódico que elimina o archiva registros expirados.
+**Términos clave:** cron, trabajo batch, retención.
 
-## Why it matters
-- It enforces data retention and compliance rules.
-- Poorly designed jobs can lock tables or spike I/O.
+## Por qué importa
+- Aplica reglas de retención de datos y cumplimiento.
+- Trabajos mal diseñados pueden bloquear tablas o provocar picos de I/O.
 
-## Scope & Non-goals
-**In scope:** batch cleanup patterns and trade-offs.
-**Out of scope / NOT solved by this:** real-time deletion guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** patrones de limpieza batch y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** garantías de eliminación en tiempo real.
 
-## Mental model / Intuition
-- Think of it as a scheduled janitor.
+## Modelo mental / Intuición
+- Piénsalo como un conserje programado.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need precise deletion timing or compliance.
-### Avoid it when
-- Best-effort TTL is sufficient and cheaper.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas temporización precisa de eliminación o cumplimiento.
+### Evítalo cuando
+- El TTL de mejor esfuerzo es suficiente y más económico.
 
-## How I would use it (practical)
-- **Context:** Deleting expired sessions nightly.
-- **Steps:** schedule job → batch deletes → monitor duration.
-- **What success looks like:** expired data removed with bounded load.
+## Cómo lo usaría (práctico)
+- **Contexto:** Eliminar sesiones expiradas cada noche.
+- **Pasos:** programar trabajo → eliminar en lotes → monitorear duración.
+- **Cómo se ve el éxito:** datos expirados eliminados con carga acotada.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** precise control.
-- **Cons / Risks:** operational overhead.
-### Alternatives
-- **TTL:** best-effort cleanup.
-- **How to choose:** use jobs for strict timing; TTL for convenience.
+- **Ventajas:** control preciso.
+- **Desventajas / Riesgos:** sobrecarga operacional.
+### Alternativas
+- **TTL:** limpieza de mejor esfuerzo.
+- **Cómo elegir:** usa trabajos para temporización estricta; TTL para conveniencia.
 
-## Failure modes & Pitfalls
-- Long-running jobs locking tables.
+## Modos de fallo y trampas
+- Trabajos de larga ejecución bloqueando tablas.
 
-## Observability (How to detect issues)
-- **Metrics:** job duration, rows deleted.
-- **Logs:** job failures.
-- **Alerts:** missed schedules or timeouts.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** duración del trabajo, filas eliminadas.
+- **Logs:** fallos de trabajos.
+- **Alertas:** ejecuciones perdidas o timeouts.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Batch deletes
-  - [ ] Run during off-peak hours
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Eliminar en lotes
+  - [ ] Ejecutar durante horas de baja demanda
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Deleting millions of rows in one transaction.
-  - **Why it’s bad:** locks and timeouts.
-  - **Better approach:** batch in chunks.
+## Anti-patrones comunes
+- **Anti-patrón:** Eliminar millones de filas en una sola transacción.
+  - **Por qué es malo:** bloqueos y timeouts.
+  - **Mejor enfoque:** procesar en lotes por bloques.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Scheduled cleanup jobs are periodic tasks that delete expired data when TTL isn’t precise enough. They provide control but require operational care.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los trabajos de limpieza programados son tareas periódicas que eliminan datos expirados cuando el TTL no es lo suficientemente preciso. Proporcionan control pero requieren cuidado operacional.
 
-### Trap questions (with answers)
-1) **Q:** Are scheduled jobs always better than TTL?
-   - **A:** no; TTL is simpler when precision isn’t required.
-2) **Q:** Can cleanup jobs run at peak traffic?
-   - **A:** they can, but it risks contention.
-3) **Q:** Do cleanup jobs guarantee immediate deletion?
-   - **A:** no; they run on a schedule.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son siempre mejores los trabajos programados que el TTL?
+   - **R:** no; el TTL es más simple cuando no se requiere precisión.
+2) **P:** ¿Pueden los trabajos de limpieza ejecutarse en tráfico pico?
+   - **R:** pueden, pero arriesga contención.
+3) **P:** ¿Los trabajos de limpieza garantizan eliminación inmediata?
+   - **R:** no; se ejecutan según un cronograma.
 
-### Quick self-check (5 items)
-- [ ] I can define scheduled cleanup jobs.
-- [ ] I can state when to use them.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a monitoring signal.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir trabajos de limpieza programados.
+- [ ] Puedo indicar cuándo usarlos.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [TTL (Time-to-Live)](../databases/ttl.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB TTL](../databases/dynamodb-ttl.md)
 
-### Compare with
-- [TTL (Time-to-Live)](../databases/ttl.md) — best-effort vs scheduled.
+### Comparar con
+- [TTL (Time-to-Live)](../databases/ttl.md) — mejor esfuerzo vs programado.

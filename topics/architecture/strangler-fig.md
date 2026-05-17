@@ -12,201 +12,201 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Strangler Fig Pattern
+# Patrón Strangler Fig
 
 ## TL;DR (BLUF)
-- Incrementally migrate a legacy system by routing traffic to new services while keeping old system running.
-- Use it to avoid risky "big bang" rewrites of monoliths or legacy systems.
-- Trade-off: long migration period with increased complexity managing both systems.
+- Migra incrementalmente un sistema heredado redirigiendo tráfico a nuevos servicios mientras el sistema antiguo sigue funcionando.
+- Úsalo para evitar reescrituras "big bang" arriesgadas de monolitos o sistemas heredados.
+- Trade-off: período largo de migración con mayor complejidad gestionando ambos sistemas.
 
-## Definition
-**What it is:** A migration strategy where you gradually replace parts of a legacy system by intercepting requests (via proxy/gateway), routing some to new services and others to the old system, until the old system is fully "strangled" and can be decommissioned.
+## Definición
+**Qué es:** Una estrategia de migración donde gradualmente reemplazas partes de un sistema heredado interceptando peticiones (vía proxy/gateway), enrutando algunas a nuevos servicios y otras al sistema antiguo, hasta que el sistema antiguo es completamente "estrangulado" y puede ser decomisionado.
 
-**Key terms:** incremental migration, legacy modernization, proxy layer, routing, parallel run, big bang rewrite (anti-pattern), brownfield development.
+**Términos clave:** migración incremental, modernización de sistemas heredados, capa proxy, enrutamiento, ejecución paralela, reescritura big bang (anti-patrón), desarrollo brownfield.
 
-## Why it matters
-- Reduces risk of failed rewrites (avoid "second system syndrome").
-- Allows continuous delivery: migrate one feature at a time.
-- Keeps business running during migration (no downtime).
-- Provides rollback path (route back to legacy if new service fails).
+## Por qué importa
+- Reduce el riesgo de reescrituras fallidas (evita el "síndrome del segundo sistema").
+- Permite entrega continua: migra una funcionalidad a la vez.
+- Mantiene el negocio funcionando durante la migración (sin tiempo de inactividad).
+- Proporciona ruta de rollback (enrutar de vuelta al sistema heredado si el nuevo servicio falla).
 
-## Scope & Non-goals
-**In scope:** routing strategies, proxy/gateway setup, data migration, dual-write handling, cutover planning.
+## Alcance y no-objetivos
+**Dentro del alcance:** estrategias de enrutamiento, configuración de proxy/gateway, migración de datos, manejo de escritura dual, planificación del cutover.
 
-**Out of scope / NOT solved by this:**
-- Data consistency during migration (see [Dual-write](dual-write-pattern.md))
-- Domain modeling (see [Domain-Driven Design](domain-driven-design.md))
-- Legacy system decommissioning timeline
+**Fuera del alcance / NO resuelto por esto:**
+- Consistencia de datos durante la migración (ver [Escritura dual](dual-write-pattern.md))
+- Modelado de dominio (ver [Diseño Dirigido por Dominio](domain-driven-design.md))
+- Cronograma de decomisionamiento del sistema heredado
 
-## Mental model / Intuition
-- Named after strangler fig tree: grows around host tree, eventually replacing it.
-- In systems: new microservices "wrap around" monolith, gradually taking over functionality.
-- Like renovating a house room by room while living in it.
+## Modelo mental / Intuición
+- Nombrado por el árbol strangler fig: crece alrededor del árbol huésped, eventualmente reemplazándolo.
+- En sistemas: los nuevos microservicios "envuelven" al monolito, gradualmente tomando funcionalidad.
+- Como renovar una casa habitación por habitación mientras vives en ella.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Legacy system is large and risky to rewrite all at once.
-- Business cannot afford downtime or big-bang cutover.
-- You need to deliver value incrementally (new features in new services).
-- Team lacks full understanding of legacy (discover as you migrate).
-- Legacy has mixed quality (migrate valuable parts, discard cruft).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El sistema heredado sea grande y arriesgado de reescribir de una vez.
+- El negocio no pueda permitirse tiempo de inactividad o cutover big bang.
+- Necesites entregar valor incrementalmente (nuevas funcionalidades en nuevos servicios).
+- El equipo no entienda completamente el sistema heredado (descubrir mientras se migra).
+- El sistema heredado tenga calidad mixta (migrar partes valiosas, descartar lo innecesario).
 
-### Avoid it when
-- Legacy is small enough to rewrite quickly (< 6 months).
-- Legacy is stable and low-maintenance (no business case for migration).
-- Team is too small to manage dual systems.
-- Data migration complexity is prohibitive.
+### Evítalo cuando
+- El sistema heredado sea lo bastante pequeño para reescribirlo rápido (< 6 meses).
+- El sistema heredado sea estable y de bajo mantenimiento (sin caso de negocio para migrar).
+- El equipo sea demasiado pequeño para gestionar sistemas duales.
+- La complejidad de migración de datos sea prohibitiva.
 
-## How I would use it (practical)
-- **Context:** Migrating monolithic e-commerce app to microservices.
-- **Steps:**
-  1) **Setup proxy/gateway:** Deploy [API Gateway](../system-design/api-gateway.md) in front of monolith.
+## Cómo lo usaría (práctico)
+- **Contexto:** Migrando una app de e-commerce monolítica a microservicios.
+- **Pasos:**
+  1) **Configurar proxy/gateway:** Desplegar [API Gateway](../system-design/api-gateway.md) delante del monolito.
      ```
-     Client → API Gateway → (route decision) → New Services OR Legacy Monolith
+     Cliente → API Gateway → (decisión de ruta) → Nuevos Servicios O Monolito Heredado
      ```
-  2) **Identify migration slice:** Start with low-risk, high-value feature (e.g., product catalog).
-  3) **Build new service:** Create `product-service` (microservice).
-  4) **Dual-write (if needed):** Write to both legacy DB and new service DB during transition.
+  2) **Identificar el slice de migración:** Empezar con una funcionalidad de bajo riesgo y alto valor (ej., catálogo de productos).
+  3) **Construir nuevo servicio:** Crear `product-service` (microservicio).
+  4) **Escritura dual (si es necesario):** Escribir tanto en la BD heredada como en la BD del nuevo servicio durante la transición.
      ```go
-     // Temporarily write to both
+     // Temporalmente escribir en ambos
      legacyDB.SaveProduct(product)
      newProductService.CreateProduct(product)
      ```
-  5) **Route reads to new service:** Configure gateway:
+  5) **Enrutar lecturas al nuevo servicio:** Configurar gateway:
      ```
-     GET /products/* → product-service (new)
-     POST /orders/* → monolith (legacy)
+     GET /products/* → product-service (nuevo)
+     POST /orders/* → monolito (heredado)
      ```
-  6) **Monitor and validate:** Compare responses (shadow mode), track error rates.
-  7) **Cutover:** Switch writes to new service; deprecate legacy code.
-  8) **Repeat:** Migrate next slice (orders, users, payments).
-  9) **Decommission:** When all features migrated, shut down monolith.
+  6) **Monitorear y validar:** Comparar respuestas (modo shadow), rastrear tasas de error.
+  7) **Cutover:** Cambiar escrituras al nuevo servicio; deprecar código heredado.
+  8) **Repetir:** Migrar siguiente slice (pedidos, usuarios, pagos).
+  9) **Decomisionar:** Cuando todas las funcionalidades estén migradas, apagar el monolito.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Long migration (months/years) | Set realistic timeline; deliver value incrementally; avoid perfectionism |
-| Dual-write complexity | Use [Change Data Capture](../databases/change-data-capture.md) or event-driven sync |
-| Data consistency issues | Accept eventual consistency; use [Saga](saga-pattern.md) for critical flows |
-| Operational overhead (two systems) | Automate deployment; use feature flags to toggle routing |
-| Risk of "strangler never finishes" | Set deadlines; track migration progress; celebrate milestones |
+| Migración larga (meses/años) | Establecer cronograma realista; entregar valor incrementalmente; evitar perfeccionismo |
+| Complejidad de escritura dual | Usar [Change Data Capture](../databases/change-data-capture.md) o sincronización dirigida por eventos |
+| Problemas de consistencia de datos | Aceptar consistencia eventual; usar [Saga](saga-pattern.md) para flujos críticos |
+| Sobrecarga operacional (dos sistemas) | Automatizar despliegue; usar feature flags para alternar enrutamiento |
+| Riesgo de "strangler que nunca termina" | Establecer plazos; rastrear progreso de migración; celebrar hitos |
 
-## Failure modes / Edge cases
-1. **Dual-write drift:** Legacy and new service DBs diverge.
-   - *Mitigation:* Use [Outbox pattern](outbox-pattern.md) or CDC; [reconcile](../operations/data-reconciliation.md) periodically.
-2. **Routing complexity explodes:** 100s of if-else rules in gateway.
-   - *Mitigation:* Use declarative routing (config-driven); refactor incrementally.
-3. **Hidden dependencies:** New service calls legacy, creating tight coupling.
-   - *Mitigation:* Use [Anti-Corruption Layer](anti-corruption-layer.md) to isolate.
-4. **Migration stalls:** Team loses momentum after initial slice.
-   - *Mitigation:* Dedicate resources; track progress publicly; celebrate wins.
-5. **Legacy becomes zombie:** Never fully decommissioned.
-   - *Mitigation:* Set hard deadline; budget for final cleanup; measure legacy usage.
+## Modos de fallo / Casos límite
+1. **Desvío de escritura dual:** Las BDs del sistema heredado y nuevo divergen.
+   - *Mitigación:* Usar [patrón Outbox](outbox-pattern.md) o CDC; [reconciliar](../operations/data-reconciliation.md) periódicamente.
+2. **La complejidad de enrutamiento explota:** Cientos de reglas if-else en el gateway.
+   - *Mitigación:* Usar enrutamiento declarativo (basado en configuración); refactorizar incrementalmente.
+3. **Dependencias ocultas:** El nuevo servicio llama al heredado, creando acoplamiento estrecho.
+   - *Mitigación:* Usar [Capa Anti-Corrupción](anti-corruption-layer.md) para aislar.
+4. **La migración se estanca:** El equipo pierde impulso después del primer slice.
+   - *Mitigación:* Dedicar recursos; rastrear progreso públicamente; celebrar victorias.
+5. **El sistema heredado se convierte en zombie:** Nunca se decomisiona completamente.
+   - *Mitigación:* Establecer plazo firme; presupuestar la limpieza final; medir uso del sistema heredado.
 
-## Alternatives
-- **Big bang rewrite:** Replace entire system at once (high risk).
-- **Feature freeze + rewrite:** Stop new features, rewrite, then cutover (business impact).
-- **Parallel run:** Run legacy + new in parallel, switch after validation (complex).
-- **Lift and shift:** Migrate to cloud without refactoring (doesn't modernize).
+## Alternativas
+- **Reescritura big bang:** Reemplazar todo el sistema de una vez (alto riesgo).
+- **Congelamiento de funcionalidades + reescritura:** Parar nuevas funcionalidades, reescribir, luego cutover (impacto al negocio).
+- **Ejecución paralela:** Ejecutar heredado + nuevo en paralelo, cambiar después de validación (complejo).
+- **Lift and shift:** Migrar a la nube sin refactorizar (no moderniza).
 
-## Phases
-### Phase 1: Preparation
-- Deploy proxy/gateway.
-- Identify first migration slice.
-- Establish monitoring and observability.
+## Fases
+### Fase 1: Preparación
+- Desplegar proxy/gateway.
+- Identificar primer slice de migración.
+- Establecer monitoreo y observabilidad.
 
-### Phase 2: Build New Service
-- Develop microservice.
-- Migrate data schema (if needed).
-- Test thoroughly (unit, integration, contract).
+### Fase 2: Construir Nuevo Servicio
+- Desarrollar microservicio.
+- Migrar esquema de datos (si es necesario).
+- Probar exhaustivamente (unitarias, integración, contrato).
 
-### Phase 3: Dual-Write (if needed)
-- Write to both systems temporarily.
-- Validate consistency.
+### Fase 3: Escritura Dual (si es necesario)
+- Escribir en ambos sistemas temporalmente.
+- Validar consistencia.
 
-### Phase 4: Route Traffic
-- Shadow mode: route reads to new, compare with legacy.
-- Cutover: route production traffic to new service.
-- Rollback plan ready.
+### Fase 4: Enrutar Tráfico
+- Modo shadow: enrutar lecturas al nuevo, comparar con heredado.
+- Cutover: enrutar tráfico de producción al nuevo servicio.
+- Plan de rollback listo.
 
-### Phase 5: Decommission
-- Stop dual-writes.
-- Delete legacy code.
-- Migrate next slice.
+### Fase 5: Decomisionamiento
+- Detener escrituras duales.
+- Eliminar código heredado.
+- Migrar siguiente slice.
 
-## Combinations
-Strangler Fig is **almost always used with:**
-- **[API Gateway](../system-design/api-gateway.md):** Routes traffic to new vs legacy.
-- **[Anti-Corruption Layer](anti-corruption-layer.md):** Protects new services from legacy models.
-- **[Change Data Capture](../databases/change-data-capture.md):** Sync data between systems.
-- **[Observability](../operations/observability-basics.md):** Monitor both systems during migration.
-- **[Feature flags](../quality/software-quality-assurance.md):** Toggle routing dynamically.
+## Combinaciones
+Strangler Fig se usa **casi siempre con:**
+- **[API Gateway](../system-design/api-gateway.md):** Enruta tráfico a nuevo vs heredado.
+- **[Capa Anti-Corrupción](anti-corruption-layer.md):** Protege nuevos servicios de modelos heredados.
+- **[Change Data Capture](../databases/change-data-capture.md):** Sincroniza datos entre sistemas.
+- **[Observabilidad](../operations/observability-basics.md):** Monitorea ambos sistemas durante la migración.
+- **[Feature flags](../quality/software-quality-assurance.md):** Alterna enrutamiento dinámicamente.
 
-**Typical combination:**
-- **Legacy migration scenario:** Strangler Fig + API Gateway + ACL + Observability + Feature Flags
+**Combinación típica:**
+- **Escenario de migración heredada:** Strangler Fig + API Gateway + ACL + Observabilidad + Feature Flags
 
-## Prerequisites
-- Understanding of [Microservices design](microservices-design-basics.md).
-- Familiarity with [API Gateway](../system-design/api-gateway.md) and routing.
-- Knowledge of [Data migration](../databases/data-modeling-basics.md) and consistency.
+## Prerrequisitos
+- Comprensión de [diseño de microservicios](microservices-design-basics.md).
+- Familiaridad con [API Gateway](../system-design/api-gateway.md) y enrutamiento.
+- Conocimiento de [migración de datos](../databases/data-modeling-basics.md) y consistencia.
 
-## Related topics
-- [API Gateway](../system-design/api-gateway.md): Routing layer for strangler.
-- [Anti-Corruption Layer](anti-corruption-layer.md): Isolate new services from legacy.
-- [Dual-write pattern](dual-write-pattern.md): Temporary sync during migration.
-- [Change Data Capture](../databases/change-data-capture.md): Alternative to dual-write.
-- [Microservices design](microservices-design-basics.md): Target architecture.
+## Temas relacionados
+- [API Gateway](../system-design/api-gateway.md): Capa de enrutamiento para strangler.
+- [Capa Anti-Corrupción](anti-corruption-layer.md): Aislar nuevos servicios del heredado.
+- [Patrón de escritura dual](dual-write-pattern.md): Sincronización temporal durante migración.
+- [Change Data Capture](../databases/change-data-capture.md): Alternativa a escritura dual.
+- [Diseño de microservicios](microservices-design-basics.md): Arquitectura objetivo.
 
-## Real-world examples
-1. **Shopify:** Migrated Rails monolith to microservices over 5+ years using strangler.
-2. **SoundCloud:** Used strangler to extract user/playback services from monolith.
-3. **Martin Fowler's original article (2004):** Coined the term based on real project.
+## Ejemplos del mundo real
+1. **Shopify:** Migró monolito Rails a microservicios durante 5+ años usando strangler.
+2. **SoundCloud:** Usó strangler para extraer servicios de usuario/reproducción del monolito.
+3. **Artículo original de Martin Fowler (2004):** Acuñó el término basado en un proyecto real.
 
-## Checklist (self-test)
-- [ ] I can explain why big bang rewrites are risky.
-- [ ] I know how to set up routing proxy/gateway.
-- [ ] I understand dual-write challenges and alternatives.
-- [ ] I can plan migration in slices (prioritize by value/risk).
-- [ ] I can monitor both legacy and new services during migration.
+## Checklist (auto-evaluación)
+- [ ] Puedo explicar por qué las reescrituras big bang son arriesgadas.
+- [ ] Sé cómo configurar un proxy/gateway de enrutamiento.
+- [ ] Entiendo los desafíos de escritura dual y sus alternativas.
+- [ ] Puedo planificar migración en slices (priorizar por valor/riesgo).
+- [ ] Puedo monitorear tanto servicios heredados como nuevos durante la migración.
 
-## Reminders / Key takeaways
-- **Incremental > Big Bang:** Reduce risk, deliver value continuously.
-- Use [API Gateway](../system-design/api-gateway.md) for routing.
-- Use [ACL](anti-corruption-layer.md) to protect new services from legacy models.
-- Plan data migration carefully (dual-write, CDC, [reconciliation](../operations/data-reconciliation.md)).
-- Set **migration deadline** to avoid zombie legacy.
+## Recordatorios / Puntos clave
+- **Incremental > Big Bang:** Reducir riesgo, entregar valor continuamente.
+- Usar [API Gateway](../system-design/api-gateway.md) para enrutamiento.
+- Usar [ACL](anti-corruption-layer.md) para proteger nuevos servicios de modelos heredados.
+- Planificar migración de datos cuidadosamente (escritura dual, CDC, [reconciliación](../operations/data-reconciliation.md)).
+- Establecer **plazo de migración** para evitar zombie heredado.
 
-## Trap questions (with answers)
-### Q1: Should I migrate the entire database schema at once?
-**A:** **No**. Migrate data **incrementally** per service slice. Use:
-1. **Dual-write:** Temporarily write to both legacy + new DB.
-2. **[Change Data Capture](../databases/change-data-capture.md):** Stream changes from legacy to new DB.
-3. **Batch migration:** Copy historical data offline; sync deltas.
-Avoid "one big migration" — too risky. Accept eventual consistency during transition.
+## Preguntas trampa (con respuestas)
+### P1: ¿Debo migrar todo el esquema de base de datos de una vez?
+**R:** **No**. Migra datos **incrementalmente** por slice de servicio. Usa:
+1. **Escritura dual:** Escribir temporalmente en BD heredada + nueva.
+2. **[Change Data Capture](../databases/change-data-capture.md):** Transmitir cambios de BD heredada a nueva.
+3. **Migración por lotes:** Copiar datos históricos offline; sincronizar deltas.
+Evita "una gran migración" — demasiado arriesgado. Acepta consistencia eventual durante la transición.
 
-### Q2: How long should a strangler migration take?
-**A:** **Depends on monolith size and team capacity**. Typical: 1-3 years for large monoliths. Guidelines:
-- Set **realistic timeline** (not "6 months" for 10-year-old monolith).
-- Deliver value incrementally (new features in new services).
-- Track progress (e.g., "60% of traffic to new services").
-- Set **hard deadline** for final cutover (avoid zombie legacy).
+### P2: ¿Cuánto debería durar una migración strangler?
+**R:** **Depende del tamaño del monolito y la capacidad del equipo**. Típico: 1-3 años para monolitos grandes. Directrices:
+- Establecer **cronograma realista** (no "6 meses" para un monolito de 10 años).
+- Entregar valor incrementalmente (nuevas funcionalidades en nuevos servicios).
+- Rastrear progreso (ej., "60% del tráfico en nuevos servicios").
+- Establecer **plazo firme** para el cutover final (evitar zombie heredado).
 
-### Q3: What if the new service fails during migration?
-**A:** **Have rollback plan**. With strangler, you can:
-1. Route traffic **back to legacy** instantly (toggle gateway routing).
-2. Run both systems in parallel (fallback to legacy).
-3. Monitor error rates and rollback automatically (circuit breaker).
-This is strangler's key advantage: **low-risk rollback** vs big bang (no rollback).
+### P3: ¿Qué pasa si el nuevo servicio falla durante la migración?
+**R:** **Tener plan de rollback**. Con strangler, puedes:
+1. Enrutar tráfico **de vuelta al heredado** instantáneamente (alternar enrutamiento del gateway).
+2. Ejecutar ambos sistemas en paralelo (fallback al heredado).
+3. Monitorear tasas de error y hacer rollback automáticamente (circuit breaker).
+Esta es la ventaja clave de strangler: **rollback de bajo riesgo** vs big bang (sin rollback).
 
-### Q4: Can I add new features to the legacy system during migration?
-**A:** **Generally avoid it**. Adding features to legacy:
-- Increases migration effort (more to migrate later).
-- Couples team to legacy tech stack.
-**Better:** Build new features in **new microservices** from day 1. Use strangler proxy to route new endpoints to new services. This delivers value while migrating.
+### P4: ¿Puedo agregar nuevas funcionalidades al sistema heredado durante la migración?
+**R:** **Generalmente evítalo**. Agregar funcionalidades al heredado:
+- Aumenta el esfuerzo de migración (más para migrar después).
+- Acopla al equipo al stack tecnológico heredado.
+**Mejor:** Construir nuevas funcionalidades en **nuevos microservicios** desde el día 1. Usar proxy strangler para enrutar nuevos endpoints a nuevos servicios. Esto entrega valor mientras se migra.
 
-### Q5: How do I handle shared data (e.g., users table used by multiple features)?
-**A:** **Options:**
-1. **[Database per Service](database-per-service.md):** Extract user-service, own users table, expose via API.
-2. **Shared DB temporarily:** Allow new services to read legacy DB (via ACL) during migration; migrate later.
-3. **Event-driven sync:** Legacy publishes user events; new services consume and build local view.
-Choose based on coupling tolerance. Ideally, extract shared data into dedicated service early. See [Bounded Contexts](bounded-contexts.md).
+### P5: ¿Cómo manejo datos compartidos (ej., tabla de usuarios usada por múltiples funcionalidades)?
+**R:** **Opciones:**
+1. **[Base de datos por servicio](database-per-service.md):** Extraer user-service, poseer tabla de usuarios, exponer vía API.
+2. **BD compartida temporalmente:** Permitir que nuevos servicios lean BD heredada (vía ACL) durante migración; migrar después.
+3. **Sincronización dirigida por eventos:** El heredado publica eventos de usuario; nuevos servicios consumen y construyen vista local.
+Elegir según tolerancia al acoplamiento. Idealmente, extraer datos compartidos en servicio dedicado tempranamente. Ver [Contextos Acotados](bounded-contexts.md).

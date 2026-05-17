@@ -1,6 +1,6 @@
 ---
 id: dynamodb-hot-partitions
-title: "DynamoDB Hot Partitions"
+title: "Particiones Calientes en DynamoDB"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# DynamoDB Hot Partitions
+# Particiones Calientes en DynamoDB
 
 ## TL;DR (BLUF)
-- DynamoDB hot partitions are a DynamoDB-specific case of [Hot partitions](hot-partitions.md).
-- Use high-cardinality keys and sharding patterns to spread load.
-- Trade-off: more complex key design and query fan-out.
+- Las particiones calientes en DynamoDB son un caso específico de DynamoDB de [Particiones calientes](hot-partitions.md).
+- Usa claves de alta cardinalidad y patrones de sharding para distribuir la carga.
+- Trade-off: diseño de claves más complejo y fan-out de consultas.
 
-## Definition
-**What it is:** A DynamoDB-specific manifestation of partition skew where a small set of partition keys dominate traffic.
-**Key terms:** partition key, skew, throttling.
+## Definición
+**Qué es:** Una manifestación específica de DynamoDB del sesgo de partición donde un pequeño conjunto de claves de partición dominan el tráfico.
+**Términos clave:** clave de partición, sesgo, throttling.
 
-## Why it matters
-- Hot partitions cause throttling and high latency.
-- They often require schema redesign to fix.
+## Por qué importa
+- Las particiones calientes causan throttling y alta latencia.
+- A menudo requieren rediseño de esquema para solucionarse.
 
-## Scope & Non-goals
-**In scope:** identifying and avoiding hot partitions.
-**Out of scope / NOT solved by this:** tuning unrelated query latency.
+## Alcance y no-objetivos
+**Dentro del alcance:** identificar y evitar particiones calientes.
+**Fuera del alcance / NO resuelto por esto:** ajustar latencia de consultas no relacionada.
 
-## Mental model / Intuition
-- Think of all traffic hitting the same checkout lane.
+## Modelo mental / Intuición
+- Piensa en todo el tráfico yendo a la misma caja registradora.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You see throttling or latency for specific keys.
-### Avoid it when
-- You can design keys to distribute traffic evenly.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Ves throttling o latencia para claves específicas.
+### Evítalo cuando
+- Puedes diseñar claves para distribuir el tráfico uniformemente.
 
-## How I would use it (practical)
-- **Context:** Partition key is user ID with heavy traffic on a few users.
-- **Steps:** add key sharding → spread load → monitor throttling.
-- **What success looks like:** throttling drops and latency stabilizes.
+## Cómo lo usaría (práctico)
+- **Contexto:** La clave de partición es ID de usuario con tráfico pesado en pocos usuarios.
+- **Pasos:** agregar sharding de claves → distribuir la carga → monitorear throttling.
+- **Cómo se ve el éxito:** el throttling baja y la latencia se estabiliza.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** improved throughput and latency.
-- **Cons / Risks:** complexity in key design.
-### Alternatives
-- **Caching:** reduce hot key reads.
-- **How to choose:** fix key design first; use caching if needed.
+- **Ventajas:** rendimiento y latencia mejorados.
+- **Desventajas / Riesgos:** complejidad en el diseño de claves.
+### Alternativas
+- **Caché:** reducir lecturas de claves calientes.
+- **Cómo elegir:** arreglar el diseño de claves primero; usar caché si es necesario.
 
-## Failure modes & Pitfalls
-- Sharding keys without handling read fan-out.
-- Time-based keys causing sudden spikes.
+## Modos de fallo y trampas
+- Hacer sharding de claves sin manejar el fan-out de lectura.
+- Claves basadas en tiempo causando picos repentinos.
 
-## Observability (How to detect issues)
-- **Metrics:** throttling, partition-level latency.
-- **Logs:** hot key access patterns.
-- **Alerts:** recurring throttles for specific keys.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** throttling, latencia a nivel de partición.
+- **Logs:** patrones de acceso de claves calientes.
+- **Alertas:** throttles recurrentes para claves específicas.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Analyze key distribution
-  - [ ] Add sharding when needed
+  - [ ] Analizar distribución de claves
+  - [ ] Agregar sharding cuando sea necesario
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using monotonic keys for heavy traffic.
-  - **Why it’s bad:** creates hot partitions.
-  - **Better approach:** add randomness or sharding.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar claves monotónicas para tráfico pesado.
+  - **Por qué es malo:** crea particiones calientes.
+  - **Mejor enfoque:** agregar aleatoriedad o sharding.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Hot partitions happen when too many requests hit the same key. DynamoDB then throttles that partition; you fix it by improving key distribution.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las particiones calientes ocurren cuando demasiadas solicitudes golpean la misma clave. DynamoDB entonces hace throttling a esa partición; lo arreglas mejorando la distribución de claves.
 
-### Trap questions (with answers)
-1) **Q:** Can provisioned throughput fix hot partitions alone?
-   - **A:** no; it doesn’t solve skewed keys.
-2) **Q:** Are hot partitions only a write problem?
-   - **A:** no; reads can also be hot.
-3) **Q:** Can you avoid hot partitions with GSIs alone?
-   - **A:** not if the base key is still skewed.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El throughput provisionado puede arreglar particiones calientes solo?
+   - **R:** no; no resuelve claves sesgadas.
+2) **P:** ¿Las particiones calientes son solo un problema de escritura?
+   - **R:** no; las lecturas también pueden ser calientes.
+3) **P:** ¿Puedes evitar particiones calientes solo con GSIs?
+   - **R:** no si la clave base sigue sesgada.
 
-### Quick self-check (5 items)
-- [ ] I can define hot partitions.
-- [ ] I can explain a mitigation.
-- [ ] I can name a pitfall.
-- [ ] I can describe detection signals.
-- [ ] I can relate it to key design.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir particiones calientes.
+- [ ] Puedo explicar una mitigación.
+- [ ] Puedo nombrar una trampa.
+- [ ] Puedo describir señales de detección.
+- [ ] Puedo relacionarlo con el diseño de claves.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [DynamoDB keys](dynamodb-keys.md)
 - [Hot partitions](hot-partitions.md)
 
-### Related topics
+### Temas relacionados
 - [DynamoDB](dynamodb.md)
 
-### Compare with
-- [Read/write contention](read-write-contention.md) — contention in relational systems.
+### Comparar con
+- [Read/write contention](read-write-contention.md) — contención en sistemas relacionales.

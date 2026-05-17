@@ -1,6 +1,6 @@
 ---
 id: archetype-data-retention
-title: "Data Retention, Archival & Cost-Control"
+title: "Retención de Datos, Archivado y Control de Costes"
 type: pattern
 status: learning
 importance: 80
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Data Retention, Archival & Cost-Control
+# Retención de Datos, Archivado y Control de Costes
 
 ## TL;DR
-- Manage data growth with retention rules and storage tiers to control costs.
-- Key challenges: cost explosion, compliance requirements (GDPR delete vs immutable logs), querying mixed hot/cold data.
-- Solutions: rollups/downsampling, lifecycle policies (auto move/delete), separate audit store with restricted access.
+- Gestionar el crecimiento de datos con reglas de retención y niveles de almacenamiento para controlar costes.
+- Desafíos clave: explosión de costes, requisitos de cumplimiento (eliminación GDPR vs logs inmutables), consultar datos mezclados calientes/fríos.
+- Soluciones: rollups/downsampling, políticas de ciclo de vida (mover/eliminar automáticamente), almacén de auditoría separado con acceso restringido.
 
-## Where it hurts (why it hurts)
-1. **Cost explosion**: Keeping raw clickstream forever → petabytes → unaffordable
-   - **Solution**: Retention policies (raw 7d, rollups 1y, cold archive for compliance)
-2. **Compliance requirements**: GDPR requires delete; audit logs must be immutable
-   - **Solution**: Separate hot store (deletable) + cold audit store (immutable, restricted)
-3. **Querying mixed hot/cold data**: Users want "last 2 years" → slow query across tiers
-   - **Solution**: Federated query (query hot + cold); or redirect old queries to archive UI
+## Dónde duele (por qué duele)
+1. **Explosión de costes**: Mantener clickstream crudo para siempre → petabytes → inasequible
+   - **Solución**: Políticas de retención (crudo 7d, rollups 1a, archivo frío para cumplimiento)
+2. **Requisitos de cumplimiento**: GDPR requiere eliminación; logs de auditoría deben ser inmutables
+   - **Solución**: Almacén caliente separado (eliminable) + almacén de auditoría frío (inmutable, restringido)
+3. **Consultar datos mezclados calientes/fríos**: Los usuarios quieren "últimos 2 años" → consulta lenta entre niveles
+   - **Solución**: Consulta federada (consultar caliente + frío); o redirigir consultas antiguas a la UI de archivo
 
-## Decision rules
-- **Use when**: High-volume data (logs, metrics, events), retention requirements differ by age, cost optimization critical
-- **Avoid when**: Low volume (< 1TB total), uniform retention (delete all at once)
+## Reglas de decisión
+- **Usar cuando**: Datos de alto volumen (logs, métricas, eventos), requisitos de retención difieren por antigüedad, optimización de costes crítica
+- **Evitar cuando**: Bajo volumen (< 1TB total), retención uniforme (eliminar todo a la vez)
 
 ## Trade-offs
-- **Hot storage**: Fast, expensive → recent data
-- **Cold storage**: Slow (minutes to retrieve), cheap → old data / compliance
-- **Rollups**: Pre-aggregated data → cheap, fast queries but less detail
+- **Almacenamiento caliente**: Rápido, caro → datos recientes
+- **Almacenamiento frío**: Lento (minutos para recuperar), barato → datos antiguos / cumplimiento
+- **Rollups**: Datos pre-agregados → baratos, consultas rápidas pero menos detalle
 
-## Explicit example
-Clickstream: Raw events massive. Retain raw 7 days (hot, queryable), hourly rollups 1 year (warm), raw archive to S3 Glacier for 7 years (cold, compliance). Queries for recent data hit hot store (fast); historical analysis uses rollups (fast, less detail); compliance audit uses Glacier (slow, rare).
+## Ejemplo explícito
+Clickstream: Eventos crudos masivos. Retener crudo 7 días (caliente, consultable), rollups por hora 1 año (tibio), archivo crudo a S3 Glacier por 7 años (frío, cumplimiento). Las consultas de datos recientes van al almacén caliente (rápido); el análisis histórico usa rollups (rápido, menos detalle); la auditoría de cumplimiento usa Glacier (lento, raro).
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Time-Series Aggregation](archetype-time-series-aggregation.md), [Materialized Views](archetype-materialized-views.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Agregación de Series Temporales](archetype-time-series-aggregation.md), [Vistas Materializadas](archetype-materialized-views.md)

@@ -1,6 +1,6 @@
 ---
 id: redis-eviction-policies
-title: "Redis eviction policies"
+title: "Políticas de desalojo de Redis"
 type: concept
 status: learning
 importance: 55
@@ -12,108 +12,108 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Redis eviction policies
+# Políticas de desalojo de Redis
 
 ## TL;DR (BLUF)
-- Eviction policies decide which keys Redis removes when memory is full.
-- Choose a policy that matches your cache strategy and TTL usage.
-- Trade-off: predictability vs hit rate vs write availability.
+- Las políticas de desalojo deciden qué claves elimina Redis cuando la memoria está llena.
+- Elige una política que coincida con tu estrategia de caché y uso de TTL.
+- Trade-off: predecibilidad vs tasa de aciertos vs disponibilidad de escritura.
 
-## Definition
-**What it is:** The configuration that tells Redis how to free memory when `maxmemory` is reached (e.g., LRU, LFU, random, TTL-based, or no eviction).  
-**Key terms:** `maxmemory`, eviction, `allkeys-*`, `volatile-*`, LRU, LFU, noeviction.
+## Definición
+**Qué es:** La configuración que le dice a Redis cómo liberar memoria cuando se alcanza `maxmemory` (ej., LRU, LFU, random, basado en TTL o sin desalojo).
+**Términos clave:** `maxmemory`, desalojo, `allkeys-*`, `volatile-*`, LRU, LFU, noeviction.
 
-## Why it matters
-- The wrong policy can cause cascading cache misses or write failures.
-- It directly affects latency, hit rate, and operational stability.
+## Por qué importa
+- La política incorrecta puede causar fallos de caché en cascada o errores de escritura.
+- Afecta directamente la latencia, tasa de aciertos y estabilidad operativa.
 
-## Scope & Non-goals
-**In scope:** memory pressure behavior, cache survivability, and write semantics.  
-**Out of scope / NOT solved by this:** persistence durability, data modeling, or cache invalidation strategy.
+## Alcance y no-objetivos
+**Dentro del alcance:** comportamiento bajo presión de memoria, supervivencia del caché y semántica de escritura.
+**Fuera del alcance / NO resuelto por esto:** durabilidad de persistencia, modelado de datos o estrategia de invalidación de caché.
 
-## Mental model / Intuition
-- A bouncer at a full club decides who gets kicked out to let new guests in.
+## Modelo mental / Intuición
+- Un portero en un club lleno que decide a quién expulsar para dejar entrar nuevos invitados.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You run Redis with bounded memory and need predictable behavior at capacity.
-- You want to bias eviction toward stale or low-value data.
-### Avoid it when
-- You expect Redis to behave like a durable system of record.
-- You rely on writes always succeeding (use `noeviction` only if your app can handle write failures).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Ejecutas Redis con memoria limitada y necesitas comportamiento predecible al límite de capacidad.
+- Quieres sesgar el desalojo hacia datos obsoletos o de bajo valor.
+### Evítalo cuando
+- Esperas que Redis se comporte como un sistema de registro duradero.
+- Dependes de que las escrituras siempre tengan éxito (usa `noeviction` solo si tu app puede manejar fallos de escritura).
 
-## How I would use it (practical)
-- **Context:** Cache-aside for API responses with TTLs.
-- **Steps:** set `maxmemory` → choose policy → validate hit rate under load → alert on evictions.
-- **What success looks like:** evictions only under load spikes and steady hit rate.
+## Cómo lo usaría (práctico)
+- **Contexto:** Cache-aside para respuestas de API con TTLs.
+- **Pasos:** configurar `maxmemory` → elegir política → validar tasa de aciertos bajo carga → alertar sobre desalojos.
+- **Cómo se ve el éxito:** desalojos solo bajo picos de carga y tasa de aciertos estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** controlled memory usage and predictable pressure behavior.
-- **Cons / Risks:** evictions can drop hot keys or cause write failures.
-### Alternatives
-- **Scale up:** add memory to reduce eviction pressure.
-- **Redis Cluster:** shard to distribute memory and hot keys.
-- **How to choose:** if you can’t tolerate evictions, scale up or shard; otherwise pick a policy that matches TTL usage.
+- **Ventajas:** uso controlado de memoria y comportamiento predecible bajo presión.
+- **Desventajas / Riesgos:** los desalojos pueden eliminar claves calientes o causar fallos de escritura.
+### Alternativas
+- **Escalar verticalmente:** agregar memoria para reducir la presión de desalojo.
+- **Redis Cluster:** fragmentar para distribuir memoria y claves calientes.
+- **Cómo elegir:** si no puedes tolerar desalojos, escala verticalmente o fragmenta; de lo contrario elige una política que coincida con el uso de TTL.
 
-## Failure modes & Pitfalls
-- `noeviction` causing write errors and downstream failures.
-- `volatile-*` policies with missing TTLs (causes unexpected key retention).
-- LRU/LFU on mixed workloads with huge values (evicting small hot keys hurts hit rate).
+## Modos de fallo y trampas
+- `noeviction` causando errores de escritura y fallos downstream.
+- Políticas `volatile-*` con TTLs faltantes (causa retención inesperada de claves).
+- LRU/LFU en cargas de trabajo mixtas con valores enormes (desalojar claves calientes pequeñas perjudica la tasa de aciertos).
 
-## Observability (How to detect issues)
-- **Metrics:** `used_memory`, `maxmemory`, `evicted_keys`, `keyspace_hits/misses`, latency p95.
-- **Logs:** slowlog entries around eviction spikes.
-- **Alerts:** sustained evictions or sudden hit rate drops.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** `used_memory`, `maxmemory`, `evicted_keys`, `keyspace_hits/misses`, latencia p95.
+- **Logs:** entradas de slowlog alrededor de picos de desalojo.
+- **Alertas:** desalojos sostenidos o caídas repentinas de tasa de aciertos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Set `maxmemory` explicitly (avoid default unbounded usage).
-  - [ ] Choose `allkeys-lru` or `allkeys-lfu` for pure cache use cases.
-  - [ ] Use `volatile-ttl` only if most keys have TTLs.
-  - [ ] Load-test with realistic key sizes and access patterns.
-- **Operational notes**
-  - Evictions are normal under pressure; sustained evictions mean capacity mismatch.
+  - [ ] Configurar `maxmemory` explícitamente (evitar uso ilimitado por defecto).
+  - [ ] Elegir `allkeys-lru` o `allkeys-lfu` para casos de uso de caché puro.
+  - [ ] Usar `volatile-ttl` solo si la mayoría de claves tienen TTLs.
+  - [ ] Probar con carga con tamaños de clave y patrones de acceso realistas.
+- **Notas operativas**
+  - Los desalojos son normales bajo presión; desalojos sostenidos significan desajuste de capacidad.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using `volatile-*` without TTLs on most keys.
-  - **Why it’s bad:** Redis won’t evict many keys, and memory pressure persists.
-  - **Better approach:** set TTLs consistently or use `allkeys-*`.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar `volatile-*` sin TTLs en la mayoría de claves.
+  - **Por qué es malo:** Redis no desalojará muchas claves, y la presión de memoria persiste.
+  - **Mejor enfoque:** configurar TTLs consistentemente o usar `allkeys-*`.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Eviction policies define which keys Redis removes when memory is full. Pick a policy that matches your cache strategy and TTL usage to keep hit rates predictable.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Las políticas de desalojo definen qué claves elimina Redis cuando la memoria está llena. Elige una política que coincida con tu estrategia de caché y uso de TTL para mantener tasas de aciertos predecibles.
 
-### Trap questions (with answers)
-1) **Q:** Does `noeviction` mean Redis is durable?
-   - **A:** no; it only stops evictions and will fail writes instead.
-2) **Q:** Is `volatile-lru` safe if you forget TTLs?
-   - **A:** no; keys without TTLs won’t be evicted and can cause memory pressure.
-3) **Q:** Do LRU/LFU always keep the hottest keys?
-   - **A:** not perfectly; they are approximations and can be skewed by large values.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿`noeviction` significa que Redis es duradero?
+   - **R:** no; solo detiene los desalojos y fallará las escrituras en su lugar.
+2) **P:** ¿`volatile-lru` es seguro si olvidas los TTLs?
+   - **R:** no; las claves sin TTLs no serán desalojadas y pueden causar presión de memoria.
+3) **P:** ¿LRU/LFU siempre mantienen las claves más calientes?
+   - **R:** no perfectamente; son aproximaciones y pueden ser sesgadas por valores grandes.
 
-### Quick self-check (5 items)
-- [ ] I can define what eviction policies do in Redis.
-- [ ] I can choose between `allkeys-*` and `volatile-*`.
-- [ ] I can explain why `noeviction` can break writes.
-- [ ] I can name at least 2 eviction policies.
-- [ ] I can describe how to monitor evictions.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir qué hacen las políticas de desalojo en Redis.
+- [ ] Puedo elegir entre `allkeys-*` y `volatile-*`.
+- [ ] Puedo explicar por qué `noeviction` puede romper escrituras.
+- [ ] Puedo nombrar al menos 2 políticas de desalojo.
+- [ ] Puedo describir cómo monitorear desalojos.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Redis](redis.md)
 - [TTL (Time-to-Live)](ttl.md)
-- [Caching fundamentals](../system-design/caching-fundamentals.md)
+- [Fundamentos de caché](../system-design/caching-fundamentals.md)
 
-### Related topics
-- [Caching strategy](../system-design/caching-strategy.md)
-- [Hot partitions](hot-partitions.md)
+### Temas relacionados
+- [Estrategia de caché](../system-design/caching-strategy.md)
+- [Particiones calientes](hot-partitions.md)
 
-### Compare with
-- [Partitioning & sharding](../system-design/partitioning-and-sharding.md) — solves capacity by distributing data, not evicting it.
+### Comparar con
+- [Particionamiento y sharding](../system-design/partitioning-and-sharding.md) — resuelve capacidad distribuyendo datos, no desalojándolos.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

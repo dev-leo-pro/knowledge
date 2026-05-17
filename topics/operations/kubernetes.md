@@ -12,80 +12,80 @@ created_at: 2026-02-18
 updated_at: 2026-02-18
 ---
 
-# Kubernetes (platform basics)
+# Kubernetes (conceptos básicos de plataforma)
 
 ## TL;DR (BLUF)
-- Kubernetes orchestrates containers for scalable, self-healing, declarative deployments; it separates the runtime unit (Pod) from controllers (Deployment/StatefulSet) and stable access (Service/Ingress).
-- Use it to run production microservices with autoscaling, rolling updates, and health-driven routing; costs: operational complexity and added failure modes.
+- Kubernetes orquesta contenedores para despliegues declarativos, escalables y auto-reparables; separa la unidad de ejecución (Pod) de los controladores (Deployment/StatefulSet) y el acceso estable (Service/Ingress).
+- Úsalo para ejecutar microservicios en producción con autoescalado, actualizaciones graduales y enrutamiento dirigido por salud; costos: complejidad operacional y modos de fallo adicionales.
 
-## Definition
-**What it is:** An open-source container orchestration system that manages scheduling, networking, storage, and lifecycle of containers across a cluster of machines.
-**Key terms:** Pod, Deployment, StatefulSet, Service, Ingress, ConfigMap, Secret, HPA, liveness/readiness probes, kubelet, control plane.
+## Definición
+**Qué es:** Un sistema de orquestación de contenedores de código abierto que gestiona la programación, redes, almacenamiento y ciclo de vida de contenedores a través de un clúster de máquinas.
+**Términos clave:** Pod, Deployment, StatefulSet, Service, Ingress, ConfigMap, Secret, HPA, sondas de liveness/readiness, kubelet, plano de control.
 
-## Why it matters
-- Provides primitives for running containerized workloads reliably: desired-state reconciliation, autoscaling, rolling updates, and service discovery.
-- Enables teams to standardize deployments, decouple infrastructure from app code, and operate at higher throughput with predictable behavior.
+## Por qué importa
+- Proporciona primitivas para ejecutar cargas de trabajo containerizadas de forma fiable: reconciliación de estado deseado, autoescalado, actualizaciones graduales y descubrimiento de servicios.
+- Permite a los equipos estandarizar despliegues, desacoplar infraestructura del código de aplicación y operar con mayor throughput con comportamiento predecible.
 
-## Scope & Non-goals
-**In scope:** core Kubernetes concepts and practical interview-ready answers for platform conversations.
-**Out of scope / NOT solved by this:** running a managed control plane (EKS/GKE/AKS) operational playbooks and deep CNI internals (link to network layers).
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos fundamentales de Kubernetes y respuestas prácticas listas para entrevistas sobre conversaciones de plataforma.
+**Fuera del alcance / NO resuelto por esto:** ejecutar un plano de control gestionado (EKS/GKE/AKS), playbooks operacionales e internos profundos de CNI (enlace a capas de red).
 
-## Mental model / Intuition
-- Think of Kubernetes as a control loop system: you declare the desired state (manifests) and controllers continuously reconcile the cluster to match it.
-- Pods are ephemeral runtimes; controllers (Deployment/StatefulSet/DaemonSet) ensure continuity and desired count; Services provide stable networking.
+## Modelo mental / Intuición
+- Piensa en Kubernetes como un sistema de bucle de control: declaras el estado deseado (manifiestos) y los controladores reconcilian continuamente el clúster para coincidir con él.
+- Los Pods son runtimes efímeros; los controladores (Deployment/StatefulSet/DaemonSet) aseguran la continuidad y el conteo deseado; los Services proporcionan redes estables.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need automated scheduling, horizontal scaling, rolling upgrades, or standardized platform primitives across teams.
-- You run many services that benefit from shared platform features (ingress, service mesh, centralized observability).
-### Avoid it when
-- Your app surface is small, ops budget is tiny, or you can use a PaaS or serverless offering that reduces operational burden.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites programación automatizada, escalado horizontal, actualizaciones graduales o primitivas de plataforma estandarizadas entre equipos.
+- Ejecutes muchos servicios que se beneficien de funcionalidades compartidas de plataforma (ingress, service mesh, observabilidad centralizada).
+### Evítalo cuando
+- Tu superficie de aplicación sea pequeña, el presupuesto de ops sea mínimo, o puedas usar un PaaS u oferta serverless que reduzca la carga operacional.
 
-## How I would use it (practical)
-- **Context:** Deploying a stateless API and a background worker.
-- **Steps:** build small container images → write Deployment for each service (replicas, resource requests/limits) → expose via ClusterIP Service → add Ingress for external routing → define liveness/readiness probes → add HPA based on CPU/custom metrics → use ConfigMaps/Secrets for config.
-- **What success looks like:** zero-downtime releases with rolling updates, autoscaling under load, and clear health metrics (pod restarts, readiness gating).
+## Cómo lo usaría (práctico)
+- **Contexto:** Desplegar una API sin estado y un worker en segundo plano.
+- **Pasos:** construir imágenes de contenedor pequeñas → escribir Deployment para cada servicio (réplicas, requests/limits de recursos) → exponer vía Service ClusterIP → agregar Ingress para enrutamiento externo → definir sondas de liveness/readiness → agregar HPA basado en CPU/métricas personalizadas → usar ConfigMaps/Secrets para configuración.
+- **Cómo se ve el éxito:** releases sin tiempo de inactividad con actualizaciones graduales, autoescalado bajo carga y métricas de salud claras (reinicios de pods, gating de readiness).
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** declarative, extensible, standard ecosystem (Helm, operators, CNI, CSI).
-- **Cons / Risks:** operational complexity, version upgrades, control-plane availability, noisy neighbor effects if resources not isolated.
-### Alternatives
-- **PaaS / FaaS (e.g., Cloud Run, Lambda):** simpler ops; better when you want minimal infra work.
-- **Managed Kubernetes (EKS/GKE/AKS):** reduces control-plane ops but still requires worker/infra ops.
+- **Pros:** declarativo, extensible, ecosistema estándar (Helm, operadores, CNI, CSI).
+- **Contras / Riesgos:** complejidad operacional, actualizaciones de versión, disponibilidad del plano de control, efectos de vecino ruidoso si los recursos no están aislados.
+### Alternativas
+- **PaaS / FaaS (ej., Cloud Run, Lambda):** ops más simples; mejor cuando quieres trabajo mínimo de infraestructura.
+- **Kubernetes Gestionado (EKS/GKE/AKS):** reduce las ops del plano de control pero aún requiere ops de workers/infraestructura.
 
-## Failure modes & Pitfalls
-- Misconfigured resource requests/limits → node OOM/kube-scheduler instability.
-- Readiness vs liveness confusion → traffic routed to containers that aren’t ready or restarted unnecessarily.
-- Overloaded control plane during large deploys → API throttling / slow reconciliation.
-- Stateful workloads placed without PersistentVolume planning → data loss or incorrect access modes.
+## Modos de fallo y errores comunes
+- Requests/limits de recursos mal configurados → OOM del nodo/inestabilidad del kube-scheduler.
+- Confusión entre readiness y liveness → tráfico enrutado a contenedores que no están listos o reiniciados innecesariamente.
+- Plano de control sobrecargado durante grandes despliegues → throttling de API / reconciliación lenta.
+- Cargas de trabajo con estado colocadas sin planificación de PersistentVolume → pérdida de datos o modos de acceso incorrectos.
 
-## Observability (How to detect issues)
-**Metrics:** pod CPU/memory, pod restart count, replica available vs desired, API server latency, scheduler queue length, HPA scale events.
-**Logs:** kubelet and controller-manager logs, pod logs (application), CSI/CNI plugin errors.
-**Traces:** placement/reconciliation times for controllers, request paths through Ingress/Service Mesh.
-**Alerts:** pod crashlooping > N, high node allocatable pressure, HPA flapping, persistent volume provisioning failures.
+## Observabilidad (Cómo detectar problemas)
+**Métricas:** CPU/memoria de pods, conteo de reinicios de pods, réplicas disponibles vs deseadas, latencia del API server, longitud de la cola del scheduler, eventos de escala del HPA.
+**Logs:** logs de kubelet y controller-manager, logs de pods (aplicación), errores de plugins CSI/CNI.
+**Trazas:** tiempos de colocación/reconciliación para controladores, rutas de petición a través de Ingress/Service Mesh.
+**Alertas:** pod en crashloop > N, alta presión de recursos asignables del nodo, HPA oscilando, fallos de aprovisionamiento de volúmenes persistentes.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 **Checklist**
-- [ ] Define resource requests & limits for pods.
-- [ ] Add liveness/readiness probes that reflect real readiness.
-- [ ] Use ConfigMap/Secret for external config and credentials.
-- [ ] Use Deployment for stateless, StatefulSet for stateful with stable identity.
-- [ ] Use rolling updates and readiness gating for zero-downtime.
+- [ ] Definir requests y limits de recursos para pods.
+- [ ] Agregar sondas de liveness/readiness que reflejen la preparación real.
+- [ ] Usar ConfigMap/Secret para configuración externa y credenciales.
+- [ ] Usar Deployment para sin estado, StatefulSet para con estado con identidad estable.
+- [ ] Usar actualizaciones graduales y gating de readiness para cero tiempo de inactividad.
 
-**Security / Compliance notes**
-- Run pods with least privilege (`runAsNonRoot`, PodSecurityPolicies / PSP alternatives), network policies to restrict traffic, and encrypt Secrets at rest when possible.
+**Notas de seguridad / cumplimiento**
+- Ejecutar pods con privilegio mínimo (`runAsNonRoot`, PodSecurityPolicies / alternativas de PSP), políticas de red para restringir tráfico, y cifrar Secrets en reposo cuando sea posible.
 
-**Performance notes**
-- Right-size requests to improve bin-packing; set limits to prevent noisy neighbors; use vertical/horizontal autoscaling with sensible cooldowns.
+**Notas de rendimiento**
+- Dimensionar correctamente los requests para mejorar el bin-packing; establecer limits para prevenir vecinos ruidosos; usar autoescalado vertical/horizontal con cooldowns sensatos.
 
-**Operational notes**
-- Keep kube-apiserver available (HA control plane), monitor etcd health and backups, practice cluster upgrades on staging.
+**Notas operacionales**
+- Mantener kube-apiserver disponible (plano de control HA), monitorear salud de etcd y respaldos, practicar actualizaciones de clúster en staging.
 
-## Mini example (YAML)
+## Mini ejemplo (YAML)
 ```yaml
-# Deployment (stateless)
+# Deployment (sin estado)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,7 +112,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 
-# Service (stable access)
+# Service (acceso estable)
 ---
 apiVersion: v1
 kind: Service
@@ -127,43 +127,43 @@ spec:
   type: ClusterIP
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Running databases in ephemeral Pods without StatefulSet+PVC.
-  - **Why it’s bad:** data loss and ordering issues.
-  - **Better approach:** use managed DBs or StatefulSets with stable PVs and backups.
+## Anti-patrones comunes
+- **Anti-patrón:** Ejecutar bases de datos en Pods efímeros sin StatefulSet+PVC.
+  - **Por qué es malo:** pérdida de datos y problemas de ordenamiento.
+  - **Mejor enfoque:** usar BDs gestionadas o StatefulSets con PVs estables y respaldos.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Kubernetes manages containers across machines: Pods run containers, Deployments ensure a desired set of Pods exists, and Services provide a stable network endpoint to reach those Pods.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Kubernetes gestiona contenedores a través de máquinas: los Pods ejecutan contenedores, los Deployments aseguran que un conjunto deseado de Pods exista, y los Services proporcionan un endpoint de red estable para alcanzar esos Pods.
 
-### Trap questions (with answers)
-1) **Q:** What’s the difference between a Pod and a Deployment?
-   - **A:** Pod is the runtime unit; Deployment is a controller that ensures a desired number of Pods exist and manages updates/rollbacks.
-2) **Q:** When would you use a StatefulSet instead of a Deployment?
-   - **A:** When you need stable network IDs and persistent storage per replica (databases, Kafka brokers) and ordered start/stop semantics.
-3) **Q:** Why are readiness probes important for rolling updates?
-   - **A:** Readiness probes prevent traffic from reaching a Pod until it’s ready; during rolling updates, only ready Pods receive traffic, enabling zero-downtime.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cuál es la diferencia entre un Pod y un Deployment?
+   - **R:** Pod es la unidad de ejecución; Deployment es un controlador que asegura que el número deseado de Pods exista y gestiona actualizaciones/rollbacks.
+2) **P:** ¿Cuándo usarías un StatefulSet en vez de un Deployment?
+   - **R:** Cuando necesites IDs de red estables y almacenamiento persistente por réplica (bases de datos, brokers Kafka) y semánticas de inicio/parada ordenadas.
+3) **P:** ¿Por qué son importantes las sondas de readiness para actualizaciones graduales?
+   - **R:** Las sondas de readiness previenen que el tráfico llegue a un Pod hasta que esté listo; durante actualizaciones graduales, solo los Pods listos reciben tráfico, habilitando cero tiempo de inactividad.
 
-### Quick self-check (5 items)
-- [ ] I can explain Pod vs Deployment vs Service in one sentence each.
-- [ ] I can sketch a Deployment + Service YAML from memory.
-- [ ] I can list when to choose StatefulSet vs Deployment.
-- [ ] I can explain readiness vs liveness probes and why they differ.
-- [ ] I can name at least 3 operational alerts for a cluster.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar Pod vs Deployment vs Service en una oración cada uno.
+- [ ] Puedo esbozar un YAML de Deployment + Service de memoria.
+- [ ] Puedo listar cuándo elegir StatefulSet vs Deployment.
+- [ ] Puedo explicar sondas de readiness vs liveness y por qué difieren.
+- [ ] Puedo nombrar al menos 3 alertas operacionales para un clúster.
 
-## Links (NO duplication)
-### Prerequisites
-- [Networking basics](../operations/networking-basics.md)
-- [Sidecar Pattern](../operations/sidecar.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de redes](../operations/networking-basics.md)
+- [Patrón Sidecar](../operations/sidecar.md)
 
-### Related topics
-- [Blue/green deployments](../operations/blue-green-deployments.md)
-- [Canary deployments](../operations/canary-deployments.md)
-- [Rolling deployments](../operations/rolling-deployments.md)
-- [Service Discovery](../operations/service-discovery.md)
+### Temas relacionados
+- [Despliegues blue/green](../operations/blue-green-deployments.md)
+- [Despliegues canary](../operations/canary-deployments.md)
+- [Despliegues graduales](../operations/rolling-deployments.md)
+- [Descubrimiento de servicios](../operations/service-discovery.md)
 
-### Compare with
-- [Terraform](../operations/terraform.md) — Terraform defines infra; Kubernetes manages runtime workloads.
+### Comparar con
+- [Terraform](../operations/terraform.md) — Terraform define infraestructura; Kubernetes gestiona cargas de trabajo en ejecución.
 
-## Notes / Inbox (optional)
-- Consider adding a short guide for common `kubectl` commands and a one-page upgrade checklist.
+## Notas / Bandeja de entrada (opcional)
+- Considerar agregar una guía corta de comandos comunes de `kubectl` y un checklist de actualización de una página.

@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Partitioning & Sharding
+# Particionamiento y Sharding
 
 ## TL;DR (BLUF)
-- Partitioning splits data across keys; sharding distributes it across nodes.
-- Use it when single-node limits are reached.
-- Trade-off: more complex queries and operations.
+- El particionamiento divide datos por claves; el sharding los distribuye entre nodos.
+- Úsalo cuando se alcancen los límites de un solo nodo.
+- Trade-off: consultas y operaciones más complejas.
 
-## Definition
-**What it is:** Techniques to split data by key and (optionally) distribute it across nodes. Partitioning can be within one database; sharding is partitioning across multiple databases/servers.
-**Key terms:** partition key, shard, consistent hashing, replication.
+## Definición
+**Qué es:** Técnicas para dividir datos por clave y (opcionalmente) distribuirlos entre nodos. El particionamiento puede ser dentro de una base de datos; el sharding es particionamiento a través de múltiples bases de datos/servidores.
+**Términos clave:** clave de partición, shard, hashing consistente, replicación.
 
-## Why it matters
-- It enables horizontal scalability.
-- Bad partitioning leads to hot partitions and uneven load.
+## Por qué importa
+- Permite escalabilidad horizontal.
+- Un mal particionamiento lleva a particiones calientes y carga desigual.
 
-## Scope & Non-goals
-**In scope:** partitioning and sharding basics.
-**Out of scope / NOT solved by this:** replication strategies.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de particionamiento y sharding.
+**Fuera del alcance / NO resuelto por esto:** estrategias de replicación.
 
-## Mental model / Intuition
-- Partitioning is splitting inside one system; sharding is splitting across machines.
-- Replication is different: it copies the same data for availability/read scale, not distribution.
+## Modelo mental / Intuición
+- El particionamiento es dividir dentro de un sistema; el sharding es dividir entre máquinas.
+- La replicación es diferente: copia los mismos datos para disponibilidad/escala de lectura, no distribución.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Data volume or throughput exceeds a single node.
-### Avoid it when
-- You can scale vertically or optimize queries instead.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El volumen de datos o el throughput exceda un solo nodo.
+### Evítalo cuando
+- Puedas escalar verticalmente u optimizar consultas en su lugar.
 
-## How I would use it (practical)
-- **Context:** Multi-tenant dataset growing rapidly.
-- **Steps:** choose shard key → distribute data → handle rebalancing.
-- **What success looks like:** balanced load and predictable latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Dataset multi-tenant creciendo rápidamente.
+- **Pasos:** elegir clave de shard → distribuir datos → manejar rebalanceo.
+- **Cómo se ve el éxito:** carga balanceada y latencia predecible.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** scalability.
-- **Cons / Risks:** operational complexity, cross-shard queries.
-### Alternatives
-- **Vertical scaling:** simpler but limited.
-- **How to choose:** shard when single-node scaling is insufficient.
+- **Pros:** escalabilidad.
+- **Contras / Riesgos:** complejidad operacional, consultas entre shards.
+### Alternativas
+- **Escalado vertical:** más simple pero limitado.
+- **Cómo elegir:** hacer sharding cuando el escalado de un solo nodo sea insuficiente.
 
-## Failure modes & Pitfalls
-- Hot shards from skewed keys.
+## Modos de fallo y errores comunes
+- Shards calientes por claves sesgadas.
 
-## Observability (How to detect issues)
-- **Metrics:** shard imbalance, latency p95.
-- **Logs:** shard routing errors.
-- **Alerts:** uneven shard load.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** desbalance entre shards, latencia p95.
+- **Logs:** errores de enrutamiento de shards.
+- **Alertas:** carga desigual entre shards.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose a good shard key
-  - [ ] Plan for resharding
+  - [ ] Elegir una buena clave de shard
+  - [ ] Planificar para re-sharding
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Sharding by time with skewed traffic.
-  - **Why it’s bad:** hot shards.
-  - **Better approach:** add hash-based distribution.
+## Anti-patrones comunes
+- **Anti-patrón:** Hacer sharding por tiempo con tráfico sesgado.
+  - **Por qué es malo:** shards calientes.
+  - **Mejor enfoque:** agregar distribución basada en hash.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Partitioning splits data by key; sharding distributes partitions across machines. It enables scale but makes queries and operations more complex.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El particionamiento divide datos por clave; el sharding distribuye particiones entre máquinas. Permite escalar pero hace las consultas y operaciones más complejas.
 
-### Trap questions (with answers)
-1) **Q:** Does sharding remove the need for indexes?
-   - **A:** no; each shard still needs indexes.
-2) **Q:** Is sharding always faster?
-   - **A:** no; cross-shard queries can be slower.
-3) **Q:** Can you change shard keys easily?
-   - **A:** not usually; it’s costly.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿El sharding elimina la necesidad de índices?
+   - **R:** No; cada shard aún necesita índices.
+2) **P:** ¿El sharding siempre es más rápido?
+   - **R:** No; las consultas entre shards pueden ser más lentas.
+3) **P:** ¿Puedes cambiar las claves de shard fácilmente?
+   - **R:** Generalmente no; es costoso.
 
-### Quick self-check (5 items)
-- [ ] I can define partitioning vs sharding.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain shard key choice.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir particionamiento vs sharding.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar la elección de clave de shard.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](distributed-systems-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de sistemas distribuidos](distributed-systems-basics.md)
 
-### Related topics
-- [Hot partitions](../databases/hot-partitions.md)
+### Temas relacionados
+- [Particiones calientes](../databases/hot-partitions.md)
 
-### Compare with
-- (TODO) Replication basics — replication copies data; sharding distributes it.
-- [Consistent hashing](../databases/consistency-models.md) — hash vs replica consistency.
+### Comparar con
+- (TODO) Fundamentos de replicación — la replicación copia datos; el sharding los distribuye.
+- [Hashing consistente](../databases/consistency-models.md) — consistencia hash vs réplica.

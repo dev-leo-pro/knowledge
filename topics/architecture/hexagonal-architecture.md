@@ -12,120 +12,120 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# Hexagonal Architecture
+# Arquitectura Hexagonal
 
 ## TL;DR (BLUF)
-- Hexagonal architecture keeps the application core independent from external systems using ports and adapters.
-- Use it to improve testability and swap infrastructure without touching domain logic.
-- Trade-off: extra abstraction layers and upfront design effort.
+- La arquitectura hexagonal mantiene el núcleo de la aplicación independiente de los sistemas externos usando puertos y adaptadores.
+- Úsala para mejorar la testabilidad e intercambiar infraestructura sin tocar la lógica de dominio.
+- Trade-off: capas de abstracción adicionales y esfuerzo de diseño inicial.
 
-## Definition
-**What it is:** An architectural pattern that isolates the application core behind well-defined ports (interfaces), with adapters implementing integrations (DB, [HTTP](../operations/http.md), messaging) at the edges.  
-**Key terms:** ports, adapters, primary/secondary adapters, dependency inversion, application core.
+## Definición
+**Qué es:** Un patrón arquitectónico que aísla el núcleo de la aplicación detrás de puertos (interfaces) bien definidos, con adaptadores implementando las integraciones (BD, [HTTP](../operations/http.md), mensajería) en los bordes.
+**Términos clave:** puertos, adaptadores, adaptadores primarios/secundarios, inversión de dependencias, núcleo de aplicación.
 
-## Why it matters
-- It prevents infrastructure details from leaking into business logic.
-- It makes testing easier by substituting adapters with fakes or mocks.
+## Por qué importa
+- Evita que los detalles de infraestructura se filtren en la lógica de negocio.
+- Facilita el testing sustituyendo adaptadores con fakes o mocks.
 
-## Scope & Non-goals
-**In scope:** boundaries, dependency direction, and integration design.  
-**Out of scope / NOT solved by this:** domain modeling strategy or distributed consistency.
+## Alcance y no-objetivos
+**Dentro del alcance:** fronteras, dirección de dependencias y diseño de integraciones.
+**Fuera del alcance / NO resuelto por esto:** estrategia de modelado de dominio o consistencia distribuida.
 
-## Mental model / Intuition
-- Picture a hexagon: the core is in the middle, adapters plug into the sides.
-- Dependencies point inward; the core defines what it needs, adapters satisfy it.
+## Modelo mental / Intuición
+- Imagina un hexágono: el núcleo está en el centro, los adaptadores se conectan en los lados.
+- Las dependencias apuntan hacia adentro; el núcleo define lo que necesita, los adaptadores lo satisfacen.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have multiple external integrations (DB, queues, APIs).
-- You want strong testability of the application core.
-- You expect infrastructure changes over time.
-### Avoid it when
-- The system is simple and short-lived.
-- The team can’t afford the abstraction overhead.
-- Tight coupling is acceptable and faster delivery is required.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tengas múltiples integraciones externas (BD, colas, APIs).
+- Quieras una testabilidad fuerte del núcleo de la aplicación.
+- Esperes cambios de infraestructura con el tiempo.
+### Evítalo cuando
+- El sistema sea simple y de corta vida.
+- El equipo no pueda asumir la sobrecarga de abstracción.
+- El acoplamiento estrecho sea aceptable y se requiera entrega más rápida.
 
-## How I would use it (practical)
-- **Context:** A service with a DB, a message broker, and external APIs.
-- **Steps:**
-  1) Define inbound ports (use cases) and outbound ports (dependencies).
-  2) Keep the core free of frameworks.
-  3) Implement adapters for [HTTP](../operations/http.md), DB, and messaging.
-  4) Wire dependencies with DI and test with in-memory adapters.
-- **What success looks like:** core logic tested without infrastructure and adapters replaceable with minimal changes.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un servicio con BD, un broker de mensajes y APIs externas.
+- **Pasos:**
+  1) Definir puertos de entrada (casos de uso) y puertos de salida (dependencias).
+  2) Mantener el núcleo libre de frameworks.
+  3) Implementar adaptadores para [HTTP](../operations/http.md), BD y mensajería.
+  4) Cablear dependencias con DI y probar con adaptadores en memoria.
+- **Cómo se ve el éxito:** lógica del núcleo probada sin infraestructura y adaptadores reemplazables con cambios mínimos.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** high testability, clear boundaries, flexibility in infrastructure changes.
-- **Cons / Risks:** more boilerplate, higher cognitive load, and slower initial delivery.
-### Alternatives
-- **Layered architecture:** simpler for small systems but less flexible at the boundaries.
-- **How to choose:** prefer hexagonal when long-term maintainability and integration churn are likely.
+- **Pros:** alta testabilidad, fronteras claras, flexibilidad en cambios de infraestructura.
+- **Contras / Riesgos:** más boilerplate, mayor carga cognitiva y entrega inicial más lenta.
+### Alternativas
+- **Arquitectura en capas:** más simple para sistemas pequeños pero menos flexible en las fronteras.
+- **Cómo elegir:** prefiere hexagonal cuando la mantenibilidad a largo plazo y la rotación de integraciones sean probables.
 
-## Failure modes & Pitfalls
-- Letting frameworks leak into the application core.
-- Ports that mirror adapter details instead of domain needs.
-- Over-fragmented adapters leading to complexity without benefit.
+## Modos de fallo y errores comunes
+- Dejar que los frameworks se filtren en el núcleo de la aplicación.
+- Puertos que reflejan detalles del adaptador en vez de necesidades del dominio.
+- Adaptadores excesivamente fragmentados que generan complejidad sin beneficio.
 
-## Observability (How to detect issues)
-- **Metrics:** change lead time for integrations, test coverage of the core.
-- **Logs:** adapter errors separated from core validation failures.
-- **Traces:** spans that clearly distinguish core logic vs adapter calls.
-- **Alerts:** rising adapter error rates or increasing coupling regressions.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tiempo de entrega de cambios en integraciones, cobertura de tests del núcleo.
+- **Logs:** errores de adaptadores separados de fallos de validación del núcleo.
+- **Trazas:** spans que distinguen claramente la lógica del núcleo vs las llamadas a adaptadores.
+- **Alertas:** tasas de error crecientes en adaptadores o regresiones de acoplamiento creciente.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define ports based on use cases
-  - [ ] Keep dependencies pointing inward
-  - [ ] Use adapter-specific DTOs at the edges
-- **Security / Compliance notes**
-  - Validate inputs at adapters before entering the core.
-- **Performance notes**
-  - Avoid excessive mapping layers; keep adapters thin.
-- **Operational notes**
-  - Monitor adapter health separately from core logic.
+  - [ ] Definir puertos basados en casos de uso
+  - [ ] Mantener las dependencias apuntando hacia adentro
+  - [ ] Usar DTOs específicos del adaptador en los bordes
+- **Notas de seguridad / cumplimiento**
+  - Validar entradas en los adaptadores antes de entrar al núcleo.
+- **Notas de rendimiento**
+  - Evitar capas de mapeo excesivas; mantener los adaptadores delgados.
+- **Notas operacionales**
+  - Monitorear la salud de los adaptadores por separado de la lógica del núcleo.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Treating adapters as the source of truth.
-  - **Why it’s bad:** it inverts dependencies and pollutes the core.
-  - **Better approach:** keep business rules in the core and adapters at the edge.
+## Anti-patrones comunes
+- **Anti-patrón:** Tratar los adaptadores como la fuente de verdad.
+  - **Por qué es malo:** invierte las dependencias y contamina el núcleo.
+  - **Mejor enfoque:** mantener las reglas de negocio en el núcleo y los adaptadores en el borde.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Hexagonal architecture keeps the business core independent by defining ports and connecting adapters at the edges, making infrastructure replaceable and testing easier.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La arquitectura hexagonal mantiene el núcleo de negocio independiente definiendo puertos y conectando adaptadores en los bordes, haciendo la infraestructura reemplazable y el testing más fácil.
 
-### Trap questions (with answers)
-1) **Q:** Does hexagonal architecture force microservices?
-   - **A:** No; it is a modular design approach that works within monoliths or services.
-2) **Q:** Are ports just network ports?
-   - **A:** No; they are interfaces that define how the core is used or what it needs.
-3) **Q:** Can adapters depend on the core?
-   - **A:** Yes; dependencies should point inward to the core.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La arquitectura hexagonal obliga a usar microservicios?
+   - **R:** No; es un enfoque de diseño modular que funciona dentro de monolitos o servicios.
+2) **P:** ¿Los puertos son simplemente puertos de red?
+   - **R:** No; son interfaces que definen cómo se usa el núcleo o qué necesita.
+3) **P:** ¿Los adaptadores pueden depender del núcleo?
+   - **R:** Sí; las dependencias deben apuntar hacia adentro, hacia el núcleo.
 
-### Quick self-check (5 items)
-- [ ] I can define hexagonal architecture precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir la arquitectura hexagonal con precisión.
+- [ ] Puedo indicar cuándo usarla y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [SOLID principles](../quality/solid-principles.md)
-- [Design patterns (overview)](../quality/design-patterns.md)
-- [API design basics](../system-design/api-design-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Principios SOLID](../quality/solid-principles.md)
+- [Patrones de diseño (resumen)](../quality/design-patterns.md)
+- [Fundamentos de diseño de API](../system-design/api-design-basics.md)
 
-### Related topics
-- [Domain-Driven Design (DDD)](domain-driven-design.md)
+### Temas relacionados
+- [Diseño Dirigido por Dominio (DDD)](domain-driven-design.md)
 - [CQRS](cqrs.md)
-- [Event-driven architecture](event-driven-basics.md)
-- [Outbox pattern](outbox-pattern.md)
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
+- [Patrón Outbox](outbox-pattern.md)
 
-### Compare with
-- [Event-driven architecture](event-driven-basics.md) — structure vs communication style.
+### Comparar con
+- [Arquitectura dirigida por eventos](event-driven-basics.md) — estructura vs estilo de comunicación.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

@@ -1,6 +1,6 @@
 ---
 id: redis-replication-sentinel
-title: "Redis replication & Sentinel"
+title: "Replicación y Sentinel de Redis"
 type: concept
 status: learning
 importance: 50
@@ -12,104 +12,104 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Redis replication & Sentinel
+# Replicación y Sentinel de Redis
 
 ## TL;DR (BLUF)
-- Redis replication provides read replicas and failover support.
-- Sentinel manages monitoring and automated failover.
-- Trade-off: higher availability vs replication lag and operational complexity.
+- La replicación de Redis proporciona réplicas de lectura y soporte de failover.
+- Sentinel gestiona el monitoreo y el failover automatizado.
+- Trade-off: mayor disponibilidad vs retraso de replicación y complejidad operativa.
 
-## Definition
-**What it is:** Redis replication copies data from a primary to replicas, while Sentinel monitors nodes and triggers failover when the primary fails.  
-**Key terms:** primary/replica, replication lag, failover, Sentinel quorum.
+## Definición
+**Qué es:** La replicación de Redis copia datos de un primario a réplicas, mientras Sentinel monitorea nodos y activa el failover cuando el primario falla.
+**Términos clave:** primario/réplica, retraso de replicación, failover, quórum de Sentinel.
 
-## Why it matters
-- It keeps Redis available during node failures.
-- It introduces lag and split-brain risk if misconfigured.
+## Por qué importa
+- Mantiene Redis disponible durante fallos de nodo.
+- Introduce retraso y riesgo de split-brain si está mal configurado.
 
-## Scope & Non-goals
-**In scope:** read scaling, failover automation, replica consistency.  
-**Out of scope / NOT solved by this:** cross-region strong consistency or multi-master writes.
+## Alcance y no-objetivos
+**Dentro del alcance:** escalado de lecturas, automatización de failover, consistencia de réplicas.
+**Fuera del alcance / NO resuelto por esto:** consistencia fuerte cross-región o escrituras multi-master.
 
-## Mental model / Intuition
-- A hot standby with a coordinator that decides when to switch.
+## Modelo mental / Intuición
+- Un standby caliente con un coordinador que decide cuándo cambiar.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need higher availability and can tolerate replica lag.
-- You want automated failover without manual intervention.
-### Avoid it when
-- You need strong consistency on reads.
-- You can’t tolerate replica lag or failover complexity.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas mayor disponibilidad y puedes tolerar retraso de réplica.
+- Quieres failover automatizado sin intervención manual.
+### Evítalo cuando
+- Necesitas consistencia fuerte en lecturas.
+- No puedes tolerar retraso de réplica o complejidad de failover.
 
-## How I would use it (practical)
-- **Context:** Redis cache in production with uptime requirements.
-- **Steps:** configure replicas → deploy Sentinel quorum → test failover → tune client retries.
-- **What success looks like:** automatic failover with bounded lag and recovery time.
+## Cómo lo usaría (práctico)
+- **Contexto:** Caché Redis en producción con requisitos de uptime.
+- **Pasos:** configurar réplicas → desplegar quórum de Sentinel → probar failover → ajustar reintentos del cliente.
+- **Cómo se ve el éxito:** failover automático con retraso y tiempo de recuperación acotados.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** higher availability, read scaling.
-- **Cons / Risks:** lag, failover tuning, split-brain risk.
-### Alternatives
-- **Redis Cluster:** adds sharding and built-in failover.
-- **Single node:** simpler if availability requirements are low.
-- **How to choose:** use replication+Sentinel for HA without sharding; use Cluster if you also need scale out.
+- **Ventajas:** mayor disponibilidad, escalado de lecturas.
+- **Desventajas / Riesgos:** retraso, ajuste de failover, riesgo de split-brain.
+### Alternativas
+- **Redis Cluster:** agrega sharding y failover integrado.
+- **Nodo único:** más simple si los requisitos de disponibilidad son bajos.
+- **Cómo elegir:** usa replicación+Sentinel para HA sin sharding; usa Cluster si también necesitas escalar horizontalmente.
 
-## Failure modes & Pitfalls
-- Replica lag causing stale reads.
-- Failover thrashing due to unstable networks.
-- Misconfigured quorum leading to split-brain.
+## Modos de fallo y trampas
+- Retraso de réplica causando lecturas obsoletas.
+- Thrashing de failover debido a redes inestables.
+- Quórum mal configurado llevando a split-brain.
 
-## Observability (How to detect issues)
-- **Metrics:** replication lag, sync status, failover count, client errors.
-- **Logs:** Sentinel failover decisions and quorum changes.
-- **Alerts:** sustained lag or repeated failovers.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** retraso de replicación, estado de sincronización, conteo de failovers, errores de cliente.
+- **Logs:** decisiones de failover de Sentinel y cambios de quórum.
+- **Alertas:** retraso sostenido o failovers repetidos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Run Sentinel with odd-number quorum.
-  - [ ] Configure client timeouts and retry policies.
-  - [ ] Test failover regularly.
+  - [ ] Ejecutar Sentinel con quórum de número impar.
+  - [ ] Configurar timeouts y políticas de reintento del cliente.
+  - [ ] Probar failover regularmente.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Reading critical data from replicas without lag checks.
-  - **Why it’s bad:** stale reads break correctness.
-  - **Better approach:** read from primary or tolerate staleness explicitly.
+## Anti-patrones comunes
+- **Anti-patrón:** Leer datos críticos de réplicas sin verificar retraso.
+  - **Por qué es malo:** lecturas obsoletas rompen la corrección.
+  - **Mejor enfoque:** leer del primario o tolerar la obsolescencia explícitamente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Redis replication copies data to replicas for availability and read scaling. Sentinel monitors the cluster and automates failover, but you must manage lag and quorum.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La replicación de Redis copia datos a réplicas para disponibilidad y escalado de lecturas. Sentinel monitorea el clúster y automatiza el failover, pero debes gestionar el retraso y el quórum.
 
-### Trap questions (with answers)
-1) **Q:** Does replication eliminate data loss?
-   - **A:** no; async replication can lose recent writes on failover.
-2) **Q:** Is Sentinel the same as Redis Cluster?
-   - **A:** no; Sentinel handles failover, Cluster adds sharding and hash slots.
-3) **Q:** Are replica reads always safe?
-   - **A:** no; lag can return stale data.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La replicación elimina la pérdida de datos?
+   - **R:** no; la replicación asíncrona puede perder escrituras recientes en failover.
+2) **P:** ¿Sentinel es lo mismo que Redis Cluster?
+   - **R:** no; Sentinel maneja failover, Cluster agrega sharding y hash slots.
+3) **P:** ¿Las lecturas de réplica siempre son seguras?
+   - **R:** no; el retraso puede devolver datos obsoletos.
 
-### Quick self-check (5 items)
-- [ ] I can explain replication vs Sentinel.
-- [ ] I can describe replication lag impacts.
-- [ ] I can choose between Sentinel and Cluster.
-- [ ] I can name a failover pitfall.
-- [ ] I can list key HA metrics.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar replicación vs Sentinel.
+- [ ] Puedo describir los impactos del retraso de replicación.
+- [ ] Puedo elegir entre Sentinel y Cluster.
+- [ ] Puedo nombrar una trampa de failover.
+- [ ] Puedo listar métricas clave de HA.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Redis](redis.md)
-- [Availability basics](../operations/availability-basics.md)
-- [Distributed systems basics](../system-design/distributed-systems-basics.md)
+- [Fundamentos de disponibilidad](../operations/availability-basics.md)
+- [Fundamentos de sistemas distribuidos](../system-design/distributed-systems-basics.md)
 
-### Related topics
-- [Redis scaling (scale up and out)](redis-scaling.md)
+### Temas relacionados
+- [Escalado de Redis (vertical y horizontal)](redis-scaling.md)
 
-### Compare with
-- [Partitioning & sharding](../system-design/partitioning-and-sharding.md) — distribution for scale vs HA.
+### Comparar con
+- [Particionamiento y sharding](../system-design/partitioning-and-sharding.md) — distribución para escala vs HA.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

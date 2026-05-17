@@ -1,6 +1,6 @@
 ---
 id: relational-model-basics
-title: "Relational Model Basics"
+title: "Fundamentos del modelo relacional"
 type: concept
 status: learning
 importance: 45
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Relational Model Basics
+# Fundamentos del modelo relacional
 
 ## TL;DR (BLUF)
-- The relational model stores data in tables with rows and columns.
-- Use keys and relationships to maintain consistency.
-- Trade-off: normalization can increase join complexity.
+- El modelo relacional almacena datos en tablas con filas y columnas.
+- Usa claves y relaciones para mantener la consistencia.
+- Trade-off: la normalización puede aumentar la complejidad de joins.
 
-## Definition
-**What it is:** A data model based on relations (tables) and keys.
-**Key terms:** table, row, column, primary key, foreign key.
+## Definición
+**Qué es:** Un modelo de datos basado en relaciones (tablas) y claves.
+**Términos clave:** tabla, fila, columna, clave primaria, clave foránea.
 
-## Why it matters
-- It’s the foundation of SQL databases.
-- Understanding relationships prevents data anomalies.
+## Por qué importa
+- Es la base de las bases de datos SQL.
+- Entender las relaciones previene anomalías de datos.
 
-## Scope & Non-goals
-**In scope:** core relational concepts.
-**Out of scope / NOT solved by this:** advanced relational theory.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos relacionales fundamentales.
+**Fuera del alcance / NO resuelto por esto:** teoría relacional avanzada.
 
-## Mental model / Intuition
-- Think of tables connected by keys like spreadsheets with relationships.
+## Modelo mental / Intuición
+- Piensa en tablas conectadas por claves como hojas de cálculo con relaciones.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need structured data with relationships.
-### Avoid it when
-- Access patterns are fixed and key-only (NoSQL may fit better).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas datos estructurados con relaciones.
+### Evítalo cuando
+- Los patrones de acceso son fijos y solo por clave (NoSQL puede encajar mejor).
 
-## How I would use it (practical)
-- **Context:** Users and orders.
-- **Steps:** define keys → add foreign keys → normalize.
-- **What success looks like:** consistent data with clear relationships.
+## Cómo lo usaría (práctico)
+- **Contexto:** Usuarios y pedidos.
+- **Pasos:** definir claves → agregar claves foráneas → normalizar.
+- **Cómo se ve el éxito:** datos consistentes con relaciones claras.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** strong consistency and flexible queries.
-- **Cons / Risks:** joins can be expensive.
-### Alternatives
-- **NoSQL models:** faster for fixed access patterns.
-- **How to choose:** use relational when relationships matter.
+- **Ventajas:** consistencia fuerte y consultas flexibles.
+- **Desventajas / Riesgos:** los joins pueden ser costosos.
+### Alternativas
+- **Modelos NoSQL:** más rápidos para patrones de acceso fijos.
+- **Cómo elegir:** usa relacional cuando las relaciones importan.
 
-## Failure modes & Pitfalls
-- Missing keys leading to orphaned data.
+## Modos de fallo y trampas
+- Claves faltantes llevando a datos huérfanos.
 
-## Observability (How to detect issues)
-- **Metrics:** constraint violations.
-- **Logs:** FK errors.
-- **Alerts:** spikes in integrity violations.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** violaciones de restricciones.
+- **Logs:** errores de FK.
+- **Alertas:** picos en violaciones de integridad.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define primary keys
-  - [ ] Add foreign keys where needed
+  - [ ] Definir claves primarias
+  - [ ] Agregar claves foráneas donde sea necesario
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using no keys to move fast.
-  - **Why it’s bad:** inconsistent data.
-  - **Better approach:** define keys early.
+## Anti-patrones comunes
+- **Anti-patrón:** No usar claves para ir más rápido.
+  - **Por qué es malo:** datos inconsistentes.
+  - **Mejor enfoque:** definir claves temprano.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- The relational model stores data in tables and connects them with keys. It enables strong consistency and flexible queries.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El modelo relacional almacena datos en tablas y las conecta con claves. Permite consistencia fuerte y consultas flexibles.
 
-### Trap questions (with answers)
-1) **Q:** Can a table exist without a primary key?
-   - **A:** technically yes, but it’s a bad idea.
-2) **Q:** Are foreign keys required?
-   - **A:** not required, but they enforce integrity.
-3) **Q:** Is normalization always best?
-   - **A:** not always; read-heavy workloads may denormalize.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Puede existir una tabla sin clave primaria?
+   - **R:** técnicamente sí, pero es una mala idea.
+2) **P:** ¿Las claves foráneas son obligatorias?
+   - **R:** no son obligatorias, pero garantizan integridad.
+3) **P:** ¿La normalización siempre es lo mejor?
+   - **R:** no siempre; cargas de trabajo con muchas lecturas pueden desnormalizarse.
 
-### Quick self-check (5 items)
-- [ ] I can define the relational model.
-- [ ] I can explain primary/foreign keys.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can relate to SQL foundations.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir el modelo relacional.
+- [ ] Puedo explicar claves primarias/foráneas.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo relacionar con fundamentos de SQL.
 
-## Links (NO duplication)
-### Prerequisites
-- [Data modeling basics](data-modeling-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de modelado de datos](data-modeling-basics.md)
 
-### Related topics
-- [SQL foundations](sql-foundations.md)
+### Temas relacionados
+- [Fundamentos de SQL](sql-foundations.md)
 
-### Compare with
-- [NoSQL access patterns](nosql-access-patterns.md) — relational vs key-based.
+### Comparar con
+- [Patrones de acceso NoSQL](nosql-access-patterns.md) — relacional vs basado en clave.

@@ -12,181 +12,181 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# BRIN Index (PostgreSQL)
+# Índice BRIN (PostgreSQL)
 
 ## TL;DR (BLUF)
-- BRIN (Block Range Index) stores min/max summaries per block range instead of indexing every row.
-- Use it for large tables with natural physical correlation (timestamps, auto-increment IDs).
-- Trade-off: tiny index size and fast writes, but slower and less precise than B-Tree for random queries.
+- BRIN (Block Range Index) almacena resúmenes min/max por rango de bloques en vez de indexar cada fila.
+- Úsalo para tablas grandes con correlación física natural (timestamps, IDs auto-incrementales).
+- Trade-off: tamaño de índice diminuto y escrituras rápidas, pero más lento y menos preciso que B-Tree para consultas aleatorias.
 
-## Definition
-**What it is:** A Block Range Index that stores summary metadata (min/max values) for contiguous block ranges, enabling fast pruning of non-matching blocks without indexing every row.  
-**Key terms:** block range, physical correlation, min/max summary, index size, append-mostly workloads.
+## Definición
+**Qué es:** Un índice de rango de bloques que almacena metadatos de resumen (valores min/max) para rangos contiguos de bloques, permitiendo la poda rápida de bloques no coincidentes sin indexar cada fila.
+**Términos clave:** rango de bloques, correlación física, resumen min/max, tamaño de índice, cargas de trabajo de solo-append.
 
-## Why it matters
-- BRIN dramatically reduces index size (often 100-1000x smaller than B-Tree) for large tables.
-- It's ideal for time-series or append-mostly data where physical order correlates with query filters.
-- Wrong use on randomly ordered data results in full table scans.
+## Por qué importa
+- BRIN reduce dramáticamente el tamaño del índice (a menudo 100-1000x más pequeño que B-Tree) para tablas grandes.
+- Es ideal para datos de series temporales o de solo-append donde el orden físico se correlaciona con los filtros de consulta.
+- El uso incorrecto en datos ordenados aleatoriamente resulta en escaneos completos de tabla.
 
-## Scope & Non-goals
-**In scope:**
-- Large tables with natural physical correlation (created_at, auto-incrementing IDs).
-- Append-mostly workloads with range queries on correlated columns.
-- Reducing storage and write overhead for indexing.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Tablas grandes con correlación física natural (created_at, IDs auto-incrementales).
+- Cargas de trabajo de solo-append con consultas de rango en columnas correlacionadas.
+- Reducción de almacenamiento y sobrecarga de escritura para indexación.
 
-**Out of scope / NOT solved by this:**
-- Fast lookups on randomly ordered data (use B-Tree or GIN).
-- High-selectivity equality queries (BRIN scans entire block ranges).
-- Containment or complex operators (use GIN or GiST).
+**Fuera del alcance / NO resuelto por esto:**
+- Búsquedas rápidas en datos ordenados aleatoriamente (usar B-Tree o GIN).
+- Consultas de igualdad de alta selectividad (BRIN escanea rangos de bloques completos).
+- Operadores de contención o complejos (usar GIN o GiST).
 
-## Mental model / Intuition
-- Imagine a library where books are physically sorted by publication year. Instead of cataloging every single book, you just label each shelf: "1990-1995", "1996-2000", etc. If you want books from 1998, you skip shelves labeled before 1996.
-- BRIN works the same: it stores "this range of blocks contains values between X and Y". If your query needs values outside that range, the entire block range is skipped.
+## Modelo mental / Intuición
+- Imagina una biblioteca donde los libros están físicamente ordenados por año de publicación. En vez de catalogar cada libro, simplemente etiquetas cada estante: "1990-1995", "1996-2000", etc. Si quieres libros de 1998, saltas los estantes etiquetados antes de 1996.
+- BRIN funciona igual: almacena "este rango de bloques contiene valores entre X e Y". Si tu consulta necesita valores fuera de ese rango, se salta el rango de bloques completo.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Table is large (millions+ rows) and you query by a column with natural physical correlation (e.g., `created_at`).
-- Workload is append-mostly or data is partitioned by the indexed column.
-- You need to reduce index size and write overhead.
-- Query patterns use range filters (BETWEEN, >, <) on correlated columns.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La tabla sea grande (millones+ de filas) y consultes por una columna con correlación física natural (ej., `created_at`).
+- La carga de trabajo sea de solo-append o los datos estén particionados por la columna indexada.
+- Necesites reducir el tamaño del índice y la sobrecarga de escritura.
+- Los patrones de consulta usen filtros de rango (BETWEEN, >, <) en columnas correlacionadas.
 
-### Avoid it when
-- Data is randomly ordered or frequently updated in-place (physical correlation breaks).
-- You need high selectivity for equality queries (B-Tree is faster).
-- Column values are evenly distributed across blocks (BRIN won't prune effectively).
-- Table is small enough that B-Tree overhead is acceptable.
+### Evítalo cuando
+- Los datos estén ordenados aleatoriamente o se actualicen frecuentemente in-place (la correlación física se rompe).
+- Necesites alta selectividad para consultas de igualdad (B-Tree es más rápido).
+- Los valores de la columna estén distribuidos uniformemente entre bloques (BRIN no podará efectivamente).
+- La tabla sea lo bastante pequeña para que la sobrecarga de B-Tree sea aceptable.
 
-## How I would use it (practical)
-- **Context:** An events table with 100M rows, queried by `created_at` ranges, appended chronologically.
-- **Steps:**
-  1. Verify physical correlation: `SELECT ctid, created_at FROM events ORDER BY ctid LIMIT 1000;`
-  2. Create BRIN index: `CREATE INDEX idx_events_created_brin ON events USING BRIN (created_at);`
-  3. Validate with EXPLAIN: ensure bitmap scans and block range filtering.
-  4. Monitor query performance vs B-Tree baseline.
-- **What success looks like:** 95%+ reduction in index size, faster writes, acceptable query latency on range filters.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una tabla de eventos con 100M filas, consultada por rangos de `created_at`, con inserciones cronológicas.
+- **Pasos:**
+  1. Verificar correlación física: `SELECT ctid, created_at FROM events ORDER BY ctid LIMIT 1000;`
+  2. Crear índice BRIN: `CREATE INDEX idx_events_created_brin ON events USING BRIN (created_at);`
+  3. Validar con EXPLAIN: asegurar bitmap scans y filtrado de rangos de bloques.
+  4. Monitorear rendimiento de consultas vs línea base B-Tree.
+- **Cómo se ve el éxito:** 95%+ de reducción en tamaño de índice, escrituras más rápidas, latencia de consulta aceptable en filtros de rango.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
 - **Pros:**
-  - Extremely small index size (often < 1% of B-Tree).
-  - Minimal write overhead (only summary updates on block fill).
-  - Fast index creation and maintenance.
-- **Cons / Risks:**
-  - Slower and less precise than B-Tree for queries (scans entire block ranges).
-  - Ineffective if physical correlation is low.
-  - Not suitable for high-selectivity equality queries.
-  - UPDATEs that move rows can degrade correlation over time.
+  - Tamaño de índice extremadamente pequeño (a menudo < 1% de B-Tree).
+  - Sobrecarga de escritura mínima (solo actualiza resúmenes al llenar bloques).
+  - Creación y mantenimiento de índice rápidos.
+- **Contras / Riesgos:**
+  - Más lento y menos preciso que B-Tree para consultas (escanea rangos de bloques completos).
+  - Inefectivo si la correlación física es baja.
+  - No apto para consultas de igualdad de alta selectividad.
+  - Los UPDATEs que mueven filas pueden degradar la correlación con el tiempo.
 
-### Alternatives
-- **B-Tree index:** when data is randomly ordered or you need fast equality lookups.
-- **Partitioning:** combine with BRIN per partition for better pruning.
-- **No index:** if queries are rare or full scans are acceptable.
-- **How to choose:** use BRIN for large, append-mostly, correlated data; B-Tree for random or high-selectivity access.
+### Alternativas
+- **Índice B-Tree:** cuando los datos estén ordenados aleatoriamente o necesites búsquedas de igualdad rápidas.
+- **Particionamiento:** combinar con BRIN por partición para mejor poda.
+- **Sin índice:** si las consultas son raras o los escaneos completos son aceptables.
+- **Cómo elegir:** usa BRIN para datos grandes, de solo-append y correlacionados; B-Tree para acceso aleatorio o de alta selectividad.
 
-## Failure modes & Pitfalls
-- **Physical correlation degrades:** frequent UPDATEs or random inserts break min/max boundaries, reducing pruning efficiency.
-- **BRIN not used:** query planner ignores index if estimated cost is higher than seq scan.
-- **Wrong column choice:** indexing a randomly distributed column results in no block pruning.
-- **Insufficient autovacuum:** new data not reflected in BRIN summaries until summarization runs.
+## Modos de fallo y errores comunes
+- **La correlación física se degrada:** UPDATEs frecuentes o inserciones aleatorias rompen los límites min/max, reduciendo la eficiencia de poda.
+- **BRIN no se usa:** el planificador de consultas ignora el índice si el costo estimado es mayor que seq scan.
+- **Elección incorrecta de columna:** indexar una columna distribuida aleatoriamente resulta en cero poda de bloques.
+- **Autovacuum insuficiente:** datos nuevos no reflejados en resúmenes BRIN hasta que se ejecuta la sumarización.
 
-## Observability (How to detect issues)
-- **Metrics:** 
-  - Index size vs B-Tree comparison.
-  - Query latency on range filters.
-  - Bitmap heap scan counts and blocks pruned (from EXPLAIN).
-- **Logs:** slow query logs for range queries on BRIN-indexed columns.
-- **Traces:** DB query spans showing full scans instead of index usage.
-- **Alerts:** sustained latency increase on time-range queries after data correlation degrades.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Tamaño de índice vs comparación con B-Tree.
+  - Latencia de consultas en filtros de rango.
+  - Conteos de bitmap heap scan y bloques podados (de EXPLAIN).
+- **Logs:** logs de consultas lentas para consultas de rango en columnas con índice BRIN.
+- **Trazas:** spans de consultas de BD mostrando escaneos completos en vez de uso de índice.
+- **Alertas:** aumento sostenido de latencia en consultas de rango temporal después de que la correlación de datos se degrada.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Verify physical correlation with `ctid` inspection
-  - [ ] Create BRIN index on correlated column
-  - [ ] Validate with EXPLAIN ANALYZE
-  - [ ] Monitor index size and query performance
-  - [ ] Schedule periodic VACUUM or autovacuum to update summaries
-- **Performance notes**
-  - Set `pages_per_range` based on table size and correlation (default 128).
-  - Combine with table partitioning for better pruning.
-  - Avoid on columns with frequent random UPDATEs.
-- **Operational notes**
-  - BRIN requires autovacuum or manual VACUUM to summarize new blocks.
-  - Use `brin_summarize_new_values(index_oid)` to force summary updates.
+  - [ ] Verificar correlación física con inspección de `ctid`
+  - [ ] Crear índice BRIN en columna correlacionada
+  - [ ] Validar con EXPLAIN ANALYZE
+  - [ ] Monitorear tamaño de índice y rendimiento de consultas
+  - [ ] Programar VACUUM periódico o autovacuum para actualizar resúmenes
+- **Notas de rendimiento**
+  - Configurar `pages_per_range` según tamaño de tabla y correlación (por defecto 128).
+  - Combinar con particionamiento de tabla para mejor poda.
+  - Evitar en columnas con UPDATEs aleatorios frecuentes.
+- **Notas operacionales**
+  - BRIN requiere autovacuum o VACUUM manual para sumarizar nuevos bloques.
+  - Usar `brin_summarize_new_values(index_oid)` para forzar actualizaciones de resumen.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```sql
--- Large events table with chronological inserts
+-- Tabla grande de eventos con inserciones cronológicas
 CREATE TABLE events (
   id BIGSERIAL,
   created_at TIMESTAMPTZ NOT NULL,
   event_data JSONB
 );
 
--- BRIN index on created_at (assuming physical correlation)
+-- Índice BRIN en created_at (asumiendo correlación física)
 CREATE INDEX idx_events_created_brin ON events USING BRIN (created_at);
 
--- Query: events from last 7 days
+-- Consulta: eventos de los últimos 7 días
 EXPLAIN ANALYZE
 SELECT * FROM events
 WHERE created_at >= NOW() - INTERVAL '7 days';
 
--- Expected plan: Bitmap Heap Scan + Bitmap Index Scan (BRIN prunes old blocks)
+-- Plan esperado: Bitmap Heap Scan + Bitmap Index Scan (BRIN poda bloques antiguos)
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** Using BRIN on randomly ordered data (e.g., user_id in multi-tenant table).
-  - **Why it's bad:** no physical correlation → all blocks scanned → no benefit.
-  - **Better approach:** use [B-Tree index](btree-index.md) or partition by user_id.
-  
-- **Anti-pattern:** Creating BRIN "just in case" without verifying correlation.
-  - **Why it's bad:** wastes resources and confuses query planner.
-  - **Better approach:** analyze `ctid` vs column values first; only add BRIN if correlation is strong.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar BRIN en datos ordenados aleatoriamente (ej., user_id en tabla multi-tenant).
+  - **Por qué es malo:** sin correlación física → todos los bloques escaneados → sin beneficio.
+  - **Mejor enfoque:** usar [índice B-Tree](btree-index.md) o particionar por user_id.
 
-- **Anti-pattern:** Expecting BRIN to replace B-Tree for all queries.
-  - **Why it's bad:** BRIN is optimized for range scans on correlated data, not general-purpose indexing.
-  - **Better approach:** use BRIN for correlated range queries; keep B-Tree for equality/random access.
+- **Anti-patrón:** Crear BRIN "por si acaso" sin verificar correlación.
+  - **Por qué es malo:** desperdicia recursos y confunde al planificador de consultas.
+  - **Mejor enfoque:** analizar `ctid` vs valores de columna primero; solo agregar BRIN si la correlación es fuerte.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-BRIN is a space-efficient PostgreSQL index that stores min/max summaries for block ranges instead of indexing every row. It's ideal for large, append-mostly tables with natural physical correlation—like timestamps or auto-incrementing IDs. The trade-off is smaller index size and faster writes, but slower and less precise queries compared to B-Tree.
+- **Anti-patrón:** Esperar que BRIN reemplace B-Tree para todas las consultas.
+  - **Por qué es malo:** BRIN está optimizado para escaneos de rango en datos correlacionados, no para indexación de propósito general.
+  - **Mejor enfoque:** usar BRIN para consultas de rango correlacionadas; mantener B-Tree para igualdad/acceso aleatorio.
 
-### Trap questions (with answers)
-1) **Q:** Is BRIN always better than B-Tree because it's smaller?
-   - **A:** No. BRIN is only effective when data has strong physical correlation. For randomly ordered data, it provides no pruning benefit and B-Tree will be much faster.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+BRIN es un índice eficiente en espacio de PostgreSQL que almacena resúmenes min/max para rangos de bloques en vez de indexar cada fila. Es ideal para tablas grandes, de solo-append con correlación física natural — como timestamps o IDs auto-incrementales. El trade-off es menor tamaño de índice y escrituras más rápidas, pero consultas más lentas y menos precisas comparado con B-Tree.
 
-2) **Q:** Does BRIN automatically update when new rows are inserted?
-   - **A:** Not immediately. BRIN summaries are updated during autovacuum or manual VACUUM. You can force updates with `brin_summarize_new_values()`.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿BRIN siempre es mejor que B-Tree porque es más pequeño?
+   - **R:** No. BRIN solo es efectivo cuando los datos tienen fuerte correlación física. Para datos ordenados aleatoriamente, no proporciona beneficio de poda y B-Tree será mucho más rápido.
 
-3) **Q:** Can BRIN speed up equality queries like `WHERE id = 12345`?
-   - **A:** Not reliably. BRIN scans entire block ranges that might contain the value. B-Tree is much better for high-selectivity equality queries.
+2) **P:** ¿BRIN se actualiza automáticamente cuando se insertan nuevas filas?
+   - **R:** No inmediatamente. Los resúmenes BRIN se actualizan durante autovacuum o VACUUM manual. Puedes forzar actualizaciones con `brin_summarize_new_values()`.
 
-4) **Q:** What happens to BRIN effectiveness if I UPDATE rows frequently?
-   - **A:** Physical correlation can degrade, especially if UPDATEs cause row movement. This reduces block pruning efficiency, making BRIN less useful over time.
+3) **P:** ¿BRIN puede acelerar consultas de igualdad como `WHERE id = 12345`?
+   - **R:** No de forma fiable. BRIN escanea rangos de bloques completos que podrían contener el valor. B-Tree es mucho mejor para consultas de igualdad de alta selectividad.
 
-5) **Q:** Should I use BRIN on small tables?
-   - **A:** No. BRIN's benefits (small index size, low write overhead) only matter for large tables. On small tables, B-Tree overhead is negligible and much faster.
+4) **P:** ¿Qué pasa con la efectividad de BRIN si hago UPDATE de filas frecuentemente?
+   - **R:** La correlación física puede degradarse, especialmente si los UPDATEs causan movimiento de filas. Esto reduce la eficiencia de poda de bloques, haciendo BRIN menos útil con el tiempo.
 
-### Quick self-check (5 items)
-- [ ] I can define BRIN precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to (correlation + size).
-- [ ] I can explain at least 2 trade-offs (size vs precision, writes vs reads).
-- [ ] I can give a concrete example from memory (timestamp column on large table).
-- [ ] I can name 1 failure mode and how to detect it (correlation degrades → slow queries).
+5) **P:** ¿Debo usar BRIN en tablas pequeñas?
+   - **R:** No. Los beneficios de BRIN (tamaño de índice pequeño, baja sobrecarga de escritura) solo importan para tablas grandes. En tablas pequeñas, la sobrecarga de B-Tree es despreciable y mucho más rápida.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
-- [B-Tree index](btree-index.md)
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir BRIN con precisión en 2–3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no (correlación + tamaño).
+- [ ] Puedo explicar al menos 2 trade-offs (tamaño vs precisión, escrituras vs lecturas).
+- [ ] Puedo dar un ejemplo concreto de memoria (columna timestamp en tabla grande).
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo (correlación se degrada → consultas lentas).
 
-### Related topics
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Índice](index.md)
+- [Índice B-Tree](btree-index.md)
+
+### Temas relacionados
 - [PostgreSQL MVCC](postgresql-mvcc.md)
-- [PostgreSQL vacuum & autovacuum](postgresql-vacuum-autovacuum.md)
+- [PostgreSQL vacuum y autovacuum](postgresql-vacuum-autovacuum.md)
 - [EXPLAIN](explain.md)
 
-### Compare with
-- [B-Tree index](btree-index.md) — BRIN trades query speed for index size on correlated data; B-Tree is faster but larger.
-- [GIN index](gin-index.md) — GIN for containment queries; BRIN for range queries on correlated columns.
+### Comparar con
+- [Índice B-Tree](btree-index.md) — BRIN intercambia velocidad de consulta por tamaño de índice en datos correlacionados; B-Tree es más rápido pero más grande.
+- [Índice GIN](gin-index.md) — GIN para consultas de contención; BRIN para consultas de rango en columnas correlacionadas.
 
-## Notes / Inbox (optional)
-- Consider adding example showing `ctid` correlation analysis.
-- Mention `pages_per_range` tuning for different table sizes.
+## Notas / Bandeja de entrada (opcional)
+- Considerar agregar ejemplo mostrando análisis de correlación `ctid`.
+- Mencionar ajuste de `pages_per_range` para diferentes tamaños de tabla.

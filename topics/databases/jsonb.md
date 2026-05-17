@@ -15,101 +15,101 @@ updated_at: 2026-01-19
 # JSONB (PostgreSQL)
 
 ## TL;DR (BLUF)
-- JSONB stores JSON in a binary format with operators and indexing support in PostgreSQL.
-- Use it for semi-structured or evolving fields that still need transactions and joins.
-- Trade-off: weaker structure guarantees and potential performance issues if abused.
+- JSONB almacena JSON en formato binario con soporte de operadores e indexación en PostgreSQL.
+- Úsalo para campos semi-estructurados o en evolución que aún necesiten transacciones y joins.
+- Trade-off: garantías de estructura más débiles y problemas potenciales de rendimiento si se abusa.
 
-## Definition
-**What it is:** A PostgreSQL data type that stores JSON in a binary format optimized for querying and indexing.
-**Key terms:** JSONB, operators, GIN index.
+## Definición
+**Qué es:** Un tipo de dato de PostgreSQL que almacena JSON en formato binario optimizado para consultas e indexación.
+**Términos clave:** JSONB, operadores, índice GIN.
 
-## Why it matters
-- It provides schema flexibility without leaving a relational database.
-- It enables search over JSON keys/paths with proper indexing.
+## Por qué importa
+- Proporciona flexibilidad de esquema sin salir de una base de datos relacional.
+- Permite búsqueda sobre claves/rutas JSON con indexación adecuada.
 
-## Scope & Non-goals
-**In scope:** semi-structured attributes, flexible metadata, custom fields.
-**Out of scope / NOT solved by this:** strict relational modeling for stable schemas and guaranteed JSON integrity without extra validation.
+## Alcance y no-objetivos
+**Dentro del alcance:** atributos semi-estructurados, metadatos flexibles, campos personalizados.
+**Fuera del alcance / NO resuelto por esto:** modelado relacional estricto para esquemas estables e integridad JSON garantizada sin validación extra.
 
-## Mental model / Intuition
-- Think of JSONB as a “flexible envelope” attached to a relational row.
-- It’s powerful for variability, but you must decide what belongs in columns vs JSONB.
+## Modelo mental / Intuición
+- Piensa en JSONB como un "sobre flexible" adjunto a una fila relacional.
+- Es potente para variabilidad, pero debes decidir qué pertenece a columnas vs JSONB.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have evolving attributes or sparse fields.
-- You still need SQL joins and ACID transactions.
-### Avoid it when
-- The schema is stable and frequently queried.
-- You require strong structure enforcement without additional validation.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tengas atributos en evolución o campos dispersos.
+- Aún necesites joins SQL y transacciones ACID.
+### Evítalo cuando
+- El esquema sea estable y se consulte frecuentemente.
+- Requieras cumplimiento de estructura fuerte sin validación adicional.
 
-## How I would use it (practical)
-- **Context:** Feature flags or custom fields per tenant.
-- **Steps:** model stable fields as columns → store variable fields in JSONB → add [GIN index](gin-index.md) for access paths → validate JSON in app.
-- **What success looks like:** flexible schema with predictable query latency and maintainable data integrity.
+## Cómo lo usaría (práctico)
+- **Contexto:** Feature flags o campos personalizados por tenant.
+- **Pasos:** modelar campos estables como columnas → almacenar campos variables en JSONB → agregar [índice GIN](gin-index.md) para rutas de acceso → validar JSON en la app.
+- **Cómo se ve el éxito:** esquema flexible con latencia de consulta predecible e integridad de datos mantenible.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** flexibility and expressive queries.
-- **Cons / Risks:** schema-less mess, validation burden, potential performance cost.
-### Alternatives
-- **Normal columns:** better integrity and clarity for stable fields.
-- **EAV table:** for complex attribute queries (with trade-offs).
-- **How to choose:** use JSONB only for truly variable parts of the model.
+- **Pros:** flexibilidad y consultas expresivas.
+- **Contras / Riesgos:** desorden sin esquema, carga de validación, costo potencial de rendimiento.
+### Alternativas
+- **Columnas normales:** mejor integridad y claridad para campos estables.
+- **Tabla EAV:** para consultas de atributos complejos (con trade-offs).
+- **Cómo elegir:** usa JSONB solo para las partes realmente variables del modelo.
 
-## Failure modes & Pitfalls
-- JSONB grows unbounded, causing bloat and slow updates.
-- Queries become slow due to missing or wrong indexes.
-- Inconsistent shape across rows leads to application logic complexity.
+## Modos de fallo y errores comunes
+- JSONB crece sin límite, causando inflación y actualizaciones lentas.
+- Las consultas se vuelven lentas por índices faltantes o incorrectos.
+- Forma inconsistente entre filas lleva a complejidad en la lógica de aplicación.
 
-## Observability (How to detect issues)
-- **Metrics:** query latency on JSONB filters, index usage, bloat.
-- **Logs:** slow query logs for JSON path queries.
-- **Traces:** DB spans showing JSONB operators as hotspots.
-- **Alerts:** increasing latency for JSONB-heavy endpoints.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de consultas en filtros JSONB, uso de índices, inflación.
+- **Logs:** logs de consultas lentas para consultas de rutas JSON.
+- **Trazas:** spans de BD mostrando operadores JSONB como puntos calientes.
+- **Alertas:** latencia creciente para endpoints intensivos en JSONB.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify variable fields vs stable columns
-  - [ ] Add [GIN index](gin-index.md) for access paths
-  - [ ] Validate JSON shape at the app layer
-- **Performance notes**
-  - Keep JSONB documents small and focused.
+  - [ ] Identificar campos variables vs columnas estables
+  - [ ] Agregar [índice GIN](gin-index.md) para rutas de acceso
+  - [ ] Validar la forma del JSON en la capa de aplicación
+- **Notas de rendimiento**
+  - Mantener documentos JSONB pequeños y enfocados.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Storing full entities in JSONB.
-  - **Why it’s bad:** you lose relational constraints and efficient indexing.
-  - **Better approach:** keep core fields as columns and use JSONB for true flex fields.
+## Anti-patrones comunes
+- **Anti-patrón:** Almacenar entidades completas en JSONB.
+  - **Por qué es malo:** pierdes restricciones relacionales e indexación eficiente.
+  - **Mejor enfoque:** mantener campos core como columnas y usar JSONB para campos realmente flexibles.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- JSONB is PostgreSQL’s binary JSON type. It’s great for flexible or evolving attributes while still using SQL, but it shifts validation to the application and can hurt performance if used for everything.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- JSONB es el tipo JSON binario de PostgreSQL. Es genial para atributos flexibles o en evolución mientras sigues usando SQL, pero traslada la validación a la aplicación y puede perjudicar el rendimiento si se usa para todo.
 
-### Trap questions (with answers)
-1) **Q:** Is JSONB always faster than JSON?
-   - **A:** it depends; JSONB enables operations/indexing, but adds storage/transform cost.
-2) **Q:** Does JSONB eliminate migrations?
-   - **A:** it reduces some, but shifts the problem to validation/consistency at the app level.
-3) **Q:** Can JSONB be indexed?
-   - **A:** yes, with index types like [GIN index](gin-index.md) depending on access patterns.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿JSONB siempre es más rápido que JSON?
+   - **R:** Depende; JSONB permite operaciones/indexación, pero agrega costo de almacenamiento/transformación.
+2) **P:** ¿JSONB elimina las migraciones?
+   - **R:** Reduce algunas, pero traslada el problema a validación/consistencia a nivel de aplicación.
+3) **P:** ¿JSONB se puede indexar?
+   - **R:** Sí, con tipos de índice como [índice GIN](gin-index.md) dependiendo de los patrones de acceso.
 
-### Quick self-check (5 items)
-- [ ] I can define JSONB precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete use case.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir JSONB con precisión en 2–3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un caso de uso concreto.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerrequisitos
 - [PostgreSQL](postgresql.md)
-- [Index](index.md)
+- [Índice](index.md)
 
-### Related topics
-- [GIN index](gin-index.md)
+### Temas relacionados
+- [Índice GIN](gin-index.md)
 
-### Compare with
-- [MongoDB documents](mongodb-documents.md) — document model vs relational JSONB.
+### Comparar con
+- [Documentos MongoDB](mongodb-documents.md) — modelo de documentos vs JSONB relacional.

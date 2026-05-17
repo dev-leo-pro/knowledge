@@ -1,6 +1,6 @@
 ---
 id: redis-scaling
-title: "Redis scaling (scale up and out)"
+title: "Escalado de Redis (vertical y horizontal)"
 type: concept
 status: learning
 importance: 55
@@ -12,106 +12,106 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Redis scaling (scale up and out)
+# Escalado de Redis (vertical y horizontal)
 
 ## TL;DR (BLUF)
-- Scale up first (more memory/CPU), then scale out via sharding or Redis Cluster.
-- Scale out improves capacity but adds complexity and cross-key limits.
-- Trade-off: simplicity vs distributed operational overhead.
+- Escala verticalmente primero (más memoria/CPU), luego horizontalmente vía sharding o Redis Cluster.
+- Escalar horizontalmente mejora la capacidad pero agrega complejidad y límites cross-clave.
+- Trade-off: simplicidad vs sobrecarga operativa distribuida.
 
-## Definition
-**What it is:** Techniques to grow Redis capacity and throughput: vertical scaling, replicas for reads, and horizontal partitioning (client-side sharding or Redis Cluster hash slots).  
-**Key terms:** scale up, scale out, replication, sentinel, cluster, hash slots, hot keys.
+## Definición
+**Qué es:** Técnicas para crecer la capacidad y throughput de Redis: escalado vertical, réplicas para lecturas y particionamiento horizontal (sharding del lado del cliente o hash slots de Redis Cluster).
+**Términos clave:** escalar verticalmente, escalar horizontalmente, replicación, sentinel, cluster, hash slots, claves calientes.
 
-## Why it matters
-- Redis is memory-bound; scaling decisions determine cost and reliability.
-- Poor scaling creates hotspots and cross-slot limitations.
+## Por qué importa
+- Redis está limitado por memoria; las decisiones de escalado determinan costo y confiabilidad.
+- Un mal escalado crea hotspots y limitaciones cross-slot.
 
-## Scope & Non-goals
-**In scope:** capacity growth, cluster/shard behavior, replication for reads.  
-**Out of scope / NOT solved by this:** global consistency, multi-region replication guarantees.
+## Alcance y no-objetivos
+**Dentro del alcance:** crecimiento de capacidad, comportamiento de clúster/shard, replicación para lecturas.
+**Fuera del alcance / NO resuelto por esto:** consistencia global, garantías de replicación multi-región.
 
-## Mental model / Intuition
-- Scale up is a bigger fridge; scale out is multiple fridges with labeling rules.
+## Modelo mental / Intuición
+- Escalar verticalmente es un refrigerador más grande; escalar horizontalmente son múltiples refrigeradores con reglas de etiquetado.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You are approaching memory limits or high latency at peak traffic.
-- You can partition keys cleanly across nodes.
-### Avoid it when
-- You need multi-key transactions across unrelated keys.
-- Your workload is dominated by a few hot keys that cannot be partitioned.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Te acercas a los límites de memoria o alta latencia en tráfico pico.
+- Puedes particionar claves limpiamente entre nodos.
+### Evítalo cuando
+- Necesitas transacciones multi-clave entre claves no relacionadas.
+- Tu carga de trabajo está dominada por pocas claves calientes que no pueden particionarse.
 
-## How I would use it (practical)
-- **Context:** Growing cache footprint with read-heavy traffic.
-- **Steps:** scale up → add read replicas → evaluate Redis Cluster → enforce key design with hash tags.
-- **What success looks like:** stable latency with balanced memory and CPU across nodes.
+## Cómo lo usaría (práctico)
+- **Contexto:** Huella de caché creciente con tráfico pesado de lecturas.
+- **Pasos:** escalar verticalmente → agregar réplicas de lectura → evaluar Redis Cluster → aplicar diseño de claves con hash tags.
+- **Cómo se ve el éxito:** latencia estable con memoria y CPU balanceados entre nodos.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** more capacity and throughput.
-- **Cons / Risks:** operational complexity, cross-slot command limits, failover tuning.
-### Alternatives
-- **Use a durable KV store:** when Redis becomes too complex to operate.
-- **Application-level partitioning:** if Redis Cluster is too rigid.
-- **How to choose:** scale up until cost or limits, then shard with a key design that avoids hot partitions.
+- **Ventajas:** más capacidad y throughput.
+- **Desventajas / Riesgos:** complejidad operativa, límites de comandos cross-slot, ajuste de failover.
+### Alternativas
+- **Usar un almacén KV duradero:** cuando Redis se vuelve demasiado complejo de operar.
+- **Particionamiento a nivel de aplicación:** si Redis Cluster es demasiado rígido.
+- **Cómo elegir:** escalar verticalmente hasta el límite de costo, luego fragmentar con un diseño de claves que evite particiones calientes.
 
-## Failure modes & Pitfalls
-- Uneven key distribution leading to hot nodes.
-- Cross-slot operations failing or forcing workarounds.
-- Replication lag causing stale reads.
+## Modos de fallo y trampas
+- Distribución desigual de claves llevando a nodos calientes.
+- Operaciones cross-slot fallando o requiriendo workarounds.
+- Retraso de replicación causando lecturas obsoletas.
 
-## Observability (How to detect issues)
-- **Metrics:** per-node latency, CPU, `used_memory`, replication lag, slot distribution.
-- **Logs:** failover events, rebalancing operations.
-- **Alerts:** hot node CPU/memory, frequent failovers, slot imbalance.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia por nodo, CPU, `used_memory`, retraso de replicación, distribución de slots.
+- **Logs:** eventos de failover, operaciones de rebalanceo.
+- **Alertas:** CPU/memoria de nodo caliente, failovers frecuentes, desbalance de slots.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Set key naming with hash tags for multi-key operations.
-  - [ ] Measure hot keys and apply sharding/partitioning.
-  - [ ] Test failover and client retry behavior.
-  - [ ] Plan resharding during low-traffic windows.
+  - [ ] Configurar nombrado de claves con hash tags para operaciones multi-clave.
+  - [ ] Medir claves calientes y aplicar sharding/particionamiento.
+  - [ ] Probar failover y comportamiento de reintento del cliente.
+  - [ ] Planificar resharding durante ventanas de bajo tráfico.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Sharding without measuring hot keys first.
-  - **Why it’s bad:** one shard still melts and defeats scaling.
-  - **Better approach:** detect hot keys and split or cache-break them.
+## Anti-patrones comunes
+- **Anti-patrón:** Fragmentar sin medir claves calientes primero.
+  - **Por qué es malo:** un shard aún se derrite y anula el escalado.
+  - **Mejor enfoque:** detectar claves calientes y dividirlas o separar el caché.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Redis scaling starts with bigger boxes and read replicas. When that’s not enough, you shard data with Redis Cluster or client-side partitioning, which adds complexity and cross-key constraints.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El escalado de Redis empieza con máquinas más grandes y réplicas de lectura. Cuando eso no es suficiente, fragmentas datos con Redis Cluster o particionamiento del lado del cliente, lo que agrega complejidad y restricciones cross-clave.
 
-### Trap questions (with answers)
-1) **Q:** Does Redis Cluster allow multi-key transactions across any keys?
-   - **A:** no; keys must be in the same hash slot.
-2) **Q:** Is scale out always better than scale up?
-   - **A:** no; scale out adds complexity and can reduce simplicity for small workloads.
-3) **Q:** Do replicas eliminate the need for scaling writes?
-   - **A:** no; writes still hit the primary node.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Redis Cluster permite transacciones multi-clave entre cualquier clave?
+   - **R:** no; las claves deben estar en el mismo hash slot.
+2) **P:** ¿Escalar horizontalmente siempre es mejor que verticalmente?
+   - **R:** no; escalar horizontalmente agrega complejidad y puede reducir la simplicidad para cargas de trabajo pequeñas.
+3) **P:** ¿Las réplicas eliminan la necesidad de escalar escrituras?
+   - **R:** no; las escrituras aún van al nodo primario.
 
-### Quick self-check (5 items)
-- [ ] I can explain scale up vs scale out for Redis.
-- [ ] I can state when to use Redis Cluster.
-- [ ] I can describe the cross-slot limitation.
-- [ ] I can name a hot-key failure mode.
-- [ ] I can list basic scaling observability signals.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo explicar escalado vertical vs horizontal para Redis.
+- [ ] Puedo decir cuándo usar Redis Cluster.
+- [ ] Puedo describir la limitación cross-slot.
+- [ ] Puedo nombrar un modo de fallo de clave caliente.
+- [ ] Puedo listar señales básicas de observabilidad de escalado.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Redis](redis.md)
-- [Partitioning & sharding](../system-design/partitioning-and-sharding.md)
-- [Capacity planning](../operations/capacity-planning.md)
+- [Particionamiento y sharding](../system-design/partitioning-and-sharding.md)
+- [Planificación de capacidad](../operations/capacity-planning.md)
 
-### Related topics
-- [Hot partitions](hot-partitions.md)
-- [Consistency models](consistency-models.md)
+### Temas relacionados
+- [Particiones calientes](hot-partitions.md)
+- [Modelos de consistencia](consistency-models.md)
 
-### Compare with
-- [DynamoDB](dynamodb.md) — managed horizontal scaling vs self-managed Redis.
+### Comparar con
+- [DynamoDB](dynamodb.md) — escalado horizontal gestionado vs Redis auto-gestionado.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

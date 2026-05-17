@@ -1,36 +1,36 @@
 ---
-title: Contract Testing
+title: Pruebas de Contrato
 ---
 
-# Contract Testing
+# Pruebas de Contrato
 
-## Definition
-Contract testing is a technique for verifying that two separate systems (such as a service and its consumer) can communicate and exchange data as expected, based on a shared contract (API schema, message format, etc.).
+## Definición
+Las pruebas de contrato son una técnica para verificar que dos sistemas separados (como un servicio y su consumidor) pueden comunicarse e intercambiar datos según lo esperado, basándose en un contrato compartido (esquema de API, formato de mensaje, etc.).
 
-## Why it matters
-It prevents integration failures due to mismatched expectations between services, especially in microservices and event-driven architectures.
+## Por qué importa
+Previene fallos de integración debidos a expectativas no coincidentes entre servicios, especialmente en arquitecturas de microservicios y basadas en eventos.
 
-## When to use / when not to use
-Use when you have independently deployed services or teams, or when API/schema changes are frequent. Not needed for monoliths or tightly coupled systems.
+## Cuándo usar / cuándo no usar
+Úsalas cuando tienes servicios o equipos que se despliegan independientemente, o cuando los cambios de API/esquema son frecuentes. No es necesario para monolitos o sistemas fuertemente acoplados.
 
 ## Trade-offs
-- + Early detection of breaking changes
-- + Enables independent deployments
-- - Requires maintenance of contracts and test infrastructure
-- - May not catch all integration issues (e.g., auth, network)
+- + Detección temprana de cambios que rompen compatibilidad
+- + Permite despliegues independientes
+- - Requiere mantenimiento de contratos e infraestructura de pruebas
+- - Puede no detectar todos los problemas de integración (ej., autenticación, red)
 
-## Prerequisites
-- [API design basics](../system-design/api-design-basics.md)
-- [Testing fundamentals](../quality/testing-fundamentals.md)
+## Prerequisitos
+- [Fundamentos de diseño de API](../system-design/api-design-basics.md)
+- [Fundamentos de pruebas](../quality/testing-fundamentals.md)
 
-## Related topics
-- [Integration tests](../quality/testing-fundamentals.md)
-- [Versioning APIs and Events](../system-design/versioning-apis-and-events.md)
+## Temas relacionados
+- [Pruebas de integración](../quality/testing-fundamentals.md)
+- [Versionado de APIs y Eventos](../system-design/versioning-apis-and-events.md)
 
-## Trap questions
-1. What is the main difference between contract testing and integration testing?
-   - Contract testing checks the agreement between services; integration testing checks the full system working together.
-2. What happens if you skip contract tests in a microservices environment?
-   - You risk breaking consumers or producers when APIs change.
-3. Can contract tests replace end-to-end tests?
-   - No, they complement but do not replace full E2E tests.
+## Preguntas trampa
+1. ¿Cuál es la principal diferencia entre pruebas de contrato y pruebas de integración?
+   - Las pruebas de contrato verifican el acuerdo entre servicios; las pruebas de integración verifican el sistema completo funcionando junto.
+2. ¿Qué sucede si omites las pruebas de contrato en un entorno de microservicios?
+   - Corres el riesgo de romper consumidores o productores cuando las APIs cambian.
+3. ¿Las pruebas de contrato pueden reemplazar las pruebas de extremo a extremo?
+   - No, complementan pero no reemplazan las pruebas E2E completas.

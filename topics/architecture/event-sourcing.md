@@ -15,120 +15,120 @@ updated_at: 2026-01-21
 # Event Sourcing
 
 ## TL;DR (BLUF)
-- Persist state as a sequence of immutable events and rebuild state from them.
-- Use it when auditability, history, and complex workflows matter.
-- Trade-off: higher complexity, eventual consistency, and operational overhead.
+- Persiste el estado como una secuencia de eventos inmutables y reconstruye el estado a partir de ellos.
+- Úsalo cuando la auditabilidad, el historial y los flujos de trabajo complejos importan.
+- Trade-off: mayor complejidad, consistencia eventual y sobrecarga operacional.
 
-## Definition
-**What it is:** A persistence pattern where all state changes are stored as append-only events in an event store, and current state is derived via projections. It is often paired with [Event-driven architecture](event-driven-basics.md).  
-**Key terms:** event store, projection, snapshot, replay, append-only, schema evolution.
+## Definición
+**Qué es:** Un patrón de persistencia donde todos los cambios de estado se almacenan como eventos de solo-append en un event store, y el estado actual se deriva mediante proyecciones. Frecuentemente se combina con [Arquitectura dirigida por eventos](event-driven-basics.md).
+**Términos clave:** event store, proyección, snapshot, replay, solo-append, evolución de esquemas.
 
-## Why it matters
-- It provides a complete audit trail and enables time-travel debugging.
-- It supports multiple read models without mutating historical truth.
+## Por qué importa
+- Proporciona una pista de auditoría completa y permite depuración de viaje en el tiempo.
+- Soporta múltiples modelos de lectura sin mutar la verdad histórica.
 
-## Scope & Non-goals
-**In scope:** event storage, projection building, and replay semantics.  
-**Out of scope / NOT solved by this:** real-time messaging reliability or broker operations.
+## Alcance y no-objetivos
+**Dentro del alcance:** almacenamiento de eventos, construcción de proyecciones y semánticas de replay.
+**Fuera del alcance / NO resuelto por esto:** fiabilidad de mensajería en tiempo real u operaciones de broker.
 
-## Mental model / Intuition
-- Treat events like a bank ledger: you never overwrite history, you only append.
-- State is a fold over the event stream.
+## Modelo mental / Intuición
+- Trata los eventos como un libro contable bancario: nunca sobrescribes el historial, solo agregas.
+- El estado es un fold sobre el flujo de eventos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need a full audit trail or regulatory traceability.
-- Business logic is complex and benefits from temporal analysis.
-- You can tolerate eventual consistency in read models.
-### Avoid it when
-- CRUD simplicity is sufficient and history is not required.
-- You cannot invest in projection infrastructure and versioning discipline.
-- Low-latency synchronous reads of authoritative state are critical.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites una pista de auditoría completa o trazabilidad regulatoria.
+- La lógica de negocio sea compleja y se beneficie del análisis temporal.
+- Puedas tolerar consistencia eventual en los modelos de lectura.
+### Evítalo cuando
+- La simplicidad CRUD sea suficiente y el historial no sea necesario.
+- No puedas invertir en infraestructura de proyecciones y disciplina de versionado.
+- Las lecturas síncronas de baja latencia del estado autoritativo sean críticas.
 
-## How I would use it (practical)
-- **Context:** A financial ledger that must support audits and historical queries.
-- **Steps:**
-  1) Model domain events and define event schemas.
-  2) Persist events to an append-only event store.
-  3) Build projections for query use-cases.
-  4) Use snapshots to reduce replay time.
-- **What success looks like:** fast rebuilds, accurate projections, and traceable history.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un libro contable financiero que debe soportar auditorías y consultas históricas.
+- **Pasos:**
+  1) Modelar eventos de dominio y definir esquemas de eventos.
+  2) Persistir eventos en un event store de solo-append.
+  3) Construir proyecciones para casos de uso de consulta.
+  4) Usar snapshots para reducir el tiempo de replay.
+- **Cómo se ve el éxito:** reconstrucciones rápidas, proyecciones precisas e historial trazable.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** complete history, easy auditing, flexible read models.
-- **Cons / Risks:** complex infrastructure, projection lag, and schema evolution pain.
-### Alternatives
-- **CRUD + audit tables:** simpler but less flexible for time-travel queries.
-- **[Change Data Capture (CDC)](../databases/change-data-capture.md):** captures DB changes but lacks explicit domain semantics.
-- **How to choose:** use event sourcing when history and replay are first-class requirements.
+- **Pros:** historial completo, auditoría fácil, modelos de lectura flexibles.
+- **Contras / Riesgos:** infraestructura compleja, lag en proyecciones y dolor en evolución de esquemas.
+### Alternativas
+- **CRUD + tablas de auditoría:** más simple pero menos flexible para consultas de viaje en el tiempo.
+- **[Change Data Capture (CDC)](../databases/change-data-capture.md):** captura cambios de BD pero carece de semántica explícita de dominio.
+- **Cómo elegir:** usa event sourcing cuando el historial y el replay sean requisitos de primera clase.
 
-## Failure modes & Pitfalls
-- Projection drift when events are replayed with changed logic.
-- Slow rebuilds without snapshots.
-- Event schema evolution breaking old replays.
-- Dual-write bugs if events and state are written separately.
+## Modos de fallo y errores comunes
+- Desviación de proyecciones cuando los eventos se reproducen con lógica modificada.
+- Reconstrucciones lentas sin snapshots.
+- Evolución de esquemas de eventos rompiendo replays antiguos.
+- Bugs de escritura dual si los eventos y el estado se escriben por separado.
 
-## Observability (How to detect issues)
-- **Metrics:** event store write latency, projection lag, replay duration, snapshot coverage.
-- **Logs:** event version, projection errors, replay failures.
-- **Traces:** event append → projection update spans.
-- **Alerts:** growing projection lag or repeated replay failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia de escritura del event store, lag de proyecciones, duración de replay, cobertura de snapshots.
+- **Logs:** versión de evento, errores de proyección, fallos de replay.
+- **Trazas:** append de evento → spans de actualización de proyección.
+- **Alertas:** lag creciente en proyecciones o fallos repetidos de replay.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define stable, versioned event schemas
-  - [ ] Build idempotent projections
-  - [ ] Add snapshots for large aggregates
-- **Security / Compliance notes**
-  - Encrypt sensitive event payloads at rest.
-- **Performance notes**
-  - Partition events by aggregate ID to keep replay efficient.
-- **Operational notes**
-  - Monitor projection lag per consumer.
+  - [ ] Definir esquemas de eventos estables y versionados
+  - [ ] Construir proyecciones idempotentes
+  - [ ] Agregar snapshots para agregados grandes
+- **Notas de seguridad / cumplimiento**
+  - Cifrar payloads sensibles de eventos en reposo.
+- **Notas de rendimiento**
+  - Particionar eventos por ID de agregado para mantener el replay eficiente.
+- **Notas operacionales**
+  - Monitorear el lag de proyección por consumidor.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Writing state first and emitting events later.
-  - **Why it’s bad:** creates dual-write inconsistencies.
-  - **Better approach:** treat events as the source of truth and derive state.
+## Anti-patrones comunes
+- **Anti-patrón:** Escribir el estado primero y emitir eventos después.
+  - **Por qué es malo:** crea inconsistencias de escritura dual.
+  - **Mejor enfoque:** tratar los eventos como la fuente de verdad y derivar el estado.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Event sourcing stores every change as an event and derives current state from those events. It gives perfect history but adds complexity around projections and schema evolution.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Event sourcing almacena cada cambio como un evento y deriva el estado actual de esos eventos. Da un historial perfecto pero añade complejidad alrededor de proyecciones y evolución de esquemas.
 
-### Trap questions (with answers)
-1) **Q:** Is event sourcing the same as event-driven architecture?
-  - **A:** No; event sourcing is about persistence, [Event-driven architecture](event-driven-basics.md) is about communication.
-2) **Q:** Can you rebuild state if you change event schemas?
-   - **A:** Only if you maintain backward-compatible versions or migration logic.
-3) **Q:** Do you still need idempotency in projections?
-   - **A:** Yes; replays and retries can apply the same event multiple times.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Event sourcing es lo mismo que arquitectura dirigida por eventos?
+  - **R:** No; event sourcing trata sobre persistencia, la [arquitectura dirigida por eventos](event-driven-basics.md) trata sobre comunicación.
+2) **P:** ¿Puedes reconstruir el estado si cambias los esquemas de eventos?
+   - **R:** Solo si mantienes versiones retrocompatibles o lógica de migración.
+3) **P:** ¿Aún necesitas idempotencia en las proyecciones?
+   - **R:** Sí; los replays y reintentos pueden aplicar el mismo evento múltiples veces.
 
-### Quick self-check (5 items)
-- [ ] I can define event sourcing precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir event sourcing con precisión en 2–3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Event-driven architecture](event-driven-basics.md)
-- [Messaging basics](messaging-basics.md)
-- [Data modeling basics](../databases/data-modeling-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
+- [Fundamentos de mensajería](messaging-basics.md)
+- [Fundamentos de modelado de datos](../databases/data-modeling-basics.md)
 - [CQRS](cqrs.md)
 
-### Related topics
-- [Outbox pattern](outbox-pattern.md)
-- [Dual-write pattern](dual-write-pattern.md)
+### Temas relacionados
+- [Patrón Outbox](outbox-pattern.md)
+- [Patrón de escritura dual](dual-write-pattern.md)
 - [Kafka](kafka.md)
-- [Domain-Driven Design (DDD)](domain-driven-design.md)
+- [Diseño Dirigido por Dominio (DDD)](domain-driven-design.md)
 
-### Compare with
-- [Change Data Capture (CDC)](../databases/change-data-capture.md) — CDC captures DB changes; event sourcing models domain intent.
+### Comparar con
+- [Change Data Capture (CDC)](../databases/change-data-capture.md) — CDC captura cambios de BD; event sourcing modela la intención del dominio.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

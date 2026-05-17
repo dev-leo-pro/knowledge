@@ -1,6 +1,6 @@
 ---
 id: request-hedging
-title: "Request Hedging"
+title: "Cobertura de solicitudes (Request Hedging)"
 type: pattern
 status: learning
 importance: 65
@@ -12,124 +12,124 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Request Hedging
+# Cobertura de solicitudes (Request Hedging)
 
 ## TL;DR (BLUF)
-- Request hedging sends a second request if the first is slow to cut tail latency.
-- Use it only for idempotent reads and within retry budgets.
-- Trade-off: it increases load and can amplify outages if unbounded.
+- La cobertura de solicitudes envía una segunda solicitud si la primera es lenta para reducir la latencia de cola.
+- Úsala solo para lecturas idempotentes y dentro de presupuestos de reintento.
+- Trade-off: aumenta la carga y puede amplificar interrupciones si no está acotada.
 
-## Definition
-**What it is:** A latency-optimization pattern where a duplicate request is issued after a threshold (often p95) and the fastest response wins.  
-**Key terms:** tail latency, hedged request, p95 threshold, cancellation, idempotent.
+## Definición
+**Qué es:** Un patrón de optimización de latencia donde se emite una solicitud duplicada después de un umbral (a menudo p95) y la respuesta más rápida gana.  
+**Términos clave:** latencia de cola, solicitud cubierta, umbral p95, cancelación, idempotente.
 
-## Why it matters
-- Tail latency (p99) often dominates user experience.
-- Hedging can reduce tail latency without waiting for slow nodes.
+## Por qué importa
+- La latencia de cola (p99) a menudo domina la experiencia del usuario.
+- La cobertura puede reducir la latencia de cola sin esperar a nodos lentos.
 
-## Scope & Non-goals
-**In scope:** read-only, idempotent operations with bounded hedges.  
-**Out of scope / NOT solved by this:** write operations or non-idempotent actions (see [Idempotency](idempotency.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** operaciones de solo lectura, idempotentes con coberturas acotadas.  
+**Fuera del alcance / NO resuelto por esto:** operaciones de escritura o acciones no idempotentes (ver [Idempotencia](idempotency.md)).
 
-## Mental model / Intuition
-- “Bet on two horses” when the first one is likely to be slow.
+## Modelo mental / Intuición
+- "Apuesta por dos caballos" cuando es probable que el primero sea lento.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Tail latency is the dominant user pain.
-- Operations are read-only or idempotent.
-- You can control extra load with [Retry budgets](retry-budgets.md).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- La latencia de cola es el dolor dominante del usuario.
+- Las operaciones son de solo lectura o idempotentes.
+- Puedes controlar la carga extra con [Presupuestos de reintento](retry-budgets.md).
 
-### Avoid it when
-- The operation is not idempotent or is costly.
-- The dependency is already saturated.
+### Evítalo cuando
+- La operación no es idempotente o es costosa.
+- La dependencia ya está saturada.
 
-## How I would use it (practical)
-- **Context:** A read-heavy API with occasional slow nodes.
-- **Steps:**
-  1) Send request A.
-  2) If A exceeds p95 (e.g., 60ms), send request B.
-  3) Use the first response, cancel the other.
-  4) Enforce hedging within retry budget limits.
-- **What success looks like:** p99 latency drops without increasing error rates or saturation.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API con muchas lecturas con nodos ocasionalmente lentos.
+- **Pasos:**
+  1) Enviar solicitud A.
+  2) Si A excede p95 (por ejemplo, 60ms), enviar solicitud B.
+  3) Usar la primera respuesta, cancelar la otra.
+  4) Aplicar la cobertura dentro de los límites del presupuesto de reintento.
+- **Cómo se ve el éxito:** la latencia p99 baja sin aumentar tasas de error o saturación.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better tail latency.
-- **Cons / Risks:** extra load, risk of overload amplification.
-### Alternatives
-- **Timeouts + retries:** for transient failures, not tail latency.
-- **Caching:** avoid repeated slow calls.
-- **How to choose:** hedge only when tail latency is the dominant issue and you can afford extra load.
+- **Ventajas:** mejor latencia de cola.
+- **Desventajas / Riesgos:** carga extra, riesgo de amplificación de sobrecarga.
+### Alternativas
+- **Timeouts + reintentos:** para fallos transitorios, no latencia de cola.
+- **Caché:** evitar llamadas lentas repetidas.
+- **Cómo elegir:** cubre solo cuando la latencia de cola es el problema dominante y puedes permitir carga extra.
 
-## Failure modes & Pitfalls
-- Hedging on every request → overload.
-- Using hedging on writes → duplicate side effects.
-- No cancellation → doubles load unnecessarily.
+## Modos de fallo y trampas
+- Cubrir cada solicitud → sobrecarga.
+- Usar cobertura en escrituras → efectos secundarios duplicados.
+- Sin cancelación → duplica la carga innecesariamente.
 
-## Observability (How to detect issues)
-- **Metrics:** hedge rate, extra load %, p95/p99 latency, cancellation rate.
-- **Logs:** hedge trigger reason and threshold.
-- **Traces:** parallel spans and winner selection.
-- **Alerts:** hedge rate spike + saturation increase.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de cobertura, % de carga extra, latencia p95/p99, tasa de cancelación.
+- **Logs:** razón de activación de cobertura y umbral.
+- **Trazas:** tramos paralelos y selección del ganador.
+- **Alertas:** pico en tasa de cobertura + aumento de saturación.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Set hedge threshold (e.g., p95)
-  - [ ] Restrict to idempotent reads
-  - [ ] Enforce retry budget limits
-  - [ ] Cancel losing requests
-- **Security / Compliance notes**
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Establecer umbral de cobertura (por ejemplo, p95)
+  - [ ] Restringir a lecturas idempotentes
+  - [ ] Aplicar límites de presupuesto de reintento
+  - [ ] Cancelar solicitudes perdedoras
+- **Notas de seguridad / cumplimiento**
   - N/A
-- **Performance notes**
-  - Track incremental load from hedges
-- **Operational notes**
-  - Tune threshold to avoid excessive hedging
+- **Notas de rendimiento**
+  - Rastrear la carga incremental de las coberturas
+- **Notas operacionales**
+  - Ajustar el umbral para evitar cobertura excesiva
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 send A
 if A > p95_threshold: send B
 use first response; cancel the other
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Hedge all requests.”
-  - **Why it’s bad:** doubles load and can trigger outages.
-  - **Better approach:** hedge selectively with a budget.
+## Anti-patrones comunes
+- **Anti-patrón:** "Cubrir todas las solicitudes."
+  - **Por qué es malo:** duplica la carga y puede provocar interrupciones.
+  - **Mejor enfoque:** cubrir selectivamente con un presupuesto.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Request hedging issues a backup request after a latency threshold to reduce tail latency, but it must be bounded and only used for idempotent reads.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La cobertura de solicitudes emite una solicitud de respaldo después de un umbral de latencia para reducir la latencia de cola, pero debe estar acotada y solo usarse para lecturas idempotentes.
 
-### Trap questions (with answers)
-1) **Q:** Can you hedge write requests?
-   - **A:** No. Unless they are strictly idempotent, you risk duplicate side effects.
-2) **Q:** Does hedging replace retries?
-   - **A:** No. Hedging targets tail latency; retries target transient failure recovery.
-3) **Q:** Is hedging safe without budgets?
-   - **A:** No. It can amplify load and cause overload.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Puedes cubrir solicitudes de escritura?
+   - **R:** No. A menos que sean estrictamente idempotentes, arriesgas efectos secundarios duplicados.
+2) **P:** ¿La cobertura reemplaza los reintentos?
+   - **R:** No. La cobertura apunta a la latencia de cola; los reintentos apuntan a la recuperación de fallos transitorios.
+3) **P:** ¿Es segura la cobertura sin presupuestos?
+   - **R:** No. Puede amplificar la carga y causar sobrecarga.
 
-### Quick self-check (5 items)
-- [ ] I can define request hedging precisely.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir la cobertura de solicitudes con precisión.
+- [ ] Puedo indicar cuándo usarla y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Performance basics](../system-design/performance-basics.md)
-- [Idempotency](idempotency.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
+- [Idempotencia](idempotency.md)
 
-### Related topics
-- [Retry budgets](retry-budgets.md)
+### Temas relacionados
+- [Presupuestos de reintento](retry-budgets.md)
 - [Timeouts](timeouts.md)
-- [Backpressure](../system-design/backpressure.md)
+- [Contrapresión (Backpressure)](../system-design/backpressure.md)
 
-### Compare with
-- [Retries, exponential backoff, and jitter](retries-and-backoff.md) — retries recover failures; hedging reduces tail latency.
-- [Caching fundamentals](../system-design/caching-fundamentals.md) — caching reduces calls; hedging duplicates calls.
+### Comparar con
+- [Reintentos, backoff exponencial y jitter](retries-and-backoff.md) — los reintentos recuperan fallos; la cobertura reduce la latencia de cola.
+- [Fundamentos de caché](../system-design/caching-fundamentals.md) — el caché reduce llamadas; la cobertura duplica llamadas.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

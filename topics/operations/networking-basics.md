@@ -1,6 +1,6 @@
 ---
 id: networking-basics
-title: "Networking Basics"
+title: "Fundamentos de redes"
 type: concept
 status: learning
 importance: 40
@@ -12,99 +12,99 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Networking Basics
+# Fundamentos de redes
 
 ## TL;DR (BLUF)
-- Networking basics cover latency, connections, and timeouts.
-- Use them to reason about client-server performance.
-- Trade-off: tighter timeouts reduce tail latency but increase errors.
+- Los fundamentos de redes cubren latencia, conexiones y timeouts.
+- Úsalos para razonar sobre el rendimiento cliente-servidor.
+- Trade-off: timeouts más estrictos reducen la latencia de cola pero aumentan los errores.
 
-## Definition
-**What it is:** Fundamental concepts of network communication.
-**Key terms:** latency, bandwidth, timeout, retry.
+## Definición
+**Qué es:** Conceptos fundamentales de la comunicación en red.
+**Términos clave:** latencia, ancho de banda, timeout, reintento.
 
-## Why it matters
-- Network behavior impacts database connectivity and performance.
-- Misconfigured timeouts cause [Cascading failure](cascading-failure.md).
+## Por qué importa
+- El comportamiento de la red impacta la conectividad y el rendimiento de la base de datos.
+- Timeouts mal configurados causan [Fallo en cascada](cascading-failure.md).
 
-## Scope & Non-goals
-**In scope:** basic networking concepts.
-**Out of scope / NOT solved by this:** deep TCP internals.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos básicos de redes.
+**Fuera del alcance / NO resuelto por esto:** internos profundos de TCP.
 
-## Mental model / Intuition
-- Networks are unreliable; design for timeouts and retries.
+## Modelo mental / Intuición
+- Las redes no son confiables; diseña para timeouts y reintentos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You troubleshoot connection issues.
-### Avoid it when
-- Issues are clearly local to the DB process.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Solucionas problemas de conexión.
+### Evítalo cuando
+- Los problemas son claramente locales al proceso de BD.
 
-## How I would use it (practical)
-- **Context:** DB client timeouts.
-- **Steps:** check latency → tune timeouts → monitor errors.
-- **What success looks like:** stable connections and fewer timeouts.
+## Cómo lo usaría (práctico)
+- **Contexto:** Timeouts del cliente de BD.
+- **Pasos:** verificar latencia → ajustar timeouts → monitorear errores.
+- **Cómo se ve el éxito:** conexiones estables y menos timeouts.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better resilience with correct timeouts.
-- **Cons / Risks:** overly aggressive timeouts cause errors.
-### Alternatives
-- **Local caching:** reduce network calls.
-- **How to choose:** tune timeouts based on observed latency.
+- **Ventajas:** mejor resiliencia con timeouts correctos.
+- **Desventajas / Riesgos:** timeouts excesivamente agresivos causan errores.
+### Alternativas
+- **Caché local:** reducir llamadas de red.
+- **Cómo elegir:** ajustar timeouts basándose en la latencia observada.
 
-## Failure modes & Pitfalls
-- Retrying without backoff causing spikes.
+## Modos de fallo y trampas
+- Reintentar sin backoff causando picos.
 
-## Observability (How to detect issues)
-- **Metrics:** latency p95, error rate.
-- **Logs:** connection errors.
-- **Alerts:** spikes in timeout errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia p95, tasa de errores.
+- **Logs:** errores de conexión.
+- **Alertas:** picos en errores de timeout.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Set timeouts
-  - [ ] Use exponential backoff
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Establecer timeouts
+  - [ ] Usar backoff exponencial
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Infinite retries.
-  - **Why it’s bad:** traffic storms.
-  - **Better approach:** bounded retries with backoff.
+## Anti-patrones comunes
+- **Anti-patrón:** Reintentos infinitos.
+  - **Por qué es malo:** tormentas de tráfico.
+  - **Mejor enfoque:** reintentos acotados con backoff.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Networking basics are about latency, bandwidth, and timeouts. Correct timeout and retry settings are essential for stable services.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Los fundamentos de redes tratan sobre latencia, ancho de banda y timeouts. La configuración correcta de timeout y reintentos es esencial para servicios estables.
 
-### Trap questions (with answers)
-1) **Q:** Are timeouts optional?
-   - **A:** no; they prevent resource leaks.
-2) **Q:** Is retry always safe?
-   - **A:** no; retries can amplify load.
-3) **Q:** Can local caching replace networking concerns?
-   - **A:** no; network calls still happen.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son opcionales los timeouts?
+   - **R:** no; previenen fugas de recursos.
+2) **P:** ¿Es siempre seguro reintentar?
+   - **R:** no; los reintentos pueden amplificar la carga.
+3) **P:** ¿Puede el caché local reemplazar las preocupaciones de red?
+   - **R:** no; las llamadas de red siguen ocurriendo.
 
-### Quick self-check (5 items)
-- [ ] I can define latency and timeout.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can identify a monitoring signal.
-- [ ] I can link to DB clients.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir latencia y timeout.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo identificar una señal de monitoreo.
+- [ ] Puedo vincularlo a clientes de BD.
 
-## Links (NO duplication)
-### Prerequisites
-- [Reliability basics](reliability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de fiabilidad](reliability-basics.md)
 
-### Related topics
-- [Network layers (OSI & TCP/IP)](network-layers.md)
+### Temas relacionados
+- [Capas de red (OSI y TCP/IP)](network-layers.md)
 - [DNS](dns.md)
 - [TCP](tcp.md)
 - [UDP](udp.md)
 - [TLS](tls.md)
 - [HTTP](http.md)
-- [Database client basics](../databases/database-client-basics.md)
+- [Fundamentos de clientes de base de datos](../databases/database-client-basics.md)
 
-### Compare with
-- [Connection pooling](../databases/connection-pooling.md) — network vs DB limits.
+### Comparar con
+- [Connection pooling](../databases/connection-pooling.md) — límites de red vs límites de BD.

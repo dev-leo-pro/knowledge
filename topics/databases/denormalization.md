@@ -1,6 +1,6 @@
 ---
 id: denormalization
-title: "Denormalization"
+title: "Desnormalización"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Denormalization
+# Desnormalización
 
 ## TL;DR (BLUF)
-- Denormalization duplicates data to optimize read performance.
-- Use it when read latency dominates and joins are expensive.
-- Trade-off: higher write complexity and risk of inconsistency.
+- La desnormalización duplica datos para optimizar el rendimiento de lectura.
+- Úsala cuando la latencia de lectura domina y los joins son costosos.
+- Trade-off: mayor complejidad de escritura y riesgo de inconsistencia.
 
-## Definition
-**What it is:** A modeling technique that intentionally duplicates data to reduce joins.
-**Key terms:** redundancy, materialized views, read optimization.
+## Definición
+**Qué es:** Una técnica de modelado que intencionalmente duplica datos para reducir joins.
+**Términos clave:** redundancia, vistas materializadas, optimización de lectura.
 
-## Why it matters
-- It can dramatically improve read latency.
-- It increases the risk of inconsistent data on writes.
+## Por qué importa
+- Puede mejorar dramáticamente la latencia de lectura.
+- Aumenta el riesgo de datos inconsistentes en las escrituras.
 
-## Scope & Non-goals
-**In scope:** read-optimization modeling and trade-offs.
-**Out of scope / NOT solved by this:** correctness without additional write logic.
+## Alcance y no-objetivos
+**Dentro del alcance:** modelado de optimización de lectura y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** corrección sin lógica de escritura adicional.
 
-## Mental model / Intuition
-- Think of denormalization as precomputing joins.
+## Modelo mental / Intuición
+- Piensa en la desnormalización como precalcular joins.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Reads dominate and queries are latency-sensitive.
-- You can manage extra write complexity.
-### Avoid it when
-- Consistency and correctness are critical with frequent writes.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Las lecturas dominan y las consultas son sensibles a la latencia.
+- Puedes gestionar la complejidad extra de escritura.
+### Evítalo cuando
+- La consistencia y corrección son críticas con escrituras frecuentes.
 
-## How I would use it (practical)
-- **Context:** High-traffic read endpoint with multiple joins.
-- **Steps:** identify hot reads → denormalize fields → update on write paths.
-- **What success looks like:** lower read latency with controlled write overhead.
+## Cómo lo usaría (práctico)
+- **Contexto:** Endpoint de lectura de alto tráfico con múltiples joins.
+- **Pasos:** identificar lecturas frecuentes → desnormalizar campos → actualizar en rutas de escritura.
+- **Cómo se ve el éxito:** menor latencia de lectura con sobrecarga de escritura controlada.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** faster reads, fewer joins.
-- **Cons / Risks:** write amplification and consistency risk.
-### Alternatives
-- **Normalization:** stronger consistency.
-- **Materialized views:** read optimization with refresh cost.
-- **How to choose:** denormalize only when measured performance demands it.
+- **Ventajas:** lecturas más rápidas, menos joins.
+- **Desventajas / Riesgos:** amplificación de escritura y riesgo de consistencia.
+### Alternativas
+- **Normalización:** consistencia más fuerte.
+- **Vistas materializadas:** optimización de lectura con costo de refresco.
+- **Cómo elegir:** desnormalizar solo cuando el rendimiento medido lo demanda.
 
-## Failure modes & Pitfalls
-- Stale or inconsistent duplicated data.
+## Modos de fallo y trampas
+- Datos duplicados obsoletos o inconsistentes.
 
-## Observability (How to detect issues)
-- **Metrics:** read latency vs write latency trade-off.
-- **Logs:** data divergence checks.
-- **Alerts:** mismatch between canonical and duplicated fields.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** trade-off de latencia de lectura vs escritura.
+- **Logs:** verificaciones de divergencia de datos.
+- **Alertas:** discrepancia entre campos canónicos y duplicados.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define canonical source of truth
-  - [ ] Ensure write paths update all copies
+  - [ ] Definir la fuente canónica de verdad
+  - [ ] Asegurar que las rutas de escritura actualicen todas las copias
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Denormalizing without a consistency plan.
-  - **Why it’s bad:** silent data divergence.
-  - **Better approach:** define write paths and validation checks.
+## Anti-patrones comunes
+- **Anti-patrón:** Desnormalizar sin un plan de consistencia.
+  - **Por qué es malo:** divergencia silenciosa de datos.
+  - **Mejor enfoque:** definir rutas de escritura y verificaciones de validación.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Denormalization copies data to make reads fast. It’s useful for read-heavy workloads but requires extra write logic to keep data consistent.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La desnormalización copia datos para hacer las lecturas rápidas. Es útil para cargas de trabajo intensivas en lectura pero requiere lógica de escritura extra para mantener los datos consistentes.
 
-### Trap questions (with answers)
-1) **Q:** Does denormalization improve write performance?
-   - **A:** no; it usually makes writes more expensive.
-2) **Q:** Is denormalization always bad?
-   - **A:** no; it’s a pragmatic trade-off when reads dominate.
-3) **Q:** Can you avoid inconsistencies automatically?
-   - **A:** only if you enforce consistent write logic.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿La desnormalización mejora el rendimiento de escritura?
+   - **R:** no; usualmente hace las escrituras más costosas.
+2) **P:** ¿La desnormalización siempre es mala?
+   - **R:** no; es un trade-off pragmático cuando las lecturas dominan.
+3) **P:** ¿Se pueden evitar las inconsistencias automáticamente?
+   - **R:** solo si impones lógica de escritura consistente.
 
-### Quick self-check (5 items)
-- [ ] I can define denormalization.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain write amplification.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir desnormalización.
+- [ ] Puedo indicar cuándo usarla.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar la amplificación de escritura.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [Normalization](normalization.md)
 
-### Related topics
+### Temas relacionados
 - [Index](index.md)
 
-### Compare with
-- [Normalization](normalization.md) — correctness vs read speed.
+### Comparar con
+- [Normalization](normalization.md) — corrección vs velocidad de lectura.

@@ -1,6 +1,6 @@
 ---
 id: tls
-title: "TLS (Transport Layer Security)"
+title: "TLS (Seguridad de la capa de transporte)"
 type: technology
 status: learning
 importance: 55
@@ -12,111 +12,111 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# TLS (Transport Layer Security)
+# TLS (Seguridad de la capa de transporte)
 
 ## TL;DR (BLUF)
-- TLS encrypts data in transit and authenticates endpoints.
-- Use it for any network traffic carrying sensitive or user data.
-- Trade-off: extra handshake latency and operational complexity with certificates.
+- TLS cifra datos en tránsito y autentica endpoints.
+- Úsalo para cualquier tráfico de red que transporte datos sensibles o de usuario.
+- Trade-off: latencia extra del handshake y complejidad operacional con certificados.
 
-## Definition
-**What it is:** A security protocol that provides confidentiality, integrity, and (optionally) mutual authentication for network connections, typically on top of [TCP](tcp.md).  
-**Key terms:** certificate, handshake, cipher suite, PKI, mTLS.
+## Definición
+**Qué es:** Un protocolo de seguridad que proporciona confidencialidad, integridad y (opcionalmente) autenticación mutua para conexiones de red, típicamente sobre [TCP](tcp.md).  
+**Términos clave:** certificado, handshake, suite de cifrado, PKI, mTLS.
 
-## Why it matters
-- It prevents eavesdropping and tampering on network traffic.
-- Certificate and handshake failures are common sources of outages.
+## Por qué importa
+- Previene la interceptación y manipulación del tráfico de red.
+- Los fallos de certificados y handshake son fuentes comunes de interrupciones.
 
-## Scope & Non-goals
-**In scope:** TLS purpose, handshake flow, and operational trade-offs.  
-**Out of scope / NOT solved by this:** application-level auth and authorization.
+## Alcance y no-objetivos
+**Dentro del alcance:** propósito de TLS, flujo de handshake y trade-offs operacionales.  
+**Fuera del alcance / NO resuelto por esto:** autenticación y autorización a nivel de aplicación.
 
-## Mental model / Intuition
-- TLS is a secure envelope: it wraps your traffic so only intended parties can read it.
+## Modelo mental / Intuición
+- TLS es un sobre seguro: envuelve tu tráfico para que solo las partes previstas puedan leerlo.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Traffic crosses untrusted networks (internet, shared networks).
-- You need to verify the server identity.
-### Avoid it when
-- Only in rare, fully isolated environments with no sensitive data (and you accept the risk).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El tráfico cruza redes no confiables (internet, redes compartidas).
+- Necesitas verificar la identidad del servidor.
+### Evítalo cuando
+- Solo en entornos raros, completamente aislados sin datos sensibles (y aceptas el riesgo).
 
-## How I would use it (practical)
-- **Context:** Public [HTTP](http.md) APIs and internal service-to-service traffic.
-- **Steps:**
-  1) Issue certificates (CA or managed). 
-  2) Configure TLS termination at load balancer or service.
-  3) Rotate certificates and monitor handshake errors.
-- **What success looks like:** encrypted traffic, low handshake failures, smooth rotation.
+## Cómo lo usaría (práctico)
+- **Contexto:** APIs [HTTP](http.md) públicas y tráfico interno servicio-a-servicio.
+- **Pasos:**
+  1) Emitir certificados (CA o gestionados). 
+  2) Configurar terminación TLS en el balanceador de carga o servicio.
+  3) Rotar certificados y monitorear errores de handshake.
+- **Cómo se ve el éxito:** tráfico cifrado, pocos fallos de handshake, rotación fluida.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** encryption in transit, integrity, endpoint authentication.
-- **Cons / Risks:** handshake latency, cert expiration incidents, and config complexity.
-### Alternatives
-- **Private networking only:** reduces exposure but doesn’t replace encryption.
-- **How to choose:** default to TLS; exceptions should be rare and documented.
+- **Ventajas:** cifrado en tránsito, integridad, autenticación de endpoints.
+- **Desventajas / Riesgos:** latencia del handshake, incidentes por expiración de certificados y complejidad de configuración.
+### Alternativas
+- **Solo red privada:** reduce la exposición pero no reemplaza el cifrado.
+- **Cómo elegir:** TLS por defecto; las excepciones deberían ser raras y documentadas.
 
-## Failure modes & Pitfalls
-- Expired certificates causing outages.
-- Mismatched TLS versions or ciphers.
-- Termination at the edge without end-to-end encryption where required.
+## Modos de fallo y trampas
+- Certificados expirados causando interrupciones.
+- Versiones o suites de cifrado TLS incompatibles.
+- Terminación en el borde sin cifrado de extremo a extremo donde se requiere.
 
-## Observability (How to detect issues)
-- **Metrics:** handshake success rate, TLS version distribution, cert expiry days.
-- **Logs:** handshake failures, cert validation errors.
-- **Traces:** connection setup time spikes.
-- **Alerts:** upcoming cert expiry or handshake error spikes.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de éxito de handshake, distribución de versiones TLS, días hasta expiración de certificados.
+- **Logs:** fallos de handshake, errores de validación de certificados.
+- **Trazas:** picos en tiempo de establecimiento de conexión.
+- **Alertas:** expiración próxima de certificados o picos en errores de handshake.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Automate cert issuance and rotation
-  - [ ] Enforce TLS version policies
-- **Security / Compliance notes**
-  - Use mTLS for sensitive internal traffic where identity matters.
-- **Performance notes**
-  - Enable session resumption to reduce handshake latency.
-- **Operational notes**
-  - Track cert expiry across environments.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Automatizar emisión y rotación de certificados
+  - [ ] Aplicar políticas de versión TLS
+- **Notas de seguridad / cumplimiento**
+  - Usar mTLS para tráfico interno sensible donde la identidad importa.
+- **Notas de rendimiento**
+  - Habilitar reanudación de sesión para reducir latencia de handshake.
+- **Notas operacionales**
+  - Rastrear expiración de certificados en todos los entornos.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Manual certificate renewal.
-  - **Why it’s bad:** expired certs cause outages.
-  - **Better approach:** automate renewal and alert ahead of expiry.
+## Anti-patrones comunes
+- **Anti-patrón:** Renovación manual de certificados.
+  - **Por qué es malo:** certificados expirados causan interrupciones.
+  - **Mejor enfoque:** automatizar renovación y alertar antes de la expiración.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- TLS encrypts traffic and verifies identities using certificates. It protects data in transit but adds handshake latency and certificate management overhead.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- TLS cifra el tráfico y verifica identidades usando certificados. Protege datos en tránsito pero agrega latencia de handshake y sobrecarga de gestión de certificados.
 
-### Trap questions (with answers)
-1) **Q:** Is TLS the same as HTTPS?
-  - **A:** No; HTTPS is [HTTP](http.md) over TLS.
-2) **Q:** Does TLS guarantee authorization?
-   - **A:** No; it only secures the connection and may authenticate endpoints.
-3) **Q:** Is mTLS always required?
-   - **A:** No; use it when you need mutual authentication.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es TLS lo mismo que HTTPS?
+  - **R:** No; HTTPS es [HTTP](http.md) sobre TLS.
+2) **P:** ¿TLS garantiza autorización?
+   - **R:** No; solo asegura la conexión y puede autenticar endpoints.
+3) **P:** ¿Es mTLS siempre requerido?
+   - **R:** No; úsalo cuando necesites autenticación mutua.
 
-### Quick self-check (5 items)
-- [ ] I can explain what TLS provides (confidentiality, integrity, auth).
-- [ ] I can state when to use it and when not to.
-- [ ] I can describe certificate lifecycle risks.
-- [ ] I can name 1 failure mode and how to detect it.
-- [ ] I can explain HTTPS as HTTP over TLS.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo explicar qué proporciona TLS (confidencialidad, integridad, autenticación).
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo describir los riesgos del ciclo de vida de certificados.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
+- [ ] Puedo explicar HTTPS como HTTP sobre TLS.
 
-## Links (NO duplication)
-### Prerequisites
-- [Network layers (OSI & TCP/IP)](network-layers.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Capas de red (OSI y TCP/IP)](network-layers.md)
 - [TCP](tcp.md)
 
-### Related topics
+### Temas relacionados
 - [HTTP](http.md)
-- [API design basics](../system-design/api-design-basics.md)
+- [Fundamentos de diseño de APIs](../system-design/api-design-basics.md)
 
-### Compare with
-- [HTTP](http.md) — protocol semantics vs transport security.
+### Comparar con
+- [HTTP](http.md) — semánticas de protocolo vs seguridad de transporte.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

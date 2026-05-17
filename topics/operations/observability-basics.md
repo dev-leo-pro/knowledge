@@ -1,6 +1,6 @@
 ---
 id: observability-basics
-title: "Observability Basics"
+title: "Fundamentos de observabilidad"
 type: concept
 status: learning
 importance: 40
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Observability Basics
+# Fundamentos de observabilidad
 
 ## TL;DR (BLUF)
-- Observability helps you understand system behavior via metrics, logs, and traces.
-- Use it to detect and diagnose issues quickly.
-- Trade-off: instrumentation adds cost and complexity.
+- La observabilidad te ayuda a entender el comportamiento del sistema mediante métricas, logs y trazas.
+- Úsala para detectar y diagnosticar problemas rápidamente.
+- Trade-off: la instrumentación agrega costo y complejidad.
 
-## Definition
-**What it is:** The ability to infer internal system state from outputs.
-**Key terms:** metrics, logs, traces, RED/USE.
+## Definición
+**Qué es:** La capacidad de inferir el estado interno del sistema a partir de sus salidas.
+**Términos clave:** métricas, logs, trazas, RED/USE.
 
-## Why it matters
-- It shortens incident response and debugging time.
-- Lack of observability hides failures.
+## Por qué importa
+- Acorta el tiempo de respuesta a incidentes y depuración.
+- La falta de observabilidad oculta fallos.
 
-## Scope & Non-goals
-**In scope:** basic observability concepts.
-**Out of scope / NOT solved by this:** tool-specific setup.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos básicos de observabilidad.
+**Fuera del alcance / NO resuelto por esto:** configuración específica de herramientas.
 
-## Mental model / Intuition
-- Observability is your system’s telemetry.
+## Modelo mental / Intuición
+- La observabilidad es la telemetría de tu sistema.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You operate production systems.
-### Avoid it when
-- You’re in a throwaway prototype stage.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Operas sistemas en producción.
+### Evítalo cuando
+- Estás en una etapa de prototipo desechable.
 
-## How I would use it (practical)
-- **Context:** API latency issues.
-- **Steps:** add metrics → add traces → inspect logs.
-- **What success looks like:** fast root cause identification.
+## Cómo lo usaría (práctico)
+- **Contexto:** Problemas de latencia de API.
+- **Pasos:** agregar métricas → agregar trazas → inspeccionar logs.
+- **Cómo se ve el éxito:** identificación rápida de la causa raíz.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** faster debugging.
-- **Cons / Risks:** overhead and cost.
-### Alternatives
-- **Manual debugging:** slower and riskier.
-- **How to choose:** instrument critical paths.
+- **Ventajas:** depuración más rápida.
+- **Desventajas / Riesgos:** sobrecarga y costo.
+### Alternativas
+- **Depuración manual:** más lenta y riesgosa.
+- **Cómo elegir:** instrumenta las rutas críticas.
 
-## Failure modes & Pitfalls
-- High-cardinality metrics causing cost spikes.
+## Modos de fallo y trampas
+- Métricas de alta cardinalidad causando picos de costo.
 
-## Observability (How to detect issues)
-- **Metrics:** latency, error rate, saturation.
-- **Logs:** structured error logs.
-- **Traces:** end-to-end request spans.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia, tasa de errores, saturación.
+- **Logs:** logs de errores estructurados.
+- **Trazas:** tramos de solicitud de extremo a extremo.
 
-## Implementation notes (if applicable)
-- **Checklist**
-   - [ ] Define [Service Level Indicators (SLIs)](service-level-indicator.md)
-  - [ ] Instrument critical paths
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+   - [ ] Definir [Indicadores de nivel de servicio (SLIs)](service-level-indicator.md)
+  - [ ] Instrumentar rutas críticas
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Logging everything without structure.
-  - **Why it’s bad:** noisy and expensive.
-  - **Better approach:** structured logs with context.
+## Anti-patrones comunes
+- **Anti-patrón:** Registrar todo sin estructura.
+  - **Por qué es malo:** ruidoso y costoso.
+  - **Mejor enfoque:** logs estructurados con contexto.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Observability is knowing what your system is doing via metrics, logs, and traces. It’s essential for diagnosing production issues.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- La observabilidad es saber qué está haciendo tu sistema mediante métricas, logs y trazas. Es esencial para diagnosticar problemas en producción.
 
-### Trap questions (with answers)
-1) **Q:** Are logs enough?
-   - **A:** no; metrics and traces are also required.
-2) **Q:** Is observability only for ops?
-   - **A:** no; developers need it too.
-3) **Q:** Can you skip observability early?
-   - **A:** for prototypes maybe, but not for production.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son suficientes los logs?
+   - **R:** no; las métricas y trazas también son necesarias.
+2) **P:** ¿Es la observabilidad solo para operaciones?
+   - **R:** no; los desarrolladores también la necesitan.
+3) **P:** ¿Puedes omitir la observabilidad al principio?
+   - **R:** para prototipos quizás, pero no para producción.
 
-### Quick self-check (5 items)
-- [ ] I can define observability.
-- [ ] I can explain metrics/logs/traces.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can describe a monitoring signal.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir observabilidad.
+- [ ] Puedo explicar métricas/logs/trazas.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo describir una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - N/A
 
-### Related topics
-- [Performance basics](../system-design/performance-basics.md)
+### Temas relacionados
+- [Fundamentos de rendimiento](../system-design/performance-basics.md)
 
-### Compare with
-- [Reliability basics](reliability-basics.md) — visibility vs stability.
+### Comparar con
+- [Fundamentos de fiabilidad](reliability-basics.md) — visibilidad vs estabilidad.

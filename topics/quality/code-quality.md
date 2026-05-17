@@ -1,6 +1,6 @@
 ---
 id: code-quality
-title: "Code Quality"
+title: "Calidad de Código"
 type: concept
 status: learning
 importance: 85
@@ -12,123 +12,123 @@ created_at: 2026-01-20
 updated_at: 2026-01-20
 ---
 
-# Code Quality
+# Calidad de Código
 
 ## TL;DR (BLUF)
-- Code quality measures how readable, maintainable, and correct code is, using metrics like complexity, test coverage, and static analysis findings.
-- Use automated tools (linters, code review) combined with manual review to maintain quality.
-- Key trade-off: time spent on quality improvements vs. shipping features.
+- La calidad de código mide qué tan legible, mantenible y correcto es el código, usando métricas como complejidad, cobertura de pruebas y hallazgos de análisis estático.
+- Usa herramientas automatizadas (linters, revisión de código) combinadas con revisión manual para mantener la calidad.
+- Trade-off clave: tiempo invertido en mejoras de calidad vs. entregar funcionalidades.
 
-## Definition
-**What it is:** A multi-dimensional assessment of source code based on correctness, readability, maintainability, testability, and adherence to standards.  
-**Key terms:** cyclomatic complexity, code coverage, static analysis, linter, code review, technical debt, SOLID principles, code smell.
+## Definición
+**Qué es:** Una evaluación multidimensional del código fuente basada en corrección, legibilidad, mantenibilidad, testabilidad y adherencia a estándares.  
+**Términos clave:** complejidad ciclomática, cobertura de código, análisis estático, linter, revisión de código, deuda técnica, principios SOLID, code smell.
 
-## Why it matters
-- **Maintainability:** High-quality code is easier to change, refactor, and debug.
-- **Velocity:** Teams move faster in clean codebases; low-quality code creates drag (bug fixes, confusion, fear of breaking things).
-- **Onboarding:** New engineers ramp up faster when code is readable and well-structured.
-- **Interview relevance:** Senior engineers must articulate trade-offs between code quality and speed, and defend design decisions.
+## Por qué importa
+- **Mantenibilidad:** El código de alta calidad es más fácil de cambiar, refactorizar y depurar.
+- **Velocidad:** Los equipos avanzan más rápido en bases de código limpias; el código de baja calidad crea fricción (corrección de errores, confusión, miedo a romper cosas).
+- **Onboarding:** Los nuevos ingenieros se adaptan más rápido cuando el código es legible y bien estructurado.
+- **Relevancia en entrevistas:** Los ingenieros senior deben articular trade-offs entre calidad de código y velocidad, y defender decisiones de diseño.
 
-## Scope & Non-goals
-**In scope:**
-- Automated quality signals: linters, complexity metrics, test coverage.
-- Human quality signals: code reviews, readability, naming.
-- Preventing common defects through static analysis.
+## Alcance y no-objetivos
+**Dentro del alcance:**
+- Señales de calidad automatizadas: linters, métricas de complejidad, cobertura de pruebas.
+- Señales de calidad humanas: revisiones de código, legibilidad, nomenclatura.
+- Prevenir defectos comunes a través de análisis estático.
 
-**Out of scope / NOT solved by this:**
-- Product quality (features working as intended; requires testing).
-- Performance (separate concern, though clean code often performs better).
+**Fuera del alcance / NO resuelto por esto:**
+- Calidad del producto (que las funcionalidades funcionen según lo previsto; requiere pruebas).
+- Rendimiento (preocupación separada, aunque el código limpio a menudo rinde mejor).
 
-## Mental model / Intuition
-Think of code quality as **friction in a machine**:
-- High-quality code: smooth gears, easy to change, predictable behavior.
-- Low-quality code: rusty gears, high friction, unpredictable side effects.
+## Modelo mental / Intuición
+Piensa en la calidad de código como **fricción en una máquina**:
+- Código de alta calidad: engranajes suaves, fácil de cambiar, comportamiento predecible.
+- Código de baja calidad: engranajes oxidados, alta fricción, efectos secundarios impredecibles.
 
-Small quality issues compound over time. A single 200-line function is annoying. A codebase with 500 such functions is unmaintainable.
+Los problemas pequeños de calidad se acumulan con el tiempo. Una sola función de 200 líneas es molesta. Una base de código con 500 funciones así es inmantenible.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Code will be maintained long-term (production systems, shared libraries).
-- Multiple engineers will work on the codebase (quality enables collaboration).
-- You need to onboard new engineers quickly.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- El código se mantendrá a largo plazo (sistemas de producción, bibliotecas compartidas).
+- Múltiples ingenieros trabajarán en la base de código (la calidad permite la colaboración).
+- Necesitas incorporar nuevos ingenieros rápidamente.
 
-### Avoid it when
-- Writing throwaway code (prototypes, one-off scripts).
-- Quality investment exceeds the value of the code (weekend hackathon project).
+### Evítalo cuando
+- Escribes código desechable (prototipos, scripts de un solo uso).
+- La inversión en calidad excede el valor del código (proyecto de hackathon de fin de semana).
 
-## How I would use it (practical)
-- **Context:** Maintaining a Go API service in a team of 5 engineers.
-- **Steps:**
-  1. **Automate linting:** Run `golangci-lint` in CI (catches unused variables, error handling gaps, style violations).
-  2. **Set complexity limits:** Fail CI if cyclomatic complexity >10 for any function (forces breaking down complex logic).
-  3. **Require test coverage:** Fail CI if coverage drops below 80% (ensures new code is tested).
-  4. **Code reviews:** Require 1 approval before merge; use checklist (error handling, naming, tests, security).
-  5. **Refactor regularly:** Dedicate 10-20% of sprint capacity to tech debt (simplify complex functions, remove duplication).
-- **What success looks like:** PR reviews take <30 minutes; no production bugs from missed error handling; new engineers productive in <2 weeks.
+## Cómo lo usaría (práctico)
+- **Contexto:** Manteniendo un servicio API en Go en un equipo de 5 ingenieros.
+- **Pasos:**
+  1. **Automatizar linting:** Ejecutar `golangci-lint` en CI (detecta variables no usadas, brechas en manejo de errores, violaciones de estilo).
+  2. **Establecer límites de complejidad:** Fallar CI si la complejidad ciclomática >10 para cualquier función (fuerza a descomponer lógica compleja).
+  3. **Requerir cobertura de pruebas:** Fallar CI si la cobertura cae por debajo del 80% (asegura que el código nuevo esté probado).
+  4. **Revisiones de código:** Requerir 1 aprobación antes de merge; usar lista de verificación (manejo de errores, nomenclatura, pruebas, seguridad).
+  5. **Refactorizar regularmente:** Dedicar 10-20% de la capacidad del sprint a deuda técnica (simplificar funciones complejas, eliminar duplicación).
+- **Cómo se ve el éxito:** Las revisiones de PR toman <30 minutos; cero errores en producción por manejo de errores omitido; nuevos ingenieros productivos en <2 semanas.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:**
-  - Reduces bugs (static analysis catches errors humans miss).
-  - Faster development over time (easy to change clean code).
-  - Lower cognitive load (readable code = less mental effort).
-- **Cons / Risks:**
-  - Upfront time cost (refactoring, writing tests, code reviews).
-  - Can slow initial delivery if over-applied (perfect code for throwaway prototypes).
-  - Requires discipline and tooling (CI setup, team buy-in).
+- **Ventajas:**
+  - Reduce errores (el análisis estático detecta errores que los humanos pasan por alto).
+  - Desarrollo más rápido con el tiempo (fácil cambiar código limpio).
+  - Menor carga cognitiva (código legible = menos esfuerzo mental).
+- **Desventajas / Riesgos:**
+  - Costo de tiempo inicial (refactorización, escribir pruebas, revisiones de código).
+  - Puede ralentizar la entrega inicial si se aplica en exceso (código perfecto para prototipos desechables).
+  - Requiere disciplina y herramientas (configuración de CI, aceptación del equipo).
 
-### Alternatives
-- **"Ship fast, clean up later":** Works for MVPs but creates tech debt that's rarely paid down.
-- **Manual code review only:** Misses issues that tools catch automatically (unused variables, SQL injection risks).
-- **No quality standards:** Fast initially but velocity drops as codebase grows (high defect rate, hard to change).
+### Alternativas
+- **"Entregar rápido, limpiar después":** Funciona para MVPs pero crea deuda técnica que rara vez se paga.
+- **Solo revisión manual de código:** Pierde problemas que las herramientas detectan automáticamente (variables no usadas, riesgos de inyección SQL).
+- **Sin estándares de calidad:** Rápido inicialmente pero la velocidad cae conforme la base de código crece (alta tasa de defectos, difícil de cambiar).
 
-### How to choose
-- **Long-lived production system:** Invest in full code quality (linters, reviews, tests, complexity limits).
-- **Prototype / MVP:** Lightweight quality (basic linting, no coverage mandates).
-- **Shared library:** Extra scrutiny (API design, documentation, backward compatibility).
+### Cómo elegir
+- **Sistema de producción de larga vida:** Invertir en calidad de código completa (linters, revisiones, pruebas, límites de complejidad).
+- **Prototipo / MVP:** Calidad ligera (linting básico, sin mandatos de cobertura).
+- **Biblioteca compartida:** Escrutinio extra (diseño de API, documentación, compatibilidad hacia atrás).
 
-## Failure modes & Pitfalls
-- **Vanity metrics:** High test coverage but tests don't assert behavior (just call code without validation).
-- **Overly strict rules:** Blocking PRs for minor style issues kills velocity and morale.
-- **No refactoring budget:** Quality degrades over time; tech debt compounds.
-- **"Code review as gatekeeper":** Reviewers nitpick style instead of focusing on correctness and design.
-- **Ignoring complexity:** 500-line functions that no one understands; impossible to test or debug.
+## Modos de fallo y trampas
+- **Métricas vanidosas:** Alta cobertura de pruebas pero las pruebas no verifican comportamiento (solo llaman código sin validación).
+- **Reglas demasiado estrictas:** Bloquear PRs por problemas menores de estilo mata velocidad y moral.
+- **Sin presupuesto de refactorización:** La calidad se degrada con el tiempo; la deuda técnica se acumula.
+- **"Revisión de código como guardián":** Los revisores critican estilo en lugar de enfocarse en corrección y diseño.
+- **Ignorar complejidad:** Funciones de 500 líneas que nadie entiende; imposible de probar o depurar.
 
-## Observability (How to detect issues)
-- **Metrics:**
-  - Cyclomatic complexity (per function; flag >10).
-  - Test coverage (% of code executed by tests).
-  - Linter violations (should be zero in main branch).
-  - PR review time (long reviews suggest unclear code).
-  - Defect rate (bugs per 1000 lines of code).
-- **Logs:** Track linter violations over time (should decrease, not increase).
-- **Traces:** N/A for code quality itself.
-- **Alerts:** Complexity spike in new code, coverage drop below threshold.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:**
+  - Complejidad ciclomática (por función; señalar >10).
+  - Cobertura de pruebas (% de código ejecutado por pruebas).
+  - Violaciones del linter (deberían ser cero en la rama main).
+  - Tiempo de revisión de PR (revisiones largas sugieren código poco claro).
+  - Tasa de defectos (errores por 1000 líneas de código).
+- **Logs:** Rastrear violaciones del linter a lo largo del tiempo (deberían disminuir, no aumentar).
+- **Trazas:** N/A para calidad de código en sí.
+- **Alertas:** Pico de complejidad en código nuevo, caída de cobertura por debajo del umbral.
 
-## Implementation notes
-- **Checklist**
-  - [ ] Set up linter in CI (golangci-lint, ESLint, pylint, etc.).
-  - [ ] Define complexity limits (cyclomatic complexity <10, function length <50 lines).
-  - [ ] Require test coverage (>80% for new code, track trend).
-  - [ ] Establish code review checklist (error handling, tests, naming, security).
-  - [ ] Block merge on linter failures or test failures.
-  - [ ] Dedicate time for refactoring (10-20% of sprint capacity).
+## Notas de implementación
+- **Lista de verificación**
+  - [ ] Configurar linter en CI (golangci-lint, ESLint, pylint, etc.).
+  - [ ] Definir límites de complejidad (complejidad ciclomática <10, longitud de función <50 líneas).
+  - [ ] Requerir cobertura de pruebas (>80% para código nuevo, rastrear tendencia).
+  - [ ] Establecer lista de verificación de revisión de código (manejo de errores, pruebas, nomenclatura, seguridad).
+  - [ ] Bloquear merge en fallos del linter o fallos de pruebas.
+  - [ ] Dedicar tiempo para refactorización (10-20% de la capacidad del sprint).
 
-- **Security / Compliance notes**
-  - Include security linters (gosec, Bandit, semgrep) in CI.
-  - Flag common vulnerabilities (SQL injection, XSS, secrets in code).
+- **Notas de seguridad / cumplimiento**
+  - Incluir linters de seguridad (gosec, Bandit, semgrep) en CI.
+  - Señalar vulnerabilidades comunes (inyección SQL, XSS, secretos en código).
 
-- **Performance notes**
-  - Use profilers to identify hot paths (don't prematurely optimize).
-  - Complexity often correlates with poor performance (simpler code is easier to optimize).
+- **Notas de rendimiento**
+  - Usar profilers para identificar rutas críticas (no optimizar prematuramente).
+  - La complejidad a menudo se correlaciona con mal rendimiento (código más simple es más fácil de optimizar).
 
-- **Operational notes**
-  - Quality doesn't end at deploy: monitor production errors and trace them back to code issues.
-  - Use post-mortems to identify code quality gaps (e.g., missing error handling, unclear logic).
+- **Notas operacionales**
+  - La calidad no termina en el despliegue: monitorear errores de producción y rastrearlos hasta problemas de código.
+  - Usar post-mortems para identificar brechas de calidad de código (ej., manejo de errores faltante, lógica poco clara).
 
-## Mini example
+## Mini ejemplo
 ```go
-// BAD: High complexity, hard to test, unclear logic
+// MAL: Alta complejidad, difícil de probar, lógica poco clara
 func ProcessOrder(order Order) error {
     if order.Total > 0 {
         if order.UserID != "" {
@@ -138,7 +138,7 @@ func ProcessOrder(order Order) error {
             }
             if user.Status == "active" {
                 if user.Balance >= order.Total {
-                    // ... 50 more lines of nested logic
+                    // ... 50 más líneas de lógica anidada
                     return nil
                 } else {
                     return errors.New("insufficient balance")
@@ -154,7 +154,7 @@ func ProcessOrder(order Order) error {
     }
 }
 
-// GOOD: Low complexity, testable, clear logic
+// BIEN: Baja complejidad, testeable, lógica clara
 func ProcessOrder(order Order) error {
     if err := validateOrder(order); err != nil {
         return fmt.Errorf("invalid order: %w", err)
@@ -194,64 +194,64 @@ func getActiveUser(userID string) (*User, error) {
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** God objects / God functions (single function/class doing everything).
-  - **Why it's bad:** Impossible to test, debug, or reason about; violates single responsibility principle.
-  - **Better approach:** Break into smaller, focused functions/classes with clear responsibilities.
+## Anti-patrones comunes
+- **Anti-patrón:** Objetos dios / Funciones dios (una sola función/clase haciendo todo).
+  - **Por qué es malo:** Imposible de probar, depurar o razonar; viola el principio de responsabilidad única.
+  - **Mejor enfoque:** Dividir en funciones/clases más pequeñas y enfocadas con responsabilidades claras.
 
-- **Anti-pattern:** Magic numbers and unclear names (`if status == 3`).
-  - **Why it's bad:** Readers don't know what `3` means; requires digging through code or documentation.
-  - **Better approach:** Use constants or enums (`if status == StatusActive`).
+- **Anti-patrón:** Números mágicos y nombres poco claros (`if status == 3`).
+  - **Por qué es malo:** Los lectores no saben qué significa `3`; requiere buscar en el código o documentación.
+  - **Mejor enfoque:** Usar constantes o enums (`if status == StatusActive`).
 
-- **Anti-pattern:** Copy-paste code (duplication across multiple files).
-  - **Why it's bad:** Bugs must be fixed in multiple places; high maintenance burden.
-  - **Better approach:** Extract shared logic into functions or libraries (DRY: Don't Repeat Yourself).
+- **Anti-patrón:** Código copiado y pegado (duplicación en múltiples archivos).
+  - **Por qué es malo:** Los errores deben corregirse en múltiples lugares; alta carga de mantenimiento.
+  - **Mejor enfoque:** Extraer lógica compartida en funciones o bibliotecas (DRY: Don't Repeat Yourself).
 
-- **Anti-pattern:** No error handling ("hope it works").
-  - **Why it's bad:** Silent failures lead to production incidents.
-  - **Better approach:** Check every error, log context, return or handle appropriately.
+- **Anti-patrón:** Sin manejo de errores ("esperar que funcione").
+  - **Por qué es malo:** Fallos silenciosos llevan a incidentes en producción.
+  - **Mejor enfoque:** Verificar cada error, registrar contexto, retornar o manejar apropiadamente.
 
-## Interview readiness
-### "Explain it like I'm teaching"
-Code quality is about making code easy to read, maintain, and change. We measure it with automated tools like linters (catch style and correctness issues), complexity metrics (flag overly complex functions), and test coverage (ensure code is tested). But quality isn't just metrics—it's also about clear naming, good structure, and thoughtful design. The goal is to balance quality with speed: invest enough to keep the codebase maintainable without over-engineering. High-quality code pays back over time because teams move faster and encounter fewer bugs.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+La calidad de código se trata de hacer el código fácil de leer, mantener y cambiar. La medimos con herramientas automatizadas como linters (detectan problemas de estilo y corrección), métricas de complejidad (señalan funciones demasiado complejas) y cobertura de pruebas (aseguran que el código está probado). Pero la calidad no es solo métricas—también se trata de nomenclatura clara, buena estructura y diseño reflexivo. El objetivo es equilibrar calidad con velocidad: invertir lo suficiente para mantener la base de código mantenible sin sobre-ingenierizar. El código de alta calidad se paga con el tiempo porque los equipos avanzan más rápido y encuentran menos errores.
 
-### Trap questions (with answers)
-1) **Q:** Doesn't focusing on code quality slow down delivery?
-   - **A:** Initially yes, but it accelerates delivery long-term. Low-quality code creates tech debt that requires constant firefighting, risky changes, and slow debugging. Clean code is easy to change, so teams move faster after the initial investment.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Enfocarse en calidad de código no ralentiza la entrega?
+   - **R:** Inicialmente sí, pero acelera la entrega a largo plazo. El código de baja calidad crea deuda técnica que requiere apagar incendios constantemente, cambios riesgosos y depuración lenta. El código limpio es fácil de cambiar, así que los equipos avanzan más rápido después de la inversión inicial.
 
-2) **Q:** If we have 90% test coverage, is our code high quality?
-   - **A:** Not necessarily. Coverage measures what's executed, not what's validated. You can have 90% coverage with tests that don't assert anything. Quality also includes readability, complexity, and design—not just tests.
+2) **P:** Si tenemos 90% de cobertura de pruebas, ¿nuestro código es de alta calidad?
+   - **R:** No necesariamente. La cobertura mide qué se ejecuta, no qué se valida. Puedes tener 90% de cobertura con pruebas que no verifican nada. La calidad también incluye legibilidad, complejidad y diseño—no solo pruebas.
 
-3) **Q:** What's the most important code quality metric?
-   - **A:** No single metric. Use a combination: cyclomatic complexity (simplicity), test coverage (confidence), linter violations (correctness), and code review feedback (design). Metrics are indicators, not goals.
+3) **P:** ¿Cuál es la métrica de calidad de código más importante?
+   - **R:** No hay una sola métrica. Usa una combinación: complejidad ciclomática (simplicidad), cobertura de pruebas (confianza), violaciones del linter (corrección) y retroalimentación de revisión de código (diseño). Las métricas son indicadores, no objetivos.
 
-4) **Q:** How do you balance refactoring with feature delivery?
-   - **A:** Dedicate 10-20% of sprint capacity to tech debt. Refactor opportunistically (when touching code for features) and strategically (dedicate sprints to high-impact areas). Use metrics (complexity, defect rate) to prioritize.
+4) **P:** ¿Cómo equilibras refactorización con entrega de funcionalidades?
+   - **R:** Dedicar 10-20% de la capacidad del sprint a deuda técnica. Refactorizar oportunísticamente (al tocar código para funcionalidades) y estratégicamente (dedicar sprints a áreas de alto impacto). Usar métricas (complejidad, tasa de defectos) para priorizar.
 
-5) **Q:** Should all code follow the same quality standards?
-   - **A:** No, use risk-based standards. Production APIs need high quality (linters, tests, reviews). Throwaway prototypes don't. Shared libraries need extra scrutiny (API design, docs, backward compatibility).
+5) **P:** ¿Todo el código debería seguir los mismos estándares de calidad?
+   - **R:** No, usa estándares basados en riesgo. Las APIs de producción necesitan alta calidad (linters, pruebas, revisiones). Los prototipos desechables no. Las bibliotecas compartidas necesitan escrutinio extra (diseño de API, documentación, compatibilidad hacia atrás).
 
-### Quick self-check (5 items)
-- [ ] I can name at least 3 code quality metrics and their purpose.
-- [ ] I can explain why cyclomatic complexity matters and what it measures.
-- [ ] I can describe how to balance code quality with delivery speed.
-- [ ] I can give an example of a code smell and how to fix it.
-- [ ] I can articulate the difference between test coverage and test quality.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo nombrar al menos 3 métricas de calidad de código y su propósito.
+- [ ] Puedo explicar por qué la complejidad ciclomática importa y qué mide.
+- [ ] Puedo describir cómo equilibrar calidad de código con velocidad de entrega.
+- [ ] Puedo dar un ejemplo de un code smell y cómo corregirlo.
+- [ ] Puedo articular la diferencia entre cobertura de pruebas y calidad de pruebas.
 
-## Links (NO duplication)
-### Prerequisites
-- [Software Quality Assurance](software-quality-assurance.md)
-- [SOLID principles](solid-principles.md)
-- [Design patterns](design-patterns.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Aseguramiento de Calidad de Software](software-quality-assurance.md)
+- [Principios SOLID](solid-principles.md)
+- [Patrones de diseño](design-patterns.md)
 
-### Related topics
-- [Testing pyramid](testing-pyramid.md)
-- [Quality gates](quality-gates.md)
-- [Clean code](clean-code.md)
+### Temas relacionados
+- [Pirámide de pruebas](testing-pyramid.md)
+- [Compuertas de calidad](quality-gates.md)
+- [Código limpio](clean-code.md)
 
-### Compare with
-- [Testing pyramid](testing-pyramid.md) — Testing validates behavior; code quality measures structure and maintainability.
+### Comparar con
+- [Pirámide de pruebas](testing-pyramid.md) — Las pruebas validan comportamiento; la calidad de código mide estructura y mantenibilidad.
 
-## Notes / Inbox
-- Add examples from real projects: simplifying complex functions in Heimdall, refactoring Opportunity Actions for testability.
-- Consider adding section on code review best practices (what to focus on, how to give feedback).
+## Notas / Bandeja de entrada (opcional)
+- Agregar ejemplos de proyectos reales: simplificar funciones complejas en Heimdall, refactorizar Opportunity Actions para testabilidad.
+- Considerar agregar sección sobre mejores prácticas de revisión de código (en qué enfocarse, cómo dar retroalimentación).

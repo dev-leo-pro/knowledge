@@ -1,6 +1,6 @@
 ---
 id: optimistic-concurrency-control
-title: "Optimistic Concurrency Control"
+title: "Control de concurrencia optimista"
 type: concept
 status: learning
 importance: 55
@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Optimistic Concurrency Control
+# Control de concurrencia optimista
 
 ## TL;DR (BLUF)
-- Optimistic concurrency assumes conflicts are rare and checks versions on write.
-- Use it for high-concurrency workloads with low conflict rates.
-- Trade-off: conflicts require retries and error handling.
+- El control de concurrencia optimista asume que los conflictos son raros y verifica versiones al escribir.
+- Úsalo para cargas de trabajo de alta concurrencia con bajas tasas de conflicto.
+- Trade-off: los conflictos requieren reintentos y manejo de errores.
 
-## Definition
-**What it is:** A concurrency approach using version checks to detect conflicts at commit time.
-**Key terms:** version column, compare-and-swap, retries.
+## Definición
+**Qué es:** Un enfoque de concurrencia que usa verificaciones de versión para detectar conflictos en el momento del commit.
+**Términos clave:** columna de versión, compare-and-swap, reintentos.
 
-## Why it matters
-- It reduces locking overhead and improves concurrency.
-- Poor retry handling leads to lost updates or errors.
+## Por qué importa
+- Reduce la sobrecarga de bloqueos y mejora la concurrencia.
+- Un mal manejo de reintentos lleva a actualizaciones perdidas o errores.
 
-## Scope & Non-goals
-**In scope:** OCC concepts and trade-offs.
-**Out of scope / NOT solved by this:** distributed transactions.
+## Alcance y no-objetivos
+**Dentro del alcance:** conceptos y trade-offs de OCC.
+**Fuera del alcance / NO resuelto por esto:** transacciones distribuidas.
 
-## Mental model / Intuition
-- Think “check before you write; retry if changed.”
+## Modelo mental / Intuición
+- Piensa "verifica antes de escribir; reintenta si cambió."
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Conflicts are rare and throughput matters.
-### Avoid it when
-- Conflicts are common and retries would be expensive.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los conflictos son raros y el throughput importa.
+### Evítalo cuando
+- Los conflictos son comunes y los reintentos serían costosos.
 
-## How I would use it (practical)
-- **Context:** Updating user profile settings.
-- **Steps:** read version → update with version check → retry on conflict.
-- **What success looks like:** few conflicts and minimal retries.
+## Cómo lo usaría (práctico)
+- **Contexto:** Actualizando configuraciones de perfil de usuario.
+- **Pasos:** leer versión → actualizar con verificación de versión → reintentar en conflicto.
+- **Cómo se ve el éxito:** pocos conflictos y reintentos mínimos.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** high concurrency without heavy locks.
-- **Cons / Risks:** retries and conflict handling complexity.
-### Alternatives
-- **Lock-based concurrency control:** for high-conflict workloads.
-- **How to choose:** choose OCC when conflicts are low.
+- **Ventajas:** alta concurrencia sin bloqueos pesados.
+- **Desventajas / Riesgos:** reintentos y complejidad en el manejo de conflictos.
+### Alternativas
+- **Control de concurrencia basado en bloqueos:** para cargas de trabajo con muchos conflictos.
+- **Cómo elegir:** elige OCC cuando los conflictos son bajos.
 
-## Failure modes & Pitfalls
-- Missing version checks leading to lost updates.
+## Modos de fallo y trampas
+- Verificaciones de versión faltantes que llevan a actualizaciones perdidas.
 
-## Observability (How to detect issues)
-- **Metrics:** conflict rate, retry rate.
-- **Logs:** update conflicts.
-- **Alerts:** spikes in retries or conflict errors.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de conflictos, tasa de reintentos.
+- **Logs:** conflictos de actualización.
+- **Alertas:** picos en reintentos o errores de conflicto.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Add version column
-  - [ ] Implement retry with backoff
+  - [ ] Agregar columna de versión
+  - [ ] Implementar reintento con backoff
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Ignoring conflict errors.
-  - **Why it’s bad:** silent data loss.
-  - **Better approach:** surface errors and retry.
+## Anti-patrones comunes
+- **Anti-patrón:** Ignorar errores de conflicto.
+  - **Por qué es malo:** pérdida silenciosa de datos.
+  - **Mejor enfoque:** exponer errores y reintentar.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Optimistic concurrency checks a version when writing. If someone else changed the row, the write fails and you retry. It’s great when conflicts are rare.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El control de concurrencia optimista verifica una versión al escribir. Si alguien más cambió la fila, la escritura falla y reintentas. Es genial cuando los conflictos son raros.
 
-### Trap questions (with answers)
-1) **Q:** Does OCC eliminate conflicts?
-   - **A:** no; it detects them and requires retries.
-2) **Q:** Is OCC always better than locking?
-   - **A:** no; for high-conflict workloads, locking can be better.
-3) **Q:** Can OCC be done without a version field?
-   - **A:** not reliably; you need a conflict detector.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿OCC elimina los conflictos?
+   - **R:** no; los detecta y requiere reintentos.
+2) **P:** ¿OCC siempre es mejor que el bloqueo?
+   - **R:** no; para cargas de trabajo con muchos conflictos, el bloqueo puede ser mejor.
+3) **P:** ¿Se puede hacer OCC sin un campo de versión?
+   - **R:** no de forma confiable; necesitas un detector de conflictos.
 
-### Quick self-check (5 items)
-- [ ] I can define OCC.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a failure mode.
-- [ ] I can explain retry behavior.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir OCC.
+- [ ] Puedo decir cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un modo de fallo.
+- [ ] Puedo explicar el comportamiento de reintento.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](transactions.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Transacciones](transactions.md)
 
-### Related topics
-- [Locks](locks.md)
+### Temas relacionados
+- [Bloqueos](locks.md)
 
-### Compare with
-- [Lock-based concurrency control](lock-based-concurrency-control.md)
+### Comparar con
+- [Control de concurrencia basado en bloqueos](lock-based-concurrency-control.md)

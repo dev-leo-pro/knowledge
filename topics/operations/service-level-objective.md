@@ -1,6 +1,6 @@
 ---
 id: service-level-objective
-title: "Service Level Objective (SLO)"
+title: "Objetivo de nivel de servicio (SLO)"
 type: concept
 status: learning
 importance: 75
@@ -12,116 +12,116 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Service Level Objective (SLO)
+# Objetivo de nivel de servicio (SLO)
 
 ## TL;DR (BLUF)
-- An SLO is the target level of service you aim to deliver, measured via SLIs.
-- Use SLOs to balance reliability and velocity with an error budget.
-- Trade-off: tighter SLOs increase cost and slow change cadence.
+- Un SLO es el nivel objetivo de servicio que aspiras a entregar, medido mediante SLIs.
+- Usa SLOs para equilibrar fiabilidad y velocidad con un presupuesto de error.
+- Trade-off: SLOs más estrictos aumentan el costo y ralentizan la cadencia de cambio.
 
-## Definition
-**What it is:** A reliability target (e.g., 99.9% availability, 95% of requests under 300ms) defined over a time window.  
-**Key terms:** target, time window, error budget, burn rate.
+## Definición
+**Qué es:** Un objetivo de fiabilidad (por ejemplo, 99.9% de disponibilidad, 95% de solicitudes bajo 300ms) definido sobre una ventana de tiempo.  
+**Términos clave:** objetivo, ventana de tiempo, presupuesto de error, tasa de quema.
 
-## Why it matters
-- SLOs create shared expectations between product and engineering.
-- They guide prioritization when reliability slips.
+## Por qué importa
+- Los SLOs crean expectativas compartidas entre producto e ingeniería.
+- Guían la priorización cuando la fiabilidad decae.
 
-## Scope & Non-goals
-**In scope:** target setting for user-facing reliability.  
-**Out of scope / NOT solved by this:** contractual promises (see [Service Level Agreement (SLA)](service-level-agreement.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** establecimiento de objetivos para fiabilidad orientada al usuario.  
+**Fuera del alcance / NO resuelto por esto:** promesas contractuales (ver [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md)).
 
-## Mental model / Intuition
-- “How good do we need to be for users to be satisfied?”
+## Modelo mental / Intuición
+- "¿Qué tan buenos necesitamos ser para que los usuarios estén satisfechos?"
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need clear reliability targets tied to user experience.
-- You want to manage trade-offs with [Error budgets](error-budgets.md).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas objetivos claros de fiabilidad vinculados a la experiencia del usuario.
+- Quieres gestionar trade-offs con [Presupuestos de error](error-budgets.md).
 
-### Avoid it when
-- You cannot measure the SLI reliably.
+### Evítalo cuando
+- No puedes medir el SLI de forma confiable.
 
-## How I would use it (practical)
-- **Context:** A B2B API with enterprise customers.
-- **Steps:**
-  1) Define SLIs for latency and availability.
-  2) Set SLOs (e.g., 99.9% availability, 95% < 300ms).
-  3) Use error budget burn to manage release risk.
-- **What success looks like:** decisions align with SLO compliance and customer expectations.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API B2B con clientes empresariales.
+- **Pasos:**
+  1) Definir SLIs para latencia y disponibilidad.
+  2) Establecer SLOs (por ejemplo, 99.9% de disponibilidad, 95% < 300ms).
+  3) Usar la quema del presupuesto de error para gestionar riesgo de lanzamientos.
+- **Cómo se ve el éxito:** las decisiones se alinean con el cumplimiento del SLO y las expectativas del cliente.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clear targets and decision rules.
-- **Cons / Risks:** over-tight SLOs increase cost and reduce velocity.
-### Alternatives
-- **Best-effort reliability:** for low-stakes internal tools.
-- **How to choose:** base SLOs on user tolerance and business impact.
+- **Ventajas:** objetivos claros y reglas de decisión.
+- **Desventajas / Riesgos:** SLOs excesivamente estrictos aumentan el costo y reducen la velocidad.
+### Alternativas
+- **Fiabilidad de mejor esfuerzo:** para herramientas internas de bajo impacto.
+- **Cómo elegir:** basa los SLOs en la tolerancia del usuario y el impacto del negocio.
 
-## Failure modes & Pitfalls
-- Setting “aspirational” SLOs without capacity to meet them.
-- Using averages instead of percentiles for latency SLOs.
+## Modos de fallo y trampas
+- Establecer SLOs "aspiracionales" sin capacidad para cumplirlos.
+- Usar promedios en lugar de percentiles para SLOs de latencia.
 
-## Observability (How to detect issues)
-- **Metrics:** SLI compliance %, error budget burn rate.
-- **Logs:** SLO breaches with context.
-- **Traces:** slowest paths causing violations.
-- **Alerts:** burn rate alerts (fast/slow).
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** % de cumplimiento del SLI, tasa de quema del presupuesto de error.
+- **Logs:** incumplimientos del SLO con contexto.
+- **Trazas:** rutas más lentas que causan violaciones.
+- **Alertas:** alertas de tasa de quema (rápida/lenta).
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Define SLIs and time windows
-  - [ ] Set realistic targets with stakeholders
-  - [ ] Monitor error budget burn
-  - [ ] Tie release policy to burn rate
-- **Security / Compliance notes**
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Definir SLIs y ventanas de tiempo
+  - [ ] Establecer objetivos realistas con los interesados
+  - [ ] Monitorear quema del presupuesto de error
+  - [ ] Vincular política de lanzamiento a la tasa de quema
+- **Notas de seguridad / cumplimiento**
   - N/A
-- **Performance notes**
-  - Use percentiles for latency targets
-- **Operational notes**
-  - Review SLOs quarterly
+- **Notas de rendimiento**
+  - Usar percentiles para objetivos de latencia
+- **Notas operacionales**
+  - Revisar SLOs trimestralmente
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 SLO: 99.9% availability over 30 days
 SLO: 95% of requests under 300ms over 7 days
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Set 100% uptime SLO.”
-  - **Why it’s bad:** unrealistic; it removes the error budget needed for change.
-  - **Better approach:** set a realistic target with a clear budget.
+## Anti-patrones comunes
+- **Anti-patrón:** "Establecer SLO de 100% de tiempo de actividad."
+  - **Por qué es malo:** poco realista; elimina el presupuesto de error necesario para el cambio.
+  - **Mejor enfoque:** establecer un objetivo realista con un presupuesto claro.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- An SLO is a target for reliability measured via SLIs, and it drives error budgets and release decisions.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Un SLO es un objetivo de fiabilidad medido mediante SLIs, e impulsa presupuestos de error y decisiones de lanzamiento.
 
-### Trap questions (with answers)
-1) **Q:** Are SLOs the same as SLAs?
-   - **A:** No. SLOs are internal targets; SLAs are external contracts.
-2) **Q:** Should SLOs be tighter than SLAs?
-   - **A:** Usually yes, to provide buffer before contractual penalties.
-3) **Q:** Can you have multiple SLOs?
-   - **A:** Yes. Many services track both availability and latency SLOs.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Son los SLOs lo mismo que los SLAs?
+   - **R:** No. Los SLOs son objetivos internos; los SLAs son contratos externos.
+2) **P:** ¿Deberían los SLOs ser más estrictos que los SLAs?
+   - **R:** Generalmente sí, para proporcionar margen antes de las penalizaciones contractuales.
+3) **P:** ¿Puedes tener múltiples SLOs?
+   - **R:** Sí. Muchos servicios rastrean SLOs tanto de disponibilidad como de latencia.
 
-### Quick self-check (5 items)
-- [ ] I can define an SLO precisely.
-- [ ] I can state how SLOs use SLIs.
-- [ ] I can explain error budgets.
-- [ ] I can describe a trade-off.
-- [ ] I can name a failure mode.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir un SLO con precisión.
+- [ ] Puedo indicar cómo los SLOs usan SLIs.
+- [ ] Puedo explicar presupuestos de error.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo nombrar un modo de fallo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Service Level Indicator (SLI)](service-level-indicator.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Indicador de nivel de servicio (SLI)](service-level-indicator.md)
 
-### Related topics
-- [Service Level Agreement (SLA)](service-level-agreement.md)
-- [Error budgets](error-budgets.md)
-- [Reliability basics](reliability-basics.md)
+### Temas relacionados
+- [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md)
+- [Presupuestos de error](error-budgets.md)
+- [Fundamentos de fiabilidad](reliability-basics.md)
 
-### Compare with
-- [Service Level Agreement (SLA)](service-level-agreement.md) — SLO is internal; SLA is contractual.
+### Comparar con
+- [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md) — SLO es interno; SLA es contractual.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

@@ -1,6 +1,6 @@
 ---
 id: cqrs
-title: "CQRS (Command Query Responsibility Segregation)"
+title: "CQRS (Segregación de Responsabilidad de Comando y Consulta)"
 type: pattern
 status: learning
 importance: 55
@@ -12,120 +12,120 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# CQRS (Command Query Responsibility Segregation)
+# CQRS (Segregación de Responsabilidad de Comando y Consulta)
 
 ## TL;DR (BLUF)
-- CQRS separates write operations (commands) from read operations (queries).
-- Use it when read and write concerns diverge or need independent scaling.
-- Trade-off: eventual consistency and additional infrastructure.
+- CQRS separa las operaciones de escritura (comandos) de las operaciones de lectura (consultas).
+- Úsalo cuando las necesidades de lectura y escritura divergen o necesitan escalado independiente.
+- Trade-off: consistencia eventual e infraestructura adicional.
 
-## Definition
-**What it is:** A pattern that uses distinct models for commands (write side) and queries (read side), often with projections to build optimized read views.  
-**Key terms:** command model, query model, read model, write model, projection, read-side lag.
+## Definición
+**Qué es:** Un patrón que usa modelos distintos para comandos (lado de escritura) y consultas (lado de lectura), a menudo con proyecciones para construir vistas de lectura optimizadas.
+**Términos clave:** modelo de comando, modelo de consulta, modelo de lectura, modelo de escritura, proyección, retraso del lado de lectura.
 
-## Why it matters
-- It allows different optimization strategies for reads and writes.
-- It can simplify complex write-side business rules while keeping queries fast.
+## Por qué importa
+- Permite diferentes estrategias de optimización para lecturas y escrituras.
+- Puede simplificar reglas de negocio complejas del lado de escritura mientras mantiene las consultas rápidas.
 
-## Scope & Non-goals
-**In scope:** separating models and data flows for reads and writes.  
-**Out of scope / NOT solved by this:** guaranteed consistency between read and write models.
+## Alcance y no-objetivos
+**Dentro del alcance:** separar modelos y flujos de datos para lecturas y escrituras.
+**Fuera del alcance / NO resuelto por esto:** consistencia garantizada entre los modelos de lectura y escritura.
 
-## Mental model / Intuition
-- Commands change state; queries ask questions.
-- The read model is a projection of write-side facts.
+## Modelo mental / Intuición
+- Los comandos cambian el estado; las consultas hacen preguntas.
+- El modelo de lectura es una proyección de los hechos del lado de escritura.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Read and write workloads have very different needs.
-- The domain has complex write-side invariants.
-- You can accept eventual consistency between models.
-### Avoid it when
-- A single model is sufficient and simpler.
-- You need strict read-after-write consistency everywhere.
-- You cannot maintain projection infrastructure.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Las cargas de trabajo de lectura y escritura tienen necesidades muy diferentes.
+- El dominio tiene invariantes complejos del lado de escritura.
+- Puedes aceptar consistencia eventual entre modelos.
+### Evítalo cuando
+- Un solo modelo es suficiente y más simple.
+- Necesitas consistencia estricta de lectura-después-de-escritura en todas partes.
+- No puedes mantener la infraestructura de proyecciones.
 
-## How I would use it (practical)
-- **Context:** An order system with heavy read traffic and complex validation rules.
-- **Steps:**
-  1) Define command APIs that enforce invariants.
-  2) Persist changes and emit events.
-  3) Build read models via projections optimized for queries.
-  4) Monitor read-side lag and rebuild projections when needed.
-- **What success looks like:** fast queries, stable write rules, and predictable read lag.
+## Cómo lo usaría (práctico)
+- **Contexto:** Un sistema de pedidos con alto tráfico de lectura y reglas de validación complejas.
+- **Pasos:**
+  1) Definir APIs de comando que apliquen invariantes.
+  2) Persistir cambios y emitir eventos.
+  3) Construir modelos de lectura vía proyecciones optimizadas para consultas.
+  4) Monitorear el retraso del lado de lectura y reconstruir proyecciones cuando sea necesario.
+- **Cómo se ve el éxito:** consultas rápidas, reglas de escritura estables y retraso de lectura predecible.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** optimized reads, clearer write-side rules, independent scaling.
-- **Cons / Risks:** eventual consistency, duplicate models, and more operational overhead.
-### Alternatives
-- **Single model CRUD:** simpler for small systems.
-- **How to choose:** apply CQRS when read and write concerns diverge significantly.
+- **Ventajas:** lecturas optimizadas, reglas de escritura más claras, escalado independiente.
+- **Desventajas / Riesgos:** consistencia eventual, modelos duplicados y más sobrecarga operacional.
+### Alternativas
+- **CRUD con modelo único:** más simple para sistemas pequeños.
+- **Cómo elegir:** aplica CQRS cuando las necesidades de lectura y escritura divergen significativamente.
 
-## Failure modes & Pitfalls
-- Stale reads causing user confusion.
-- Projections falling behind or failing silently.
-- Accidental dual-writes if events and state are updated separately.
+## Modos de fallo y trampas
+- Lecturas obsoletas causando confusión al usuario.
+- Proyecciones quedándose atrás o fallando silenciosamente.
+- Escrituras duales accidentales si los eventos y el estado se actualizan por separado.
 
-## Observability (How to detect issues)
-- **Metrics:** projection lag, command failure rate, read model rebuild time.
-- **Logs:** command IDs, projection errors, read model version.
-- **Traces:** command → event → projection update timing.
-- **Alerts:** sustained lag or repeated projection failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** retraso de proyección, tasa de fallo de comandos, tiempo de reconstrucción del modelo de lectura.
+- **Logs:** IDs de comando, errores de proyección, versión del modelo de lectura.
+- **Trazas:** tiempos de comando → evento → actualización de proyección.
+- **Alertas:** retraso sostenido o fallos repetidos de proyección.
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Make commands idempotent
-  - [ ] Version read models and projections
-  - [ ] Provide backfill and rebuild mechanisms
-- **Security / Compliance notes**
-  - Ensure audit logs for command execution.
-- **Performance notes**
-  - Keep read models denormalized for query speed.
-- **Operational notes**
-  - Monitor and alert on read-side lag.
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Hacer los comandos idempotentes
+  - [ ] Versionar modelos de lectura y proyecciones
+  - [ ] Proporcionar mecanismos de recarga y reconstrucción
+- **Notas de seguridad / cumplimiento**
+  - Asegurar logs de auditoría para la ejecución de comandos.
+- **Notas de rendimiento**
+  - Mantener los modelos de lectura desnormalizados para velocidad de consulta.
+- **Notas operacionales**
+  - Monitorear y alertar sobre el retraso del lado de lectura.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Applying CQRS everywhere by default.
-  - **Why it’s bad:** adds complexity without clear benefits.
-  - **Better approach:** use it only where read/write divergence is real.
+## Anti-patrones comunes
+- **Anti-patrón:** Aplicar CQRS en todas partes por defecto.
+  - **Por qué es malo:** añade complejidad sin beneficios claros.
+  - **Mejor enfoque:** usarlo solo donde la divergencia lectura/escritura es real.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- CQRS separates how you change state from how you read it, which helps scale and optimize each side independently but introduces eventual consistency.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- CQRS separa cómo cambias el estado de cómo lo lees, lo que ayuda a escalar y optimizar cada lado independientemente pero introduce consistencia eventual.
 
-### Trap questions (with answers)
-1) **Q:** Does CQRS require event sourcing?
-   - **A:** No; it can be implemented with traditional persistence too.
-2) **Q:** Must read and write models use different databases?
-   - **A:** No; they can share the same database while remaining logically separate.
-3) **Q:** Does CQRS guarantee better performance?
-   - **A:** Not necessarily; it adds overhead and only helps when read/write needs diverge.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿CQRS requiere event sourcing?
+   - **R:** No; se puede implementar con persistencia tradicional también.
+2) **P:** ¿Los modelos de lectura y escritura deben usar bases de datos diferentes?
+   - **R:** No; pueden compartir la misma base de datos permaneciendo lógicamente separados.
+3) **P:** ¿CQRS garantiza mejor rendimiento?
+   - **R:** No necesariamente; añade sobrecarga y solo ayuda cuando las necesidades de lectura/escritura divergen.
 
-### Quick self-check (5 items)
-- [ ] I can define CQRS precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir CQRS con precisión en 2-3 oraciones.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Transactions](../databases/transactions.md)
-- [Data modeling basics](../databases/data-modeling-basics.md)
-- [Event-driven architecture](event-driven-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Transacciones](../databases/transactions.md)
+- [Fundamentos de modelado de datos](../databases/data-modeling-basics.md)
+- [Arquitectura dirigida por eventos](event-driven-basics.md)
 
-### Related topics
+### Temas relacionados
 - [Event sourcing](event-sourcing.md)
-- [Domain-Driven Design (DDD)](domain-driven-design.md)
-- [Outbox pattern](outbox-pattern.md)
-- [Dual-write pattern](dual-write-pattern.md)
+- [Diseño Orientado al Dominio (DDD)](domain-driven-design.md)
+- [Patrón Outbox](outbox-pattern.md)
+- [Patrón Dual-write](dual-write-pattern.md)
 
-### Compare with
-- [Event sourcing](event-sourcing.md) — CQRS separates read/write models; event sourcing stores change history.
+### Comparar con
+- [Event sourcing](event-sourcing.md) -- CQRS separa modelos de lectura/escritura; event sourcing almacena el historial de cambios.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

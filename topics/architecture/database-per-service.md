@@ -1,6 +1,6 @@
 ---
 id: database-per-service
-title: "Database per Service"
+title: "Base de Datos por Servicio"
 type: pattern
 status: learning
 importance: 75
@@ -12,194 +12,194 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Database per Service
+# Base de Datos por Servicio
 
 ## TL;DR (BLUF)
-- Each microservice owns its database/schema exclusively; no shared databases.
-- Use it to achieve true service autonomy and independent deployments.
-- Trade-off: distributed data consistency, cross-service queries, and data duplication.
+- Cada microservicio es dueño exclusivo de su base de datos/esquema; sin bases de datos compartidas.
+- Úsalo para lograr verdadera autonomía de servicio y despliegues independientes.
+- Trade-off: consistencia de datos distribuida, consultas entre servicios y duplicación de datos.
 
-## Definition
-**What it is:** An architectural pattern where each microservice has exclusive ownership of its database (or schema), and other services can only access that data via the service's API, never directly.
+## Definición
+**Qué es:** Un patrón arquitectónico donde cada microservicio tiene propiedad exclusiva de su base de datos (o esquema), y otros servicios solo pueden acceder a esos datos vía la API del servicio, nunca directamente.
 
-**Key terms:** service autonomy, data ownership, bounded context, polyglot persistence, no shared database, eventual consistency.
+**Términos clave:** autonomía de servicio, propiedad de datos, contexto acotado, persistencia políglota, sin base de datos compartida, consistencia eventual.
 
-## Why it matters
-- Enables true service independence: deploy, scale, and evolve services separately.
-- Prevents tight coupling via shared database (common microservices anti-pattern).
-- Allows polyglot persistence: each service chooses optimal database (Postgres, Mongo, Redis).
-- Enforces bounded context boundaries ([Domain-Driven Design](domain-driven-design.md)).
+## Por qué importa
+- Permite verdadera independencia de servicio: desplegar, escalar y evolucionar servicios por separado.
+- Previene acoplamiento fuerte vía base de datos compartida (anti-patrón común de microservicios).
+- Permite persistencia políglota: cada servicio elige la base de datos óptima (Postgres, Mongo, Redis).
+- Refuerza las fronteras de contexto acotado ([Diseño Orientado al Dominio](domain-driven-design.md)).
 
-## Scope & Non-goals
-**In scope:** service data ownership, API-based data access, eventual consistency, data synchronization patterns.
+## Alcance y no-objetivos
+**Dentro del alcance:** propiedad de datos del servicio, acceso a datos vía API, consistencia eventual, patrones de sincronización de datos.
 
-**Out of scope / NOT solved by this:**
-- Strong consistency across services (use [ACID](../databases/acid-properties.md) within a service)
-- Cross-service joins (use [API Composition](api-composition.md) or [CQRS](cqrs.md))
-- Distributed transactions (use [Saga](saga-pattern.md))
+**Fuera del alcance / NO resuelto por esto:**
+- Consistencia fuerte entre servicios (usar [ACID](../databases/acid-properties.md) dentro de un servicio)
+- Joins entre servicios (usar [Composición de APIs](api-composition.md) o [CQRS](cqrs.md))
+- Transacciones distribuidas (usar [Saga](saga-pattern.md))
 
-## Mental model / Intuition
-- Like separate companies: each has its own accounting system; they exchange invoices via contracts, not direct DB access.
-- In microservices: `user-service` owns `users` table; `order-service` cannot query it directly—must call `/users` API.
+## Modelo mental / Intuición
+- Como empresas separadas: cada una tiene su propio sistema contable; intercambian facturas vía contratos, no acceso directo a la BD.
+- En microservicios: `user-service` es dueño de la tabla `users`; `order-service` no puede consultarla directamente — debe llamar a la API `/users`.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Building microservices with true autonomy (deploy independently).
-- Services have distinct bounded contexts (users, orders, payments).
-- Teams own end-to-end responsibility (dev, deploy, DB schema).
-- You need polyglot persistence (mix Postgres, Mongo, DynamoDB).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Construyes microservicios con verdadera autonomía (desplegar independientemente).
+- Los servicios tienen contextos acotados distintos (usuarios, pedidos, pagos).
+- Los equipos son dueños de la responsabilidad de extremo a extremo (desarrollo, despliegue, esquema de BD).
+- Necesitas persistencia políglota (mezclar Postgres, Mongo, DynamoDB).
 
-### Avoid it when
-- Building a modular monolith (shared DB is fine).
-- Strong consistency is critical across all data (banking, inventory).
-- Team lacks distributed systems expertise.
-- Operational overhead of managing N databases is too high.
+### Evítalo cuando
+- Construyes un monolito modular (una BD compartida está bien).
+- La consistencia fuerte es crítica en todos los datos (banca, inventario).
+- El equipo carece de experiencia en sistemas distribuidos.
+- La sobrecarga operacional de gestionar N bases de datos es demasiado alta.
 
-## How I would use it (practical)
-- **Context:** E-commerce platform with `user-service`, `order-service`, and `payment-service`.
-- **Steps:**
-  1) **Assign database ownership:**
+## Cómo lo usaría (práctico)
+- **Contexto:** Plataforma de comercio electrónico con `user-service`, `order-service` y `payment-service`.
+- **Pasos:**
+  1) **Asignar propiedad de base de datos:**
      - `user-service` → `users_db` (Postgres)
      - `order-service` → `orders_db` (Postgres)
      - `payment-service` → `payments_db` (DynamoDB)
-  2) **Enforce API-only access:**
-     - `order-service` needs user info → calls `GET /users/{id}` API (not direct DB query).
-     - Database credentials for `users_db` are **private** to `user-service`.
-  3) **Handle data duplication:**
-     - `order-service` caches `userName` locally (eventual consistency).
-     - When user updates name, `user-service` publishes `UserUpdated` event.
-     - `order-service` subscribes and updates local cache.
-  4) **Use Saga for distributed transactions:**
-     - Checkout flow: `order-service` → `payment-service` → `inventory-service`.
-     - Use [Saga pattern](saga-pattern.md) with compensations.
-  5) **Monitor data consistency:**
-     - Track sync lag between services.
-     - Alert on stale data (if `order.userName` ≠ `user.name` for >1 hour).
+  2) **Imponer acceso solo vía API:**
+     - `order-service` necesita info de usuario → llama a `GET /users/{id}` API (no consulta directa a BD).
+     - Las credenciales de `users_db` son **privadas** del `user-service`.
+  3) **Manejar duplicación de datos:**
+     - `order-service` cachea `userName` localmente (consistencia eventual).
+     - Cuando el usuario actualiza su nombre, `user-service` publica evento `UserUpdated`.
+     - `order-service` se suscribe y actualiza la caché local.
+  4) **Usar Saga para transacciones distribuidas:**
+     - Flujo de checkout: `order-service` → `payment-service` → `inventory-service`.
+     - Usar [patrón Saga](saga-pattern.md) con compensaciones.
+  5) **Monitorear consistencia de datos:**
+     - Rastrear retraso de sincronización entre servicios.
+     - Alertar sobre datos obsoletos (si `order.userName` ≠ `user.name` por >1 hora).
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| No cross-service joins (SQL) | Use [API Composition](api-composition.md) or [CQRS](cqrs.md) read models |
-| Data duplication (eventual consistency) | Accept staleness; use events for sync; monitor lag |
-| Distributed transaction complexity | Use [Saga pattern](saga-pattern.md); avoid when possible |
-| Operational overhead (N databases) | Use managed databases (AWS RDS, Cloud SQL); automate provisioning |
-| Data migration harder | Plan schema changes per service; use versioning |
+| Sin joins entre servicios (SQL) | Usar [Composición de APIs](api-composition.md) o modelos de lectura [CQRS](cqrs.md) |
+| Duplicación de datos (consistencia eventual) | Aceptar obsolescencia; usar eventos para sincronización; monitorear retraso |
+| Complejidad de transacciones distribuidas | Usar [patrón Saga](saga-pattern.md); evitar cuando sea posible |
+| Sobrecarga operacional (N bases de datos) | Usar bases de datos gestionadas (AWS RDS, Cloud SQL); automatizar aprovisionamiento |
+| Migración de datos más difícil | Planificar cambios de esquema por servicio; usar versionado |
 
-## Failure modes / Edge cases
-1. **Service calls another service's DB directly:** Violates encapsulation.
-   - *Mitigation:* Enforce network policies (DB firewall); code reviews.
-2. **Cross-service query explosion:** "Order details" needs 10 API calls.
-   - *Mitigation:* Use [BFF](backend-for-frontend.md) or [CQRS](cqrs.md) read model.
-3. **Data consistency drift:** `order.userName` stale after user update.
-   - *Mitigation:* Use [Outbox pattern](outbox-pattern.md) for reliable events; monitor staleness.
-4. **Schema migration deadlock:** Service A depends on Service B's schema.
-   - *Mitigation:* Use [API versioning](../system-design/versioning-apis-and-events.md); backward compatibility.
-5. **Reporting/analytics nightmare:** Need to join data from 10 services.
-   - *Mitigation:* Use [Change Data Capture](../databases/change-data-capture.md) to replicate to data warehouse.
+## Modos de fallo / Casos límite
+1. **Un servicio consulta la BD de otro servicio directamente:** Viola la encapsulación.
+   - *Mitigación:* Imponer políticas de red (firewall de BD); revisiones de código.
+2. **Explosión de consultas entre servicios:** "Detalles de pedido" necesita 10 llamadas API.
+   - *Mitigación:* Usar [BFF](backend-for-frontend.md) o modelo de lectura [CQRS](cqrs.md).
+3. **Deriva de consistencia de datos:** `order.userName` obsoleto después de actualización de usuario.
+   - *Mitigación:* Usar [patrón Outbox](outbox-pattern.md) para eventos confiables; monitorear obsolescencia.
+4. **Bloqueo de migración de esquema:** El Servicio A depende del esquema del Servicio B.
+   - *Mitigación:* Usar [versionado de API](../system-design/versioning-apis-and-events.md); compatibilidad hacia atrás.
+5. **Pesadilla de reportes/analítica:** Necesidad de juntar datos de 10 servicios.
+   - *Mitigación:* Usar [Change Data Capture](../databases/change-data-capture.md) para replicar al data warehouse.
 
-## Alternatives
-- **Shared database (monolith):** Simple but couples services tightly.
-- **Shared schema per bounded context:** Multiple services share DB but different schemas (hybrid).
-- **Database-as-a-Service layer:** Central data service owns DB, others call it (centralized).
-- **Event sourcing + CQRS:** Store events centrally, build per-service read models.
+## Alternativas
+- **Base de datos compartida (monolito):** Simple pero acopla servicios fuertemente.
+- **Esquema compartido por contexto acotado:** Múltiples servicios comparten BD pero diferentes esquemas (híbrido).
+- **Capa de Base-de-Datos-como-Servicio:** Un servicio central de datos es dueño de la BD, otros lo llaman (centralizado).
+- **Event sourcing + CQRS:** Almacenar eventos centralmente, construir modelos de lectura por servicio.
 
-## Data access patterns
-### 1. API calls (synchronous)
-- Service A calls Service B's REST/gRPC API.
-- **Pros:** Simple, strongly typed.
-- **Cons:** Latency, cascading failures.
+## Patrones de acceso a datos
+### 1. Llamadas API (síncronas)
+- El Servicio A llama a la API REST/gRPC del Servicio B.
+- **Ventajas:** Simple, fuertemente tipado.
+- **Desventajas:** Latencia, fallos en cascada.
 
-### 2. Event-driven (asynchronous)
-- Service A publishes event; Service B subscribes and updates local cache.
-- **Pros:** Decoupled, resilient.
-- **Cons:** Eventual consistency, complexity.
+### 2. Dirigido por eventos (asíncrono)
+- El Servicio A publica un evento; el Servicio B se suscribe y actualiza su caché local.
+- **Ventajas:** Desacoplado, resiliente.
+- **Desventajas:** Consistencia eventual, complejidad.
 
-### 3. CQRS read model
-- Dedicated read database aggregates data from multiple services.
-- **Pros:** Fast queries, no runtime joins.
-- **Cons:** Eventual consistency, dual-write issues.
+### 3. Modelo de lectura CQRS
+- Base de datos de lectura dedicada que agrega datos de múltiples servicios.
+- **Ventajas:** Consultas rápidas, sin joins en tiempo de ejecución.
+- **Desventajas:** Consistencia eventual, problemas de escritura dual.
 
 ### 4. Data warehouse / ETL
-- Batch replicate data to warehouse for analytics.
-- **Pros:** Optimized for reporting.
-- **Cons:** Not for operational queries; staleness.
+- Replicar datos por lotes al warehouse para analítica.
+- **Ventajas:** Optimizado para reportes.
+- **Desventajas:** No para consultas operacionales; obsolescencia.
 
-**Recommendation:** Use **API calls** for real-time, **events** for async sync, **CQRS** for complex queries, **warehouse** for analytics.
+**Recomendación:** Usar **llamadas API** para tiempo real, **eventos** para sincronización asíncrona, **CQRS** para consultas complejas, **warehouse** para analítica.
 
-## Combinations
-Database per Service is **almost always used with:**
-- **[Saga pattern](saga-pattern.md):** Distributed transactions across services.
-- **[Outbox pattern](outbox-pattern.md):** Reliable event publishing.
-- **[CQRS](cqrs.md):** Separate read models for queries.
-- **[API Composition](api-composition.md):** Aggregate data at runtime.
-- **[Bounded Contexts](bounded-contexts.md):** DDD foundation for service boundaries.
-- **[Observability](../operations/observability-basics.md):** Track data consistency, sync lag.
+## Combinaciones
+Base de Datos por Servicio **casi siempre se usa con:**
+- **[Patrón Saga](saga-pattern.md):** Transacciones distribuidas entre servicios.
+- **[Patrón Outbox](outbox-pattern.md):** Publicación confiable de eventos.
+- **[CQRS](cqrs.md):** Modelos de lectura separados para consultas.
+- **[Composición de APIs](api-composition.md):** Agregar datos en tiempo de ejecución.
+- **[Contextos Acotados](bounded-contexts.md):** Base DDD para fronteras de servicio.
+- **[Observabilidad](../operations/observability-basics.md):** Rastrear consistencia de datos, retraso de sincronización.
 
-**Typical combination:**
-- **Microservices architecture:** Database per Service + Saga + Outbox + CQRS (if needed) + Observability
+**Combinación típica:**
+- **Arquitectura de microservicios:** Base de Datos por Servicio + Saga + Outbox + CQRS (si es necesario) + Observabilidad
 
-## Prerequisites
-- Understanding of [Microservices design](microservices-design-basics.md).
-- Familiarity with [Domain-Driven Design](domain-driven-design.md) and [Bounded Contexts](bounded-contexts.md).
-- Knowledge of [Event-driven architecture](event-driven-basics.md) and [Saga](saga-pattern.md).
+## Prerequisitos
+- Comprensión de [Diseño de Microservicios](microservices-design-basics.md).
+- Familiaridad con [Diseño Orientado al Dominio](domain-driven-design.md) y [Contextos Acotados](bounded-contexts.md).
+- Conocimiento de [Arquitectura dirigida por eventos](event-driven-basics.md) y [Saga](saga-pattern.md).
 
-## Related topics
-- [Saga pattern](saga-pattern.md): Distributed transactions.
-- [Outbox pattern](outbox-pattern.md): Reliable event publishing.
-- [CQRS](cqrs.md): Separate read models.
-- [API Composition](api-composition.md): Aggregate data via APIs.
-- [Bounded Contexts](bounded-contexts.md): Define service boundaries.
-- [Change Data Capture](../databases/change-data-capture.md): Replicate data for analytics.
+## Temas relacionados
+- [Patrón Saga](saga-pattern.md): Transacciones distribuidas.
+- [Patrón Outbox](outbox-pattern.md): Publicación confiable de eventos.
+- [CQRS](cqrs.md): Modelos de lectura separados.
+- [Composición de APIs](api-composition.md): Agregar datos vía APIs.
+- [Contextos Acotados](bounded-contexts.md): Definir fronteras de servicio.
+- [Change Data Capture](../databases/change-data-capture.md): Replicar datos para analítica.
 
-## Real-world examples
-1. **Netflix:** Each microservice owns its Cassandra keyspace or database.
-2. **Amazon:** Services use different databases (DynamoDB, Aurora, S3) based on needs.
-3. **Uber:** Separate databases for riders, drivers, trips, payments.
+## Ejemplos del mundo real
+1. **Netflix:** Cada microservicio es dueño de su keyspace de Cassandra o base de datos.
+2. **Amazon:** Los servicios usan diferentes bases de datos (DynamoDB, Aurora, S3) según necesidades.
+3. **Uber:** Bases de datos separadas para pasajeros, conductores, viajes, pagos.
 
-## Checklist (self-test)
-- [ ] I understand the difference between database per service and shared database.
-- [ ] I can design API contracts for cross-service data access.
-- [ ] I know how to handle data duplication and eventual consistency.
-- [ ] I can explain when to use Saga vs CQRS for cross-service queries.
-- [ ] I can monitor data consistency and sync lag.
+## Lista de verificación (auto-evaluación)
+- [ ] Entiendo la diferencia entre base de datos por servicio y base de datos compartida.
+- [ ] Puedo diseñar contratos de API para acceso a datos entre servicios.
+- [ ] Sé cómo manejar duplicación de datos y consistencia eventual.
+- [ ] Puedo explicar cuándo usar Saga vs CQRS para consultas entre servicios.
+- [ ] Puedo monitorear la consistencia de datos y el retraso de sincronización.
 
-## Reminders / Key takeaways
-- **One service, one database** (or schema).
-- **No direct DB access** across services (enforce with network policies).
-- Accept **eventual consistency** for cross-service data.
-- Use [Saga](saga-pattern.md) for distributed transactions.
-- Use [CQRS](cqrs.md) for complex cross-service queries.
+## Recordatorios / Conclusiones clave
+- **Un servicio, una base de datos** (o esquema).
+- **Sin acceso directo a BD** entre servicios (imponer con políticas de red).
+- Aceptar **consistencia eventual** para datos entre servicios.
+- Usar [Saga](saga-pattern.md) para transacciones distribuidas.
+- Usar [CQRS](cqrs.md) para consultas complejas entre servicios.
 
-## Trap questions (with answers)
-### Q1: Can two services share the same database instance but different schemas?
-**A:** **Technically yes, but risky**. Sharing a DB instance (e.g., Postgres server) is fine for cost savings, but each service must have its **own schema** with **no cross-schema queries**. Better: use separate databases entirely to enforce isolation and allow polyglot persistence. Shared instance can still create coupling (shared resource limits, schema migration conflicts).
+## Preguntas trampa (con respuestas)
+### P1: ¿Pueden dos servicios compartir la misma instancia de base de datos pero diferentes esquemas?
+**R:** **Técnicamente sí, pero arriesgado**. Compartir una instancia de BD (ej., servidor Postgres) está bien para ahorro de costos, pero cada servicio debe tener su **propio esquema** sin **consultas entre esquemas**. Mejor: usar bases de datos completamente separadas para imponer aislamiento y permitir persistencia políglota. La instancia compartida aún puede crear acoplamiento (límites de recursos compartidos, conflictos de migración de esquema).
 
-### Q2: How do I query data from multiple services (e.g., order + user + payment)?
-**A:** **Options:**
-1. **[API Composition](api-composition.md):** Call multiple services, aggregate in [BFF](backend-for-frontend.md) (runtime overhead).
-2. **[CQRS](cqrs.md):** Build read-only view that subscribes to events from all services (eventual consistency).
-3. **Data warehouse:** ETL data to warehouse for reporting (not for operational queries).
-Choose based on latency, consistency, and query complexity. For UI, use API Composition or CQRS.
+### P2: ¿Cómo consulto datos de múltiples servicios (ej., pedido + usuario + pago)?
+**R:** **Opciones:**
+1. **[Composición de APIs](api-composition.md):** Llamar a múltiples servicios, agregar en [BFF](backend-for-frontend.md) (sobrecarga en tiempo de ejecución).
+2. **[CQRS](cqrs.md):** Construir vista de solo lectura que se suscriba a eventos de todos los servicios (consistencia eventual).
+3. **Data warehouse:** Enviar datos por ETL al warehouse para reportes (no para consultas operacionales).
+Elegir según latencia, consistencia y complejidad de la consulta. Para UI, usar Composición de APIs o CQRS.
 
-### Q3: What if I need strong consistency across services?
-**A:** **You can't** (distributed transactions are anti-pattern in microservices). Instead:
-1. **Keep strongly consistent data in one service** (e.g., order + order-items in order-service).
-2. Use [Saga pattern](saga-pattern.md) for **eventual consistency** with compensations.
-3. Reconsider service boundaries: maybe data belongs together ([Bounded Contexts](bounded-contexts.md)).
-If you truly need ACID across services, you may need a monolith or modular monolith.
+### P3: ¿Qué pasa si necesito consistencia fuerte entre servicios?
+**R:** **No se puede** (las transacciones distribuidas son un anti-patrón en microservicios). En su lugar:
+1. **Mantener los datos que necesitan consistencia fuerte en un solo servicio** (ej., pedido + ítems del pedido en order-service).
+2. Usar [patrón Saga](saga-pattern.md) para **consistencia eventual** con compensaciones.
+3. Reconsiderar las fronteras del servicio: quizás los datos pertenecen juntos ([Contextos Acotados](bounded-contexts.md)).
+Si realmente necesitas ACID entre servicios, podrías necesitar un monolito o monolito modular.
 
-### Q4: Can I use a shared read-only database for reporting?
-**A:** **Yes, but not directly from services' databases**. Instead:
-1. Use [Change Data Capture](../databases/change-data-capture.md) to replicate data to **data warehouse**.
-2. Analytics queries run on warehouse, not production DBs.
-3. Avoid: services directly querying each other's DBs (breaks encapsulation).
-Reporting is a valid use case for data replication, not for breaking database-per-service rule.
+### P4: ¿Puedo usar una base de datos compartida de solo lectura para reportes?
+**R:** **Sí, pero no directamente de las bases de datos de los servicios**. En su lugar:
+1. Usar [Change Data Capture](../databases/change-data-capture.md) para replicar datos al **data warehouse**.
+2. Las consultas de analítica se ejecutan en el warehouse, no en las BDs de producción.
+3. Evitar: servicios consultando directamente las BDs de otros (rompe la encapsulación).
+Los reportes son un caso de uso válido para replicación de datos, no para romper la regla de base de datos por servicio.
 
-### Q5: How do I migrate from shared database to database per service?
-**A:** Use **[Strangler Fig](strangler-fig.md)**:
-1. Identify bounded contexts (future services).
-2. Extract one service at a time.
-3. Migrate data incrementally (dual-write, CDC, batch migration).
-4. Refactor cross-service queries to API calls or events.
-5. Eventually decommission shared database.
-Do NOT attempt "one big split"—too risky. Incremental migration with clear rollback plan. See [Strangler Fig](strangler-fig.md).
+### P5: ¿Cómo migro de base de datos compartida a base de datos por servicio?
+**R:** Usar **[Strangler Fig](strangler-fig.md)**:
+1. Identificar contextos acotados (futuros servicios).
+2. Extraer un servicio a la vez.
+3. Migrar datos incrementalmente (escritura dual, CDC, migración por lotes).
+4. Refactorizar consultas entre servicios a llamadas API o eventos.
+5. Eventualmente descomisionar la base de datos compartida.
+NO intentar "una gran división" — demasiado arriesgado. Migración incremental con plan de rollback claro. Ver [Strangler Fig](strangler-fig.md).

@@ -1,6 +1,6 @@
 ---
 id: postgresql-vacuum-autovacuum
-title: "PostgreSQL Vacuum & Autovacuum"
+title: "PostgreSQL Vacuum y Autovacuum"
 type: concept
 status: learning
 importance: 60
@@ -12,96 +12,96 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# PostgreSQL Vacuum & Autovacuum
+# PostgreSQL Vacuum y Autovacuum
 
 ## TL;DR (BLUF)
-- Vacuum reclaims space from dead tuples; autovacuum does it automatically.
-- Use it to control bloat and maintain performance.
-- Trade-off: aggressive vacuum can add write overhead.
+- Vacuum reclama espacio de tuplas muertas; autovacuum lo hace automáticamente.
+- Úsalo para controlar el bloat y mantener el rendimiento.
+- Trade-off: un vacuum agresivo puede agregar sobrecarga de escritura.
 
-## Definition
-**What it is:** A maintenance process that cleans dead tuples and updates visibility maps.
-**Key terms:** dead tuples, autovacuum, freeze.
+## Definición
+**Qué es:** Un proceso de mantenimiento que limpia tuplas muertas y actualiza mapas de visibilidad.
+**Términos clave:** tuplas muertas, autovacuum, freeze.
 
-## Why it matters
-- Without vacuum, tables and indexes bloat and queries slow down.
-- Autovacuum settings directly impact performance stability.
+## Por qué importa
+- Sin vacuum, las tablas e índices sufren bloat y las consultas se ralentizan.
+- La configuración de autovacuum impacta directamente la estabilidad del rendimiento.
 
-## Scope & Non-goals
-**In scope:** vacuum purpose, autovacuum tuning basics.
-**Out of scope / NOT solved by this:** manual disk maintenance beyond vacuum.
+## Alcance y no-objetivos
+**Dentro del alcance:** propósito de vacuum, fundamentos de ajuste de autovacuum.
+**Fuera del alcance / NO resuelto por esto:** mantenimiento manual de disco más allá de vacuum.
 
-## Mental model / Intuition
-- Vacuum is the janitor that cleans old row versions.
+## Modelo mental / Intuición
+- Vacuum es el conserje que limpia las versiones antiguas de filas.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You see growing dead tuples or table bloat.
-### Avoid it when
-- You need zero maintenance overhead (not realistic).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Ves tuplas muertas crecientes o bloat de tabla.
+### Evítalo cuando
+- Necesitas cero sobrecarga de mantenimiento (no es realista).
 
-## How I would use it (practical)
-- **Context:** Growing table size and slow queries.
-- **Steps:** check dead tuples → tune autovacuum thresholds → run manual vacuum if needed.
-- **What success looks like:** stable table size and consistent query latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Tamaño de tabla creciente y consultas lentas.
+- **Pasos:** verificar tuplas muertas → ajustar umbrales de autovacuum → ejecutar vacuum manual si es necesario.
+- **Cómo se ve el éxito:** tamaño de tabla estable y latencia de consultas consistente.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** reclaims space and keeps indexes healthy.
-- **Cons / Risks:** extra I/O and write overhead.
-### Alternatives
-- **Manual VACUUM FULL:** heavy, blocks writes.
-- **How to choose:** prefer autovacuum; use VACUUM FULL only when necessary.
+- **Ventajas:** reclama espacio y mantiene índices saludables.
+- **Desventajas / Riesgos:** E/S extra y sobrecarga de escritura.
+### Alternativas
+- **VACUUM FULL manual:** pesado, bloquea escrituras.
+- **Cómo elegir:** preferir autovacuum; usar VACUUM FULL solo cuando sea necesario.
 
-## Failure modes & Pitfalls
-- Autovacuum too lax → bloat.
-- Autovacuum too aggressive → write amplification.
+## Modos de fallo y trampas
+- Autovacuum demasiado laxo → bloat.
+- Autovacuum demasiado agresivo → amplificación de escritura.
 
-## Observability (How to detect issues)
-- **Metrics:** dead tuples, autovacuum lag, table size.
-- **Logs:** autovacuum activity and duration.
-- **Alerts:** rising dead tuples or bloat.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tuplas muertas, retraso de autovacuum, tamaño de tabla.
+- **Logs:** actividad y duración de autovacuum.
+- **Alertas:** tuplas muertas o bloat en aumento.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Monitor dead tuples
-  - [ ] Tune autovacuum thresholds
-  - [ ] Avoid long-running transactions
+  - [ ] Monitorear tuplas muertas
+  - [ ] Ajustar umbrales de autovacuum
+  - [ ] Evitar transacciones de larga duración
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Disabling autovacuum globally.
-  - **Why it’s bad:** bloat and performance degradation.
-  - **Better approach:** tune it per workload.
+## Anti-patrones comunes
+- **Anti-patrón:** Deshabilitar autovacuum globalmente.
+  - **Por qué es malo:** bloat y degradación del rendimiento.
+  - **Mejor enfoque:** ajustarlo por carga de trabajo.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Vacuum in Postgres removes dead row versions created by MVCC. Autovacuum automates this; tuning it keeps performance stable and prevents bloat.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- Vacuum en Postgres elimina versiones muertas de filas creadas por MVCC. Autovacuum automatiza esto; ajustarlo mantiene el rendimiento estable y previene el bloat.
 
-### Trap questions (with answers)
-1) **Q:** Does VACUUM immediately shrink the file?
-   - **A:** no; it marks space reusable but doesn’t always shrink files.
-2) **Q:** Can you disable autovacuum safely?
-   - **A:** generally no; bloat will accumulate.
-3) **Q:** Is VACUUM FULL always better?
-   - **A:** no; it’s blocking and heavy.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿VACUUM reduce inmediatamente el archivo?
+   - **R:** no; marca el espacio como reutilizable pero no siempre reduce los archivos.
+2) **P:** ¿Se puede deshabilitar autovacuum de forma segura?
+   - **R:** generalmente no; el bloat se acumulará.
+3) **P:** ¿VACUUM FULL siempre es mejor?
+   - **R:** no; es bloqueante y pesado.
 
-### Quick self-check (5 items)
-- [ ] I can define vacuum and autovacuum.
-- [ ] I can explain why bloat happens.
-- [ ] I can name a tuning lever.
-- [ ] I can describe a pitfall.
-- [ ] I can explain VACUUM vs VACUUM FULL.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir vacuum y autovacuum.
+- [ ] Puedo explicar por qué ocurre el bloat.
+- [ ] Puedo nombrar una palanca de ajuste.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar VACUUM vs VACUUM FULL.
 
-## Links (NO duplication)
-### Prerequisites
+## Enlaces (SIN duplicación)
+### Prerequisitos
 - [PostgreSQL MVCC](postgresql-mvcc.md)
 
-### Related topics
-- [PostgreSQL bloat](postgresql-bloat.md)
-- [Slow query diagnosis](slow-query-diagnosis.md)
+### Temas relacionados
+- [Bloat en PostgreSQL](postgresql-bloat.md)
+- [Diagnóstico de consultas lentas](slow-query-diagnosis.md)
 
-### Compare with
-- [Maintenance windows](../operations/maintenance-windows.md)
+### Comparar con
+- [Ventanas de mantenimiento](../operations/maintenance-windows.md)

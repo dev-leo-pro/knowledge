@@ -12,93 +12,93 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Backpressure
+# Contrapresión (Backpressure)
 
 ## TL;DR (BLUF)
-- Backpressure limits incoming work when downstream capacity is saturated to keep the system stable.
-- Use it with [Timeouts](../operations/timeouts.md), [Retries](../operations/retries-and-backoff.md), and [Circuit breaker](../operations/circuit-breaker.md).
-- Trade-off: you may reject, delay, or degrade requests to protect throughput and latency.
+- La contrapresión limita el trabajo entrante cuando la capacidad downstream está saturada para mantener el sistema estable.
+- Úsala con [Timeouts](../operations/timeouts.md), [Reintentos](../operations/retries-and-backoff.md) y [Circuit breaker](../operations/circuit-breaker.md).
+- Trade-off: puedes rechazar, retrasar o degradar peticiones para proteger el throughput y la latencia.
 
-## Definition
-**What it is:** A flow-control mechanism that intentionally slows, buffers, or rejects work when consumers are overloaded, so the system stays within safe capacity bounds.  
-**Key terms:** bounded concurrency, queue depth, [Load shedding](../operations/load-shedding.md), graceful degradation, consumer lag.
+## Definición
+**Qué es:** Un mecanismo de control de flujo que intencionalmente ralentiza, almacena en buffer o rechaza trabajo cuando los consumidores están sobrecargados, para que el sistema se mantenga dentro de los límites de capacidad seguros.
+**Términos clave:** concurrencia acotada, profundidad de cola, [descarte de carga](../operations/load-shedding.md), degradación elegante, lag de consumidores.
 
-## Why it matters
-- Prevents [Cascading failure](../operations/cascading-failure.md) when upstream producers outpace downstream capacity.
-- Turns “slow meltdown” into controlled rejection or degraded service.
+## Por qué importa
+- Previene [fallos en cascada](../operations/cascading-failure.md) cuando los productores upstream superan la capacidad downstream.
+- Convierte un "colapso lento" en rechazo controlado o servicio degradado.
 
-## Scope & Non-goals
-**In scope:** limiting concurrency, queueing, shedding, and degrading to keep latency and error rates bounded.  
-**Out of scope / NOT solved by this:** correctness under duplicates (see [Idempotency](../operations/idempotency.md)), or guaranteed delivery (see [Messaging basics](../architecture/messaging-basics.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** limitar concurrencia, encolamiento, descarte y degradación para mantener la latencia y las tasas de error acotadas.
+**Fuera del alcance / NO resuelto por esto:** corrección bajo duplicados (ver [Idempotencia](../operations/idempotency.md)), o entrega garantizada (ver [Fundamentos de mensajería](../architecture/messaging-basics.md)).
 
-## Mental model / Intuition
-- Think of a restaurant: if the kitchen is overloaded, you stop seating new tables, offer a reduced menu, or add a waitlist.
-- Your goal is *stability first*, not maximum acceptance at any cost.
+## Modelo mental / Intuición
+- Piensa en un restaurante: si la cocina está sobrecargada, dejas de sentar mesas nuevas, ofreces un menú reducido o agregas una lista de espera.
+- Tu objetivo es *estabilidad primero*, no máxima aceptación a cualquier costo.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You have bursty traffic or uneven producer/consumer capacity.
-- Downstream resources saturate (DB pools, CPU, external APIs).
-- You need to protect latency SLOs and error budgets.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Tengas tráfico en ráfagas o capacidad desigual entre productor/consumidor.
+- Los recursos downstream se saturen (pools de BD, CPU, APIs externas).
+- Necesites proteger SLOs de latencia y presupuestos de error.
 
-### Avoid it when
-- The workload is trivial and capacity is far above peak.
-- You cannot reject or delay work (rare; still prefer async buffering).
+### Evítalo cuando
+- La carga de trabajo sea trivial y la capacidad esté muy por encima del pico.
+- No puedas rechazar o retrasar trabajo (raro; aún así prefiere buffering asíncrono).
 
-## How I would use it (practical)
-- **Context:** An API triggers an async pipeline that calls 3 external services.
-- **Steps:**
-  1) Set bounded concurrency per worker group.
-  2) Cap queue depth and reject/redirect excess load.
-  3) Degrade responses (e.g., partial results) when saturated.
-  4) Add explicit [Retry budgets](../operations/retry-budgets.md) to avoid load amplification.
-- **What success looks like:** stable p95 latency and bounded queue lag under peak traffic.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API dispara un pipeline asíncrono que llama a 3 servicios externos.
+- **Pasos:**
+  1) Establecer concurrencia acotada por grupo de workers.
+  2) Limitar la profundidad de cola y rechazar/redirigir carga excesiva.
+  3) Degradar respuestas (ej., resultados parciales) cuando esté saturado.
+  4) Agregar [presupuestos de reintento](../operations/retry-budgets.md) explícitos para evitar amplificación de carga.
+- **Cómo se ve el éxito:** latencia p95 estable y lag de cola acotado bajo tráfico pico.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** protects system health, improves tail latency under load, avoids cascading failure.
-- **Cons / Risks:** rejected or delayed work, user-visible degradation, tuning complexity.
-### Alternatives
-- **Scale out:** add capacity if demand is consistently high.
-- **Async decoupling:** shift work off the critical path with queues.
-- **How to choose:** if overload is transient or spiky, backpressure is cheaper than scaling.
+- **Pros:** protege la salud del sistema, mejora la latencia de cola bajo carga, evita fallos en cascada.
+- **Contras / Riesgos:** trabajo rechazado o retrasado, degradación visible para el usuario, complejidad de ajuste fino.
+### Alternativas
+- **Escalar horizontalmente:** agregar capacidad si la demanda es consistentemente alta.
+- **Desacoplamiento asíncrono:** sacar trabajo de la ruta crítica con colas.
+- **Cómo elegir:** si la sobrecarga es transitoria o en picos, la contrapresión es más barata que escalar.
 
-## Failure modes & Pitfalls
-- Unbounded queues → latency spikes and memory pressure.
-- Backpressure only at the edge → internal services still overload each other.
-- Retrying without budgets → amplifies overload instead of relieving it.
+## Modos de fallo y errores comunes
+- Colas no acotadas → picos de latencia y presión de memoria.
+- Contrapresión solo en el borde → servicios internos aún se sobrecargan entre sí.
+- Reintentar sin presupuestos → amplifica la sobrecarga en vez de aliviarla.
 
-## Observability (How to detect issues)
-- **Metrics:** queue depth, consumer lag, worker utilization, CPU, p95/p99 latency, rejected requests.
-- **Logs:** backpressure events (reason, threshold, current load).
-- **Traces:** time spent waiting in queues vs processing.
-- **Alerts:** queue depth > threshold, sustained saturation, rejection rate > X%.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** profundidad de cola, lag de consumidores, utilización de workers, CPU, latencia p95/p99, peticiones rechazadas.
+- **Logs:** eventos de contrapresión (razón, umbral, carga actual).
+- **Trazas:** tiempo esperando en colas vs procesando.
+- **Alertas:** profundidad de cola > umbral, saturación sostenida, tasa de rechazo > X%.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Define safe concurrency and queue limits per dependency
-  - [ ] Decide rejection vs delay vs degrade
-  - [ ] Enforce [Retry budgets](../operations/retry-budgets.md) to avoid amplification
-  - [ ] Add per-tenant or per-route isolation
-- **Go (practical)**
-  - Use bounded goroutine pools, semaphores, or buffered channels.
-  - Propagate cancellation with `context.Context` to stop wasted work.
-- **Kafka consumers (practical)**
-  - Tune `max.poll.records` and use `pause()`/`resume()` to match processing capacity.
-  - Keep processing time below `max.poll.interval.ms` to avoid rebalances.
-- **SQS consumers (practical)**
-  - Limit in-flight messages and tune batch size per worker capacity.
-  - Set visibility timeout to exceed worst-case processing time.
-- **Security / Compliance notes**
-  - Ensure degraded responses do not leak restricted data
-- **Performance notes**
-  - Prefer bounded queues over unbounded buffers
-- **Operational notes**
-  - Document overload playbook and thresholds
+  - [ ] Definir límites seguros de concurrencia y cola por dependencia
+  - [ ] Decidir rechazo vs retraso vs degradación
+  - [ ] Imponer [presupuestos de reintento](../operations/retry-budgets.md) para evitar amplificación
+  - [ ] Agregar aislamiento por tenant o por ruta
+- **Go (práctico)**
+  - Usar pools de goroutines acotados, semáforos o canales con buffer.
+  - Propagar cancelación con `context.Context` para detener trabajo desperdiciado.
+- **Consumidores Kafka (práctico)**
+  - Ajustar `max.poll.records` y usar `pause()`/`resume()` para coincidir con la capacidad de procesamiento.
+  - Mantener el tiempo de procesamiento por debajo de `max.poll.interval.ms` para evitar rebalanceos.
+- **Consumidores SQS (práctico)**
+  - Limitar mensajes en vuelo y ajustar tamaño de lote por capacidad de worker.
+  - Establecer visibility timeout para exceder el peor caso de tiempo de procesamiento.
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que las respuestas degradadas no filtren datos restringidos.
+- **Notas de rendimiento**
+  - Preferir colas acotadas sobre buffers no acotados.
+- **Notas operacionales**
+  - Documentar playbook de sobrecarga y umbrales.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```go
-// Bounded worker pool with backpressure via buffered channel.
+// Pool de workers acotado con contrapresión vía canal con buffer.
 const maxWorkers = 8
 const maxQueue = 100
 
@@ -117,57 +117,57 @@ func Enqueue(job Job) error {
 	case jobs <- job:
 		return nil
 	default:
-		return errors.New("queue full") // backpressure signal
+		return errors.New("cola llena") // señal de contrapresión
 	}
 }
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “Just add retries when it’s slow.”
-  - **Why it’s bad:** retries increase load and worsen overload.
-  - **Better approach:** bound concurrency and reject or defer work.
+## Anti-patrones comunes
+- **Anti-patrón:** "Solo agrega reintentos cuando esté lento."
+  - **Por qué es malo:** los reintentos aumentan la carga y empeoran la sobrecarga.
+  - **Mejor enfoque:** acotar la concurrencia y rechazar o diferir trabajo.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Backpressure is a flow-control strategy: when consumers are saturated, you slow, buffer, or reject producers to keep the system within safe capacity and prevent cascading failure.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La contrapresión es una estrategia de control de flujo: cuando los consumidores están saturados, ralentizas, almacenas en buffer o rechazas productores para mantener el sistema dentro de la capacidad segura y prevenir fallos en cascada.
 
-### Trap questions (with answers)
-1) **Q:** Is a bigger queue always better for backpressure?
-   - **A:** No. Unbounded queues hide overload and explode tail latency; bounded queues force explicit trade-offs.
-2) **Q:** Can backpressure replace timeouts?
-   - **A:** No. Backpressure protects capacity; timeouts bound how long work can consume resources.
-3) **Q:** Does backpressure mean “drop all requests” under load?
-   - **A:** Not necessarily. You can reject selectively, delay, or degrade depending on the SLA.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Una cola más grande siempre es mejor para la contrapresión?
+   - **R:** No. Las colas no acotadas ocultan la sobrecarga y explotan la latencia de cola; las colas acotadas fuerzan trade-offs explícitos.
+2) **P:** ¿La contrapresión puede reemplazar los timeouts?
+   - **R:** No. La contrapresión protege la capacidad; los timeouts acotan cuánto tiempo el trabajo puede consumir recursos.
+3) **P:** ¿Contrapresión significa "descartar todas las peticiones" bajo carga?
+   - **R:** No necesariamente. Puedes rechazar selectivamente, retrasar o degradar dependiendo del SLA.
 
-### Quick self-check (5 items)
-- [ ] I can define backpressure precisely in 2–3 sentences.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir contrapresión con precisión en 2–3 oraciones.
+- [ ] Puedo indicar cuándo usarla y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](distributed-systems-basics.md)
-- [Performance basics](performance-basics.md)
-- [Observability basics](../operations/observability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de sistemas distribuidos](distributed-systems-basics.md)
+- [Fundamentos de rendimiento](performance-basics.md)
+- [Fundamentos de observabilidad](../operations/observability-basics.md)
 
-### Related topics
-- [Messaging basics](../architecture/messaging-basics.md)
-- [Event-driven basics](../architecture/event-driven-basics.md)
+### Temas relacionados
+- [Fundamentos de mensajería](../architecture/messaging-basics.md)
+- [Fundamentos de arquitectura dirigida por eventos](../architecture/event-driven-basics.md)
 - [Timeouts](../operations/timeouts.md)
-- [Retries, exponential backoff, and jitter](../operations/retries-and-backoff.md)
+- [Reintentos, backoff exponencial y jitter](../operations/retries-and-backoff.md)
 - [Circuit breaker](../operations/circuit-breaker.md)
-- [Load shedding](../operations/load-shedding.md)
+- [Descarte de carga](../operations/load-shedding.md)
 - [Bulkheads](../operations/bulkheads.md)
 - [Kafka](../architecture/kafka.md)
 - (TODO) SQS/SNS
-- (TODO) Rate limiting
+- (TODO) Limitación de tasa
 
-### Compare with
-- [Circuit breaker](../operations/circuit-breaker.md) — breaker blocks calls to a failing dependency; backpressure limits overall load.
-- [Retries, exponential backoff, and jitter](../operations/retries-and-backoff.md) — retries add load; backpressure limits it.
-- [Load shedding](../operations/load-shedding.md) — shedding drops/degrades work; backpressure slows or queues it.
+### Comparar con
+- [Circuit breaker](../operations/circuit-breaker.md) — el breaker bloquea llamadas a una dependencia fallando; la contrapresión limita la carga general.
+- [Reintentos, backoff exponencial y jitter](../operations/retries-and-backoff.md) — los reintentos agregan carga; la contrapresión la limita.
+- [Descarte de carga](../operations/load-shedding.md) — el descarte elimina/degrada trabajo; la contrapresión lo ralentiza o encola.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

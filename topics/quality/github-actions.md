@@ -4,32 +4,32 @@ title: GitHub Actions
 
 # GitHub Actions
 
-## Definition
-GitHub Actions is a CI/CD platform that allows you to automate, build, test, and deploy code directly from your GitHub repository using workflows defined as YAML files.
+## Definición
+GitHub Actions es una plataforma de CI/CD que te permite automatizar, compilar, probar y desplegar código directamente desde tu repositorio de GitHub usando flujos de trabajo definidos como archivos YAML.
 
-## Why it matters
-It enables automation of software delivery processes, improves code quality, and supports rapid iteration.
+## Por qué importa
+Permite la automatización de procesos de entrega de software, mejora la calidad del código y soporta iteración rápida.
 
-## When to use / when not to use
-Use for automating builds, tests, deployments, and other workflows in projects hosted on GitHub. Not ideal for very large, complex pipelines that require advanced orchestration.
+## Cuándo usar / cuándo no usar
+Úsalo para automatizar compilaciones, pruebas, despliegues y otros flujos de trabajo en proyectos alojados en GitHub. No es ideal para pipelines muy grandes y complejos que requieren orquestación avanzada.
 
 ## Trade-offs
-- + Easy integration with GitHub
-- + Large ecosystem of actions
-- - Can become complex for large workflows
-- - Secrets management requires care
+- + Fácil integración con GitHub
+- + Gran ecosistema de acciones
+- - Puede volverse complejo para flujos de trabajo grandes
+- - La gestión de secretos requiere cuidado
 
-## Prerequisites
-- [CI/CD basics](../quality/ci-cd-basics.md)
+## Prerequisitos
+- [Fundamentos de CI/CD](../quality/ci-cd-basics.md)
 
-## Related topics
+## Temas relacionados
 - [Bazel Monorepo](bazel-monorepo.md)
 - [Docker](../operations/docker.md)
 
-## Trap questions
-1. What is a GitHub Action?
-   - A reusable automation step in a workflow.
-2. What is a common security risk with GitHub Actions?
-   - Exposing secrets in logs or to untrusted code.
-3. When should you avoid using GitHub Actions?
-   - For workflows requiring advanced orchestration beyond what GitHub provides.
+## Preguntas trampa
+1. ¿Qué es un GitHub Action?
+   - Un paso de automatización reutilizable en un flujo de trabajo.
+2. ¿Cuál es un riesgo de seguridad común con GitHub Actions?
+   - Exponer secretos en logs o a código no confiable.
+3. ¿Cuándo deberías evitar usar GitHub Actions?
+   - Para flujos de trabajo que requieren orquestación avanzada más allá de lo que GitHub proporciona.

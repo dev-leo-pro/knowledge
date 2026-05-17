@@ -1,6 +1,6 @@
 ---
 id: archetype-concurrency-control
-title: "Concurrency Control (Avoiding Double-Booking / Races)"
+title: "Control de Concurrencia (Evitar Doble Reserva / Condiciones de Carrera)"
 type: pattern
 status: learning
 importance: 95
@@ -12,33 +12,33 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# Concurrency Control (Avoiding Double-Booking / Races)
+# Control de Concurrencia (Evitar Doble Reserva / Condiciones de Carrera)
 
 ## TL;DR
-- Guarantee correctness when multiple actors update the same resource (inventory, seats, wallets).
-- Key challenges: overbooking, high contention on hot rows/keys, latency vs correctness tension.
-- Solutions: optimistic concurrency (version field), pessimistic lock / lease, queueing per resource key.
+- Garantizar corrección cuando múltiples actores actualizan el mismo recurso (inventario, asientos, billeteras).
+- Desafíos clave: sobreventa, alta contención en filas/claves calientes, tensión latencia vs corrección.
+- Soluciones: concurrencia optimista (campo de versión), bloqueo pesimista / lease, cola por clave de recurso.
 
-## Where it hurts (why it hurts)
-1. **Overbooking seats / inventory**: Two users buy last concert ticket simultaneously → both confirmed
-   - **Solution**: Pessimistic lock (SELECT FOR UPDATE) or optimistic (version check + retry)
-2. **High contention hot rows/keys**: Popular item → all requests serialize on lock → latency spike
-   - **Solution**: Queue per resource; lease with expiry; sharding (if applicable)
-3. **Latency vs correctness tension**: Strict locking → slow; optimistic → retries under contention
-   - **Solution**: Choose based on contention: low → optimistic; high → pessimistic or queue
+## Dónde duele (por qué duele)
+1. **Sobreventa de asientos / inventario**: Dos usuarios compran el último boleto de concierto simultáneamente → ambos confirmados
+   - **Solución**: Bloqueo pesimista (SELECT FOR UPDATE) u optimista (verificación de versión + reintento)
+2. **Alta contención en filas/claves calientes**: Artículo popular → todas las peticiones se serializan en el bloqueo → pico de latencia
+   - **Solución**: Cola por recurso; lease con expiración; sharding (si aplica)
+3. **Tensión latencia vs corrección**: Bloqueo estricto → lento; optimista → reintentos bajo contención
+   - **Solución**: Elegir según contención: baja → optimista; alta → pesimista o cola
 
-## Decision rules
-- **Use when**: Scarce resources (inventory, seats, wallets), financial correctness critical, concurrent updates expected
-- **Avoid when**: No concurrent updates (single writer), eventual consistency acceptable
+## Reglas de decisión
+- **Usar cuando**: Recursos escasos (inventario, asientos, billeteras), corrección financiera crítica, actualizaciones concurrentes esperadas
+- **Evitar cuando**: No hay actualizaciones concurrentes (escritor único), consistencia eventual aceptable
 
 ## Trade-offs
-- **Optimistic**: Fast (no locks), retry on conflict → good for low contention
-- **Pessimistic**: Strict correctness, serialized → good for high contention, critical resources
-- **Choose**: Low contention → optimistic; high contention / critical → pessimistic
+- **Optimista**: Rápido (sin bloqueos), reintento en conflicto → bueno para baja contención
+- **Pesimista**: Corrección estricta, serializado → bueno para alta contención, recursos críticos
+- **Elegir**: Baja contención → optimista; alta contención / crítico → pesimista
 
-## Explicit example
-Two users try to buy the last concert ticket. Without concurrency control, both transactions read "1 available," both decrement to 0, both commit → overbooking. With pessimistic lock: first transaction locks row, second waits; first commits (sold out), second sees 0 available.
+## Ejemplo explícito
+Dos usuarios intentan comprar el último boleto de concierto. Sin control de concurrencia, ambas transacciones leen "1 disponible", ambas decrementan a 0, ambas confirman → sobreventa. Con bloqueo pesimista: la primera transacción bloquea la fila, la segunda espera; la primera confirma (agotado), la segunda ve 0 disponibles.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Optimistic Concurrency Control](../databases/optimistic-concurrency-control.md), [Lock-Based Concurrency](../databases/lock-based-concurrency-control.md), [Transactions](../databases/transactions.md)
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Control de Concurrencia Optimista](../databases/optimistic-concurrency-control.md), [Concurrencia Basada en Bloqueos](../databases/lock-based-concurrency-control.md), [Transacciones](../databases/transactions.md)

@@ -12,94 +12,94 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Caching Fundamentals
+# Fundamentos de Caché
 
 ## TL;DR (BLUF)
-- Caching stores computed or fetched data to reduce latency and load.
-- Use it when reads are frequent and data is relatively stable.
-- Trade-off: cache invalidation and staleness risk.
+- El caché almacena datos computados o recuperados para reducir latencia y carga.
+- Úsalo cuando las lecturas sean frecuentes y los datos relativamente estables.
+- Trade-off: invalidación de caché y riesgo de obsolescencia.
 
-## Definition
-**What it is:** A technique to store and reuse data to speed up responses.
-**Key terms:** cache-aside, TTL, invalidation.
+## Definición
+**Qué es:** Una técnica para almacenar y reutilizar datos para acelerar las respuestas.
+**Términos clave:** cache-aside, TTL, invalidación.
 
-## Why it matters
-- It improves latency and reduces database load.
-- Incorrect invalidation causes stale data bugs.
+## Por qué importa
+- Mejora la latencia y reduce la carga en la base de datos.
+- Una invalidación incorrecta causa bugs de datos obsoletos.
 
-## Scope & Non-goals
-**In scope:** caching basics and trade-offs.
-**Out of scope / NOT solved by this:** full cache architecture patterns.
+## Alcance y no-objetivos
+**Dentro del alcance:** fundamentos de caché y trade-offs.
+**Fuera del alcance / NO resuelto por esto:** patrones completos de arquitectura de caché.
 
-## Mental model / Intuition
-- Cache is a shortcut; you must keep it reasonably fresh.
+## Modelo mental / Intuición
+- El caché es un atajo; debes mantenerlo razonablemente fresco.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Read-heavy workloads dominate.
-### Avoid it when
-- Data changes frequently and correctness is critical.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Las cargas de trabajo de lectura intensiva dominen.
+### Evítalo cuando
+- Los datos cambien frecuentemente y la corrección sea crítica.
 
-## How I would use it (practical)
-- **Context:** Read-heavy API endpoint.
-- **Steps:** use cache-aside → set TTL → monitor hit rate.
-- **What success looks like:** higher hit rate and lower DB load.
+## Cómo lo usaría (práctico)
+- **Contexto:** Endpoint de API de lectura intensiva.
+- **Pasos:** usar cache-aside → establecer TTL → monitorear tasa de aciertos.
+- **Cómo se ve el éxito:** mayor tasa de aciertos y menor carga en BD.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** lower latency, reduced DB load.
-- **Cons / Risks:** stale data, invalidation complexity.
-### Alternatives
-- **Denormalization:** precompute reads.
-- **How to choose:** cache when read load is high and tolerates slight staleness.
+- **Pros:** menor latencia, carga reducida en BD.
+- **Contras / Riesgos:** datos obsoletos, complejidad de invalidación.
+### Alternativas
+- **Desnormalización:** precomputar lecturas.
+- **Cómo elegir:** cachear cuando la carga de lectura sea alta y tolere ligera obsolescencia.
 
-## Failure modes & Pitfalls
-- Cache stampedes on expiration.
+## Modos de fallo y errores comunes
+- Estampidas de caché en expiración.
 
-## Observability (How to detect issues)
-- **Metrics:** hit rate, eviction count, latency.
-- **Logs:** cache miss spikes.
-- **Alerts:** sudden hit-rate drop.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** tasa de aciertos, conteo de desalojos, latencia.
+- **Logs:** picos de cache miss.
+- **Alertas:** caída súbita de la tasa de aciertos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Choose caching pattern
-  - [ ] Set TTLs
-  - [ ] Monitor hit rate
+  - [ ] Elegir patrón de caché
+  - [ ] Establecer TTLs
+  - [ ] Monitorear tasa de aciertos
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Caching without invalidation strategy.
-  - **Why it’s bad:** stale data.
-  - **Better approach:** define TTL and invalidation rules.
+## Anti-patrones comunes
+- **Anti-patrón:** Cachear sin estrategia de invalidación.
+  - **Por qué es malo:** datos obsoletos.
+  - **Mejor enfoque:** definir TTL y reglas de invalidación.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Caching keeps recent or expensive-to-compute data close to the app. It speeds up reads but introduces staleness and invalidation challenges.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- El caché mantiene datos recientes o costosos de computar cerca de la aplicación. Acelera las lecturas pero introduce desafíos de obsolescencia e invalidación.
 
-### Trap questions (with answers)
-1) **Q:** Is caching always safe?
-   - **A:** no; you can serve stale data.
-2) **Q:** Can TTL replace invalidation?
-   - **A:** sometimes, but not for strict correctness.
-3) **Q:** Are cache misses always bad?
-   - **A:** no; they’re expected and should be handled.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Cachear siempre es seguro?
+   - **R:** No; puedes servir datos obsoletos.
+2) **P:** ¿TTL puede reemplazar la invalidación?
+   - **R:** A veces, pero no para corrección estricta.
+3) **P:** ¿Los cache miss siempre son malos?
+   - **R:** No; son esperados y deben manejarse.
 
-### Quick self-check (5 items)
-- [ ] I can define caching.
-- [ ] I can state when to use it.
-- [ ] I can name a trade-off.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a monitoring signal.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir caché.
+- [ ] Puedo indicar cuándo usarlo.
+- [ ] Puedo nombrar un trade-off.
+- [ ] Puedo describir un error común.
+- [ ] Puedo explicar una señal de monitoreo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Performance basics](performance-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de rendimiento](performance-basics.md)
 
-### Related topics
+### Temas relacionados
 - [TTL (Time-to-Live)](../databases/ttl.md)
 
-### Compare with
-- [Caching strategy](caching-strategy.md) — patterns and choices.
+### Comparar con
+- [Estrategia de caché](caching-strategy.md) — patrones y elecciones.

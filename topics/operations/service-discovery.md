@@ -1,6 +1,6 @@
 ---
 id: service-discovery
-title: "Service Discovery"
+title: "Descubrimiento de servicios"
 type: pattern
 status: learning
 importance: 70
@@ -12,52 +12,52 @@ created_at: 2026-01-26
 updated_at: 2026-01-26
 ---
 
-# Service Discovery
+# Descubrimiento de servicios
 
 ## TL;DR (BLUF)
-- Dynamically discover service instances by logical name instead of hardcoded IP:port.
-- Use it in containerized/cloud environments with autoscaling and dynamic IPs.
-- Trade-off: added complexity and dependency on registry availability.
+- Descubre dinámicamente instancias de servicio por nombre lógico en lugar de IP:puerto codificados.
+- Úsalo en entornos contenerizados/cloud con autoescalado e IPs dinámicas.
+- Trade-off: complejidad añadida y dependencia de la disponibilidad del registro.
 
-## Definition
-**What it is:** A mechanism for services to locate each other dynamically using a service registry (DNS, Consul, Kubernetes Service, Eureka) that maps logical service names to available instances (IP:port).
+## Definición
+**Qué es:** Un mecanismo para que los servicios se localicen entre sí dinámicamente usando un registro de servicios (DNS, Consul, Kubernetes Service, Eureka) que mapea nombres lógicos de servicio a instancias disponibles (IP:puerto).
 
-**Key terms:** service registry, DNS, health checks, load balancing, service mesh, dynamic discovery, instance registration.
+**Términos clave:** registro de servicios, DNS, health checks, balanceo de carga, service mesh, descubrimiento dinámico, registro de instancias.
 
-## Why it matters
-- Enables elastic scaling: services can add/remove instances without config changes.
-- Supports zero-downtime deploys: new instances register, old ones deregister.
-- Simplifies service-to-service communication in microservices.
-- Essential for cloud-native and containerized environments (Kubernetes, ECS, Cloud Run).
+## Por qué importa
+- Permite escalado elástico: los servicios pueden agregar/remover instancias sin cambios de configuración.
+- Soporta despliegues sin tiempo de inactividad: las nuevas instancias se registran, las antiguas se desregistran.
+- Simplifica la comunicación servicio-a-servicio en microservicios.
+- Esencial para entornos cloud-native y contenerizados (Kubernetes, ECS, Cloud Run).
 
-## Scope & Non-goals
-**In scope:** service registration, health checks, DNS-based or registry-based discovery, client-side vs server-side load balancing.
+## Alcance y no-objetivos
+**Dentro del alcance:** registro de servicios, health checks, descubrimiento basado en DNS o registro, balanceo de carga del lado del cliente vs del servidor.
 
-**Out of scope / NOT solved by this:**
-- API Gateway routing (see [API Gateway](../system-design/api-gateway.md))
-- Cross-cutting concerns (auth, retries) → [Sidecar](sidecar.md) or service mesh
-- Business logic or data aggregation
+**Fuera del alcance / NO resuelto por esto:**
+- Enrutamiento de API Gateway (ver [API Gateway](../system-design/api-gateway.md))
+- Preocupaciones transversales (auth, reintentos) → [Sidecar](sidecar.md) o service mesh
+- Lógica de negocio o agregación de datos
 
-## Mental model / Intuition
-- Like a phone directory: instead of memorizing phone numbers, you look up "John's Pizza" and get the current number.
-- In microservices: instead of `http://192.168.1.10:8080`, you call `http://user-service/api/users`.
+## Modelo mental / Intuición
+- Como un directorio telefónico: en lugar de memorizar números de teléfono, buscas "La Pizza de Juan" y obtienes el número actual.
+- En microservicios: en lugar de `http://192.168.1.10:8080`, llamas a `http://user-service/api/users`.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Services run in containers (Docker, Kubernetes) with dynamic IPs.
-- You need autoscaling (instances come/go frequently).
-- Deploying in cloud environments (AWS, GCP, Azure).
-- You have many services and manual config is error-prone.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Los servicios se ejecutan en contenedores (Docker, Kubernetes) con IPs dinámicas.
+- Necesitas autoescalado (las instancias van y vienen frecuentemente).
+- Despliegas en entornos cloud (AWS, GCP, Azure).
+- Tienes muchos servicios y la configuración manual es propensa a errores.
 
-### Avoid it when
-- You have a small, static set of services with fixed IPs.
-- Services run on VMs with stable endpoints (rare in modern systems).
-- Operational overhead of running a registry outweighs benefits.
+### Evítalo cuando
+- Tienes un conjunto pequeño y estático de servicios con IPs fijas.
+- Los servicios se ejecutan en VMs con endpoints estables (raro en sistemas modernos).
+- La sobrecarga operacional de ejecutar un registro supera los beneficios.
 
-## How I would use it (practical)
-- **Context:** E-commerce platform on Kubernetes with order-service, user-service, payment-service.
-- **Steps:**
-  1) Deploy services with Kubernetes Service resources:
+## Cómo lo usaría (práctico)
+- **Contexto:** Plataforma de comercio electrónico en Kubernetes con order-service, user-service, payment-service.
+- **Pasos:**
+  1) Desplegar servicios con recursos Kubernetes Service:
      ```yaml
      apiVersion: v1
      kind: Service
@@ -70,9 +70,9 @@ updated_at: 2026-01-26
        - port: 80
          targetPort: 8080
      ```
-  2) Services call each other by DNS name: `http://user-service/api/users`.
-  3) Kubernetes DNS resolves `user-service` to available pod IPs.
-  4) Add readiness/liveness probes:
+  2) Los servicios se llaman entre sí por nombre DNS: `http://user-service/api/users`.
+  3) El DNS de Kubernetes resuelve `user-service` a las IPs de pods disponibles.
+  4) Agregar readiness/liveness probes:
      ```yaml
      livenessProbe:
        httpGet:
@@ -81,111 +81,111 @@ updated_at: 2026-01-26
        initialDelaySeconds: 10
        periodSeconds: 5
      ```
-  5) Enable **client-side load balancing** (round-robin by default) or use service mesh (Istio, Linkerd).
-  6) Monitor: service registry health, failed health checks, DNS resolution latency.
+  5) Habilitar **balanceo de carga del lado del cliente** (round-robin por defecto) o usar service mesh (Istio, Linkerd).
+  6) Monitorear: salud del registro de servicios, health checks fallidos, latencia de resolución DNS.
 
-## Trade-offs / Costs (and their mitigation)
-| Trade-off | Mitigation |
+## Trade-offs / Costos (y su mitigación)
+| Trade-off | Mitigación |
 |-----------|-----------|
-| Registry becomes single point of failure | Use highly available registry (Kubernetes DNS, Consul cluster); cache instance list locally |
-| Stale instance data (health check lag) | Tune health check intervals (5-10s); use short TTLs |
-| Increased complexity (registry + health checks) | Use managed solutions (Kubernetes, AWS Cloud Map); automate with IaC |
-| DNS caching issues (clients cache stale IPs) | Set low DNS TTLs (1-5s); use client libraries that respect TTL |
-| Client-side load balancing overhead | Use service mesh for server-side LB (Istio, Linkerd) |
+| El registro se convierte en punto único de fallo | Usar registro altamente disponible (Kubernetes DNS, clúster Consul); cachear lista de instancias localmente |
+| Datos de instancia obsoletos (retraso en health check) | Ajustar intervalos de health check (5-10s); usar TTLs cortos |
+| Mayor complejidad (registro + health checks) | Usar soluciones gestionadas (Kubernetes, AWS Cloud Map); automatizar con IaC |
+| Problemas de caché DNS (los clientes cachean IPs obsoletas) | Establecer TTLs DNS bajos (1-5s); usar bibliotecas cliente que respeten TTL |
+| Sobrecarga del balanceo de carga del lado del cliente | Usar service mesh para balanceo del lado del servidor (Istio, Linkerd) |
 
-## Failure modes / Edge cases
-1. **Registry outage:** Services can't discover new instances.
-   - *Mitigation:* Cache last-known instances locally; use eventually consistent registry.
-2. **Unhealthy instances registered:** Failed health checks lag; clients get 503.
-   - *Mitigation:* Aggressive health check intervals (3-5s); fast deregistration.
-3. **DNS TTL too high:** Clients cache old IPs after scale-down/deploy.
-   - *Mitigation:* Set DNS TTL to 1-5 seconds; use connection pooling with periodic refresh.
-4. **Split-brain (multi-region):** Different registries in different regions drift.
-   - *Mitigation:* Use regional registries with cross-region replication (eventual consistency).
-5. **Service name collision:** Two teams use same service name.
-   - *Mitigation:* Namespace services (e.g., `team-a.user-service`).
+## Modos de fallo / Casos límite
+1. **Caída del registro:** Los servicios no pueden descubrir nuevas instancias.
+   - *Mitigación:* Cachear últimas instancias conocidas localmente; usar registro eventualmente consistente.
+2. **Instancias no sanas registradas:** Los health checks se retrasan; los clientes obtienen 503.
+   - *Mitigación:* Intervalos de health check agresivos (3-5s); desregistro rápido.
+3. **TTL DNS muy alto:** Los clientes cachean IPs antiguas después de scale-down/despliegue.
+   - *Mitigación:* Establecer TTL DNS a 1-5 segundos; usar connection pooling con refresco periódico.
+4. **Split-brain (multi-región):** Diferentes registros en diferentes regiones divergen.
+   - *Mitigación:* Usar registros regionales con replicación entre regiones (consistencia eventual).
+5. **Colisión de nombres de servicio:** Dos equipos usan el mismo nombre de servicio.
+   - *Mitigación:* Usar namespaces para servicios (por ejemplo, `equipo-a.user-service`).
 
-## Alternatives
-- **Hardcoded IPs/config files:** Simple but brittle; requires manual updates.
-- **Load balancer with static backend pool:** Works for few services; doesn't scale.
-- **Service mesh (Istio, Linkerd):** Combines discovery + mTLS + retries + observability.
-- **DNS SRV records:** Lightweight discovery for simple cases.
+## Alternativas
+- **IPs/archivos de configuración codificados:** Simple pero frágil; requiere actualizaciones manuales.
+- **Balanceador de carga con pool de backends estático:** Funciona para pocos servicios; no escala.
+- **Service mesh (Istio, Linkerd):** Combina descubrimiento + mTLS + reintentos + observabilidad.
+- **Registros DNS SRV:** Descubrimiento ligero para casos simples.
 
-## Patterns
-### 1. Client-side discovery
-- Client queries registry, gets instance list, and load-balances.
-- **Pros:** No extra hop; client controls LB strategy.
-- **Cons:** Client complexity; each language needs library.
+## Patrones
+### 1. Descubrimiento del lado del cliente
+- El cliente consulta el registro, obtiene la lista de instancias y balancea la carga.
+- **Ventajas:** Sin salto extra; el cliente controla la estrategia de balanceo.
+- **Desventajas:** Complejidad en el cliente; cada lenguaje necesita biblioteca.
 
-### 2. Server-side discovery
-- Client calls load balancer (or API Gateway); load balancer queries registry.
-- **Pros:** Simple client; centralized LB logic.
-- **Cons:** Extra hop; load balancer can be bottleneck.
+### 2. Descubrimiento del lado del servidor
+- El cliente llama al balanceador de carga (o API Gateway); el balanceador consulta el registro.
+- **Ventajas:** Cliente simple; lógica de balanceo centralizada.
+- **Desventajas:** Salto extra; el balanceador puede ser cuello de botella.
 
 ### 3. Service mesh (Istio, Linkerd)
-- Sidecar proxies handle discovery + LB + retries + mTLS.
-- **Pros:** Zero code change; consistent policies.
-- **Cons:** Operational complexity; added latency.
+- Los proxies sidecar manejan descubrimiento + balanceo + reintentos + mTLS.
+- **Ventajas:** Sin cambios de código; políticas consistentes.
+- **Desventajas:** Complejidad operacional; latencia añadida.
 
-**Recommendation:** Use **Kubernetes DNS** (simplest) or **service mesh** (if you need mTLS/retries/observability).
+**Recomendación:** Usa **Kubernetes DNS** (más simple) o **service mesh** (si necesitas mTLS/reintentos/observabilidad).
 
-## Combinations
-Service Discovery is **almost always used with:**
-- **[Microservices design](../architecture/microservices-design-basics.md):** Essential for service-to-service calls.
-- **[Health checks](../operations/reliability-basics.md):** Ensure only healthy instances are discovered.
-- **[Sidecar](sidecar.md):** Service mesh proxies handle discovery + LB.
-- **[Observability](../operations/observability-basics.md):** Track service topology, instance health.
-- **[Circuit Breaker](circuit-breaker.md):** Protect against unhealthy instances.
+## Combinaciones
+El descubrimiento de servicios **casi siempre se usa con:**
+- **[Diseño de microservicios](../architecture/microservices-design-basics.md):** Esencial para llamadas servicio-a-servicio.
+- **[Health checks](../operations/reliability-basics.md):** Asegurar que solo se descubran instancias sanas.
+- **[Sidecar](sidecar.md):** Los proxies del service mesh manejan descubrimiento + balanceo.
+- **[Observabilidad](../operations/observability-basics.md):** Rastrear topología de servicios, salud de instancias.
+- **[Circuit Breaker](circuit-breaker.md):** Proteger contra instancias no sanas.
 
-**Typical combination:**
-- **Kubernetes cluster:** Service Discovery (DNS) + Health checks + Sidecar (Istio/Linkerd) + Observability
+**Combinación típica:**
+- **Clúster Kubernetes:** Descubrimiento de servicios (DNS) + Health checks + Sidecar (Istio/Linkerd) + Observabilidad
 
-## Prerequisites
-- Understanding of [Networking basics](../operations/networking-basics.md) and [DNS](../operations/dns.md).
-- Familiarity with [Microservices design](../architecture/microservices-design-basics.md).
-- Knowledge of containerization (Docker, Kubernetes).
+## Prerequisitos
+- Comprensión de [Fundamentos de redes](../operations/networking-basics.md) y [DNS](../operations/dns.md).
+- Familiaridad con [Diseño de microservicios](../architecture/microservices-design-basics.md).
+- Conocimiento de contenerización (Docker, Kubernetes).
 
-## Related topics
-- [API Gateway](../system-design/api-gateway.md): North-south traffic routing.
-- [Sidecar](sidecar.md): Service mesh for discovery + mTLS + retries.
-- [Load balancing](../system-design/api-design-basics.md): Client-side vs server-side.
-- [Observability](../operations/observability-basics.md): Monitor service topology.
-- [DNS](../operations/dns.md): Foundation for discovery.
+## Temas relacionados
+- [API Gateway](../system-design/api-gateway.md): Enrutamiento de tráfico norte-sur.
+- [Sidecar](sidecar.md): Service mesh para descubrimiento + mTLS + reintentos.
+- [Balanceo de carga](../system-design/api-design-basics.md): Del lado del cliente vs del servidor.
+- [Observabilidad](../operations/observability-basics.md): Monitorear topología de servicios.
+- [DNS](../operations/dns.md): Base para el descubrimiento.
 
-## Real-world examples
-1. **Kubernetes:** Built-in DNS-based service discovery; each Service gets a DNS name.
-2. **Netflix Eureka:** Client-side discovery registry used in Spring Cloud.
-3. **HashiCorp Consul:** Multi-DC service registry with health checks and KV store.
-4. **AWS Cloud Map:** Managed service discovery for ECS and EKS.
+## Ejemplos del mundo real
+1. **Kubernetes:** Descubrimiento de servicios basado en DNS integrado; cada Service obtiene un nombre DNS.
+2. **Netflix Eureka:** Registro de descubrimiento del lado del cliente usado en Spring Cloud.
+3. **HashiCorp Consul:** Registro de servicios multi-DC con health checks y almacén KV.
+4. **AWS Cloud Map:** Descubrimiento de servicios gestionado para ECS y EKS.
 
-## Checklist (self-test)
-- [ ] I understand client-side vs server-side discovery.
-- [ ] I can configure health checks for service instances.
-- [ ] I know how DNS TTLs affect discovery staleness.
-- [ ] I can explain when to use service mesh vs native Kubernetes DNS.
-- [ ] I can monitor service registry health and instance availability.
+## Lista de verificación (auto-test)
+- [ ] Entiendo el descubrimiento del lado del cliente vs del servidor.
+- [ ] Puedo configurar health checks para instancias de servicio.
+- [ ] Sé cómo los TTLs DNS afectan la obsolescencia del descubrimiento.
+- [ ] Puedo explicar cuándo usar service mesh vs Kubernetes DNS nativo.
+- [ ] Puedo monitorear la salud del registro de servicios y la disponibilidad de instancias.
 
-## Reminders / Key takeaways
-- Service discovery is **essential for dynamic environments** (containers, autoscaling).
-- Always use **health checks** to avoid routing to unhealthy instances.
-- Prefer **Kubernetes DNS** for simplicity, **service mesh** for advanced features.
-- Cache instance lists locally to survive registry outages.
+## Recordatorios / Conclusiones clave
+- El descubrimiento de servicios es **esencial para entornos dinámicos** (contenedores, autoescalado).
+- Siempre usa **health checks** para evitar enrutar a instancias no sanas.
+- Prefiere **Kubernetes DNS** por simplicidad, **service mesh** para funcionalidades avanzadas.
+- Cachea las listas de instancias localmente para sobrevivir a caídas del registro.
 
-## Trap questions (with answers)
-### Q1: Can I use service discovery for external APIs (third-party services)?
-**A:** **No**. Service discovery is for **internal service-to-service** communication within your cluster. For external APIs, use hardcoded URLs or external DNS. Service discovery assumes you control instance lifecycle and health checks.
+## Preguntas trampa (con respuestas)
+### P1: ¿Puedo usar descubrimiento de servicios para APIs externas (servicios de terceros)?
+**R:** **No**. El descubrimiento de servicios es para comunicación **interna servicio-a-servicio** dentro de tu clúster. Para APIs externas, usa URLs codificadas o DNS externo. El descubrimiento de servicios asume que controlas el ciclo de vida de las instancias y los health checks.
 
-### Q2: What's the difference between service discovery and an API Gateway?
-**A:** **Service discovery** is for **east-west traffic** (service→service within cluster). **[API Gateway](../system-design/api-gateway.md)** is for **north-south traffic** (client→service from outside cluster). Discovery handles dynamic IPs; gateway handles routing, auth, rate limiting.
+### P2: ¿Cuál es la diferencia entre descubrimiento de servicios y un API Gateway?
+**R:** El **descubrimiento de servicios** es para **tráfico este-oeste** (servicio→servicio dentro del clúster). El **[API Gateway](../system-design/api-gateway.md)** es para **tráfico norte-sur** (cliente→servicio desde fuera del clúster). El descubrimiento maneja IPs dinámicas; el gateway maneja enrutamiento, auth, limitación de tasa.
 
-### Q3: Should I use client-side or server-side discovery?
-**A:** **Depends on platform**. For **Kubernetes**, use server-side (Kubernetes Service + DNS) for simplicity. For **non-containerized** or **polyglot** environments, use client-side (Consul, Eureka) for flexibility. Service mesh (Istio) combines both: sidecar handles discovery (client-side) but is transparent to app code.
+### P3: ¿Debería usar descubrimiento del lado del cliente o del servidor?
+**R:** **Depende de la plataforma**. Para **Kubernetes**, usa del lado del servidor (Kubernetes Service + DNS) por simplicidad. Para entornos **no contenerizados** o **políglotas**, usa del lado del cliente (Consul, Eureka) por flexibilidad. Service mesh (Istio) combina ambos: el sidecar maneja el descubrimiento (lado del cliente) pero es transparente para el código de la aplicación.
 
-### Q4: What happens if the service registry goes down?
-**A:** **Clients can't discover new instances**, but existing connections may work. Mitigation: 
-1. Cache last-known instances locally.
-2. Use **highly available registry** (Kubernetes DNS is distributed; Consul runs in cluster).
-3. Set long cache TTLs as fallback (trade staleness for availability).
+### P4: ¿Qué pasa si el registro de servicios se cae?
+**R:** **Los clientes no pueden descubrir nuevas instancias**, pero las conexiones existentes pueden funcionar. Mitigación: 
+1. Cachear últimas instancias conocidas localmente.
+2. Usar **registro altamente disponible** (Kubernetes DNS es distribuido; Consul se ejecuta en clúster).
+3. Establecer TTLs de caché largos como respaldo (sacrificar frescura por disponibilidad).
 
-### Q5: How do I handle service versioning with discovery?
-**A:** Use **service name + version** in discovery (e.g., `user-service-v1`, `user-service-v2`) or **metadata tags** (Consul). Clients specify which version to call. Alternatively, use [API Gateway](../system-design/api-gateway.md) for version routing and keep discovery version-agnostic. See [API versioning](../system-design/versioning-apis-and-events.md).
+### P5: ¿Cómo manejo el versionado de servicios con descubrimiento?
+**R:** Usa **nombre de servicio + versión** en el descubrimiento (por ejemplo, `user-service-v1`, `user-service-v2`) o **etiquetas de metadatos** (Consul). Los clientes especifican qué versión llamar. Alternativamente, usa [API Gateway](../system-design/api-gateway.md) para enrutamiento de versiones y mantén el descubrimiento agnóstico a versiones. Ver [Versionado de APIs y eventos](../system-design/versioning-apis-and-events.md).

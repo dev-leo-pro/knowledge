@@ -4,32 +4,32 @@ title: Webhooks
 
 # Webhooks
 
-## Definition
-Webhooks are HTTP callbacks that allow one system to notify another system in real time when an event occurs, by sending an HTTP POST request to a configured URL.
+## Definición
+Los webhooks son callbacks HTTP que permiten a un sistema notificar a otro sistema en tiempo real cuando ocurre un evento, enviando una solicitud HTTP POST a una URL configurada.
 
-## Why it matters
-They enable real-time integrations and automation between systems without polling.
+## Por qué importa
+Permiten integraciones y automatización en tiempo real entre sistemas sin necesidad de polling.
 
-## When to use / when not to use
-Use for event-driven integrations, notifications, or third-party API callbacks. Not ideal for critical, high-reliability delivery without retries or verification.
+## Cuándo usar / cuándo no usar
+Úsalos para integraciones dirigidas por eventos, notificaciones o callbacks de APIs de terceros. No es ideal para entrega crítica de alta fiabilidad sin reintentos o verificación.
 
 ## Trade-offs
-- + Real-time, low-latency communication
-- + Simple to implement
-- - Delivery not guaranteed (unless retries/verification are added)
-- - Security risks if not validated
+- + Comunicación en tiempo real y baja latencia
+- + Simples de implementar
+- - La entrega no está garantizada (a menos que se agreguen reintentos/verificación)
+- - Riesgos de seguridad si no se validan
 
-## Prerequisites
+## Prerequisitos
 - [HTTP](../operations/http.md)
 
-## Related topics
+## Temas relacionados
 - [API Gateway](../system-design/api-gateway.md)
-- [Third-party integration resilience](../operations/third-party-integration-resilience.md)
+- [Resiliencia en integraciones con terceros](../operations/third-party-integration-resilience.md)
 
-## Trap questions
-1. What is a webhook?
-   - An HTTP callback triggered by an event in a source system.
-2. What is a common security risk with webhooks?
-   - Not verifying the signature or source of the request.
-3. How can you make webhooks more reliable?
-   - Implement retries and idempotency.
+## Preguntas trampa
+1. ¿Qué es un webhook?
+   - Un callback HTTP activado por un evento en un sistema fuente.
+2. ¿Cuál es un riesgo de seguridad común con webhooks?
+   - No verificar la firma o el origen de la solicitud.
+3. ¿Cómo puedes hacer los webhooks más fiables?
+   - Implementar reintentos e idempotencia.

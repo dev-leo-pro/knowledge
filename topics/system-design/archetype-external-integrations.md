@@ -1,6 +1,6 @@
 ---
 id: archetype-external-integrations
-title: "External Integrations (Unreliable Dependencies)"
+title: "Integraciones Externas (Dependencias No Fiables)"
 type: pattern
 status: learning
 importance: 95
@@ -12,34 +12,34 @@ created_at: 2026-01-28
 updated_at: 2026-01-28
 ---
 
-# External Integrations (Unreliable Dependencies)
+# Integraciones Externas (Dependencias No Fiables)
 
 ## TL;DR
-- Interact with external systems (third-party APIs, webhooks, partners) that have unknown latency and failure modes.
-- Key challenges: timeouts and partial failures, retries causing duplicates, provider rate limits.
-- Solutions: timeouts + circuit breaker + retries with jitter, async processing, DLQ + replay.
+- Interactuar con sistemas externos (APIs de terceros, webhooks, partners) que tienen latencia y modos de fallo desconocidos.
+- Desafíos clave: timeouts y fallos parciales, reintentos que causan duplicados, límites de tasa del proveedor.
+- Soluciones: timeouts + circuit breaker + reintentos con jitter, procesamiento asíncrono, DLQ + replay.
 
-## Where it hurts (why it hurts)
-1. **Timeouts and partial failures**: Tax API call during checkout is slow/down → lose conversions or risk compliance
-   - **Solution**: Timeouts (aggressive), circuit breaker (fail fast), async workflows (decouple user path)
-2. **Retries causing duplicates**: Retry webhook → partner receives duplicate → double processing
-   - **Solution**: Idempotency on both sides (send idempotency key); dedupe at recipient
-3. **Provider rate limits**: Hit API rate limit → all requests fail → service degraded
-   - **Solution**: Local rate limiting (stay under provider limits), backoff, cache responses
+## Dónde duele (por qué duele)
+1. **Timeouts y fallos parciales**: La llamada a la API de impuestos durante el checkout es lenta/está caída → se pierden conversiones o se arriesga el cumplimiento
+   - **Solución**: Timeouts (agresivos), circuit breaker (fallar rápido), flujos asíncronos (desacoplar la ruta del usuario)
+2. **Reintentos que causan duplicados**: Reintentar webhook → el partner recibe duplicado → doble procesamiento
+   - **Solución**: Idempotencia en ambos lados (enviar clave de idempotencia); deduplicación en el receptor
+3. **Límites de tasa del proveedor**: Se alcanza el límite de tasa de la API → todas las peticiones fallan → servicio degradado
+   - **Solución**: Rate limiting local (mantenerse bajo los límites del proveedor), backoff, cachear respuestas
 
-## Decision rules
-- **Use when**: Payment providers, KYC/compliance APIs, shipping APIs, CRM integrations, webhooks
-- **Avoid when**: Fully controlled internal services (different patterns apply)
+## Reglas de decisión
+- **Usar cuando**: Proveedores de pago, APIs de KYC/cumplimiento, APIs de envío, integraciones CRM, webhooks
+- **Evitar cuando**: Servicios internos completamente controlados (se aplican patrones diferentes)
 
 ## Trade-offs
-- **Sync integration (block user)**: Simple but user waits for slow/failed external call
-- **Async (decouple)**: User doesn't wait but eventual outcome (webhook/polling)
-- **Choose**: Critical path (checkout) → async if possible; non-critical → sync acceptable
+- **Integración síncrona (bloquear usuario)**: Simple pero el usuario espera una llamada externa lenta/fallida
+- **Asíncrona (desacoplar)**: El usuario no espera pero el resultado es eventual (webhook/polling)
+- **Elegir**: Ruta crítica (checkout) → asíncrona si es posible; no crítica → síncrona aceptable
 
-## Explicit example
-Checkout calls tax API for VAT calculation. API is slow (2s p99) or down. If checkout blocks → lost conversions. Solution: Call tax API async (after order placed), email user final price; or use cached/estimated tax (notify if adjustment needed). Circuit breaker: after 5 failures, stop calling for 30s; return estimated tax.
+## Ejemplo explícito
+El checkout llama a la API de impuestos para el cálculo de IVA. La API es lenta (2s p99) o está caída. Si el checkout bloquea → conversiones perdidas. Solución: Llamar a la API de impuestos de forma asíncrona (después de hacer el pedido), enviar email al usuario con el precio final; o usar impuesto cacheado/estimado (notificar si se necesita ajuste). Circuit breaker: después de 5 fallos, dejar de llamar por 30s; devolver impuesto estimado.
 
-## Links
-**Part of**: [System Design Archetypes](system-design-archetypes.md)  
-**Related**: [Idempotency](archetype-idempotency-dedup.md), [Workflow Orchestration](archetype-workflow-orchestration.md)  
-**Patterns**: Circuit Breaker, Bulkheads, Timeouts, DLQ (see [Reliability Basics](../operations/reliability-basics.md))
+## Enlaces
+**Parte de**: [Arquetipos de Diseño de Sistemas](system-design-archetypes.md)  
+**Relacionado**: [Idempotencia](archetype-idempotency-dedup.md), [Orquestación de Flujos de Trabajo](archetype-workflow-orchestration.md)  
+**Patrones**: Circuit Breaker, Bulkheads, Timeouts, DLQ (ver [Fundamentos de Fiabilidad](../operations/reliability-basics.md))

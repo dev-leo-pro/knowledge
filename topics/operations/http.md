@@ -12,113 +12,113 @@ created_at: 2026-01-21
 updated_at: 2026-01-21
 ---
 
-# HTTP (Hypertext Transfer Protocol)
+# HTTP (Protocolo de Transferencia de Hipertexto)
 
 ## TL;DR (BLUF)
-- HTTP is an application-layer protocol for request/response communication.
-- Use it for APIs and web communication.
-- Trade-off: request/response latency and statelessness constraints.
+- HTTP es un protocolo de capa de aplicación para comunicación request/response.
+- Úsalo para APIs y comunicación web.
+- Trade-off: latencia de request/response y restricciones de statelessness.
 
-## Definition
-**What it is:** A stateless application-layer protocol that defines methods, headers, status codes, and payload semantics for request/response interactions, usually over [TCP](tcp.md) and often secured with [TLS](tls.md).  
-**Key terms:** request/response, status code, method, header, stateless, idempotency.
+## Definición
+**Qué es:** Un protocolo de capa de aplicación sin estado que define métodos, headers, códigos de estado y semántica de payload para interacciones request/response, generalmente sobre [TCP](tcp.md) y frecuentemente asegurado con [TLS](tls.md).
+**Términos clave:** request/response, código de estado, método, header, sin estado, idempotencia.
 
-## Why it matters
-- It underpins most APIs and web services.
-- HTTP behavior shapes performance (latency, caching) and reliability.
+## Por qué importa
+- Sustenta la mayoría de APIs y servicios web.
+- El comportamiento de HTTP moldea el rendimiento (latencia, caché) y la fiabilidad.
 
-## Scope & Non-goals
-**In scope:** HTTP semantics, status codes, and operational trade-offs.  
-**Out of scope / NOT solved by this:** API design decisions or authentication mechanisms.
+## Alcance y no-objetivos
+**Dentro del alcance:** semántica HTTP, códigos de estado y trade-offs operacionales.
+**Fuera del alcance / NO resuelto por esto:** decisiones de diseño de API o mecanismos de autenticación.
 
-## Mental model / Intuition
-- HTTP is like a form submission: you send a request, you get a response with status and data.
+## Modelo mental / Intuición
+- HTTP es como un envío de formulario: envías una petición, recibes una respuesta con estado y datos.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need standardized request/response semantics.
-- You want broad compatibility across systems.
-### Avoid it when
-- You need streaming or bidirectional real-time communication.
-- You need ultra-low latency with custom protocols.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesites semántica de request/response estandarizada.
+- Quieras amplia compatibilidad entre sistemas.
+### Evítalo cuando
+- Necesites streaming o comunicación bidireccional en tiempo real.
+- Necesites ultra-baja latencia con protocolos personalizados.
 
-## How I would use it (practical)
-- **Context:** Public REST API for a product catalog.
-- **Steps:**
-  1) Define resources and methods.
-  2) Choose status codes and error contracts.
-  3) Add caching and timeouts.
-- **What success looks like:** predictable responses and clear error handling.
+## Cómo lo usaría (práctico)
+- **Contexto:** API REST pública para un catálogo de productos.
+- **Pasos:**
+  1) Definir recursos y métodos.
+  2) Elegir códigos de estado y contratos de error.
+  3) Agregar caché y timeouts.
+- **Cómo se ve el éxito:** respuestas predecibles y manejo de errores claro.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** ubiquitous, well-understood, easy to debug.
-- **Cons / Risks:** request/response overhead and latency.
-### Alternatives
-- **gRPC:** better for strict contracts and performance.
-- **WebSockets:** better for real-time bidirectional streams.
-- **How to choose:** use HTTP for broad interoperability; pick alternatives for specialized needs.
+- **Pros:** ubicuo, bien entendido, fácil de depurar.
+- **Contras / Riesgos:** sobrecarga de request/response y latencia.
+### Alternativas
+- **gRPC:** mejor para contratos estrictos y rendimiento.
+- **WebSockets:** mejor para streams bidireccionales en tiempo real.
+- **Cómo elegir:** usa HTTP para amplia interoperabilidad; elige alternativas para necesidades especializadas.
 
-## Failure modes & Pitfalls
-- Overloading 200 OK with error payloads.
-- Missing timeouts causing stuck requests.
-- Treating retries as safe for non-idempotent methods.
+## Modos de fallo y errores comunes
+- Sobrecargar 200 OK con payloads de error.
+- Timeouts faltantes causando peticiones atascadas.
+- Tratar reintentos como seguros para métodos no idempotentes.
 
-## Observability (How to detect issues)
-- **Metrics:** latency p95/p99, error rate by status code, throughput.
-- **Logs:** request IDs, status codes, error payloads.
-- **Traces:** request spans with downstream timing.
-- **Alerts:** spikes in 5xx errors or latency regressions.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** latencia p95/p99, tasa de errores por código de estado, throughput.
+- **Logs:** IDs de petición, códigos de estado, payloads de error.
+- **Trazas:** spans de petición con timing downstream.
+- **Alertas:** picos en errores 5xx o regresiones de latencia.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Use correct status codes
-  - [ ] Set timeouts and retries appropriately
-- **Security / Compliance notes**
-  - Use [TLS](tls.md) for any user or sensitive data.
-- **Performance notes**
-  - Enable compression and caching where safe.
-- **Operational notes**
-  - Define clear SLIs/SLOs for latency and error rates.
+  - [ ] Usar códigos de estado correctos
+  - [ ] Configurar timeouts y reintentos apropiadamente
+- **Notas de seguridad / cumplimiento**
+  - Usar [TLS](tls.md) para cualquier dato de usuario o sensible.
+- **Notas de rendimiento**
+  - Habilitar compresión y caché donde sea seguro.
+- **Notas operacionales**
+  - Definir SLIs/SLOs claros para latencia y tasas de error.
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Using HTTP for internal RPC without timeouts.
-  - **Why it’s bad:** tail latency and resource leaks.
-  - **Better approach:** set timeouts and consider gRPC if appropriate.
+## Anti-patrones comunes
+- **Anti-patrón:** Usar HTTP para RPC interno sin timeouts.
+  - **Por qué es malo:** latencia de cola y fugas de recursos.
+  - **Mejor enfoque:** configurar timeouts y considerar gRPC si es apropiado.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- HTTP is a stateless request/response protocol used by the web. It defines methods and status codes so clients and servers can communicate reliably.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- HTTP es un protocolo sin estado de request/response usado por la web. Define métodos y códigos de estado para que clientes y servidores puedan comunicarse de forma fiable.
 
-### Trap questions (with answers)
-1) **Q:** Is HTTP always over TCP?
-  - **A:** Mostly, but HTTP/3 runs over QUIC ([UDP](udp.md)-based).
-2) **Q:** Is GET always safe to retry?
-   - **A:** Only if it’s idempotent and the server respects that.
-3) **Q:** Is HTTPS a different protocol?
-   - **A:** It’s HTTP over [TLS](tls.md).
+### Preguntas trampa (con respuestas)
+1) **P:** ¿HTTP siempre va sobre TCP?
+  - **R:** Mayormente, pero HTTP/3 corre sobre QUIC (basado en [UDP](udp.md)).
+2) **P:** ¿GET siempre es seguro de reintentar?
+   - **R:** Solo si es idempotente y el servidor lo respeta.
+3) **P:** ¿HTTPS es un protocolo diferente?
+   - **R:** Es HTTP sobre [TLS](tls.md).
 
-### Quick self-check (5 items)
-- [ ] I can define HTTP clearly.
-- [ ] I can state when to use it and when not to.
-- [ ] I can explain at least 2 trade-offs.
-- [ ] I can give a concrete example from memory.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir HTTP claramente.
+- [ ] Puedo indicar cuándo usarlo y cuándo no.
+- [ ] Puedo explicar al menos 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto de memoria.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Networking basics](networking-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de redes](networking-basics.md)
 - [TCP](tcp.md)
 
-### Related topics
+### Temas relacionados
 - [TLS](tls.md)
-- [API design basics](../system-design/api-design-basics.md)
+- [Fundamentos de diseño de API](../system-design/api-design-basics.md)
 
-### Compare with
-- [API design basics](../system-design/api-design-basics.md) — protocol vs API semantics.
+### Comparar con
+- [Fundamentos de diseño de API](../system-design/api-design-basics.md) — protocolo vs semántica de API.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

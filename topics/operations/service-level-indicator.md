@@ -1,6 +1,6 @@
 ---
 id: service-level-indicator
-title: "Service Level Indicator (SLI)"
+title: "Indicador de nivel de servicio (SLI)"
 type: concept
 status: learning
 importance: 70
@@ -12,116 +12,116 @@ created_at: 2026-01-23
 updated_at: 2026-01-23
 ---
 
-# Service Level Indicator (SLI)
+# Indicador de nivel de servicio (SLI)
 
 ## TL;DR (BLUF)
-- An SLI is a measurable signal of service health (e.g., availability, latency, error rate).
-- Use SLIs to quantify user experience and drive SLOs.
-- Trade-off: picking the wrong SLI gives false confidence.
+- Un SLI es una señal medible de la salud del servicio (por ejemplo, disponibilidad, latencia, tasa de errores).
+- Usa SLIs para cuantificar la experiencia del usuario e impulsar SLOs.
+- Trade-off: elegir el SLI incorrecto da falsa confianza.
 
-## Definition
-**What it is:** A quantitative metric that reflects how users experience a service.  
-**Key terms:** availability, latency, error rate, good events/total events.
+## Definición
+**Qué es:** Una métrica cuantitativa que refleja cómo los usuarios experimentan un servicio.  
+**Términos clave:** disponibilidad, latencia, tasa de errores, eventos buenos/eventos totales.
 
-## Why it matters
-- SLIs turn reliability into measurable signals.
-- Bad SLIs lead to misaligned priorities and noisy alerts.
+## Por qué importa
+- Los SLIs convierten la fiabilidad en señales medibles.
+- SLIs malos llevan a prioridades desalineadas y alertas ruidosas.
 
-## Scope & Non-goals
-**In scope:** selecting and measuring user-focused reliability signals.  
-**Out of scope / NOT solved by this:** setting targets (see [Service Level Objective (SLO)](service-level-objective.md)) or contractual promises (see [Service Level Agreement (SLA)](service-level-agreement.md)).
+## Alcance y no-objetivos
+**Dentro del alcance:** selección y medición de señales de fiabilidad enfocadas en el usuario.  
+**Fuera del alcance / NO resuelto por esto:** establecer objetivos (ver [Objetivo de nivel de servicio (SLO)](service-level-objective.md)) o promesas contractuales (ver [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md)).
 
-## Mental model / Intuition
-- “What number tells me whether users are happy?”
+## Modelo mental / Intuición
+- "¿Qué número me dice si los usuarios están contentos?"
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You need a single, user-centric signal for reliability decisions.
-- You are defining or monitoring [Service Level Objectives (SLOs)](service-level-objective.md).
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Necesitas una señal única y centrada en el usuario para decisiones de fiabilidad.
+- Estás definiendo o monitoreando [Objetivos de nivel de servicio (SLOs)](service-level-objective.md).
 
-### Avoid it when
-- You only track internal metrics that don’t map to user experience.
+### Evítalo cuando
+- Solo rastreas métricas internas que no se mapean a la experiencia del usuario.
 
-## How I would use it (practical)
-- **Context:** A public API with latency complaints.
-- **Steps:**
-  1) Define a latency SLI: % of requests under 300ms.
-  2) Define availability SLI: % of successful responses.
-  3) Track SLIs by endpoint and tier.
-- **What success looks like:** SLIs align with user-perceived performance and guide SLOs.
+## Cómo lo usaría (práctico)
+- **Contexto:** Una API pública con quejas de latencia.
+- **Pasos:**
+  1) Definir un SLI de latencia: % de solicitudes bajo 300ms.
+  2) Definir un SLI de disponibilidad: % de respuestas exitosas.
+  3) Rastrear SLIs por endpoint y nivel.
+- **Cómo se ve el éxito:** los SLIs se alinean con el rendimiento percibido por el usuario y guían los SLOs.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** clear, user-centric measurement.
-- **Cons / Risks:** oversimplification if SLIs ignore critical segments.
-### Alternatives
-- **Composite SLIs:** combine multiple signals (latency + error rate).
-- **How to choose:** start with a small set, then refine by customer segments.
+- **Ventajas:** medición clara y centrada en el usuario.
+- **Desventajas / Riesgos:** simplificación excesiva si los SLIs ignoran segmentos críticos.
+### Alternativas
+- **SLIs compuestos:** combinar múltiples señales (latencia + tasa de errores).
+- **Cómo elegir:** empieza con un conjunto pequeño, luego refina por segmentos de clientes.
 
-## Failure modes & Pitfalls
-- Using system metrics (CPU) as SLIs instead of user signals.
-- Aggregating across endpoints and hiding poor performance in critical paths.
+## Modos de fallo y trampas
+- Usar métricas del sistema (CPU) como SLIs en lugar de señales del usuario.
+- Agregar entre endpoints y ocultar mal rendimiento en rutas críticas.
 
-## Observability (How to detect issues)
-- **Metrics:** good events/total events, p95 latency, error rate.
-- **Logs:** failed requests with endpoint and status.
-- **Traces:** slow spans in critical paths.
-- **Alerts:** SLI drop below threshold (burn alert).
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** eventos buenos/eventos totales, latencia p95, tasa de errores.
+- **Logs:** solicitudes fallidas con endpoint y estado.
+- **Trazas:** tramos lentos en rutas críticas.
+- **Alertas:** caída del SLI bajo umbral (alerta de quema).
 
-## Implementation notes (if applicable)
-- **Checklist**
-  - [ ] Choose user-centric signals (latency, errors, availability)
-  - [ ] Define “good” events precisely
-  - [ ] Segment by tier/endpoint
-  - [ ] Validate SLI aligns with complaints
-- **Security / Compliance notes**
-  - Ensure SLIs exclude sensitive payloads
-- **Performance notes**
-  - Use low-cardinality labels
-- **Operational notes**
-  - Revisit SLIs after product changes
+## Notas de implementación (si aplica)
+- **Lista de verificación**
+  - [ ] Elegir señales centradas en el usuario (latencia, errores, disponibilidad)
+  - [ ] Definir eventos "buenos" con precisión
+  - [ ] Segmentar por nivel/endpoint
+  - [ ] Validar que el SLI se alinea con las quejas
+- **Notas de seguridad / cumplimiento**
+  - Asegurar que los SLIs excluyan payloads sensibles
+- **Notas de rendimiento**
+  - Usar etiquetas de baja cardinalidad
+- **Notas operacionales**
+  - Revisar los SLIs después de cambios de producto
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 ```text
 SLI_latency = % of requests under 300ms over 28 days
 SLI_availability = % of 2xx/3xx responses over total
 ```
 
-## Common anti-patterns
-- **Anti-pattern:** “CPU < 70% is our SLI.”
-  - **Why it’s bad:** CPU is not user experience.
-  - **Better approach:** use latency/error rate as SLIs.
+## Anti-patrones comunes
+- **Anti-patrón:** "CPU < 70% es nuestro SLI."
+  - **Por qué es malo:** CPU no es experiencia de usuario.
+  - **Mejor enfoque:** usar latencia/tasa de errores como SLIs.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- An SLI is a number that reflects user experience, like the percent of requests under 300ms or the percent of successful responses.
+## Preparación para entrevistas
+### Explícalo como si estuviera enseñando
+- Un SLI es un número que refleja la experiencia del usuario, como el porcentaje de solicitudes bajo 300ms o el porcentaje de respuestas exitosas.
 
-### Trap questions (with answers)
-1) **Q:** Is CPU usage an SLI?
-   - **A:** No. It’s an internal signal, not a user-facing outcome.
-2) **Q:** Can you have multiple SLIs?
-   - **A:** Yes. Many services track latency and availability SLIs.
-3) **Q:** Are SLIs targets?
-   - **A:** No. Targets are SLOs built on top of SLIs.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Es el uso de CPU un SLI?
+   - **R:** No. Es una señal interna, no un resultado orientado al usuario.
+2) **P:** ¿Puedes tener múltiples SLIs?
+   - **R:** Sí. Muchos servicios rastrean SLIs de latencia y disponibilidad.
+3) **P:** ¿Son los SLIs objetivos?
+   - **R:** No. Los objetivos son SLOs construidos sobre SLIs.
 
-### Quick self-check (5 items)
-- [ ] I can define an SLI precisely.
-- [ ] I can name at least 2 common SLIs.
-- [ ] I can explain “good events/total events.”
-- [ ] I can link SLIs to SLOs.
-- [ ] I can name a failure mode in SLI selection.
+### Auto-verificación rápida (5 elementos)
+- [ ] Puedo definir un SLI con precisión.
+- [ ] Puedo nombrar al menos 2 SLIs comunes.
+- [ ] Puedo explicar "eventos buenos/eventos totales."
+- [ ] Puedo vincular SLIs a SLOs.
+- [ ] Puedo nombrar un modo de fallo en la selección de SLI.
 
-## Links (NO duplication)
-### Prerequisites
-- [Observability basics](observability-basics.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Fundamentos de observabilidad](observability-basics.md)
 
-### Related topics
-- [Service Level Objective (SLO)](service-level-objective.md)
-- [Service Level Agreement (SLA)](service-level-agreement.md)
-- [Error budgets](error-budgets.md)
+### Temas relacionados
+- [Objetivo de nivel de servicio (SLO)](service-level-objective.md)
+- [Acuerdo de nivel de servicio (SLA)](service-level-agreement.md)
+- [Presupuestos de error](error-budgets.md)
 
-### Compare with
-- [Service Level Objective (SLO)](service-level-objective.md) — SLI is the metric; SLO is the target.
+### Comparar con
+- [Objetivo de nivel de servicio (SLO)](service-level-objective.md) — SLI es la métrica; SLO es el objetivo.
 
-## Notes / Inbox (optional)
+## Notas / Bandeja de entrada (opcional)
 - N/A

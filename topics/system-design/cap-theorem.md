@@ -12,93 +12,93 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# CAP Theorem (Practical)
+# Teorema CAP (Práctico)
 
 ## TL;DR (BLUF)
-- CAP describes trade-offs between consistency, availability, and partition tolerance.
-- Use it to reason about distributed system behavior under partitions.
-- Trade-off: you can’t have full consistency and availability during partitions.
+- CAP describe los trade-offs entre consistencia, disponibilidad y tolerancia a particiones.
+- Úsalo para razonar sobre el comportamiento de sistemas distribuidos bajo particiones.
+- Trade-off: no puedes tener consistencia y disponibilidad completas durante particiones.
 
-## Definition
-**What it is:** A theorem describing trade-offs among consistency, availability, and partition tolerance.
-**Key terms:** consistency, availability, partition tolerance.
+## Definición
+**Qué es:** Un teorema que describe los trade-offs entre consistencia, disponibilidad y tolerancia a particiones.
+**Términos clave:** consistencia, disponibilidad, tolerancia a particiones.
 
-## Why it matters
-- It frames design decisions under network partitions.
-- Misunderstanding leads to incorrect reliability expectations.
+## Por qué importa
+- Enmarca las decisiones de diseño bajo particiones de red.
+- El malentendido lleva a expectativas incorrectas de fiabilidad.
 
-## Scope & Non-goals
-**In scope:** practical CAP trade-offs.
-**Out of scope / NOT solved by this:** formal proofs or PACELC nuances.
+## Alcance y no-objetivos
+**Dentro del alcance:** trade-offs prácticos de CAP.
+**Fuera del alcance / NO resuelto por esto:** pruebas formales o matices de PACELC.
 
-## Mental model / Intuition
-- When the network splits, you must choose between fresh data and staying available.
+## Modelo mental / Intuición
+- Cuando la red se divide, debes elegir entre datos frescos y mantenerte disponible.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Designing distributed data systems.
-### Avoid it when
-- You’re only running a single-node database.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Diseñes sistemas de datos distribuidos.
+### Evítalo cuando
+- Solo ejecutes una base de datos de un solo nodo.
 
-## How I would use it (practical)
-- **Context:** Multi-region writes.
-- **Steps:** decide consistency goals → choose system settings → document behavior.
-- **What success looks like:** clear expectations for stale reads or downtime.
+## Cómo lo usaría (práctico)
+- **Contexto:** Escrituras multi-región.
+- **Pasos:** decidir objetivos de consistencia → elegir configuración del sistema → documentar comportamiento.
+- **Cómo se ve el éxito:** expectativas claras de lecturas obsoletas o tiempo de inactividad.
 
-## Trade-offs & Alternatives
+## Trade-offs y Alternativas
 ### Trade-offs
-- **Pros:** clearer design decisions.
-- **Cons / Risks:** oversimplification if used naively.
-### Alternatives
-- **PACELC:** adds latency trade-offs.
-- **How to choose:** use CAP for partition scenarios, then refine.
+- **Pros:** decisiones de diseño más claras.
+- **Contras / Riesgos:** sobresimplificación si se usa ingenuamente.
+### Alternativas
+- **PACELC:** agrega trade-offs de latencia.
+- **Cómo elegir:** usa CAP para escenarios de partición, luego refina.
 
-## Failure modes & Pitfalls
-- Assuming CAP says “choose two” at all times.
+## Modos de fallo y errores comunes
+- Asumir que CAP dice "elige dos" en todo momento.
 
-## Observability (How to detect issues)
-- **Metrics:** availability, error rate during partitions.
-- **Logs:** partition-related errors.
-- **Alerts:** increased timeouts or read failures.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** disponibilidad, tasa de errores durante particiones.
+- **Logs:** errores relacionados con particiones.
+- **Alertas:** timeouts o fallos de lectura aumentados.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Document consistency/availability choices
-  - [ ] Test partition behavior
+  - [ ] Documentar elecciones de consistencia/disponibilidad
+  - [ ] Probar comportamiento bajo particiones
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Treating CAP as a daily operational choice.
-  - **Why it’s bad:** it applies only under partitions.
-  - **Better approach:** plan for partitions explicitly.
+## Anti-patrones comunes
+- **Anti-patrón:** Tratar CAP como una elección operacional diaria.
+  - **Por qué es malo:** solo aplica bajo particiones.
+  - **Mejor enfoque:** planificar para particiones explícitamente.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- CAP says that during a network partition you must choose between consistent data and availability. It’s a trade-off that informs distributed system design.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- CAP dice que durante una partición de red debes elegir entre datos consistentes y disponibilidad. Es un trade-off que informa el diseño de sistemas distribuidos.
 
-### Trap questions (with answers)
-1) **Q:** Can you have C and A without P?
-   - **A:** not in distributed systems; partitions are inevitable.
-2) **Q:** Does CAP apply to single-node DBs?
-   - **A:** not really; partitions aren’t relevant.
-3) **Q:** Is CAP “choose two” always?
-   - **A:** only under partition conditions.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Puedes tener C y A sin P?
+   - **R:** No en sistemas distribuidos; las particiones son inevitables.
+2) **P:** ¿CAP aplica a BDs de un solo nodo?
+   - **R:** Realmente no; las particiones no son relevantes.
+3) **P:** ¿CAP es "elige dos" siempre?
+   - **R:** Solo bajo condiciones de partición.
 
-### Quick self-check (5 items)
-- [ ] I can define CAP.
-- [ ] I can explain when it matters.
-- [ ] I can name a pitfall.
-- [ ] I can describe a trade-off.
-- [ ] I can connect CAP to consistency models.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir CAP.
+- [ ] Puedo explicar cuándo importa.
+- [ ] Puedo nombrar un error común.
+- [ ] Puedo describir un trade-off.
+- [ ] Puedo conectar CAP con modelos de consistencia.
 
-## Links (NO duplication)
-### Prerequisites
-- [Distributed systems basics](distributed-systems-basics.md)
+## Enlaces (SIN duplicación)
+### Prerrequisitos
+- [Fundamentos de sistemas distribuidos](distributed-systems-basics.md)
 
-### Related topics
-- [Consistency models](../databases/consistency-models.md)
+### Temas relacionados
+- [Modelos de consistencia](../databases/consistency-models.md)
 
-### Compare with
+### Comparar con
 - [PACELC](pacelc.md)

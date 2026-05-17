@@ -1,6 +1,6 @@
 ---
 id: selectivity
-title: "Selectivity (Database Queries)"
+title: "Selectividad (consultas de base de datos)"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Selectivity (Database Queries)
+# Selectividad (consultas de base de datos)
 
 ## TL;DR (BLUF)
-- Selectivity measures how well a predicate filters rows.
-- Use it to decide if an index will actually be helpful.
-- Trade-off: high-selectivity indexes help reads but add write cost.
+- La selectividad mide qué tan bien un predicado filtra filas.
+- Úsala para decidir si un índice realmente será útil.
+- Trade-off: índices de alta selectividad ayudan las lecturas pero agregan costo de escritura.
 
-## Definition
-**What it is:** The fraction of rows that satisfy a predicate; higher selectivity means fewer rows match.
-**Key terms:** predicate, cardinality, selectivity, query planner.
+## Definición
+**Qué es:** La fracción de filas que satisfacen un predicado; mayor selectividad significa que menos filas coinciden.
+**Términos clave:** predicado, cardinalidad, selectividad, planificador de consultas.
 
-## Why it matters
-- The query planner chooses index usage based on selectivity estimates.
-- Low selectivity often means indexes are ignored or ineffective.
+## Por qué importa
+- El planificador de consultas elige el uso de índices basándose en estimaciones de selectividad.
+- Baja selectividad a menudo significa que los índices son ignorados o ineficaces.
 
-## Scope & Non-goals
-**In scope:** deciding index usefulness for filters and joins.
-**Out of scope / NOT solved by this:** fixing poor query logic or data modeling.
+## Alcance y no-objetivos
+**Dentro del alcance:** decidir la utilidad de índices para filtros y joins.
+**Fuera del alcance / NO resuelto por esto:** arreglar lógica de consultas pobre o modelado de datos.
 
-## Mental model / Intuition
-- A highly selective filter is like a needle in a haystack; indexes shine.
+## Modelo mental / Intuición
+- Un filtro altamente selectivo es como una aguja en un pajar; los índices brillan.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- Choosing indexes for predicates and joins.
-- Evaluating whether a query can benefit from an index.
-### Avoid it when
-- You need to optimize queries without understanding actual data distribution.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Eliges índices para predicados y joins.
+- Evalúas si una consulta puede beneficiarse de un índice.
+### Evítalo cuando
+- Necesitas optimizar consultas sin entender la distribución real de datos.
 
-## How I would use it (practical)
-- **Context:** Slow query with a WHERE filter.
-- **Steps:** check distribution → estimate selectivity → decide index or query rewrite.
-- **What success looks like:** planner uses the index and latency drops.
+## Cómo lo usaría (práctico)
+- **Contexto:** Consulta lenta con un filtro WHERE.
+- **Pasos:** verificar distribución → estimar selectividad → decidir índice o reescritura de consulta.
+- **Cómo se ve el éxito:** el planificador usa el índice y la latencia baja.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** better index decisions, fewer wasted indexes.
-- **Cons / Risks:** estimates can be wrong if stats are stale.
-### Alternatives
-- **EXPLAIN:** validate planner decisions.
-- **How to choose:** use selectivity to guide index design, then validate with EXPLAIN.
+- **Ventajas:** mejores decisiones de índices, menos índices desperdiciados.
+- **Desventajas / Riesgos:** las estimaciones pueden ser incorrectas si las estadísticas están obsoletas.
+### Alternativas
+- **EXPLAIN:** validar decisiones del planificador.
+- **Cómo elegir:** usa selectividad para guiar el diseño de índices, luego valida con EXPLAIN.
 
-## Failure modes & Pitfalls
-- Stale statistics causing wrong selectivity estimates.
-- Assuming selectivity is constant across time.
+## Modos de fallo y trampas
+- Estadísticas obsoletas causando estimaciones incorrectas de selectividad.
+- Asumir que la selectividad es constante a lo largo del tiempo.
 
-## Observability (How to detect issues)
-- **Metrics:** index usage ratio, query latency.
-- **Logs:** slow query logs.
-- **Alerts:** rising latency after data distribution shifts.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** ratio de uso de índices, latencia de consultas.
+- **Logs:** logs de consultas lentas.
+- **Alertas:** latencia en aumento después de cambios en la distribución de datos.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Update statistics (ANALYZE)
-  - [ ] Validate with EXPLAIN
+  - [ ] Actualizar estadísticas (ANALYZE)
+  - [ ] Validar con EXPLAIN
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Indexing low-selectivity columns without strategy.
-  - **Why it’s bad:** index is often ignored; writes get slower.
-  - **Better approach:** index composite keys or rethink the predicate.
+## Anti-patrones comunes
+- **Anti-patrón:** Indexar columnas de baja selectividad sin estrategia.
+  - **Por qué es malo:** el índice se ignora frecuentemente; las escrituras se ralentizan.
+  - **Mejor enfoque:** indexar claves compuestas o replantear el predicado.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Selectivity tells you how many rows a filter matches. If it matches too many rows, the planner may skip the index, so understanding selectivity is key to good indexing.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La selectividad te dice cuántas filas coincide un filtro. Si coincide con demasiadas filas, el planificador puede saltar el índice, así que entender la selectividad es clave para buena indexación.
 
-### Trap questions (with answers)
-1) **Q:** Do indexes always help?
-   - **A:** no; low-selectivity predicates often don’t benefit.
-2) **Q:** Can selectivity change over time?
-   - **A:** yes; data distribution shifts can change planner choices.
-3) **Q:** Is selectivity only about equality filters?
-   - **A:** no; it applies to ranges and joins too.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Los índices siempre ayudan?
+   - **R:** no; predicados de baja selectividad frecuentemente no se benefician.
+2) **P:** ¿La selectividad puede cambiar con el tiempo?
+   - **R:** sí; cambios en la distribución de datos pueden cambiar las elecciones del planificador.
+3) **P:** ¿La selectividad es solo para filtros de igualdad?
+   - **R:** no; aplica a rangos y joins también.
 
-### Quick self-check (5 items)
-- [ ] I can define selectivity precisely.
-- [ ] I can explain why it matters for indexing.
-- [ ] I can name 2 trade-offs.
-- [ ] I can give a concrete example.
-- [ ] I can name 1 failure mode and how to detect it.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir selectividad con precisión.
+- [ ] Puedo explicar por qué importa para la indexación.
+- [ ] Puedo nombrar 2 trade-offs.
+- [ ] Puedo dar un ejemplo concreto.
+- [ ] Puedo nombrar 1 modo de fallo y cómo detectarlo.
 
-## Links (NO duplication)
-### Prerequisites
-- [Index](index.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Índice](index.md)
 
-### Related topics
+### Temas relacionados
 - [EXPLAIN](explain.md)
 
-### Compare with
-- [EXPLAIN](explain.md) — planner output vs data distribution.
+### Comparar con
+- [EXPLAIN](explain.md) — salida del planificador vs distribución de datos.

@@ -1,6 +1,6 @@
 ---
 id: read-write-contention
-title: "Read/Write Contention"
+title: "Contención de lectura/escritura"
 type: concept
 status: learning
 importance: 55
@@ -12,95 +12,95 @@ created_at: 2026-01-19
 updated_at: 2026-01-19
 ---
 
-# Read/Write Contention
+# Contención de lectura/escritura
 
 ## TL;DR (BLUF)
-- Contention happens when concurrent reads and writes compete for the same resources.
-- Use indexing and shorter transactions to reduce contention.
-- Trade-off: more indexes can slow writes.
+- La contención ocurre cuando lecturas y escrituras concurrentes compiten por los mismos recursos.
+- Usa indexación y transacciones más cortas para reducir la contención.
+- Trade-off: más índices pueden ralentizar las escrituras.
 
-## Definition
-**What it is:** Performance degradation caused by concurrent access to the same rows, indexes, or locks.
-**Key terms:** lock contention, hot rows, write amplification.
+## Definición
+**Qué es:** Degradación del rendimiento causada por acceso concurrente a las mismas filas, índices o bloqueos.
+**Términos clave:** contención de bloqueos, filas calientes, amplificación de escritura.
 
-## Why it matters
-- Contention can dominate latency even with good hardware.
-- It often appears only at scale.
+## Por qué importa
+- La contención puede dominar la latencia incluso con buen hardware.
+- A menudo aparece solo a escala.
 
-## Scope & Non-goals
-**In scope:** contention sources and mitigation patterns.
-**Out of scope / NOT solved by this:** network-level bottlenecks.
+## Alcance y no-objetivos
+**Dentro del alcance:** fuentes de contención y patrones de mitigación.
+**Fuera del alcance / NO resuelto por esto:** cuellos de botella a nivel de red.
 
-## Mental model / Intuition
-- Think of a busy checkout lane; everyone queues behind a shared lock.
+## Modelo mental / Intuición
+- Piensa en una caja registradora ocupada; todos hacen cola detrás de un bloqueo compartido.
 
-## Decision rules (When to use / When not to use)
-### Use it when
-- You observe lock waits or high write latency.
-### Avoid it when
-- The workload is naturally partitionable and can be sharded.
+## Reglas de decisión (Cuándo usar / Cuándo no usar)
+### Úsalo cuando
+- Observas esperas de bloqueo o alta latencia de escritura.
+### Evítalo cuando
+- La carga de trabajo es naturalmente particionable y puede ser fragmentada.
 
-## How I would use it (practical)
-- **Context:** Hot counter row updated by many requests.
-- **Steps:** reduce hot row updates → shard counters → shorten transactions.
-- **What success looks like:** lower lock waits and stable latency.
+## Cómo lo usaría (práctico)
+- **Contexto:** Fila de contador caliente actualizada por muchas solicitudes.
+- **Pasos:** reducir actualizaciones de filas calientes → fragmentar contadores → acortar transacciones.
+- **Cómo se ve el éxito:** menores esperas de bloqueo y latencia estable.
 
-## Trade-offs & Alternatives
+## Trade-offs y alternativas
 ### Trade-offs
-- **Pros:** improved throughput.
-- **Cons / Risks:** added complexity (sharding, retries).
-### Alternatives
-- **Caching:** offload reads.
-- **How to choose:** mitigate contention before scaling hardware.
+- **Ventajas:** throughput mejorado.
+- **Desventajas / Riesgos:** complejidad añadida (sharding, reintentos).
+### Alternativas
+- **Caché:** descargar lecturas.
+- **Cómo elegir:** mitigar la contención antes de escalar hardware.
 
-## Failure modes & Pitfalls
-- Hot rows from monotonically increasing IDs.
-- Lock escalation from large updates.
+## Modos de fallo y trampas
+- Filas calientes por IDs monótonamente crecientes.
+- Escalada de bloqueos por actualizaciones grandes.
 
-## Observability (How to detect issues)
-- **Metrics:** lock waits, write latency, deadlocks.
-- **Logs:** slow queries with lock waits.
-- **Alerts:** rising lock wait time.
+## Observabilidad (Cómo detectar problemas)
+- **Métricas:** esperas de bloqueo, latencia de escritura, deadlocks.
+- **Logs:** consultas lentas con esperas de bloqueo.
+- **Alertas:** tiempo de espera de bloqueo en aumento.
 
-## Implementation notes (if applicable)
+## Notas de implementación (si aplica)
 - **Checklist**
-  - [ ] Identify hot rows/indexes
-  - [ ] Reduce transaction scope
-  - [ ] Consider sharding or batching
+  - [ ] Identificar filas/índices calientes
+  - [ ] Reducir alcance de transacciones
+  - [ ] Considerar sharding o procesamiento por lotes
 
-## Mini example (if applicable)
+## Mini ejemplo (si aplica)
 N/A
 
-## Common anti-patterns
-- **Anti-pattern:** Single global counter for high-traffic updates.
-  - **Why it’s bad:** creates a hot row.
-  - **Better approach:** shard counters or use approximations.
+## Anti-patrones comunes
+- **Anti-patrón:** Contador global único para actualizaciones de alto tráfico.
+  - **Por qué es malo:** crea una fila caliente.
+  - **Mejor enfoque:** fragmentar contadores o usar aproximaciones.
 
-## Interview readiness
-### “Explain it like I’m teaching”
-- Read/write contention is when many operations fight over the same rows or locks, slowing everything down. You fix it by reducing lock time, sharding, and indexing.
+## Preparación para entrevistas
+### "Explícalo como si estuviera enseñando"
+- La contención de lectura/escritura es cuando muchas operaciones pelean por las mismas filas o bloqueos, ralentizando todo. Se arregla reduciendo el tiempo de bloqueo, fragmentando e indexando.
 
-### Trap questions (with answers)
-1) **Q:** Do more indexes always reduce contention?
-   - **A:** no; indexes can increase write cost and contention.
-2) **Q:** Can contention be solved only with bigger hardware?
-   - **A:** no; it’s often a data-access pattern problem.
-3) **Q:** Are reads always free?
-   - **A:** no; they can block or be blocked depending on isolation.
+### Preguntas trampa (con respuestas)
+1) **P:** ¿Más índices siempre reducen la contención?
+   - **R:** no; los índices pueden aumentar el costo de escritura y la contención.
+2) **P:** ¿La contención puede resolverse solo con mejor hardware?
+   - **R:** no; a menudo es un problema de patrón de acceso a datos.
+3) **P:** ¿Las lecturas siempre son gratuitas?
+   - **R:** no; pueden bloquear o ser bloqueadas dependiendo del aislamiento.
 
-### Quick self-check (5 items)
-- [ ] I can define contention precisely.
-- [ ] I can name a mitigation.
-- [ ] I can describe a pitfall.
-- [ ] I can explain a signal.
-- [ ] I can compare with hot partitions.
+### Auto-verificación rápida (5 ítems)
+- [ ] Puedo definir contención con precisión.
+- [ ] Puedo nombrar una mitigación.
+- [ ] Puedo describir una trampa.
+- [ ] Puedo explicar una señal.
+- [ ] Puedo comparar con particiones calientes.
 
-## Links (NO duplication)
-### Prerequisites
-- [Locks](locks.md)
+## Enlaces (SIN duplicación)
+### Prerequisitos
+- [Bloqueos](locks.md)
 
-### Related topics
+### Temas relacionados
 - [Deadlocks](deadlocks.md)
 
-### Compare with
-- [DynamoDB hot partitions](dynamodb-hot-partitions.md) — key skew in NoSQL.
+### Comparar con
+- [Particiones calientes en DynamoDB](dynamodb-hot-partitions.md) — sesgo de claves en NoSQL.
